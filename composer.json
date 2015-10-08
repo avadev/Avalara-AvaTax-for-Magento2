@@ -1,0 +1,15 @@
+{
+    "name": "classyllama/module-avatax",
+    "type": "magento2-module",
+    "require": {
+        "magento/magento-composer-installer": "*"
+    },
+    "extra": {
+        "map": [
+            [
+                "module",
+                "ClassyLlama/AvaTax"
+            ]
+        ]
+    }
+}
