@@ -1,12 +1,13 @@
 {
     "name": "classyllama/module-avatax",
     "type": "magento2-module",
-    "extra": {
-        "map": [
-            [
-                "module",
-                "ClassyLlama/AvaTax"
-            ]
-        ]
+    "require": {
+        "magento/framework": "1.0.0-beta"
+    },
+    "autoload": {
+        "files": [ "registration.php" ],
+        "psr-4": {
+            "ClassyLlama\\AvaTax\\": ""
+        }
     }
 }
