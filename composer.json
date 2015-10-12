@@ -1,9 +1,6 @@
 {
     "name": "classyllama/module-avatax",
     "type": "magento2-module",
-    "require": {
-        "magento/magento-composer-installer": "0.1.4"
-    },
     "extra": {
         "map": [
             [
