@@ -1,6 +1,6 @@
 <?php
 
-namespace ClassyLlama\AvaTax\Framework\Interaction;
+namespace \ClassyLlama\AvaTax\Framework\Interaction;
 
 use \Magento\Framework\DataObject;
 use \Magento\Framework\AppInterface as MageAppInterface;
