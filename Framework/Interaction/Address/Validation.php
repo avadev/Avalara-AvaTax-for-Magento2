@@ -2,23 +2,28 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Address;
 
-use ClassyLlama\AvaTax\Framework\Interaction\Address\AddressAbstract;
-use ClassyLlama\AvaTax\Model\Config;
-use Magento\Framework\DataObject;
 use AvaTax\ATConfigFactory;
 use AvaTax\AddressFactory;
 use AvaTax\AddressServiceSoapFactory;
-use AvaTax\ValidateRequestFactory;
-use AvaTax\TextCase;
 use AvaTax\SeverityLevel;
+use AvaTax\TextCase;
+use AvaTax\ValidateRequestFactory;
+use ClassyLlama\AvaTax\Framework\Interaction\Address;
+use ClassyLlama\AvaTax\Model\Config;
+use Magento\Framework\DataObject;
 
-class Validation extends AddressAbstract
+class Validation
 {
 
     /**
      * @var ValidateRequestFactory
      */
     protected $validateRequestFactory = null;
+
+    /**
+     * @var Address
+     */
+    protected $interactionAddress = null;
 
     /**
      * @param ATConfigFactory $avaTaxConfigFactory
@@ -28,53 +33,37 @@ class Validation extends AddressAbstract
      * @param ValidateRequestFactory $validateRequestFactory
      */
     public function __construct(
-        ATConfigFactory $avaTaxConfigFactory,
-        Config $config,
-        AddressFactory $addressFactory,
-        AddressServiceSoapFactory $addressServiceSoapFactory,
+        Address $interactionAddress,
         ValidateRequestFactory $validateRequestFactory
     ) {
+        $this->interactionAddress = $interactionAddress;
         $this->validateRequestFactory = $validateRequestFactory;
-        parent::__construct(
-            $avaTaxConfigFactory,
-            $config,
-            $addressFactory,
-            $addressServiceSoapFactory
-        );
     }
 
     /**
      * Using test AvaTax file contents to do a sample validate test
-     * TODO: Abstract out necessary components and anonymize usage
+     * TODO: request or implement an interface for /AvaTax/Address and /AvaTax/ValidAddress since they can't extend because of SoapClient bug
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
-    public function validateAddress()
+    public function validateAddress($addressInput)
     {
+
         $response = '';
-        $addressSvc = $this->addressServiceSoapFactory->create(['configurationName' => 'Development']);
+        $addressService = $this->interactionAddress->getAddressService();
         try
         {
-            $address = $this->addressFactory->create();
-            $address->setLine1("4064 S. Lone Pine Ave.");
-            $address->setLine2("");
-            $address->setLine3("");
-            $address->setCity("Springfield");
-            $address->setRegion("MO");
-            $address->setPostalCode("65804");
-            $textCase = TextCase::$Mixed;
-            $coordinates = 1;
-//Request
+            $returnCoordinates = 1;
             $validateRequest = $this->validateRequestFactory->create(
                 [
-                    'address' => $address,
-                    'textCase' => ($textCase ? $textCase : TextCase::$Default),
-                    'coordinates' => $coordinates,
+                    'address' => $this->interactionAddress->getAddress($addressInput),
+                    'textCase' => (TextCase::$Mixed ? TextCase::$Mixed : TextCase::$Default),
+                    'coordinates' => $returnCoordinates,
                 ]
             );
-            $validateResult = $addressSvc->Validate($validateRequest);
-//Results
+            $validateResult = $addressService->Validate($validateRequest);
+
             $response .= "\n" . 'Validate ResultCode is: ' . $validateResult->getResultCode() . "\n";
             if ($validateResult->getResultCode() != SeverityLevel::$Success)
             {
@@ -85,25 +74,26 @@ class Validation extends AddressAbstract
             } else
             {
                 $response .= "Normalized Address: \n";
-                foreach ($validateResult->getvalidAddresses() as $valid)
+                foreach ($validateResult->getValidAddresses() as $valid)
                 {
-                    $response .= "Line 1: " . $valid->getline1() . "\n";
-                    $response .= "Line 2: " . $valid->getline2() . "\n";
-                    $response .= "Line 3: " . $valid->getline3() . "\n";
-                    $response .= "Line 4: " . $valid->getline4() . "\n";
-                    $response .= "City: " . $valid->getcity() . "\n";
-                    $response .= "Region: " . $valid->getregion() . "\n";
-                    $response .= "Postal Code: " . $valid->getpostalCode() . "\n";
-                    $response .= "Country: " . $valid->getcountry() . "\n";
-                    $response .= "County: " . $valid->getcounty() . "\n";
-                    $response .= "FIPS Code: " . $valid->getfipsCode() . "\n";
-                    $response .= "PostNet: " . $valid->getpostNet() . "\n";
-                    $response .= "Carrier Route: " . $valid->getcarrierRoute() . "\n";
-                    $response .= "Address Type: " . $valid->getaddressType() . "\n";
-                    if ($coordinates == 1)
+                    /* @var $valid \AvaTax\ValidAddress */
+                    $response .= "Line 1: " . $valid->getLine1() . "\n";
+                    $response .= "Line 2: " . $valid->getLine2() . "\n";
+                    $response .= "Line 3: " . $valid->getLine3() . "\n";
+                    $response .= "Line 4: " . $valid->getLine4() . "\n";
+                    $response .= "City: " . $valid->getCity() . "\n";
+                    $response .= "Region: " . $valid->getRegion() . "\n";
+                    $response .= "Postal Code: " . $valid->getPostalCode() . "\n";
+                    $response .= "Country: " . $valid->getCountry() . "\n";
+                    $response .= "County: " . $valid->getCounty() . "\n";
+                    $response .= "FIPS Code: " . $valid->getFipsCode() . "\n";
+                    $response .= "PostNet: " . $valid->getPostNet() . "\n";
+                    $response .= "Carrier Route: " . $valid->getCarrierRoute() . "\n";
+                    $response .= "Address Type: " . $valid->getAddressType() . "\n";
+                    if ($returnCoordinates == 1)
                     {
-                        $response .= "Latitude: " . $valid->getlatitude() . "\n";
-                        $response .= "Longitude: " . $valid->getlongitude() . "\n";
+                        $response .= "Latitude: " . $valid->getLatitude() . "\n";
+                        $response .= "Longitude: " . $valid->getLongitude() . "\n";
                     }
                 }
             }
@@ -115,8 +105,8 @@ class Validation extends AddressAbstract
                 $message .= $exception->faultstring;
             }
             $response .= $message . "\n";
-            $response .= $addressSvc->__getLastRequest() . "\n";
-            $response .= $addressSvc->__getLastResponse() . "\n   ";
+            $response .= $addressService->__getLastRequest() . "\n";
+            $response .= $addressService->__getLastResponse() . "\n   ";
         }
 
         return $response;

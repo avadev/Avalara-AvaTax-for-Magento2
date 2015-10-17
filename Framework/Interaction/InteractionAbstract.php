@@ -2,11 +2,11 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use Magento\Framework\DataObject;
-use Magento\Framework\AppInterface as MageAppInterface;
+use AvaTax\ATConfigFactory;
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
 use ClassyLlama\AvaTax\Model\Config;
-use AvaTax\ATConfigFactory;
+use Magento\Framework\AppInterface as MageAppInterface;
+use Magento\Framework\DataObject;
 
 abstract class InteractionAbstract extends DataObject
 {
@@ -43,6 +43,7 @@ abstract class InteractionAbstract extends DataObject
 
     /**
      * Create a development profile and a production profile
+     * TODO: move this into a separate object and use di to get that object since this method is in an abstract used by objects that could be loaded at the same time
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      */

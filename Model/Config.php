@@ -2,11 +2,11 @@
 
 namespace ClassyLlama\AvaTax\Model;
 
-use Magento\Store\Model\Store;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
 
 class Config
 {
@@ -114,6 +114,7 @@ class Config
      *
      * @param   string $key
      * @return  mixed
+     * @throws LocalizedException
      */
     protected function _getData($key, Store $store = null)
     {
@@ -192,7 +193,7 @@ class Config
      * @param   string $method
      * @param   array $args
      * @return  mixed
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function __call($method, $args)
     {
