@@ -1,38 +1,19 @@
 <?php
 
-namespace \ClassyLlama\AvaTax\Framework\Interaction\Address;
+namespace ClassyLlama\AvaTax\Framework\Interaction\Address;
 
-use \ClassyLlama\AvaTax\Framework\Interaction\InteractionAbstract;
-use \Magento\Framework\DataObject;
-use \AvaTax\ATConfigFactory;
-use \AvaTax\AddressFactory;
-use \AvaTax\AddressServiceSoapFactory;
-use \AvaTax\TextCase;
-use \AvaTax\TextCaseFactory;
-use \AvaTax\ValidateRequestFactory;
-use \AvaTax\SeverityLevel;
+use ClassyLlama\AvaTax\Framework\Interaction\Address\AddressAbstract;
+use ClassyLlama\AvaTax\Model\Config;
+use Magento\Framework\DataObject;
+use AvaTax\ATConfigFactory;
+use AvaTax\AddressFactory;
+use AvaTax\AddressServiceSoapFactory;
+use AvaTax\ValidateRequestFactory;
+use AvaTax\TextCase;
+use AvaTax\SeverityLevel;
 
-class Validation extends InteractionAbstract
+class Validation extends AddressAbstract
 {
-    /**
-     * @var ATConfigFactory
-     */
-    protected $avaTaxConfigFactory = null;
-
-    /**
-     * @var AddressFactory
-     */
-    protected $addressFactory = null;
-
-    /**
-     * @var AddressServiceSoap
-     */
-    protected $addressServiceSoapFactory = null;
-
-    /**
-     * @var TextCaseFactory
-     */
-    protected $textCaseFactory = null;
 
     /**
      * @var ValidateRequestFactory
@@ -40,39 +21,48 @@ class Validation extends InteractionAbstract
     protected $validateRequestFactory = null;
 
     /**
-     * @var SeverityLevel
+     * @param ATConfigFactory $avaTaxConfigFactory
+     * @param Config $config
+     * @param AddressFactory $addressFactory
+     * @param AddressServiceSoapFactory $addressServiceSoapFactory
+     * @param ValidateRequestFactory $validateRequestFactory
      */
-    protected $severityLevel = null;
-
     public function __construct(
         ATConfigFactory $avaTaxConfigFactory,
+        Config $config,
         AddressFactory $addressFactory,
         AddressServiceSoapFactory $addressServiceSoapFactory,
-        TextCaseFactory $textCaseFactory,
-        ValidateRequestFactory $validateRequestFactory,
-        SeverityLevel $severityLevel
+        ValidateRequestFactory $validateRequestFactory
     ) {
-        $this->avaTaxConfigFactory = $avaTaxConfigFactory;
-        $this->addressFactory = $addressFactory;
-        $this->addressServiceSoapFactory = $addressServiceSoapFactory;
-        $this->textCaseFactory = $textCaseFactory;
         $this->validateRequestFactory = $validateRequestFactory;
-        $this->severityLevel = $severityLevel;
+        parent::__construct(
+            $avaTaxConfigFactory,
+            $config,
+            $addressFactory,
+            $addressServiceSoapFactory
+        );
     }
 
-    protected function validateAddress()
+    /**
+     * Using test AvaTax file contents to do a sample validate test
+     * TODO: Abstract out necessary components and anonymize usage
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @return string
+     */
+    public function validateAddress()
     {
         $response = '';
         $addressSvc = $this->addressServiceSoapFactory->create(['configurationName' => 'Development']);
         try
         {
             $address = $this->addressFactory->create();
-            $address->setLine1("118 N Clark St");
+            $address->setLine1("4064 S. Lone Pine Ave.");
             $address->setLine2("");
             $address->setLine3("");
-            $address->setCity("Chicago");
-            $address->setRegion("IL");
-            $address->setPostalCode("60602");
+            $address->setCity("Springfield");
+            $address->setRegion("MO");
+            $address->setPostalCode("65804");
             $textCase = TextCase::$Mixed;
             $coordinates = 1;
 //Request

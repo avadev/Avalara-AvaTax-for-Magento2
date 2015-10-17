@@ -1,6 +1,6 @@
 <?php
 
-namespace \ClassyLlama\AvaTax\Framework;
+namespace ClassyLlama\AvaTax\Framework;
 
 interface AppInterface
 {

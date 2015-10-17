@@ -1,11 +1,12 @@
 <?php
 
-namespace \ClassyLlama\AvaTax\Framework\Interaction;
+namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use \Magento\Framework\DataObject;
-use \Magento\Framework\AppInterface as MageAppInterface;
-use \ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
-
+use Magento\Framework\DataObject;
+use Magento\Framework\AppInterface as MageAppInterface;
+use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
+use ClassyLlama\AvaTax\Model\Config;
+use AvaTax\ATConfigFactory;
 
 abstract class InteractionAbstract extends DataObject
 {
@@ -15,19 +16,36 @@ abstract class InteractionAbstract extends DataObject
     const API_PROFILE_NAME_DEV = 'Development';
     const API_PROFILE_NAME_PROD = 'Production';
 
-    const API_APP_NAME_PREFIX = 'Magento';
+    const API_APP_NAME_PREFIX = 'Magento 2';
 
     /**
      * @var ATConfigFactory
      */
     protected $avaTaxConfigFactory = null;
 
+    /**
+     * @var Config
+     */
+    protected $config = null;
+
+    /**
+     * @param ATConfigFactory $avaTaxConfigFactory
+     * @param Config $config
+     */
     public function __construct(
-        ATConfigFactory $avaTaxConfigFactory
+        ATConfigFactory $avaTaxConfigFactory,
+        Config $config
     ) {
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
+        $this->config = $config;
+        $this->createAvaTaxProfile();
     }
 
+    /**
+     * Create a development profile and a production profile
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     */
     protected function createAvaTaxProfile()
     {
         $this->avaTaxConfigFactory->create(
@@ -35,11 +53,11 @@ abstract class InteractionAbstract extends DataObject
                 'name' => self::API_PROFILE_NAME_DEV,
                 'values' => [
                     'url'       => self::API_URL_DEV,
-                    'account'   => '1100000000',
-                    'license'   => '1A2B3C4D5E6F7G8H',
+                    'account'   => $this->config->getDevelopmentAccountNumber(),
+                    'license'   => $this->config->getDevelopmentLicenseKey(),
                     'trace'     => true,
-                    'client' => 'AvaTaxSample',
-                    'name' => '14.4',
+                    'client' => $this->generateClientName(),
+                    'name' => '',
                 ],
             ]
         );
@@ -49,16 +67,22 @@ abstract class InteractionAbstract extends DataObject
                 'name' => self::API_PROFILE_NAME_PROD,
                 'values' => [
                     'url'       => self::API_URL_PROD,
-                    'account'   => '<Your Production Account Here>',
-                    'license'   => '<Your Production License Key Here>',
+                    'account'   => $this->config->getAccountNumber(),
+                    'license'   => $this->config->getLicenseKey(),
                     'trace'     => false,
-                    'client' => 'AvaTaxSample',
-                    'name' => '14.4',
+                    'client' => $this->generateClientName(),
+                    'name' => '',
                 ],
             ]
         );
     }
 
+    /**
+     * Generate AvaTax Client Name from a combination of Magento version number and AvaTax module version number
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @return string
+     */
     protected function generateClientName()
     {
         return self::API_APP_NAME_PREFIX . ' - ' . MageAppInterface::VERSION . ' - ' . AvaTaxAppInterface::APP_VERSION;
