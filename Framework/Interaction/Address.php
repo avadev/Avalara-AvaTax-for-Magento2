@@ -67,7 +67,7 @@ class Address extends InteractionAbstract
      * Get address service by type and cache instances by type to avoid duplicate instantiation
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $type
+     * @param string $type
      * @return AddressServiceSoap
      */
     public function getAddressService($type = null)
