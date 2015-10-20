@@ -19,17 +19,15 @@
                 <field id="company_code" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Company Code</label>
                 </field>
-                <field id="development_account_number" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <!-- TODO: Have an error if development or production credentials are not entered on config after save -->
+                <field id="development_account_number" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Development Account Number</label>
-                    <comment>If this field is empty, Account Number field value will be used when in development mode instead.</comment>
                 </field>
-                <field id="development_license_key" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_license_key" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Development License Key</label>
-                    <comment>If this field is empty, Account Number field value will be used when in development mode instead.</comment>
                 </field>
-                <field id="development_company_code" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_company_code" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Development Company Code</label>
-                    <comment>If this field is empty, Account Number field value will be used when in development mode instead.</comment>
                 </field>
             </group>
         </section>
