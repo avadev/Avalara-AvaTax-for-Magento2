@@ -45,7 +45,7 @@ class Tax extends InteractionAbstract
      * @param string $type
      * @return AddressServiceSoap
      */
-    public function getAddressService($type = null)
+    public function getTaxService($type = null)
     {
         if (is_null($type)) {
             $type = $this->config->getLiveMode() ? self::API_PROFILE_NAME_PROD : self::API_PROFILE_NAME_DEV;
