@@ -13,8 +13,13 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 
 
-class Address extends InteractionAbstract
+class Address
 {
+    /**
+     * @var Config
+     */
+    protected $config = null;
+
     /**
      * @var AddressFactory
      */
@@ -53,14 +58,13 @@ class Address extends InteractionAbstract
      * @param AddressServiceSoapFactory $addressServiceSoapFactory
      */
     public function __construct(
-        ATConfigFactory $avaTaxConfigFactory,
         Config $config,
         AddressFactory $addressFactory,
         AddressServiceSoapFactory $addressServiceSoapFactory
     ) {
+        $this->config = $config;
         $this->addressFactory = $addressFactory;
         $this->addressServiceSoapFactory = $addressServiceSoapFactory;
-        parent::__construct($avaTaxConfigFactory, $config);
     }
 
     /**
@@ -73,7 +77,7 @@ class Address extends InteractionAbstract
     public function getAddressService($type = null)
     {
         if (is_null($type)) {
-            $type = $this->config->getLiveMode() ? self::API_PROFILE_NAME_PROD : self::API_PROFILE_NAME_DEV;
+            $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         }
         if (!isset($this->addressServiceSoap[$type])) {
             $this->addressServiceSoap[$type] =
@@ -84,6 +88,7 @@ class Address extends InteractionAbstract
 
     /**
      * Get an AvaTax address object with fields as specified in data
+     * TODO: See if I can take > 3 lines of address into account because at least in M1, you had the ability to choose up to 4 lines of addressCustomer Configuration -> Name and Address Options -> Number of Lines in a Street Address
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data array|AddressModelInterface|AddressInterface

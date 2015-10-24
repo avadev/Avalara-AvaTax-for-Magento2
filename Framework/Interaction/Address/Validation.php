@@ -2,14 +2,10 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Address;
 
-use AvaTax\ATConfigFactory;
-use AvaTax\AddressFactory;
-use AvaTax\AddressServiceSoapFactory;
 use AvaTax\SeverityLevel;
 use AvaTax\TextCase;
 use AvaTax\ValidateRequestFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
-use ClassyLlama\AvaTax\Model\Config;
 use Magento\Framework\DataObject;
 
 class Validation
@@ -26,10 +22,7 @@ class Validation
     protected $interactionAddress = null;
 
     /**
-     * @param ATConfigFactory $avaTaxConfigFactory
-     * @param Config $config
-     * @param AddressFactory $addressFactory
-     * @param AddressServiceSoapFactory $addressServiceSoapFactory
+     * @param Address $interactionAddress
      * @param ValidateRequestFactory $validateRequestFactory
      */
     public function __construct(

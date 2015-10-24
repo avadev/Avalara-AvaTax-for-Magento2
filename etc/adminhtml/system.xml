@@ -30,6 +30,15 @@
                     <label>Development Company Code</label>
                 </field>
             </group>
+            <group id="avatax_settings" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax General Settings</label>
+                <!-- TODO: Possibly have a value that gets set after the first time a live mode customer is set and disable the ability to change this value -->
+                <field id="customer_code_format" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer Code Format</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CustomerCode</source_model>
+                    <comment>Select a format for customers to be identified in AvaTax.  Once the integration is live, this setting should not be changed.</comment>
+                </field>
+            </group>
         </section>
     </system>
 </config>
