@@ -53,6 +53,11 @@ class Tax
     protected $dateTimeFormatter = null;
 
     /**
+     * @var Line
+     */
+    protected $interactionLine = null;
+
+    /**
      * @var TaxServiceSoap[]
      */
     protected $taxServiceSoap = [];
@@ -112,7 +117,8 @@ class Tax
         GetTaxRequestFactory $getTaxRequestFactory,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
-        DateTimeFormatter $dateTimeFormatter
+        DateTimeFormatter $dateTimeFormatter,
+        Line $interactionLine
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -121,6 +127,7 @@ class Tax
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
         $this->dateTimeFormatter = $dateTimeFormatter;
+        $this->interactionLine = $interactionLine;
     }
 
     /**
@@ -146,6 +153,8 @@ class Tax
      * Remove all non-valid fields from data, convert incorrect typed data to the correctly typed data,
      * validate length, and validate existence
      * TODO: Simplify this if possible
+     * TODO: Check string length for string params
+     * TODO: implement options functionality
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
@@ -164,7 +173,7 @@ class Tax
                     continue;
                 }
                 if (isset($this->validDataFields[$key]['subtype'])) {
-                    foreach ($data['key'] as $subKey => $subItem) {
+                    foreach ($data[$key] as $subKey => $subItem) {
                         // If the type of each subitem is not correct try to change it (if logical to do so)
                         if (gettype($subItem) != $this->validDataFields[$key]['subtype']['type']) {
                             if (in_array($this->validDataFields[$key]['type'], $this->simpleTypes)) {
@@ -193,7 +202,7 @@ class Tax
                 }
             } elseif ('object' == $this->validDataFields[$key]['type'] &&
                 isset($this->validDataFields[$key]['class'])) {
-                if (!($subItem instanceof $this->validDataFields[$key]['class'])) {
+                if (!($data[$key] instanceof $this->validDataFields[$key]['class'])) {
                     unset($data[$key]);
                     continue;
                 }
@@ -269,10 +278,9 @@ class Tax
     /**
      * Convert an order into data to be used in some kind of tax request
      * TODO: Find out what happens if Business Identification Number is passed and we do not want to consider VAT.  Probably add config field to allow user to not consider VAT.
-     * TODO: Use Tax Class to get customer usage code
+     * TODO: Use Tax Class to get customer usage code, once this functionality is implemented
      * TODO: Decide if we need to ever pass an exemption no[number] for an order.  Anything passed as an exemption no will cause the whole order to be exempt.  Use very carefully.
      * TODO: Make sure discount lines up proportionately with how Magento does it and if not, figure out if there is another way to do it.
-     * TODO: Create and inject interaction line object as interactionLine
      * TODO: Account for non item based lines according to documentation
      * TODO: Look into whether M1 module is sending payment date and if not, ask under what circumstances it should be sent
      * TODO: Determine how to get parent increment id if one is set on order and set it on reference code
@@ -290,7 +298,10 @@ class Tax
 
         $lines = [];
         foreach ($order->getItems() as $item) {
-            $lines[] = $this->interactionLine->getLine($item);
+            $line = $this->interactionLine->getLine($item);
+            if (!is_null($line)) {
+                $lines[] = $line;
+            }
         }
 
         return [
@@ -302,26 +313,28 @@ class Tax
                 $order->getCustomerEmail(),
                 $order->getCustomerId()
             ),
-            'customer_usage_type' => null,//$taxClass->,
+//            'customer_usage_type' => null,//$taxClass->,
             'destination_address' => $this->address->getAddress($order->getShippingAddress()),
             'discount' => $order->getDiscountAmount(),
             'doc_code' => $order->getIncrementId(),
             'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($order->getCreatedAt()),
+            'doc_type' => DocumentType::$PurchaseInvoice,
             'exchange_rate' => $this->getExchangeRate($order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
-            'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(date()),
-            'exemption_no' => null,//$order->getTaxExemptionNumber(),
+            'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(time()),
+//            'exemption_no' => null,//$order->getTaxExemptionNumber(),
             'lines' => $lines,
-            'payment_date' => null,
+//            'payment_date' => null,
             'purchase_order_number' => $order->getIncrementId(),
-            'reference_code' => null, // Most likely only set on credit memos or order edits
-            'salesperson_code' => null,
-            'tax_override' => null,
+//            'reference_code' => null, // Most likely only set on credit memos or order edits
+//            'salesperson_code' => null,
+//            'tax_override' => null,
         ];
 
     }
 
     /**
      * Ensures that all required exists and that it is logically valid
+     * TODO: Make this do some validating for things like format and required
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
@@ -334,7 +347,7 @@ class Tax
 
     /**
      * Creates and returns a populated getTaxRequest
-     * TODO: Determine what the appropriate DetailLevel is, possible make configurable, check M1 module
+     * TODO: Determine what the appropriate DetailLevel is, possible make configurable, check M1 module, this must be Line, Tax or Diagnostic to get line level details to be able to
      * TODO: Handle for the case where 'store_id' attribute of $data is not set
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -360,14 +373,13 @@ class Tax
             [
                 'business_identification_no' => $this->config->getBusinessIdentificationNumber($data['store_id']),
                 'company_code' => $this->config->getCompanyCode($data['store_id']),
-                'detail_level' => DetailLevel::$Document,
-                'doc_type' => DocumentType::$PurchaseInvoice,
+                'detail_level' => DetailLevel::$Diagnostic,
                 'origin_address' => $this->address->getAddress($this->config->getOriginAddress($data['store_id'])),
             ],
             $data
         );
 
-        $data = $this->filterDataParams($data);
+//        $data = $this->filterDataParams($data);
         $data = $this->validateData($data);
         /** @var $getTaxRequest GetTaxRequest */
         $getTaxRequest = $this->getTaxRequestFactory->create();

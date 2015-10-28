@@ -6,6 +6,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller;
+use Magento\Sales\Api\Data\OrderInterfaceFactory;
 
 class Get extends Action\Action
 {
@@ -14,11 +15,18 @@ class Get extends Action\Action
      */
     protected $interactionGetTax = null;
 
+    /**
+     * @var OrderInterfaceFactory
+     */
+    protected $orderFactory = null;
+
     public function __construct(
         Context $context,
-        InteractionGet $interactionGetTax
+        InteractionGet $interactionGetTax,
+        OrderInterfaceFactory $orderFactory
     ) {
         $this->interactionGetTax = $interactionGetTax;
+        $this->orderFactory = $orderFactory;
         parent::__construct($context);
     }
 
@@ -32,31 +40,25 @@ class Get extends Action\Action
     {
         $contents = '';
 
+        $order3 = $this->orderFactory->create()->load(3);
+        $data = $order3;
+
         $contents .= $this->interactionGetTax->getTax(
-            [
-                'line1' => '45 Fremont Street',
-                'city' => 'San Francisco',
-                'region' => 'CA',
-                'postalCode' => '94105-2204',
-                'country' => 'US',
-            ],
-            [
-                'line1' => '118 N Clark St',
-                'line2' => 'Suite 100',
-                'line3' => 'ATTN Accounts Payable',
-                'city' => 'Chicago',
-                'region' => 'IL',
-                'postalCode' => '60602-1304',
-                'country' => 'US',
-            ],
-            [
-                'line1' => '100 Ravine Lane',
-                'line2' => 'Suite 100',
-                'city' => 'Bainbridge Island',
-                'region' => 'WA',
-                'postalCode' => '98110',
-                'country' => 'US',
-            ]
+            $data
+        );
+
+        $order1 = $this->orderFactory->create()->load(1);
+        $data = $order1;
+
+        $contents .= $this->interactionGetTax->getTax(
+            $data
+        );
+
+        $order2 = $this->orderFactory->create()->load(2);
+        $data = $order2;
+
+        $contents .= $this->interactionGetTax->getTax(
+            $data
         );
 
         /* @var $rawResult Controller\Result\Raw */
