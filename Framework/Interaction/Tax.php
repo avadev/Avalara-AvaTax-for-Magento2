@@ -8,6 +8,7 @@ use AvaTax\GetTaxRequest;
 use AvaTax\GetTaxRequestFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
+use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -26,6 +27,11 @@ class Tax
      * @var Config
      */
     protected $config = null;
+
+    /**
+     * @var Validation
+     */
+    protected $validation = null;
 
     /**
      * @var TaxServiceSoapFactory
@@ -63,11 +69,11 @@ class Tax
     protected $taxServiceSoap = [];
 
     /**
-     * List of types that can be used with setType
+     * List of types that we want to be used with setType
      *
      * @var array
      */
-    protected $simpleTypes = ['boolean', 'integer', 'string', 'float', 'null'];
+    protected $simpleTypes = ['boolean', 'integer', 'string', 'float'];
 
     /**
      * A list of valid fields for the data array and meta data about their types to use in validation
@@ -84,24 +90,30 @@ class Tax
         'customer_code' => ['type' => 'string', 'length' => 50, 'required' => true],
         'customer_usage_type' => ['type' => 'string', 'length' => 25],
         'destination_address' => ['type' => 'object', 'class' => '\AvaTax\Address', 'required' => true],
-        'detail_level' => ['options' => ['Document', 'Diagnostic', 'Line', 'Summary', 'Tax']],
+        'detail_level' => [
+            'type' => 'string',
+            'options' => ['Document', 'Diagnostic', 'Line', 'Summary', 'Tax']
+        ],
         'discount' => ['type' => 'float'],
         'doc_code' => ['type' => 'string', 'length' => 50],
         'doc_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
-        'doc_type' => ['type' => 'string', 'options' =>
-            ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
+        'doc_type' => [
+            'type' => 'string',
+            'options' =>
+                ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
             'required' => true,
         ],
         'exchange_rate' => ['type' => 'float'],
-        'exchange_rate_eff_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'exchange_rate_eff_date' => [
+            'type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
         'exemption_no' => ['type' => 'string', 'length' => 25],
         'lines' => [
             'type' => 'array',
             'length' => 15000,
-            'subtype' => ['type' => 'object', 'class' => '\AvaTax\Line'],
+            'subtype' => ['*' => ['type' => 'object', 'class' => '\AvaTax\Line']],
             'required' => true,
         ],
-        'location_code' => ['type' => 'string', 'length' => 50, 'required' => true],
+        'location_code' => ['type' => 'string', 'length' => 50],
         'origin_address' => ['type' => 'object', 'class' => '\AvaTax\Address'],
         'payment_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
         'purchase_order_number' => ['type' => 'string', 'length' => 50],
@@ -113,6 +125,7 @@ class Tax
     public function __construct(
         Address $address,
         Config $config,
+        Validation $validation,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
         GroupRepositoryInterface $groupRepository,
@@ -122,6 +135,7 @@ class Tax
     ) {
         $this->address = $address;
         $this->config = $config;
+        $this->validation = $validation;
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->groupRepository = $groupRepository;
@@ -147,78 +161,6 @@ class Tax
                 $this->taxServiceSoapFactory->create(['configurationName' => $type]);
         }
         return $this->taxServiceSoap[$type];
-    }
-
-    /**
-     * Remove all non-valid fields from data, convert incorrect typed data to the correctly typed data,
-     * validate length, and validate existence
-     * TODO: Simplify this if possible
-     * TODO: Check string length for string params
-     * TODO: implement options functionality
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data
-     * @return mixed
-     * @throws LocalizedException
-     */
-    protected function filterDataParams(array $data)
-    {
-        $keys = array_keys($data);
-        foreach ($keys as $key) {
-            if (!array_key_exists($key, $this->validDataFields) || !isset($this->validDataFields[$key]['type'])) {
-                unset($data[$key]);
-            } elseif ('array' == $this->validDataFields[$key]['type']) {
-                if (gettype($data[$key]) != $this->validDataFields[$key]['type']) {
-                    unset($data[$key]);
-                    continue;
-                }
-                if (isset($this->validDataFields[$key]['subtype'])) {
-                    foreach ($data[$key] as $subKey => $subItem) {
-                        // If the type of each subitem is not correct try to change it (if logical to do so)
-                        if (gettype($subItem) != $this->validDataFields[$key]['subtype']['type']) {
-                            if (in_array($this->validDataFields[$key]['type'], $this->simpleTypes)) {
-                                try {
-                                    settype($data[$key], $this->validDataFields[$key]['type']);
-                                } catch (\Exception $e) {
-                                    throw new LocalizedException(new Phrase('Could not convert "%1[%2]" to a "%3"', [
-                                        $key,
-                                        $subKey,
-                                        $this->validDataFields[$key],
-                                    ]));
-                                }
-                            } else { // Otherwise remove it
-                                unset($data[$key][$subKey]);
-                                continue;
-                            }
-                        // If the type of the subitem is correct but is object, enforce that it is of the correct class
-                        } elseif ('object' == $this->validDataFields[$key]['subtype']['type'] &&
-                            isset($this->validDataFields[$key]['subtype']['class'])) {
-                            if (!($subItem instanceof $this->validDataFields[$key]['subtype']['class'])) {
-                                unset($data[$key][$subKey]);
-                                continue;
-                            }
-                        }
-                    }
-                }
-            } elseif ('object' == $this->validDataFields[$key]['type'] &&
-                isset($this->validDataFields[$key]['class'])) {
-                if (!($data[$key] instanceof $this->validDataFields[$key]['class'])) {
-                    unset($data[$key]);
-                    continue;
-                }
-            } elseif (gettype($data[$key]) != $this->validDataFields[$key]['type'] &&
-                in_array($this->validDataFields[$key]['type'], $this->simpleTypes)) {
-                try {
-                    settype($data[$key], $this->validDataFields[$key]['type']);
-                } catch (\Exception $e) {
-                    throw new LocalizedException(new Phrase('Could not convert "%1" to a "%2"', [
-                        $key,
-                        $this->validDataFields[$key],
-                    ]));
-                }
-            }
-        }
-        return $data;
     }
 
     /**
@@ -286,6 +228,7 @@ class Tax
      * TODO: Determine how to get parent increment id if one is set on order and set it on reference code
      * TODO: Determine what circumstance tax override will need to be set and set in order in those cases
      * TODO: Determine what salesperson code to pass if any
+     * TODO: Determine if we can even accommodate outlet based reporting and if so input location_code
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderInterface $order
@@ -329,26 +272,12 @@ class Tax
 //            'salesperson_code' => null,
 //            'tax_override' => null,
         ];
-
-    }
-
-    /**
-     * Ensures that all required exists and that it is logically valid
-     * TODO: Make this do some validating for things like format and required
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data
-     * @return mixed
-     */
-    public function validateData(array $data)
-    {
-        return $data;
     }
 
     /**
      * Creates and returns a populated getTaxRequest
-     * TODO: Determine what the appropriate DetailLevel is, possible make configurable, check M1 module, this must be Line, Tax or Diagnostic to get line level details to be able to
-     * TODO: Handle for the case where 'store_id' attribute of $data is not set
+     * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
+     * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
@@ -369,18 +298,20 @@ class Tax
                 return false;
                 break;
         }
+
+        $storeId = isset($data['store_id']) ? $data['store_id'] : null;
         $data = array_merge(
             [
-                'business_identification_no' => $this->config->getBusinessIdentificationNumber($data['store_id']),
-                'company_code' => $this->config->getCompanyCode($data['store_id']),
+                'business_identification_no' => $this->config->getBusinessIdentificationNumber(),
+                'company_code' => $this->config->getCompanyCode($storeId),
                 'detail_level' => DetailLevel::$Diagnostic,
-                'origin_address' => $this->address->getAddress($this->config->getOriginAddress($data['store_id'])),
+                'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
             ],
             $data
         );
 
-//        $data = $this->filterDataParams($data);
-        $data = $this->validateData($data);
+        $data = $this->validation->validateData($data, $this->validDataFields);
+
         /** @var $getTaxRequest GetTaxRequest */
         $getTaxRequest = $this->getTaxRequestFactory->create();
 

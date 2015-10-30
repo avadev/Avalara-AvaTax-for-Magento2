@@ -71,7 +71,7 @@ class Validation extends Action\Action
             'line1' => '4064 S. Lone Pine Ave.',
             'city' => 'Springfield',
             'region' => 'MO',
-            'postal_code' => '65804',
+            'postalCode' => '65804',
         ];
 
         $address = $dataAddress;

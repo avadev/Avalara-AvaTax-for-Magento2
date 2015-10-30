@@ -6,6 +6,7 @@ use AvaTax\ATConfigFactory;
 use AvaTax\AddressFactory;
 use AvaTax\AddressServiceSoapFactory;
 use AvaTax\AddressServiceSoap;
+use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Model\Address\AddressModelInterface;
@@ -19,6 +20,11 @@ class Address
      * @var Config
      */
     protected $config = null;
+
+    /**
+     * @var Validation
+     */
+    protected $validation = null;
 
     /**
      * @var AddressFactory
@@ -36,19 +42,21 @@ class Address
     protected $addressServiceSoap = [];
 
     /**
+     * TODO: Add additional validation to make it exactly match the API documentation
+     *
      * @var array
      */
     protected $validAddressFields = [
-        'line1' => 'string',
-        'line2' => 'string',
-        'line3' => 'string',
-        'city' => 'string',
-        'region' => 'string',
-        'postalCode' => 'string',
-        'country' => 'string',
-        'taxRegionId' => 'integer',
-        'latitude' => 'string',
-        'longitude' => 'string',
+        'line1' => ['type' => 'string'],
+        'line2' => ['type' => 'string'],
+        'line3' => ['type' => 'string'],
+        'city' => ['type' => 'string'],
+        'region' => ['type' => 'string'],
+        'postalCode' => ['type' => 'string'],
+        'country' => ['type' => 'string'],
+        'taxRegionId' => ['type' => 'integer'],
+        'latitude' => ['type' => 'string'],
+        'longitude' => ['type' => 'string'],
     ];
 
     /**
@@ -59,10 +67,12 @@ class Address
      */
     public function __construct(
         Config $config,
+        Validation $validation,
         AddressFactory $addressFactory,
         AddressServiceSoapFactory $addressServiceSoapFactory
     ) {
         $this->config = $config;
+        $this->validation = $validation;
         $this->addressFactory = $addressFactory;
         $this->addressServiceSoapFactory = $addressServiceSoapFactory;
     }
@@ -110,7 +120,7 @@ class Address
                         gettype($data),
                 ]));
         }
-        $data = $this->filterAddressParams($data);
+        $data = $this->validation->validateData($data, $this->validAddressFields);
         return  $this->addressFactory->create($data);
     }
 
@@ -158,33 +168,5 @@ class Address
             'postalCode' => $address->getPostcode(),
             'country' => $address->getCountryId(),
         ];
-    }
-
-    /**
-     * Remove all non-valid fields from data and convert incorrect typed data to the correctly typed data
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data
-     * @return mixed
-     * @throws LocalizedException
-     */
-    protected function filterAddressParams($data)
-    {
-        $keys = array_keys($data);
-        foreach ($keys as $key) {
-            if (!array_key_exists($key, $this->validAddressFields)) {
-                unset($data[$key]);
-            } elseif (gettype($data[$key]) != $this->validAddressFields[$key]) {
-                try {
-                    settype($data[$key], $this->validAddressFields[$key]);
-                } catch (\Exception $e) {
-                    throw new LocalizedException(new Phrase('Could not convert "%1" to a "%2"', [
-                        $key,
-                        $this->validAddressFields[$key],
-                    ]));
-                }
-            }
-        }
-        return $data;
     }
 }

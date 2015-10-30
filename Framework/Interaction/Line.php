@@ -3,10 +3,9 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\LineFactory;
+use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Phrase;
 
 class Line
 {
@@ -14,6 +13,11 @@ class Line
      * @var Config
      */
     protected $config = null;
+
+    /**
+     * @var Validation
+     */
+    protected $validation = null;
 
     /**
      * @var LineFactory
@@ -24,13 +28,6 @@ class Line
      * @var ResourceProduct
      */
     protected $resourceProduct = null;
-
-    /**
-     * List of types that can be used with setType
-     *
-     * @var array
-     */
-    protected $simpleTypes = ['boolean', 'integer', 'string', 'float', 'null'];
 
     /**
      * A list of valid fields for the data array and meta data about their types to use in validation
@@ -59,10 +56,12 @@ class Line
 
     public function __construct(
         Config $config,
+        Validation $validation,
         LineFactory $lineFactory,
         ResourceProduct $resourceProduct
     ) {
         $this->config = $config;
+        $this->validation = $validation;
         $this->lineFactory = $lineFactory;
         $this->resourceProduct = $resourceProduct;
     }
@@ -131,19 +130,8 @@ class Line
         if (is_null($data)) {
             return null;
         }
-//        $data = array_merge(
-//            [
-//                'business_identification_no' => $this->config->getBusinessIdentificationNumber($data['store_id']),
-//                'company_code' => $this->config->getCompanyCode($data['store_id']),
-//                'detail_level' => DetailLevel::$Document,
-//                'doc_type' => DocumentType::$PurchaseInvoice,
-//                'origin_address' => $this->address->getAddress($this->config->getOriginAddress($data['store_id'])),
-//            ],
-//            $data
-//        );
 
-        $data = $this->filterDataParams($data);
-        $data = $this->validateData($data);
+        $data = $this->validation->validateData($data, $this->validDataFields);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -193,88 +181,5 @@ class Line
             $line->setTaxOverride($data['tax_override']);
         }
         return $line;
-    }
-
-    /**
-     * Ensures that all required exists and that it is logically valid
-     * TODO: Make this do some validating
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data
-     * @return mixed
-     */
-    public function validateData(array $data)
-    {
-        return $data;
-    }
-
-    /**
-     * Remove all non-valid fields from data, convert incorrect typed data to the correctly typed data,
-     * validate length, and validate existence
-     * TODO: Simplify this if possible
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data
-     * @return mixed
-     * @throws LocalizedException
-     */
-    protected function filterDataParams(array $data)
-    {
-        $keys = array_keys($data);
-        foreach ($keys as $key) { // TODO: Change this so that it foreaches over data and key is just the key and use item when needing to test the value instead of $data[$key]
-            if (!array_key_exists($key, $this->validDataFields) || !isset($this->validDataFields[$key]['type'])) {
-                unset($data[$key]);
-            } elseif ('array' == $this->validDataFields[$key]['type']) {
-                if (gettype($data[$key]) != $this->validDataFields[$key]['type']) {
-                    unset($data[$key]);
-                    continue;
-                }
-                if (isset($this->validDataFields[$key]['subtype'])) {
-                    foreach ($data[$key] as $subKey => $subItem) {
-                        // If the type of each subitem is not correct try to change it (if logical to do so)
-                        if (gettype($subItem) != $this->validDataFields[$key]['subtype']['type']) {
-                            if (in_array($this->validDataFields[$key]['type'], $this->simpleTypes)) {
-                                try {
-                                    settype($data[$key], $this->validDataFields[$key]['type']);
-                                } catch (\Exception $e) {
-                                    throw new LocalizedException(new Phrase('Could not convert "%1[%2]" to a "%3"', [
-                                        $key,
-                                        $subKey,
-                                        $this->validDataFields[$key],
-                                    ]));
-                                }
-                            } else { // Otherwise remove it
-                                unset($data[$key][$subKey]);
-                                continue;
-                            }
-                            // If the type of the subitem is correct but is object, enforce that it is of the correct class
-                        } elseif ('object' == $this->validDataFields[$key]['subtype']['type'] &&
-                            isset($this->validDataFields[$key]['subtype']['class'])) {
-                            if (!($subItem instanceof $this->validDataFields[$key]['subtype']['class'])) {
-                                unset($data[$key][$subKey]);
-                                continue;
-                            }
-                        }
-                    }
-                }
-            } elseif ('object' == $this->validDataFields[$key]['type'] &&
-                isset($this->validDataFields[$key]['class'])) {
-                if (!($data[$key] instanceof $this->validDataFields[$key]['class'])) {
-                    unset($data[$key]);
-                    continue;
-                }
-            } elseif (gettype($data[$key]) != $this->validDataFields[$key]['type'] &&
-                in_array($this->validDataFields[$key]['type'], $this->simpleTypes)) {
-                try {
-                    settype($data[$key], $this->validDataFields[$key]['type']);
-                } catch (\Exception $e) {
-                    throw new LocalizedException(new Phrase('Could not convert "%1" to a "%2"', [
-                        $key,
-                        $this->validDataFields[$key],
-                    ]));
-                }
-            }
-        }
-        return $data;
     }
 }
