@@ -88,7 +88,35 @@ class Line
         return [
             'store_id' => $item->getStoreId(),
             'no' => $item->getItemId(),
-//            'item_code' => $productSku, // TODO: Move this to a more centralized method (maybe static)
+//            'item_code' => $productSku, // TODO: Move this to a more centralized method (maybe static), figure out if this is the UPC thing
+//            'tax_code' => null,
+//            'customer_usage_type' => null,
+//            'exemption_no' => null,
+            'description' => $item->getName(),
+            'qty' => $item->getQtyOrdered(),
+            'amount' => $item->getRowTotal(), // TODO: Figure out what exactly to pass here, look at M1 module
+            'discounted' => (bool)($item->getDiscountAmount() > 0),
+            'tax_included' => false,
+//            'ref1' => null,
+//            'ref2' => null,
+//            'tax_override' => null,
+        ];
+    }
+
+    protected function convertQuoteItemToData(\Magento\Quote\Api\Data\CartItemInterface $item)
+    {
+        // Items that have parent items do not contain taxable information
+        // TODO: Confirm this is true for all item types
+        if ($item->getParentItem()) {
+            return null;
+        }
+        $productSkus = $this->resourceProduct->getProductsSku([$item->getProductId()]);
+        $productSku = $productSkus[0]['sku'];
+
+        return [
+            'store_id' => $item->getStoreId(),
+            'no' => $item->getItemId(),
+//            'item_code' => $productSku, // TODO: Move this to a more centralized method (maybe static), figure out if this is the UPC thing
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
 //            'exemption_no' => null,
@@ -117,10 +145,13 @@ class Line
                 $data = $this->convertOrderItemToData($data);
                 break;
             case ($data instanceof \Magento\Quote\Api\Data\CartItemInterface):
+                $data = $this->convertQuoteItemToData($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\InvoiceItemInterface):
+//                $data = $this->convertInvoiceItemToData($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
+//                $data = $this->convertCreditMemoItemToData($data);
                 break;
             case (!is_array($data)):
                 return false;

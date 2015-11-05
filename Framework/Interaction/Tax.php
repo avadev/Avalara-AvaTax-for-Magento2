@@ -178,6 +178,7 @@ class Tax
 
     /**
      * Return customer code according to the admin configured format
+     * TODO: Make sure this function works even if any of these values are empty
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $name
@@ -229,6 +230,7 @@ class Tax
      * TODO: Determine what circumstance tax override will need to be set and set in order in those cases
      * TODO: Determine what salesperson code to pass if any
      * TODO: Determine if we can even accommodate outlet based reporting and if so input location_code
+     * TODO: Handle for null values
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderInterface $order
@@ -236,8 +238,11 @@ class Tax
      */
     protected function convertOrderToData(\Magento\Sales\Api\Data\OrderInterface $order)
     {
-        $customerGroupId = $this->groupRepository->getById($order->getCustomerGroupId())->getTaxClassId();
-        $taxClass = $this->taxClassRepository->get($customerGroupId);
+        $customerGroupId = $order->getCustomerGroupId();
+        if (!is_null($customerGroupId)) {
+            $taxClassId = $this->groupRepository->getById($customerGroupId)->getTaxClassId();
+            $taxClass = $this->taxClassRepository->get($taxClassId);
+        }
 
         $lines = [];
         foreach ($order->getItems() as $item) {
@@ -273,6 +278,68 @@ class Tax
 //            'tax_override' => null,
         ];
     }
+    
+    protected function convertQuoteToData(\Magento\Quote\Api\Data\CartInterface $quote)
+    {
+        $taxClassId = $quote->getCustomerTaxClassId();
+        if (!is_null($taxClassId)) {
+            $taxClass = $this->taxClassRepository->get($taxClassId);
+        }
+
+        $lines = [];
+        $items = $quote->getItems();
+
+        if (is_null($items)) {
+            if (method_exists($quote, 'getItemsCollection')) {
+                $items = $quote->getItemsCollection()->count() > 0 ? $quote->getItemsCollection() : null;
+            }
+            if (is_null($items)) {
+                return null;
+            }
+        }
+        foreach ($items as $item) {
+            $line = $this->interactionLine->getLine($item);
+            if (!is_null($line)) {
+                $lines[] = $line;
+            }
+        }
+
+        return [
+            'store_id' => $quote->getStoreId(),
+            'commit' => false,
+            'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
+            'customer_code' => $this->getCustomerCode(
+                $quote->getShippingAddress()->getFirstname(), // TODO: Determine if these three values will always be available and if they won't use ones that will
+                $quote->getCustomer()->getEmail(),
+                $quote->getCustomer()->getId()
+            ),
+//            'customer_usage_type' => null,//$taxClass->,
+            'destination_address' => $this->address->getAddress($quote->getShippingAddress()),
+//            'discount' => $quote->getDiscountAmount(), // TODO: Determine if discounts are available on quotes
+            'doc_code' => $quote->getReservedOrderId(),
+            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($quote->getCreatedAt()),
+            'doc_type' => DocumentType::$PurchaseOrder,
+            'exchange_rate' => $this->getExchangeRate($quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
+            'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(time()),
+//            'exemption_no' => null,//$quote->getTaxExemptionNumber(),
+            'lines' => $lines,
+//            'payment_date' => null,
+            'purchase_order_number' => $quote->getReservedOrderId(),
+//            'reference_code' => null, // Most likely only set on credit memos or order edits
+//            'salesperson_code' => null,
+//            'tax_override' => null,
+        ];
+    }
+
+    protected function convertInvoiceToData(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
+    {
+
+    }
+
+    protected function convertCreditMemoToData(\Magento\Sales\Api\Data\CreditmemoInterface $creditMemo)
+    {
+
+    }
 
     /**
      * Creates and returns a populated getTaxRequest
@@ -280,7 +347,8 @@ class Tax
      * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data
+     * @param $data \Magento\Sales\Api\Data\OrderInterface|\Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface|array
+     * @return null|GetTaxRequest
      */
     public function getGetTaxRequest($data)
     {
@@ -289,14 +357,21 @@ class Tax
                 $data = $this->convertOrderToData($data);
                 break;
             case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
+                $data = $this->convertQuoteToData($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
+                $data = $this->convertInvoiceToData($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
+                $data = $this->convertCreditMemoToData($data);
                 break;
             case (!is_array($data)):
                 return false;
                 break;
+        }
+
+        if (is_null($data)) {
+            return null;
         }
 
         $storeId = isset($data['store_id']) ? $data['store_id'] : null;

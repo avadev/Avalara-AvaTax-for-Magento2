@@ -8,7 +8,6 @@ use AvaTax\AddressServiceSoapFactory;
 use AvaTax\AddressServiceSoap;
 use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
-use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Customer\Model\Address\AddressModelInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -99,20 +98,25 @@ class Address
     /**
      * Get an AvaTax address object with fields as specified in data
      * TODO: See if I can take > 3 lines of address into account because at least in M1, you had the ability to choose up to 4 lines of addressCustomer Configuration -> Name and Address Options -> Number of Lines in a Street Address
-     *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data array|AddressModelInterface|AddressInterface
+     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|AddressModelInterface|array
      * @return \AvaTax\Address
      * @throws LocalizedException
      */
     public function getAddress($data)
     {
         switch (true) {
-            case ($data instanceof AddressModelInterface):
-                $data = $this->convertAddressModelToAvaTaxAddress($data);
+            case ($data instanceof \Magento\Customer\Api\Data\AddressInterface):
+                $data = $this->convertCustomerAddressToAvaTaxAddress($data);
                 break;
-            case ($data instanceof AddressInterface):
-                $data = $this->convertServiceAddressToAvaTaxAddress($data);
+            case ($data instanceof \Magento\Quote\Api\Data\AddressInterface):
+                $data = $this->convertQuoteAddressToAvaTaxAddress($data);
+                break;
+            case ($data instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
+                $data = $this->convertOrderAddressToAvaTaxAddress($data);
+                break;
+            case ($data instanceof AddressModelInterface): // TODO: Decide if we need this still.  If we working with the Service Layer, this should never come up.
+                $data = $this->convertAddressModelToAvaTaxAddress($data);
                 break;
             case (!is_array($data)):
                 throw new LocalizedException(new Phrase(
@@ -125,13 +129,13 @@ class Address
     }
 
     /**
-     * Converts Service Layer address into AvaTax compatible data array
+     * Converts Customer address into AvaTax compatible data array
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param AddressInterface $address
+     * @param \Magento\Customer\Api\Data\AddressInterface $address
      * @return array
      */
-    protected function convertServiceAddressToAvaTaxAddress(AddressInterface $address)
+    protected function convertCustomerAddressToAvaTaxAddress(\Magento\Customer\Api\Data\AddressInterface $address)
     {
         $street = $address->getStreet();
 
@@ -147,6 +151,52 @@ class Address
     }
 
     /**
+     * Converts Quote address into AvaTax compatible data array
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param \Magento\Quote\Api\Data\AddressInterface $address
+     * @return array
+     */
+    protected function convertQuoteAddressToAvaTaxAddress(\Magento\Quote\Api\Data\AddressInterface $address)
+    {
+        $street = $address->getStreet();
+
+        return $data = [
+            'line1' => array_key_exists(0, $street) ? $street[0] : '',
+            'line2' => array_key_exists(1, $street) ? $street[1] : '',
+            'line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'city' => $address->getCity(),
+            'region' => $address->getRegionCode(),
+            'postalCode' => $address->getPostcode(),
+            'country' => $address->getCountryId(),
+        ];
+    }
+
+    /**
+     * Converts Order Layer address into AvaTax compatible data array
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface $address
+     * @return array
+     */
+    protected function convertOrderAddressToAvaTaxAddress(\Magento\Sales\Api\Data\OrderAddressInterface $address)
+    {
+        $street = $address->getStreet();
+
+        return $data = [
+            'line1' => array_key_exists(0, $street) ? $street[0] : '',
+            'line2' => array_key_exists(1, $street) ? $street[1] : '',
+            'line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'city' => $address->getCity(),
+            'region' => $address->getRegionCode(),
+            'postalCode' => $address->getPostcode(),
+            'country' => $address->getCountryId(),
+        ];
+    }
+
+
+
+    /**
      * Converts Service Layer address into AvaTax compatible data array
      *
      * 3 address types implement this interface with two of them extending AddressAbstract
@@ -154,7 +204,7 @@ class Address
      * this could break in the future.
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param AddressInterface $address
+     * @param AddressModelInterface $address
      * @return array
      */
     protected function convertAddressModelToAvaTaxAddress(AddressModelInterface $address)

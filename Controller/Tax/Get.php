@@ -6,7 +6,8 @@ use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller;
-use Magento\Sales\Api\Data\OrderInterfaceFactory;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 class Get extends Action\Action
 {
@@ -16,22 +17,30 @@ class Get extends Action\Action
     protected $interactionGetTax = null;
 
     /**
-     * @var OrderInterfaceFactory
+     * @var OrderRepositoryInterface
      */
-    protected $orderFactory = null;
+    protected $orderRepository = null;
+
+    /**
+     * @var CartRepositoryInterface
+     */
+    protected $quoteRepository = null;
 
     public function __construct(
         Context $context,
         InteractionGet $interactionGetTax,
-        OrderInterfaceFactory $orderFactory
+        OrderRepositoryInterface $orderRepository,
+        CartRepositoryInterface $quoteRepository
     ) {
         $this->interactionGetTax = $interactionGetTax;
-        $this->orderFactory = $orderFactory;
+        $this->orderRepository = $orderRepository;
+        $this->quoteRepository = $quoteRepository;
+
         parent::__construct($context);
     }
 
     /**
-     * TODO: Change params passed in to getTax to make them match the method signature
+     * Test various getTax types
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return Controller\Result\Raw
@@ -40,23 +49,32 @@ class Get extends Action\Action
     {
         $contents = '';
 
-        $order3 = $this->orderFactory->create()->load(3);
-        $data = $order3;
-
+        $data = $this->orderRepository->get(1);
         $contents .= $this->interactionGetTax->getTax(
             $data
         );
 
-        $order1 = $this->orderFactory->create()->load(1);
-        $data = $order1;
-
+        $data = $this->orderRepository->get(2);
         $contents .= $this->interactionGetTax->getTax(
             $data
         );
 
-        $order2 = $this->orderFactory->create()->load(2);
-        $data = $order2;
+        $data = $this->orderRepository->get(3);
+        $contents .= $this->interactionGetTax->getTax(
+            $data
+        );
 
+        $data = $this->quoteRepository->get(1);
+        $contents .= $this->interactionGetTax->getTax(
+            $data
+        );
+
+        $data = $this->quoteRepository->get(2);
+        $contents .= $this->interactionGetTax->getTax(
+            $data
+        );
+
+        $data = $this->quoteRepository->get(3);
         $contents .= $this->interactionGetTax->getTax(
             $data
         );

@@ -61,6 +61,10 @@ class Get
         /** @var $getTaxRequest GetTaxRequest */
         $getTaxRequest = $this->interactionTax->getGetTaxRequest($data);
 
+        if (is_null($getTaxRequest)) {
+            return '$data was empty so not running getTax request.' . "\n";
+        }
+
 // Results
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest);
