@@ -121,7 +121,7 @@ class Line
 //            'customer_usage_type' => null,
 //            'exemption_no' => null,
             'description' => $item->getName(),
-            'qty' => $item->getQtyOrdered(),
+            'qty' => $item->getQty(),
             'amount' => $item->getRowTotal(), // TODO: Figure out what exactly to pass here, look at M1 module
             'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
