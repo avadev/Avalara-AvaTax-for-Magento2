@@ -8,6 +8,7 @@ use Magento\Framework\AppInterface as MageAppInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Phrase;
+use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Store\Model\Information;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
@@ -31,6 +32,18 @@ class Config
 
     // General Settings
     const XML_PATH_AVATAX_SETTINGS_CUSTOMER_CODE_FORMAT = 'tax/avatax_settings/customer_code_format';
+
+    /**#@+
+     * Constants for shipping origin.
+     *
+     * These constants are missing from \Magento\Shipping\Model\Config. If they get added to the core in the future,
+     * refactor this code to use the core constants.
+     */
+    // TODO: Check status of this issue to see if we can reference core constants in the future: https://github.com/magento/magento2/issues/2269
+    const XML_PATH_SHIPPING_ORIGIN_STREET_LINE1 = 'shipping/origin/street_line1';
+
+    const XML_PATH_SHIPPING_ORIGIN_STREET_LINE2 = 'shipping/origin/street_line2';
+    /**#@-*/
 
     // Customer Code Format Options
     const CUSTOMER_FORMAT_OPTION_EMAIL = 'email';
@@ -121,32 +134,33 @@ class Config
     {
         return [
             'line1' => $this->scopeConfig->getValue(
-                Information::XML_PATH_STORE_INFO_STREET_LINE1,
+                self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE1,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
             'line2' => $this->scopeConfig->getValue(
-                Information::XML_PATH_STORE_INFO_STREET_LINE2,
+                self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE1,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
             'city' => $this->scopeConfig->getValue(
-                Information::XML_PATH_STORE_INFO_CITY,
+                ShippingConfig::XML_PATH_ORIGIN_CITY,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
+            // TODO: Convert region ID to a value that AvaTax understands
             'region' => $this->scopeConfig->getValue(
-                Information::XML_PATH_STORE_INFO_REGION_CODE,
+                ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
             'postalCode' => $this->scopeConfig->getValue(
-                Information::XML_PATH_STORE_INFO_POSTCODE,
+                ShippingConfig::XML_PATH_ORIGIN_POSTCODE,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
             'country' => $this->scopeConfig->getValue(
-                Information::XML_PATH_STORE_INFO_COUNTRY_CODE,
+                ShippingConfig::XML_PATH_ORIGIN_COUNTRY_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
