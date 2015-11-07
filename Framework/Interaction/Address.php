@@ -9,6 +9,9 @@ use AvaTax\AddressServiceSoap;
 use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Customer\Model\Address\AddressModelInterface;
+use Magento\Directory\Model\Region;
+use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
+use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionCollectionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 
@@ -36,6 +39,11 @@ class Address
     protected $addressServiceSoapFactory = null;
 
     /**
+     * @var RegionCollection
+     */
+    protected $regionCollection = null;
+
+    /**
      * @var AddressServiceSoap[]
      */
     protected $addressServiceSoap = [];
@@ -46,13 +54,13 @@ class Address
      * @var array
      */
     protected $validAddressFields = [
-        'line1' => ['type' => 'string'],
-        'line2' => ['type' => 'string'],
-        'line3' => ['type' => 'string'],
-        'city' => ['type' => 'string'],
-        'region' => ['type' => 'string'],
-        'postalCode' => ['type' => 'string'],
-        'country' => ['type' => 'string'],
+        'line1' => ['type' => 'string', 'required' => true, 'length' => 50],
+        'line2' => ['type' => 'string', 'length' => 50],
+        'line3' => ['type' => 'string', 'length' => 50],
+        'city' => ['type' => 'string', 'length' => 50],
+        'region' => ['type' => 'string', 'length' => 3],
+        'postalCode' => ['type' => 'string', 'required' => true, 'length' => 11],
+        'country' => ['type' => 'string', 'length' => 2],
         'taxRegionId' => ['type' => 'integer'],
         'latitude' => ['type' => 'string'],
         'longitude' => ['type' => 'string'],
@@ -68,12 +76,14 @@ class Address
         Config $config,
         Validation $validation,
         AddressFactory $addressFactory,
-        AddressServiceSoapFactory $addressServiceSoapFactory
+        AddressServiceSoapFactory $addressServiceSoapFactory,
+        RegionCollectionFactory $regionCollectionFactory
     ) {
         $this->config = $config;
         $this->validation = $validation;
         $this->addressFactory = $addressFactory;
         $this->addressServiceSoapFactory = $addressServiceSoapFactory;
+        $this->regionCollection = $regionCollectionFactory->create();
     }
 
     /**
@@ -120,10 +130,16 @@ class Address
                 break;
             case (!is_array($data)):
                 throw new LocalizedException(new Phrase(
-                    'Input paramater "$data" was not of a recognized/valid type: "%1".', [
+                    'Input parameter "$data" was not of a recognized/valid type: "%1".', [
                         gettype($data),
                 ]));
         }
+
+        if (isset($data['regionId'])) {
+            $data['region'] = $this->getRegionById($data['regionId'])->getCode();
+            unset($data['regionId']);
+        }
+
         $data = $this->validation->validateData($data, $this->validAddressFields);
         return  $this->addressFactory->create($data);
     }
@@ -144,7 +160,7 @@ class Address
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
             'city' => $address->getCity(),
-            'region' => $address->getRegion()->getRegionCode(),
+            'region' => $this->getRegionById($address->getRegionId())->getCode(),
             'postalCode' => $address->getPostcode(),
             'country' => $address->getCountryId(),
         ];
@@ -166,14 +182,14 @@ class Address
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
             'city' => $address->getCity(),
-            'region' => $address->getRegionCode(),
+            'region' => $this->getRegionById($address->getRegionId())->getCode(),
             'postalCode' => $address->getPostcode(),
             'country' => $address->getCountryId(),
         ];
     }
 
     /**
-     * Converts Order Layer address into AvaTax compatible data array
+     * Converts Order address into AvaTax compatible data array
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderAddressInterface $address
@@ -188,7 +204,7 @@ class Address
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
             'city' => $address->getCity(),
-            'region' => $address->getRegionCode(),
+            'region' => $this->getRegionById($address->getRegionId())->getCode(),
             'postalCode' => $address->getPostcode(),
             'country' => $address->getCountryId(),
         ];
@@ -197,7 +213,7 @@ class Address
 
 
     /**
-     * Converts Service Layer address into AvaTax compatible data array
+     * Converts address model into AvaTax compatible data array
      *
      * 3 address types implement this interface with two of them extending AddressAbstract
      * All three have these methods but since there is no comprehensive interface to rely on
@@ -214,9 +230,32 @@ class Address
             'line2' => $address->getStreetLine(2),
             'line3' => $address->getStreetLine(3),
             'city' => $address->getCity(),
-            'region' => $address->getRegionCode(),
+            'region' => $this->getRegionById($address->getRegionId())->getCode(),
             'postalCode' => $address->getPostcode(),
             'country' => $address->getCountryId(),
         ];
+    }
+
+    /**
+     * Return region by id and if no region is found, throw an exception to prevent a fatal error so this can
+     * be chained to call getCode
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $regionId
+     * @return \Magento\Framework\DataObject
+     * @throws LocalizedException
+     */
+    protected function getRegionById($regionId)
+    {
+        $region = $this->regionCollection->getItemById($regionId);
+
+        if (!($region instanceof Region)) {
+            throw new LocalizedException(new Phrase(
+                'Region "%1" was not found.', [
+                $regionId,
+            ]));
+        }
+
+        return $region;
     }
 }

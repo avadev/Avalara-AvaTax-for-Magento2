@@ -59,22 +59,12 @@ class Get extends Action\Action
             $data
         );
 
-        $data = $this->orderRepository->get(3);
-        $contents .= $this->interactionGetTax->getTax(
-            $data
-        );
-
         $data = $this->quoteRepository->get(1);
         $contents .= $this->interactionGetTax->getTax(
             $data
         );
 
         $data = $this->quoteRepository->get(2);
-        $contents .= $this->interactionGetTax->getTax(
-            $data
-        );
-
-        $data = $this->quoteRepository->get(3);
         $contents .= $this->interactionGetTax->getTax(
             $data
         );

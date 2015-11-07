@@ -231,6 +231,7 @@ class Tax
      * TODO: Determine what salesperson code to pass if any
      * TODO: Determine if we can even accommodate outlet based reporting and if so input location_code
      * TODO: Handle for null values
+     * TODO: Take calculate tax on shipping vs. billing address into account
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderInterface $order
@@ -252,6 +253,15 @@ class Tax
             }
         }
 
+        // Shipping Address not documented in the interface for some reason
+        // they do have a constant for it but not a method in the interface
+
+        try {
+            $address = $this->address->getAddress($order->getShippingAddress());
+        } catch (LocalizedException $e) {
+            return null;
+        }
+
         return [
             'store_id' => $order->getStoreId(),
             'commit' => $this->shouldCommit($order),
@@ -262,7 +272,7 @@ class Tax
                 $order->getCustomerId()
             ),
 //            'customer_usage_type' => null,//$taxClass->,
-            'destination_address' => $this->address->getAddress($order->getShippingAddress()),
+            'destination_address' => $address,
             'discount' => $order->getDiscountAmount(),
             'doc_code' => $order->getIncrementId(),
             'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($order->getCreatedAt()),
@@ -304,6 +314,15 @@ class Tax
             }
         }
 
+        // Shipping Address not documented in the interface for some reason
+        // they do have a constant for it but not a method in the interface
+
+        try {
+            $address = $this->address->getAddress($quote->getShippingAddress());
+        } catch (LocalizedException $e) {
+            return null;
+        }
+
         return [
             'store_id' => $quote->getStoreId(),
             'commit' => false,
@@ -314,7 +333,7 @@ class Tax
                 $quote->getCustomer()->getId()
             ),
 //            'customer_usage_type' => null,//$taxClass->,
-            'destination_address' => $this->address->getAddress($quote->getShippingAddress()),
+            'destination_address' => $address,
 //            'discount' => $quote->getDiscountAmount(), // TODO: Determine if discounts are available on quotes
             'doc_code' => $quote->getReservedOrderId(),
             'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($quote->getCreatedAt()),
@@ -380,7 +399,7 @@ class Tax
                 'business_identification_no' => $this->config->getBusinessIdentificationNumber(),
                 'company_code' => $this->config->getCompanyCode($storeId),
                 'detail_level' => DetailLevel::$Diagnostic,
-                'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
+                'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)), // TODO: Create a graceful way of handling this and notifying admin user that they need to set up their shipping origin address
             ],
             $data
         );

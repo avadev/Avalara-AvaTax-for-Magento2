@@ -93,7 +93,7 @@ class Validation extends Action\Action
             $contents .= "Service Address $i: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
         }
 
-        $order = $this->orderFactory->create()->load(3);
+        $order = $this->orderFactory->create()->load(2);
 
         $address = $order->getBillingAddress();
         $contents .= "Order Billing Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
@@ -107,13 +107,13 @@ class Validation extends Action\Action
             $contents .= "Service Order Address $i: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
         }
 
-        $quote = $this->quoteFactory->create()->load(2);
-
-        $address = $quote->getBillingAddress();
-        $contents .= "Quote Billing Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-
-        $address = $order->getShippingAddress();
-        $contents .= "Quote Shipping Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
+//        $quote = $this->quoteFactory->create()->load(2);
+//
+//        $address = $quote->getBillingAddress();
+//        $contents .= "Quote Billing Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
+//
+//        $address = $order->getShippingAddress();
+//        $contents .= "Quote Shipping Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
 
         $i = 0;
         foreach ($order->getAddresses() as $address) {

@@ -46,7 +46,7 @@ class Line
         'exemption_no' => ['type' => 'string', 'length' => 25],
         'description' => ['type' => 'string', 'length' => 255],
         'qty' => ['type' => 'float'],
-        'amount' => ['type' => 'float', 'required' => true],
+        'amount' => ['type' => 'float'], // Technically, required but $0 value is acceptable so removing requirement
         'discounted' => ['type' => 'boolean'],
         'tax_included' => ['type' => 'boolean'],
         'ref1' => ['type' => 'string', 'length' => 250],
@@ -79,7 +79,7 @@ class Line
     {
         // Items that have parent items do not contain taxable information
         // TODO: Confirm this is true for all item types
-        if ($item->getParentItem()) {
+        if (!is_null($item->getParentItemId())) {
             return null;
         }
         $productSkus = $this->resourceProduct->getProductsSku([$item->getProductId()]);

@@ -124,7 +124,6 @@ class Config
 
     /**
      * Return origin address
-     * TODO: Make sure all fields are of the appropriate type and if not, convert them
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param null $store
@@ -139,7 +138,7 @@ class Config
                 $store
             ),
             'line2' => $this->scopeConfig->getValue(
-                self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE1,
+                self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE2,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
@@ -148,8 +147,7 @@ class Config
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            // TODO: Convert region ID to a value that AvaTax understands
-            'region' => $this->scopeConfig->getValue(
+            'regionId' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store
@@ -167,6 +165,13 @@ class Config
         ];
     }
 
+    /**
+     * Get Customer code format to pass to AvaTax API
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param null $store
+     * @return mixed
+     */
     public function getCustomerCodeFormat($store = null)
     {
         return $this->scopeConfig->getValue(
