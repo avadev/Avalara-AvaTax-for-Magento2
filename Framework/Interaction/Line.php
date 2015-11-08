@@ -30,8 +30,15 @@ class Line
     protected $resourceProduct = null;
 
     /**
+     * @var array
+     */
+    protected $productSkus = [];
+
+    /**
      * A list of valid fields for the data array and meta data about their types to use in validation
-     * based on the API documentation.  If any fields are added or removed, the same should be done in getLine.
+     * based on the API documentation.
+     * Validation based on API documentation found here:
+     * http://developer.avalara.com/wp-content/apireference/master/?php#line30
      *
      * @var array
      */
@@ -46,7 +53,7 @@ class Line
         'exemption_no' => ['type' => 'string', 'length' => 25],
         'description' => ['type' => 'string', 'length' => 255],
         'qty' => ['type' => 'float'],
-        'amount' => ['type' => 'float'], // Technically, required but $0 value is acceptable so removing requirement
+        'amount' => ['type' => 'float'], // Required but $0 value is acceptable so removing required attribute.
         'discounted' => ['type' => 'boolean'],
         'tax_included' => ['type' => 'boolean'],
         'ref1' => ['type' => 'string', 'length' => 250],
@@ -68,8 +75,12 @@ class Line
 
     /**
      * Return an array with relevant data from an order item.
-     * TODO: Figure out where tax code comes from
-     * TODO: Fields to figure out: customer_usage_type, exemption_no, ref1, ref2, tax_override
+     * All TODOs in the doc block and the method body apply to all 4 conversion methods
+     * TODO: tax_code can either be custom or system.  Custom tax codes can be configured in the AvaTax admin to set up specific tax reductions or exemptions for certain products.  In AvaTax Pro, there are many system tax codes that can be passed depending on the type of item that is being sold.  This really belongs on the product level although we could also put it on the Tax Class level as well.  The M1 module just uses the same value for this as for customer_usage_type which is confusing and incorrect for cases where you may want to pass both on the same item.  We should at least implement this as a text field on either the product, the tax class, or both.  We could possibly implement this as a more configurable option but that really seems like a phase 2 or phase 3 feature. More information: https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes and http://developer.avalara.com/api-docs/designing-your-integration/gettax
+     * TODO: Fields to figure out: tax_override
+     * TODO: Use Tax Class to get customer_usage_type, once this functionality is implemented
+     * TODO: ref1 and ref2 are optional fields that can be used to pass extra data.  M1 module has config fields to enter attribute codes for each which will be passed along.  Create a source model to select an attribute (and a do not pass attribute option) for each field.
+     * TODO: Decide whether we want to implement any exemption_no functionality
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderItemInterface $item
@@ -82,19 +93,17 @@ class Line
         if (!is_null($item->getParentItemId())) {
             return null;
         }
-        $productSkus = $this->resourceProduct->getProductsSku([$item->getProductId()]);
-        $productSku = $productSkus[0]['sku'];
 
         return [
             'store_id' => $item->getStoreId(),
             'no' => $item->getItemId(),
-//            'item_code' => $productSku, // TODO: Move this to a more centralized method (maybe static), figure out if this is the UPC thing
+            'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
 //            'exemption_no' => null,
             'description' => $item->getName(),
             'qty' => $item->getQtyOrdered(),
-            'amount' => $item->getRowTotal(), // TODO: Figure out what exactly to pass here, look at M1 module
+            'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
             'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
 //            'ref1' => null,
@@ -110,19 +119,17 @@ class Line
         if ($item->getParentItem()) {
             return null;
         }
-        $productSkus = $this->resourceProduct->getProductsSku([$item->getProductId()]);
-        $productSku = $productSkus[0]['sku'];
 
         return [
             'store_id' => $item->getStoreId(),
             'no' => $item->getItemId(),
-//            'item_code' => $productSku, // TODO: Move this to a more centralized method (maybe static), figure out if this is the UPC thing
+            'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
 //            'exemption_no' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
-            'amount' => $item->getRowTotal(), // TODO: Figure out what exactly to pass here, look at M1 module
+            'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
             'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
 //            'ref1' => null,
@@ -131,7 +138,17 @@ class Line
         ];
     }
 
-    /**
+    protected function convertInvoiceItemToData(\Magento\Sales\Api\Data\InvoiceItemInterface $item)
+    {
+
+    }
+
+    protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $data)
+    {
+
+    }
+
+        /**
      *
      * TODO: Figure out if we need to account for Streamlined Sales Tax requirements for description
      *

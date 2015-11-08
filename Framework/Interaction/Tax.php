@@ -224,14 +224,13 @@ class Tax
      * TODO: Use Tax Class to get customer usage code, once this functionality is implemented
      * TODO: Decide if we need to ever pass an exemption no[number] for an order.  Anything passed as an exemption no will cause the whole order to be exempt.  Use very carefully.
      * TODO: Make sure discount lines up proportionately with how Magento does it and if not, figure out if there is another way to do it.
-     * TODO: Account for non item based lines according to documentation
-     * TODO: Look into whether M1 module is sending payment date and if not, ask under what circumstances it should be sent
+     * TODO: Account for non item based lines according to documentation and M1 module
+     * TODO: Implement Payment Date on Invoice Conversion and on Credit Memo Conversion.  M1 version is doing this.
      * TODO: Determine how to get parent increment id if one is set on order and set it on reference code
      * TODO: Determine what circumstance tax override will need to be set and set in order in those cases
-     * TODO: Determine what salesperson code to pass if any
-     * TODO: Determine if we can even accommodate outlet based reporting and if so input location_code
-     * TODO: Handle for null values
-     * TODO: Take calculate tax on shipping vs. billing address into account
+     * TODO: For salesperson_code do at least a config field's value and possible make it configurable to allow for multiple formats including: just the code, just the admin user's role, just the admin user's First Name & Last Name, just the admin users username, just the admin user's email address, or some combinations of the options
+     * TODO: Set up a config field for location_code to be passed along
+     * TODO: Take calculate tax on shipping vs. billing address into account, this is a configuration field in default Magento
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderInterface $order
@@ -275,7 +274,7 @@ class Tax
             'destination_address' => $address,
             'discount' => $order->getDiscountAmount(),
             'doc_code' => $order->getIncrementId(),
-            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($order->getCreatedAt()),
+            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($order->getCreatedAt()), // TODO: Account for GMT Conversion
             'doc_type' => DocumentType::$PurchaseInvoice,
             'exchange_rate' => $this->getExchangeRate($order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
             'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(time()),
@@ -336,7 +335,7 @@ class Tax
             'destination_address' => $address,
 //            'discount' => $quote->getDiscountAmount(), // TODO: Determine if discounts are available on quotes
             'doc_code' => $quote->getReservedOrderId(),
-            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($quote->getCreatedAt()),
+            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($quote->getCreatedAt()), // TODO: Account for GMT Conversion
             'doc_type' => DocumentType::$PurchaseOrder,
             'exchange_rate' => $this->getExchangeRate($quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
             'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(time()),
@@ -399,7 +398,7 @@ class Tax
                 'business_identification_no' => $this->config->getBusinessIdentificationNumber(),
                 'company_code' => $this->config->getCompanyCode($storeId),
                 'detail_level' => DetailLevel::$Diagnostic,
-                'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)), // TODO: Create a graceful way of handling this and notifying admin user that they need to set up their shipping origin address
+                'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)), // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
             ],
             $data
         );

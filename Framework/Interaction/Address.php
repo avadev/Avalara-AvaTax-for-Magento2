@@ -49,7 +49,8 @@ class Address
     protected $addressServiceSoap = [];
 
     /**
-     * TODO: Add additional validation to make it exactly match the API documentation
+     * Validation based on API documentation found here:
+     * http://developer.avalara.com/wp-content/apireference/master/?php#validate-request58
      *
      * @var array
      */
@@ -57,9 +58,9 @@ class Address
         'line1' => ['type' => 'string', 'required' => true, 'length' => 50],
         'line2' => ['type' => 'string', 'length' => 50],
         'line3' => ['type' => 'string', 'length' => 50],
-        'city' => ['type' => 'string', 'length' => 50],
-        'region' => ['type' => 'string', 'length' => 3],
-        'postalCode' => ['type' => 'string', 'required' => true, 'length' => 11],
+        'city' => ['type' => 'string', 'length' => 50], // Either city & region are required or postalCode is required.
+        'region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
+        'postalCode' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
         'country' => ['type' => 'string', 'length' => 2],
         'taxRegionId' => ['type' => 'integer'],
         'latitude' => ['type' => 'string'],
@@ -107,7 +108,12 @@ class Address
 
     /**
      * Get an AvaTax address object with fields as specified in data
-     * TODO: See if I can take > 3 lines of address into account because at least in M1, you had the ability to choose up to 4 lines of addressCustomer Configuration -> Name and Address Options -> Number of Lines in a Street Address
+     *
+     * Note: AvaTax only allows 3 street fields according to the API documentation.  The customer/address/street_lines
+     * allows the admin to create fields for 1 to 4 street lines.  This configuration is currently disabled in
+     * Magento/CustomerCustomAttributes/etc/adminhtml/system.xml.  As a result not currently doing anything with this.
+     * Likely no special consideration since the code is already sending all addresses (up to 3) to AvaTax if present.
+     *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|AddressModelInterface|array
      * @return \AvaTax\Address
@@ -216,7 +222,7 @@ class Address
      * Converts address model into AvaTax compatible data array
      *
      * 3 address types implement this interface with two of them extending AddressAbstract
-     * All three have these methods but since there is no comprehensive interface to rely on
+     * All three have the methods called in this method but since there is no comprehensive interface to rely on
      * this could break in the future.
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -238,7 +244,7 @@ class Address
 
     /**
      * Return region by id and if no region is found, throw an exception to prevent a fatal error so this can
-     * be chained to call getCode
+     * be chained to call getCode or other method by wrapping in a try/catch block.
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $regionId
