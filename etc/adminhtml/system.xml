@@ -5,29 +5,46 @@
             <!-- TODO: Figure out how to make sure AvaTax module is handling translation of this/these group[s] and down. -->
             <group id="avatax_connection" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax Connection Settings</label>
-                <field id="live_mode" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Live Mode</label>
-                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
-                    <comment>Enable to use live credentials, disable to use development mode.</comment>
+                <field id="live_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mode</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
                 </field>
                 <field id="account_number" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Account Number</label>
+                    <label>Account Number (Production)</label>
+                    <depends>
+                        <field id="live_mode">1</field>
+                    </depends>
                 </field>
                 <field id="license_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>License Key</label>
+                    <label>License Key (Production)</label>
+                    <depends>
+                        <field id="live_mode">1</field>
+                    </depends>
                 </field>
                 <field id="company_code" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Company Code</label>
+                    <label>Company Code (Production)</label>
+                    <depends>
+                        <field id="live_mode">1</field>
+                    </depends>
                 </field>
                 <!-- TODO: Have an error if development or production credentials are not entered on config after save -->
                 <field id="development_account_number" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Development Account Number</label>
+                    <label>Account Number (Development)</label>
+                    <depends>
+                        <field id="live_mode">0</field>
+                    </depends>
                 </field>
                 <field id="development_license_key" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Development License Key</label>
+                    <label>License Key (Development)</label>
+                    <depends>
+                        <field id="live_mode">0</field>
+                    </depends>
                 </field>
                 <field id="development_company_code" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Development Company Code</label>
+                    <label>Company Code (Development)</label>
+                    <depends>
+                        <field id="live_mode">0</field>
+                    </depends>
                 </field>
             </group>
             <group id="avatax_settings" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -37,6 +54,19 @@
                     <label>Customer Code Format</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\CustomerCode</source_model>
                     <comment>Select a format for customers to be identified in AvaTax.  Once the integration is live, this setting should not be changed.</comment>
+                </field>
+                <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Submit VAT Number to AvaTax</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Set this to yes if you need to consider VAT when calculating tax</comment>
+                </field>
+                <field id="business_identification_number" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>VAT Number</label>
+                    <config_path>tax/avatax_settings/business_identification_number</config_path>
+                    <comment>VAT Number can also be found at GENERAL: General -> Store Information -> VAT Number</comment>
+                    <depends>
+                        <field id="use_business_identification_number">1</field>
+                    </depends>
                 </field>
             </group>
         </section>

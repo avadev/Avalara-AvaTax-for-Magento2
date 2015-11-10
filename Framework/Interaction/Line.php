@@ -76,11 +76,11 @@ class Line
     /**
      * Return an array with relevant data from an order item.
      * All TODOs in the doc block and the method body apply to all 4 conversion methods
-     * TODO: tax_code can either be custom or system.  Custom tax codes can be configured in the AvaTax admin to set up specific tax reductions or exemptions for certain products.  In AvaTax Pro, there are many system tax codes that can be passed depending on the type of item that is being sold.  This really belongs on the product level although we could also put it on the Tax Class level as well.  The M1 module just uses the same value for this as for customer_usage_type which is confusing and incorrect for cases where you may want to pass both on the same item.  We should at least implement this as a text field on either the product, the tax class, or both.  We could possibly implement this as a more configurable option but that really seems like a phase 2 or phase 3 feature. More information: https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes and http://developer.avalara.com/api-docs/designing-your-integration/gettax
+     * TODO: tax_code can either be custom or system.  Custom tax codes can be configured in the AvaTax admin to set up specific tax reductions or exemptions for certain products.  In AvaTax Pro, there are many system tax codes that can be passed depending on the type of item that is being sold.  This really belongs on the product level although we could also put it on the Tax Class level as well.  The M1 module just uses the same value for this as for customer_usage_type which is confusing and incorrect for cases where you may want to pass both on the same item.  We should at least implement this as a text field on either the product, the tax class, or both.  We could possibly implement this as a more configurable option but that really seems like a phase 2 or phase 3 feature. More information: https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes and http://developer.avalara.com/api-docs/designing-your-integration/gettax.
+     * TODO: Wishlist Product Attribute for tax_code
      * TODO: Fields to figure out: tax_override
      * TODO: Use Tax Class to get customer_usage_type, once this functionality is implemented
      * TODO: ref1 and ref2 are optional fields that can be used to pass extra data.  M1 module has config fields to enter attribute codes for each which will be passed along.  Create a source model to select an attribute (and a do not pass attribute option) for each field.
-     * TODO: Decide whether we want to implement any exemption_no functionality
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderItemInterface $item
@@ -100,7 +100,6 @@ class Line
             'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
-//            'exemption_no' => null,
             'description' => $item->getName(),
             'qty' => $item->getQtyOrdered(),
             'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
@@ -126,7 +125,6 @@ class Line
             'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
-//            'exemption_no' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
             'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
