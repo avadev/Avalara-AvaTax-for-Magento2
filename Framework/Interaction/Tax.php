@@ -391,10 +391,15 @@ class Tax
         }
 
         $storeId = isset($data['store_id']) ? $data['store_id'] : null;
+        if ($this->config->getLiveMode() == Config::API_PROFILE_NAME_PROD) {
+            $companyCode = $this->config->getCompanyCode($storeId);
+        } else {
+            $companyCode = $this->config->getDevelopmentCompanyCode($storeId);
+        }
         $data = array_merge(
             [
                 'business_identification_no' => $this->config->getBusinessIdentificationNumber(),
-                'company_code' => $this->config->getCompanyCode($storeId),
+                'company_code' => $companyCode,
                 'detail_level' => DetailLevel::$Diagnostic,
                 'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)), // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
             ],
