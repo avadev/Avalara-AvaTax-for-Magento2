@@ -12,6 +12,8 @@ use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Framework\DataObject;
+use Magento\Quote\Model\Quote\Item as QuoteItem;
+use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
 
 class Get
 {
@@ -111,5 +113,17 @@ class Get
     public function getErrorMessage()
     {
         return $this->errorMessage;
+    }
+
+    /**
+     * Convert a quote/order/invoice/credit memo item to a tax details item object
+     *
+     * @param $item
+     * @param \AvaTax\GetTaxResult $getTaxResult
+     * @return bool|\Magento\Tax\Api\Data\TaxDetailsItemInterface
+     */
+    public function getTaxDetailsItem($item, GetTaxResult $getTaxResult)
+    {
+        return $this->interactionTax->getTaxDetailsItem($item, $getTaxResult);
     }
 }

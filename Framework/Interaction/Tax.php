@@ -14,6 +14,7 @@ use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
+use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
 use Zend\Filter\DateTimeFormatter;
 
 class Tax
@@ -131,6 +132,7 @@ class Tax
         GetTaxRequestFactory $getTaxRequestFactory,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
+        TaxDetailsItemInterfaceFactory $taxDetailsItemDataObjectFactory,
         DateTimeFormatter $dateTimeFormatter,
         Line $interactionLine
     ) {
@@ -141,6 +143,7 @@ class Tax
         $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
+        $this->taxDetailsItemDataObjectFactory = $taxDetailsItemDataObjectFactory;
         $this->dateTimeFormatter = $dateTimeFormatter;
         $this->interactionLine = $interactionLine;
     }
@@ -319,6 +322,7 @@ class Tax
         try {
             $address = $this->address->getAddress($quote->getShippingAddress());
         } catch (LocalizedException $e) {
+            // TODO: Log this exception
             return null;
         }
 
@@ -484,5 +488,88 @@ class Tax
         }
 
         return $getTaxRequest;
+    }
+
+    /**
+     * Convert a quote/order/invoice/credit memo item to a tax details item object
+     *
+     * @param $item
+     * @param \AvaTax\GetTaxResult $getTaxResult
+     * @return bool|\Magento\Tax\Api\Data\TaxDetailsItemInterface
+     */
+    public function getTaxDetailsItem($item, \AvaTax\GetTaxResult $getTaxResult)
+    {
+        switch (true) {
+            case ($item instanceof \Magento\Sales\Api\Data\OrderItemInterface):
+                // TODO: Create this method
+                return $this->convertOrderItemToTaxDetailsItem($item, $getTaxResult);
+                break;
+            case ($item instanceof \Magento\Quote\Api\Data\CartItemInterface):
+                return $this->convertQuoteItemToTaxDetailsItem($item, $getTaxResult);
+                break;
+            case ($item instanceof \Magento\Sales\Api\Data\InvoiceItemInterface):
+                // TODO: Create this method
+                return $this->convertInvoiceItemToTaxDetailsItem($item, $getTaxResult);
+                break;
+            case ($item instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
+                // TODO: Create this method
+                return $this->convertCreditmemoItemToTaxDetailsItem($item, $getTaxResult);
+                break;
+            default:
+                return false;
+                break;
+        }
+    }
+
+    /**
+     * Convert quote item to tax details item
+     *
+     * @param \Magento\Quote\Api\Data\CartItemInterface $item
+     * @param \AvaTax\GetTaxResult $getTaxResult
+     * @return bool|\Magento\Tax\Api\Data\TaxDetailsItemInterface
+     */
+    public function convertQuoteItemToTaxDetailsItem(
+        \Magento\Quote\Api\Data\CartItemInterface $item,
+        \AvaTax\GetTaxResult $getTaxResult
+    ) {
+        /* @var $taxLine \AvaTax\TaxLine  */
+        $taxLine = $getTaxResult->getTaxLine($item->getId());
+
+        // Items that are children of other items won't have lines in the response
+        if (!$taxLine instanceof \AvaTax\TaxLine) {
+            return false;
+        }
+
+        $rate = (float)$taxLine->getRate(); // TODO: Make sure we don't need to convert
+        $tax = (float)$taxLine->getTax();
+
+        $discountTaxCompensationAmount  = 0;
+        $appliedTaxes = [];
+
+        // See \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItem
+
+        $quantity = $item->getQty(); // TODO: Add support for getting QTY from parent products See \Magento\Tax\Model\TaxCalculation::getTotalQuantity
+
+        $price = $item->getTaxCalculationPrice(); // TODO: Run through $this->calculationTool->round($item->getUnitPrice());
+        $rowTotal = $price * $quantity;
+
+        $rowTax = $tax;
+        $priceInclTax = $price + $rowTax;
+        $rowTotalInclTax = $rowTotal + $rowTax;
+
+
+        return $this->taxDetailsItemDataObjectFactory->create()
+            ->setCode($item->getTaxCalculationItemId()) // this may need to change to something like sequence-***
+            ->setType('product') // Correct data?
+            ->setRowTax($rowTax)
+            ->setPrice($price)
+            ->setPriceInclTax($priceInclTax)
+            ->setRowTotal($rowTotal)
+            ->setRowTotalInclTax($rowTotalInclTax)
+            ->setDiscountTaxCompensationAmount($discountTaxCompensationAmount)
+            ->setAssociatedItemCode($item->getAssociatedItemCode())
+            ->setTaxPercent($rate)
+            ->setAppliedTaxes($appliedTaxes)
+            ;
     }
 }
