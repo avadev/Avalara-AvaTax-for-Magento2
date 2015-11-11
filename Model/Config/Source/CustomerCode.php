@@ -1,4 +1,5 @@
 <?php
+
 namespace ClassyLlama\AvaTax\Model\Config\Source;
 
 use ClassyLlama\AvaTax\Model\Config;

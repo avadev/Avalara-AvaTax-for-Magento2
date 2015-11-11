@@ -33,6 +33,12 @@ class Config
     // General Settings
     const XML_PATH_AVATAX_SETTINGS_CUSTOMER_CODE_FORMAT = 'tax/avatax_settings/customer_code_format';
 
+    const XML_PATH_AVATAX_SETTINGS_USE_VAT = 'tax/avatax_settings/use_business_identification_number';
+
+    const XML_PATH_AVATAX_SETTINGS_REF1 = 'tax/avatax_settings/ref1';
+
+    const XML_PATH_AVATAX_SETTINGS_REF2 = 'tax/avatax_settings/ref2';
+
     /**#@+
      * Constants for shipping origin.
      *
@@ -320,6 +326,54 @@ class Config
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_CONNECTION_DEVELOPMENT_COMPANY_CODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get whether should use Business Identification Number (VAT)
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param null $store
+     * @return string
+     */
+    public function getUseBusinessIdentificationNumber($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SETTINGS_USE_VAT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get ref1 configured attribute code
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param null $store
+     * @return string
+     */
+    public function getRef1($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SETTINGS_REF1,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get ref2 configured attribute code
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param null $store
+     * @return string
+     */
+    public function getRef2($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SETTINGS_REF2,
             ScopeInterface::SCOPE_STORE,
             $store
         );

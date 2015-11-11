@@ -80,7 +80,6 @@ class Line
      * TODO: Wishlist Product Attribute for tax_code
      * TODO: Fields to figure out: tax_override
      * TODO: Use Tax Class to get customer_usage_type, once this functionality is implemented
-     * TODO: ref1 and ref2 are optional fields that can be used to pass extra data.  M1 module has config fields to enter attribute codes for each which will be passed along.  Create a source model to select an attribute (and a do not pass attribute option) for each field.
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderItemInterface $item
@@ -105,8 +104,8 @@ class Line
             'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
             'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
-//            'ref1' => null,
-//            'ref2' => null,
+            'ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
+            'ref2' => $this->config->getRef2($item->getStoreId()),
 //            'tax_override' => null,
         ];
     }
@@ -130,8 +129,8 @@ class Line
             'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
             'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
-//            'ref1' => null,
-//            'ref2' => null,
+            'ref1' => $this->getData($this->config->getRef1($item->getStoreId())), // TODO: Look into getting ref1 and ref2 from extensible Attributes and set as those
+            'ref2' => $this->getData($this->config->getRef2($item->getStoreId())),
 //            'tax_override' => null,
         ];
     }

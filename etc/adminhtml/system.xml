@@ -68,6 +68,16 @@
                         <field id="use_business_identification_number">1</field>
                     </depends>
                 </field>
+                <field id="ref1" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute to send as ref1</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
+                    <comment>Select a text type product attribute to be sent to AvaTax as ref1.  Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
+                </field>
+                <field id="ref2" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute to send as ref2</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
+                    <comment>Select a text type product attribute to be sent to AvaTax as ref1.  Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
+                </field>
             </group>
         </section>
     </system>
