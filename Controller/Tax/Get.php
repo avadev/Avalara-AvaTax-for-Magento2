@@ -3,6 +3,7 @@
 namespace ClassyLlama\AvaTax\Controller\Tax;
 
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
+use AvaTax\GetTaxResult;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller;
@@ -50,24 +51,28 @@ class Get extends Action\Action
         $contents = '';
 
         $data = $this->orderRepository->get(1);
-        $contents .= $this->interactionGetTax->getTax(
-            $data
-        );
+        $success = $this->interactionGetTax->getTax($data);
+        if ($success) {
+            $contents .= $this->dumpTaxData($success) . "\n\n";
+        }
 
         $data = $this->orderRepository->get(2);
-        $contents .= $this->interactionGetTax->getTax(
-            $data
-        );
+        $success = $this->interactionGetTax->getTax($data);
+        if ($success) {
+            $contents .= $this->dumpTaxData($success) . "\n\n";
+        }
 
         $data = $this->quoteRepository->get(1);
-        $contents .= $this->interactionGetTax->getTax(
-            $data
-        );
+        $success = $this->interactionGetTax->getTax($data);
+        if ($success) {
+            $contents .= $this->dumpTaxData($success) . "\n\n";
+        }
 
         $data = $this->quoteRepository->get(2);
-        $contents .= $this->interactionGetTax->getTax(
-            $data
-        );
+        $success = $this->interactionGetTax->getTax($data);
+        if ($success) {
+            $contents .= $this->dumpTaxData($success) . "\n\n";
+        }
 
         /* @var $rawResult Controller\Result\Raw */
         $rawResult = $this->resultFactory->create(Controller\ResultFactory::TYPE_RAW);
@@ -75,5 +80,35 @@ class Get extends Action\Action
         $rawResult->setContents($contents);
 
         return $rawResult;
+    }
+
+    protected function dumpTaxData(GetTaxResult $getTaxResult)
+    {
+        $response = 'GetTax is: ' . $getTaxResult->getResultCode() . "\n";
+// Error Trapping
+        if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+//Success - Display GetTaxResults to console
+//Document Level Results
+            $response .= "DocCode: " . $getTaxResult->getDocCode() . "\n";
+            $response .= "TotalAmount: " . $getTaxResult->getTotalAmount() . "\n";
+            $response .= "TotalTax: " . $getTaxResult->getTotalTax() . "\n";
+//Line Level Results (from TaxLines array class)
+            /** @var $currentTaxLine TaxLine */
+            foreach ($getTaxResult->getTaxLines() as $currentTaxLine) {
+                $response .= "     Line: " . $currentTaxLine->getNo() . " Tax: " . $currentTaxLine->getTax() . " TaxCode: " . $currentTaxLine->getTaxCode() . "\n";
+//Line Level Results
+                foreach ($currentTaxLine->getTaxDetails() as $currentTaxDetails) {
+                    $response .= "          Juris Type: " . $currentTaxDetails->getJurisType() . "; Juris Name: " . $currentTaxDetails->getJurisName() . "; Rate: " . $currentTaxDetails->getRate() . "; Amt: " . $currentTaxDetails->getTax() . "\n";
+                }
+                $response .="\n";
+            }
+//If NOT success - display error messages to console
+        } else {
+            /** @var $message Message */
+            foreach ($getTaxResult->getMessages() as $message) {
+                $response .= $message->getName() . ": " . $message->getSummary() . "\n";
+            }
+        }
+        return $response;
     }
 }
