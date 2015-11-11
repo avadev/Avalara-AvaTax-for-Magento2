@@ -14,18 +14,21 @@
                     <depends>
                         <field id="live_mode">1</field>
                     </depends>
+                    <frontend_class>required-entry</frontend_class>
                 </field>
                 <field id="license_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Production)</label>
                     <depends>
                         <field id="live_mode">1</field>
                     </depends>
+                    <frontend_class>required-entry</frontend_class>
                 </field>
                 <field id="company_code" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Company Code (Production)</label>
                     <depends>
                         <field id="live_mode">1</field>
                     </depends>
+                    <frontend_class>required-entry validate-length maximum-length-25</frontend_class>
                 </field>
                 <!-- TODO: Have an error if development or production credentials are not entered on config after save -->
                 <field id="development_account_number" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -33,18 +36,21 @@
                     <depends>
                         <field id="live_mode">0</field>
                     </depends>
+                    <frontend_class>required-entry</frontend_class>
                 </field>
                 <field id="development_license_key" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Development)</label>
                     <depends>
                         <field id="live_mode">0</field>
                     </depends>
+                    <frontend_class>required-entry</frontend_class>
                 </field>
                 <field id="development_company_code" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Company Code (Development)</label>
                     <depends>
                         <field id="live_mode">0</field>
                     </depends>
+                    <frontend_class>required-entry validate-length maximum-length-25</frontend_class>
                 </field>
             </group>
             <group id="avatax_settings" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">

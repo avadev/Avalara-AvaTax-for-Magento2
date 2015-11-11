@@ -85,7 +85,8 @@ class Tax
         'store_id' => ['type' => 'integer'],
         'business_identification_no' => ['type' => 'string', 'length' => 25],
         'commit' => ['type' => 'boolean'],
-        'company_code' => ['type' => 'string', 'length' => 25],
+        // Company Code is not required by the the API, but we are requiring it in this integration
+        'company_code' => ['type' => 'string', 'length' => 25, 'required' => true],
         'currency_code' => ['type' => 'string', 'length' => 3],
         'customer_code' => ['type' => 'string', 'length' => 50, 'required' => true],
         'customer_usage_type' => ['type' => 'string', 'length' => 25],
