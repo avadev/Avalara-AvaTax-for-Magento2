@@ -15,29 +15,33 @@ use Magento\Store\Model\Store;
 
 class Config
 {
-    // Connection Details
-    const XML_PATH_AVATAX_CONNECTION_LIVE_MODE = 'tax/avatax_connection/live_mode';
+    /**#@+
+     * Module config settings
+     */
+    const XML_PATH_AVATAX_MODULE_ENABLED = 'tax/avatax/enabled';
 
-    const XML_PATH_AVATAX_CONNECTION_ACCOUNT_NUMBER = 'tax/avatax_connection/account_number';
+    const XML_PATH_AVATAX_LIVE_MODE = 'tax/avatax/live_mode';
 
-    const XML_PATH_AVATAX_CONNECTION_LICENSE_KEY = 'tax/avatax_connection/license_key';
+    const XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER = 'tax/avatax/production_account_number';
 
-    const XML_PATH_AVATAX_CONNECTION_COMPANY_CODE = 'tax/avatax_connection/company_code';
+    const XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY = 'tax/avatax/production_license_key';
 
-    const XML_PATH_AVATAX_CONNECTION_DEVELOPMENT_ACCOUNT_NUMBER = 'tax/avatax_connection/development_account_number';
+    const XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE = 'tax/avatax/production_company_code';
 
-    const XML_PATH_AVATAX_CONNECTION_DEVELOPMENT_LICENSE_KEY = 'tax/avatax_connection/development_license_key';
+    const XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER = 'tax/avatax/development_account_number';
 
-    const XML_PATH_AVATAX_CONNECTION_DEVELOPMENT_COMPANY_CODE = 'tax/avatax_connection/development_company_code';
+    const XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY = 'tax/avatax/development_license_key';
 
-    // General Settings
-    const XML_PATH_AVATAX_SETTINGS_CUSTOMER_CODE_FORMAT = 'tax/avatax_settings/customer_code_format';
+    const XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE = 'tax/avatax/development_company_code';
 
-    const XML_PATH_AVATAX_SETTINGS_USE_VAT = 'tax/avatax_settings/use_business_identification_number';
+    const XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT = 'tax/avatax/customer_code_format';
 
-    const XML_PATH_AVATAX_SETTINGS_REF1 = 'tax/avatax_settings/ref1';
+    const XML_PATH_AVATAX_USE_VAT = 'tax/avatax/use_business_identification_number';
 
-    const XML_PATH_AVATAX_SETTINGS_REF2 = 'tax/avatax_settings/ref2';
+    const XML_PATH_AVATAX_REF1 = 'tax/avatax/ref1';
+
+    const XML_PATH_AVATAX_REF2 = 'tax/avatax/ref2';
+    /**#@-*/
 
     /**#@+
      * Constants for shipping origin.
@@ -51,20 +55,36 @@ class Config
     const XML_PATH_SHIPPING_ORIGIN_STREET_LINE2 = 'shipping/origin/street_line2';
     /**#@-*/
 
-    // Customer Code Format Options
+    /**#@+
+     * Customer Code Format Options
+     */
     const CUSTOMER_FORMAT_OPTION_EMAIL = 'email';
-    const CUSTOMER_FORMAT_OPTION_ID = 'id';
-    const CUSTOMER_FORMAT_OPTION_NAME_ID = 'name_id';
 
+    const CUSTOMER_FORMAT_OPTION_ID = 'id';
+
+    const CUSTOMER_FORMAT_OPTION_NAME_ID = 'name_id';
+    /**#@-*/
+
+    /**
+     * Customer Code Format for "name_id" option
+     */
     const CUSTOMER_FORMAT_NAME_ID = '%s (%s)';
 
-    // Various Settings
+    /**#@+
+     * AvaTax API values
+     */
     const API_URL_DEV = 'https://development.avalara.net';
+
     const API_URL_PROD = 'https://avatax.avalara.net';
 
     const API_PROFILE_NAME_DEV = 'Development';
-    const API_PROFILE_NAME_PROD = 'Production';
 
+    const API_PROFILE_NAME_PROD = 'Production';
+    /**#@-*/
+
+    /**
+     * Magento version prefix
+     */
     const API_APP_NAME_PREFIX = 'Magento 2';
 
     /**
@@ -129,6 +149,21 @@ class Config
     }
 
     /**
+     * Return whether module is enabled
+     *
+     * @param null $store
+     * @return mixed
+     */
+    public function isModuleEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_MODULE_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
      * Return origin address
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -181,7 +216,7 @@ class Config
     public function getCustomerCodeFormat($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_SETTINGS_CUSTOMER_CODE_FORMAT,
+            self::XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -229,7 +264,7 @@ class Config
     public function getLiveMode($store = null)
     {
         return (bool)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_CONNECTION_LIVE_MODE,
+            self::XML_PATH_AVATAX_LIVE_MODE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -245,7 +280,7 @@ class Config
     public function getAccountNumber($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_CONNECTION_ACCOUNT_NUMBER,
+            self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -261,7 +296,7 @@ class Config
     public function getLicenseKey($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_CONNECTION_LICENSE_KEY,
+            self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -277,7 +312,7 @@ class Config
     public function getCompanyCode($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_CONNECTION_COMPANY_CODE,
+            self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -293,7 +328,7 @@ class Config
     public function getDevelopmentAccountNumber($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_CONNECTION_DEVELOPMENT_ACCOUNT_NUMBER,
+            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -309,7 +344,7 @@ class Config
     public function getDevelopmentLicenseKey($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_CONNECTION_DEVELOPMENT_LICENSE_KEY,
+            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -325,7 +360,7 @@ class Config
     public function getDevelopmentCompanyCode($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_CONNECTION_DEVELOPMENT_COMPANY_CODE,
+            self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -341,7 +376,7 @@ class Config
     public function getUseBusinessIdentificationNumber($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_SETTINGS_USE_VAT,
+            self::XML_PATH_AVATAX_USE_VAT,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -357,7 +392,7 @@ class Config
     public function getRef1($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_SETTINGS_REF1,
+            self::XML_PATH_AVATAX_REF1,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -373,7 +408,7 @@ class Config
     public function getRef2($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_SETTINGS_REF2,
+            self::XML_PATH_AVATAX_REF2,
             ScopeInterface::SCOPE_STORE,
             $store
         );
