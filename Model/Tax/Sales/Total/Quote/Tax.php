@@ -12,6 +12,7 @@ namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote;
 
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
 use ClassyLlama\AvaTax\Model\Tax\AvaTaxCalculation;
+use ClassyLlama\AvaTax\Model\Config;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
@@ -35,6 +36,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @var AvaTaxCalculation
      */
     protected $avaTaxCalculation = null;
+
+    /**
+     * @var Config
+     */
+    protected $config = null;
 
     /**
      * @var \Magento\Framework\Api\DataObjectHelper
@@ -64,10 +70,12 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Tax\Helper\Data $taxData,
         InteractionGet $interactionGetTax,
         AvaTaxCalculation $avaTaxCalculation,
+        Config $config,
         \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->avaTaxCalculation = $avaTaxCalculation;
+        $this->config = $config;
         $this->dataObjectHelper = $dataObjectHelper;
         parent::__construct(
             $taxConfig,
@@ -95,7 +103,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
-        // TODO: If AvaTax extension is disabled, call and return parent::collect
+        $storeId = $quote->getStoreId();
+        if (!$this->config->isModuleEnabled($storeId)) {
+            return parent::collect($quote, $shippingAssignment, $total);
+        }
 
         $this->clearValues($total);
         if (!$shippingAssignment->getItems()) {
