@@ -12,11 +12,59 @@
 
 namespace ClassyLlama\AvaTax\Model\Tax;
 
-use Magento\Tax\Model\TaxDetails\TaxDetails;
 use AvaTax\GetTaxResult;
+use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
+use Magento\Tax\Model\TaxDetails\TaxDetails;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Calculation\CalculatorFactory;
+use Magento\Tax\Api\Data\TaxDetailsInterfaceFactory;
+use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
+use Magento\Tax\Model\Config;
+use Magento\Tax\Api\TaxClassManagementInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
 {
+    /**
+     * @var InteractionGet
+     */
+    protected $interactionGetTax = null;
+
+    /**
+     * @param Calculation $calculation
+     * @param CalculatorFactory $calculatorFactory
+     * @param Config $config
+     * @param TaxDetailsInterfaceFactory $taxDetailsDataObjectFactory
+     * @param TaxDetailsItemInterfaceFactory $taxDetailsItemDataObjectFactory
+     * @param StoreManagerInterface $storeManager
+     * @param TaxClassManagementInterface $taxClassManagement
+     * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
+     * @param InteractionGet $interactionGetTax
+     */
+    public function __construct(
+        Calculation $calculation,
+        CalculatorFactory $calculatorFactory,
+        Config $config,
+        TaxDetailsInterfaceFactory $taxDetailsDataObjectFactory,
+        TaxDetailsItemInterfaceFactory $taxDetailsItemDataObjectFactory,
+        StoreManagerInterface $storeManager,
+        TaxClassManagementInterface $taxClassManagement,
+        \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
+        InteractionGet $interactionGetTax
+    ) {
+        $this->interactionGetTax = $interactionGetTax;
+        return parent::__construct(
+            $calculation,
+            $calculatorFactory,
+            $config,
+            $taxDetailsDataObjectFactory,
+            $taxDetailsItemDataObjectFactory,
+            $storeManager,
+            $taxClassManagement,
+            $dataObjectHelper
+        );
+    }
+
     /**
      * Calculates tax for each of the items in a quote/order/invoice/creditmemo
      *
@@ -30,7 +78,6 @@ class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
     public function calculateTaxDetails(
         $data,
         GetTaxResult $getTaxResult,
-        // Add support for this argument
         $useBaseCurrency,
         $storeId = null,
         // TODO: Use or remove this argument
@@ -54,7 +101,7 @@ class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
         /** @var Item $quoteItem */
         // TODO: Add support for object types other than quote
         foreach ($data->getAllItems() as $quoteItem) {
-            $processedItem = $this->interactionGetTax->getTaxDetailsItem($quoteItem, $getTaxResult);
+            $processedItem = $this->interactionGetTax->getTaxDetailsItem($quoteItem, $getTaxResult, $useBaseCurrency);
 
             // Items that are children of other items won't have tax data
             if (!$processedItem) {

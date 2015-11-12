@@ -120,10 +120,11 @@ class Get
      *
      * @param $item
      * @param \AvaTax\GetTaxResult $getTaxResult
+     * @param $useBaseCurrency
      * @return bool|\Magento\Tax\Api\Data\TaxDetailsItemInterface
      */
-    public function getTaxDetailsItem($item, GetTaxResult $getTaxResult)
+    public function getTaxDetailsItem($item, GetTaxResult $getTaxResult, $useBaseCurrency)
     {
-        return $this->interactionTax->getTaxDetailsItem($item, $getTaxResult);
+        return $this->interactionTax->getTaxDetailsItem($item, $getTaxResult, $useBaseCurrency);
     }
 }
