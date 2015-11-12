@@ -2,9 +2,15 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <tax>
-            <avatax_settings>
+            <avatax>
                 <use_business_identification_number>1</use_business_identification_number>
-            </avatax_settings>
+                <sku_shipping>Shipping</sku_shipping>
+                <sku_gw_order>GwOrder</sku_gw_order>
+                <sku_gw_items>GwItems</sku_gw_items>
+                <sku_gw_printed_card>GwPrintedCard</sku_gw_printed_card>
+                <sku_adjustment_positive>Adjustment</sku_adjustment_positive>
+                <sku_adjustment_negative>Adjustment</sku_adjustment_negative>
+            </avatax>
         </tax>
     </default>
 </config>
