@@ -113,10 +113,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return $this;
         }
 
-        //Setup taxable items
-        $address = $quote->getShippingAddress(); // TODO: Change this to billing if billing is used for tax calculation?
-        // TODO: Calculate tax based on whether this is selected
-        $priceIncludesTax = $this->_config->priceIncludesTax($address->getQuote()->getStore());
+        // If postal code hasn't been provided, don't estimate tax
+        if (!$quote->getShippingAddress()->getPostcode()) {
+            return $this;
+        }
 
         // Get tax from AvaTax API
         $getTaxResult = $this->interactionGetTax->getTax($quote);
