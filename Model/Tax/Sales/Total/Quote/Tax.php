@@ -121,9 +121,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         // Get tax from AvaTax API
         $getTaxResult = $this->interactionGetTax->getTax($quote);
 
-        // TODO: Add individual support for calculating base vs normal rates
-        $baseTaxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, false);
-        $taxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, true);
+        $baseTaxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, true, $storeId);
+        $taxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, false, $storeId);
 
         $itemsByType = $this->organizeItemTaxDetailsByType($taxDetails, $baseTaxDetails);
 
