@@ -36,11 +36,25 @@ class Config
 
     const XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT = 'tax/avatax/customer_code_format';
 
-    const XML_PATH_AVATAX_USE_VAT = 'tax/avatax/use_business_identification_number';
+    const XML_PATH_AVATAX_SKU_SHIPPING = 'tax/avatax/sku_shipping';
+
+    const XML_PATH_AVATAX_SKU_GIFT_WRAP_ORDER = 'tax/avatax/sku_gift_wrap_order';
+
+    const XML_PATH_AVATAX_SKU_GIFT_WRAP_ITEM = 'tax/avatax/sku_gift_wrap_item';
+
+    const XML_PATH_AVATAX_SKU_GIFT_WRAP_PRINTED_CARD = 'tax/avatax/sku_gift_wrap_printed_card';
+
+    const XML_PATH_AVATAX_SKU_ADJUSTMENT_POSITIVE = 'tax/avatax/sku_adjustment_positive';
+
+    const XML_PATH_AVATAX_SKU_ADJUSTMENT_NEGATIVE = 'tax/avatax/sku_adjustment_negative';
+
+    const XML_PATH_AVATAX_SKU_LOCATION_CODE = 'tax/avatax/location_code';
 
     const XML_PATH_AVATAX_REF1 = 'tax/avatax/ref1';
 
     const XML_PATH_AVATAX_REF2 = 'tax/avatax/ref2';
+
+    const XML_PATH_AVATAX_USE_VAT = 'tax/avatax/use_business_identification_number';
     /**#@-*/
 
     /**#@+
@@ -367,16 +381,105 @@ class Config
     }
 
     /**
-     * Get whether should use Business Identification Number (VAT)
+     * Get SKU for Shipping
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param null $store
      * @return string
      */
-    public function getUseBusinessIdentificationNumber($store = null)
+    public function getSkuShipping($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_USE_VAT,
+            self::XML_PATH_AVATAX_SKU_SHIPPING,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get SKU for Gift Wrap at the Order Level
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getSkuGiftWrapOrder($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SKU_GIFT_WRAP_ORDER,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get SKU for Gift Wrap at the Item Level
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getSkuShippingGiftWrapItem($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SKU_GIFT_WRAP_ITEM,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get SKU for Gift Wrap printed card
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getSkuShippingGiftWrapPrintedCard($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SKU_GIFT_WRAP_PRINTED_CARD,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get SKU for positive adjustment
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getSkuShippingAdjustmentPositive($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SKU_ADJUSTMENT_POSITIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get SKU for negative adjustment
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getSkuShippingAdjustmentNegative($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SKU_ADJUSTMENT_NEGATIVE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Location Code
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getLocationCode($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SKU_LOCATION_CODE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -409,6 +512,22 @@ class Config
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_REF2,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get whether should use Business Identification Number (VAT)
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param null $store
+     * @return string
+     */
+    public function getUseBusinessIdentificationNumber($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_USE_VAT,
             ScopeInterface::SCOPE_STORE,
             $store
         );
