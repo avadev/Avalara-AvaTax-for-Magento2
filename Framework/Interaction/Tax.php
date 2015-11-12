@@ -324,6 +324,12 @@ class Tax
             }
         }
 
+        // TODO: Apply the tax from the result to the order
+        $shippingLine = $this->interactionLine->getShippingLine($quote);
+        if ($shippingLine) {
+            $lines[] = $shippingLine;
+        }
+
         // Shipping Address not documented in the interface for some reason
         // they do have a constant for it but not a method in the interface
 

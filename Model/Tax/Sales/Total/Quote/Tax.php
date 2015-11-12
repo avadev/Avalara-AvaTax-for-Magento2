@@ -147,7 +147,6 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         //Save applied taxes for each item and the quote in aggregation
         $this->processAppliedTaxes($total, $shippingAssignment, $itemsByType);
 
-        // TODO: Figure out whether this should be removed/refactored
         if ($this->includeExtraTax()) {
             $total->addTotalAmount('extra_tax', $total->getExtraTaxAmount());
             $total->addBaseTotalAmount('extra_tax', $total->getBaseExtraTaxAmount());
