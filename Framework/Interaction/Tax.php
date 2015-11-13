@@ -324,6 +324,10 @@ class Tax
             }
         }
         foreach ($items as $item) {
+            // TODO: Implement a proper fix to this workaround. When items are being added to the cart (and ZIP code has been added to Tax & Estimate field on checkout), those items don't have an ID.
+            if (!$item->getItemId()) {
+                continue;
+            }
             $line = $this->interactionLine->getLine($item);
             if ($line) {
                 $lines[] = $line;
