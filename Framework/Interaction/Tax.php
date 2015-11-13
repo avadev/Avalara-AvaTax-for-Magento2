@@ -130,6 +130,12 @@ class Tax
         'tax_override' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
     ];
 
+    /**
+     * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
+     * convert AvaTax rate to Magento's rate
+     */
+    const RATE_MULTIPLIER = 100;
+
     public function __construct(
         Address $address,
         Config $config,
@@ -557,7 +563,7 @@ class Tax
             return false;
         }
 
-        $rate = (float)$taxLine->getRate(); // TODO: Make sure we don't need to convert
+        $rate = (float) $taxLine->getRate() * self::RATE_MULTIPLIER;
         $tax = (float)$taxLine->getTax();
 
         $discountTaxCompensationAmount  = 0; // TODO: Add support for this
