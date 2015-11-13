@@ -265,7 +265,7 @@ class Tax
         $lines = [];
         foreach ($order->getItems() as $item) {
             $line = $this->interactionLine->getLine($item);
-            if (!is_null($line)) {
+            if ($line) {
                 $lines[] = $line;
             }
         }
@@ -325,7 +325,7 @@ class Tax
         }
         foreach ($items as $item) {
             $line = $this->interactionLine->getLine($item);
-            if (!is_null($line)) {
+            if ($line) {
                 $lines[] = $line;
             }
 

@@ -176,7 +176,7 @@ class Line
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
-     * @return \AvaTax\Line|null
+     * @return \AvaTax\Line|null|bool
      */
     public function getLine($data) {
         switch (true) {
