@@ -173,7 +173,7 @@ class Validation
         foreach ($validFields as $key => $currentField) {
             if (isset($currentField['required']) && $currentField['required'] && (!isset($data[$key]) || empty($data[$key]))) {
                 throw new LocalizedException(new Phrase(
-                    'The AvaTax API requires the %1 field and it was not submitted as the valid type.  ' .
+                    'The AvaTax API requires the "%1" field and it was not submitted as the valid type.  ' .
                     'You passed a value of type "%2" and it was supposed to be of type "%3"',
                     [
                         $key,

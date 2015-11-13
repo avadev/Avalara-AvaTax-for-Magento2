@@ -35,6 +35,31 @@ class Line
     protected $productSkus = [];
 
     /**
+     * Description for shipping line
+     */
+    const SHIPPING_LINE_DESCRIPTION = 'Shipping costs';
+
+    /**
+     * Avatax shipping tax class
+     */
+    const SHIPPING_LINE_TAX_CLASS = 'FR020100';
+
+    /**
+     * Description for Gift Wrap order line
+     */
+    const GIFT_WRAP_ORDER_LINE_DESCRIPTION = 'Gift Wrap Order Amount';
+
+    /**
+     * Description for Gift Wrap item line
+     */
+    const GIFT_WRAP_ITEM_LINE_DESCRIPTION = 'Gift Wrap Items Amount';
+
+    /**
+     * Description for Gift Wrap card line
+     */
+    const GIFT_WRAP_CARD_LINE_DESCRIPTION = 'Gift Wrap Printed Card Amount';
+
+    /**
      * A list of valid fields for the data array and meta data about their types to use in validation
      * based on the API documentation.
      * Validation based on API documentation found here:
@@ -129,8 +154,8 @@ class Line
             'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
             'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
-            'ref1' => $this->getData($this->config->getRef1($item->getStoreId())), // TODO: Look into getting ref1 and ref2 from extensible Attributes and set as those
-            'ref2' => $this->getData($this->config->getRef2($item->getStoreId())),
+//            'ref1' => $this->getData($this->config->getRef1($item->getStoreId())), // TODO: Look into getting ref1 and ref2 from extensible Attributes and set as those
+//            'ref2' => $this->getData($this->config->getRef2($item->getStoreId())),
 //            'tax_override' => null,
         ];
     }
@@ -145,13 +170,13 @@ class Line
 
     }
 
-        /**
+    /**
      *
      * TODO: Figure out if we need to account for Streamlined Sales Tax requirements for description
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
-     * @return \AvaTax\Line|null
+     * @return \AvaTax\Line|null|bool
      */
     public function getLine($data) {
         switch (true) {
@@ -180,6 +205,395 @@ class Line
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
+        if (isset($data['no'])) {
+            $line->setNo($data['no']);
+        }
+        if (isset($data['origin_address'])) {
+            $line->setOriginAddress($data['origin_address']);
+        }
+        if (isset($data['destination_address'])) {
+            $line->setDestinationAddress($data['destination_address']);
+        }
+        if (isset($data['item_code'])) {
+            $line->setItemCode($data['item_code']);
+        }
+        if (isset($data['tax_code'])) {
+            $line->setTaxCode($data['tax_code']);
+        }
+        if (isset($data['customer_usage_type'])) {
+            $line->setCustomerUsageType($data['customer_usage_type']);
+        }
+        if (isset($data['exemption_no'])) {
+            $line->setExemptionNo($data['exemption_no']);
+        }
+        if (isset($data['description'])) {
+            $line->setDescription($data['description']);
+        }
+        if (isset($data['qty'])) {
+            $line->setQty($data['qty']);
+        }
+        if (isset($data['amount'])) {
+            $line->setAmount($data['amount']);
+        }
+        if (isset($data['discounted'])) {
+            $line->setDiscounted($data['discounted']);
+        }
+        if (isset($data['tax_included'])) {
+            $line->setTaxIncluded($data['tax_included']);
+        }
+        if (isset($data['ref1'])) {
+            $line->setRef1($data['ref1']);
+        }
+        if (isset($data['ref2'])) {
+            $line->setRef2($data['ref2']);
+        }
+        if (isset($data['tax_override'])) {
+            $line->setTaxOverride($data['tax_override']);
+        }
+        return $line;
+    }
+
+    /**
+     * Accepts a quote/order/invoice/creditmemo and returns a Line for shipping
+     * TODO: Possibly move this method into its own class
+     *
+     * @param $data
+     * @return \AvaTax\Line|null
+     */
+    public function getShippingLine($data) {
+        switch (true) {
+            case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
+                // TODO: Get shipping amount for this method
+                break;
+            case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
+                // TODO: Figure out why getBaseShippingAmount is returning 0. Switch to using getBaseShippingAmount
+                $shippingAmount = $data->getShippingAddress()->getShippingAmount();
+                break;
+            case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
+                // TODO: Get shipping amount for this method
+                break;
+            case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
+                // TODO: Get shipping amount for this method
+                break;
+            case (!is_array($data)):
+                return false;
+                break;
+        }
+
+        // If shipping rate doesn't have cost associated with it, do nothing
+        if ($shippingAmount <= 0) {
+            return false;
+        }
+
+        $itemCode = $this->config->getSkuShipping();
+        $data = [
+            // TODO: Setup registry for line number to allow for retrieval and generate ID dynamically
+            // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
+            'no' => 9999999,
+            'item_code' => $itemCode,
+            'tax_code' => self::SHIPPING_LINE_TAX_CLASS,
+            'description' => self::SHIPPING_LINE_DESCRIPTION,
+            'qty' => 1,
+            'amount' => $shippingAmount,
+            'discounted' => false,
+        ];
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        // TODO: Possibly cull this list
+        if (isset($data['no'])) {
+            $line->setNo($data['no']);
+        }
+        if (isset($data['origin_address'])) {
+            $line->setOriginAddress($data['origin_address']);
+        }
+        if (isset($data['destination_address'])) {
+            $line->setDestinationAddress($data['destination_address']);
+        }
+        if (isset($data['item_code'])) {
+            $line->setItemCode($data['item_code']);
+        }
+        if (isset($data['tax_code'])) {
+            $line->setTaxCode($data['tax_code']);
+        }
+        if (isset($data['customer_usage_type'])) {
+            $line->setCustomerUsageType($data['customer_usage_type']);
+        }
+        if (isset($data['exemption_no'])) {
+            $line->setExemptionNo($data['exemption_no']);
+        }
+        if (isset($data['description'])) {
+            $line->setDescription($data['description']);
+        }
+        if (isset($data['qty'])) {
+            $line->setQty($data['qty']);
+        }
+        if (isset($data['amount'])) {
+            $line->setAmount($data['amount']);
+        }
+        if (isset($data['discounted'])) {
+            $line->setDiscounted($data['discounted']);
+        }
+        if (isset($data['tax_included'])) {
+            $line->setTaxIncluded($data['tax_included']);
+        }
+        if (isset($data['ref1'])) {
+            $line->setRef1($data['ref1']);
+        }
+        if (isset($data['ref2'])) {
+            $line->setRef2($data['ref2']);
+        }
+        if (isset($data['tax_override'])) {
+            $line->setTaxOverride($data['tax_override']);
+        }
+        return $line;
+    }
+
+    /**
+     * Accepts a quote/order/invoice/creditmemo and returns a Line for shipping
+     * TODO: Possibly move this method into its own class
+     *
+     * @param $data
+     * @return \AvaTax\Line|null
+     */
+    public function getGiftWrapOrderLine($data) {
+        switch (true) {
+            case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
+                // TODO: Get amount for this type
+                break;
+            case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
+                $giftWrapOrderAmount = $data->getShippingAddress()->getGwBasePrice();
+                break;
+            case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
+                // TODO: Get amount for this type
+                break;
+            case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
+                // TODO: Get amount for this type
+                break;
+            case (!is_array($data)):
+                return false;
+                break;
+        }
+
+        if ($giftWrapOrderAmount <= 0) {
+            return false;
+        }
+
+        $itemCode = $this->config->getSkuGiftWrapOrder();
+        $data = [
+            // TODO: Setup registry for line number to allow for retrieval and generate ID dynamically
+            // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
+            'no' => 9999991,
+            'item_code' => $itemCode,
+            'tax_code' => self::SHIPPING_LINE_TAX_CLASS, // TODO: Set to correct tax class
+            'description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
+            'qty' => 1,
+            'amount' => $giftWrapOrderAmount,
+            'discounted' => false,
+        ];
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        // TODO: Possibly cull this list
+        if (isset($data['no'])) {
+            $line->setNo($data['no']);
+        }
+        if (isset($data['origin_address'])) {
+            $line->setOriginAddress($data['origin_address']);
+        }
+        if (isset($data['destination_address'])) {
+            $line->setDestinationAddress($data['destination_address']);
+        }
+        if (isset($data['item_code'])) {
+            $line->setItemCode($data['item_code']);
+        }
+        if (isset($data['tax_code'])) {
+            $line->setTaxCode($data['tax_code']);
+        }
+        if (isset($data['customer_usage_type'])) {
+            $line->setCustomerUsageType($data['customer_usage_type']);
+        }
+        if (isset($data['exemption_no'])) {
+            $line->setExemptionNo($data['exemption_no']);
+        }
+        if (isset($data['description'])) {
+            $line->setDescription($data['description']);
+        }
+        if (isset($data['qty'])) {
+            $line->setQty($data['qty']);
+        }
+        if (isset($data['amount'])) {
+            $line->setAmount($data['amount']);
+        }
+        if (isset($data['discounted'])) {
+            $line->setDiscounted($data['discounted']);
+        }
+        if (isset($data['tax_included'])) {
+            $line->setTaxIncluded($data['tax_included']);
+        }
+        if (isset($data['ref1'])) {
+            $line->setRef1($data['ref1']);
+        }
+        if (isset($data['ref2'])) {
+            $line->setRef2($data['ref2']);
+        }
+        if (isset($data['tax_override'])) {
+            $line->setTaxOverride($data['tax_override']);
+        }
+        return $line;
+    }
+
+    /**
+     * Accepts a quote/order/invoice/creditmemo and returns a Line for shipping
+     * TODO: Possibly move this method into its own class
+     *
+     * @param $data
+     * @return \AvaTax\Line|null
+     */
+    public function getGiftWrapItemLine($item) {
+        switch (true) {
+            case ($item instanceof \Magento\Sales\Api\Data\OrderItemInterface):
+                // TODO: Get amount for this type
+                break;
+            case ($item instanceof \Magento\Quote\Api\Data\CartItemInterface):
+                $giftWrapItemPrice = $item->getGwBasePrice();
+                $qty = $item->getQty();
+                break;
+            case ($item instanceof \Magento\Sales\Api\Data\InvoiceItemInterface):
+                // TODO: Get amount for this type
+                break;
+            case ($item instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
+                // TODO: Get amount for this type
+                break;
+            case (!is_array($item)):
+                return false;
+                break;
+        }
+
+        if ($giftWrapItemPrice <= 0) {
+            return false;
+        }
+
+        $giftWrapItemAmount = $giftWrapItemPrice * $qty;
+
+        $itemCode = $this->config->getSkuShippingGiftWrapItem();
+        $data = [
+            // TODO: Setup registry for line number to allow for retrieval and generate ID dynamically
+            // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
+            'no' => 9999992 . rand(1,99999),
+            'item_code' => $itemCode,
+            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
+            'qty' => 1,
+            'amount' => $giftWrapItemAmount,
+            'discounted' => false,
+        ];
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        // TODO: Possibly cull this list
+        if (isset($data['no'])) {
+            $line->setNo($data['no']);
+        }
+        if (isset($data['origin_address'])) {
+            $line->setOriginAddress($data['origin_address']);
+        }
+        if (isset($data['destination_address'])) {
+            $line->setDestinationAddress($data['destination_address']);
+        }
+        if (isset($data['item_code'])) {
+            $line->setItemCode($data['item_code']);
+        }
+        if (isset($data['tax_code'])) {
+            $line->setTaxCode($data['tax_code']);
+        }
+        if (isset($data['customer_usage_type'])) {
+            $line->setCustomerUsageType($data['customer_usage_type']);
+        }
+        if (isset($data['exemption_no'])) {
+            $line->setExemptionNo($data['exemption_no']);
+        }
+        if (isset($data['description'])) {
+            $line->setDescription($data['description']);
+        }
+        if (isset($data['qty'])) {
+            $line->setQty($data['qty']);
+        }
+        if (isset($data['amount'])) {
+            $line->setAmount($data['amount']);
+        }
+        if (isset($data['discounted'])) {
+            $line->setDiscounted($data['discounted']);
+        }
+        if (isset($data['tax_included'])) {
+            $line->setTaxIncluded($data['tax_included']);
+        }
+        if (isset($data['ref1'])) {
+            $line->setRef1($data['ref1']);
+        }
+        if (isset($data['ref2'])) {
+            $line->setRef2($data['ref2']);
+        }
+        if (isset($data['tax_override'])) {
+            $line->setTaxOverride($data['tax_override']);
+        }
+        return $line;
+    }
+
+    /**
+     * Accepts a quote/order/invoice/creditmemo and returns a Line for shipping
+     * TODO: Possibly move this method into its own class
+     *
+     * @param $data
+     * @return \AvaTax\Line|null
+     */
+    public function getGiftWrapCardLine($data) {
+        switch (true) {
+            case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
+                // TODO: Get amount for this type
+                break;
+            case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
+                $giftWrapCardAmount = $data->getShippingAddress()->getGwCardBasePrice();
+                break;
+            case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
+                // TODO: Get amount for this type
+                break;
+            case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
+                // TODO: Get amount for this type
+                break;
+            case (!is_array($data)):
+                return false;
+                break;
+        }
+
+        if ($giftWrapCardAmount <= 0) {
+            return false;
+        }
+
+        $itemCode = $this->config->getSkuShippingGiftWrapCard();
+        $data = [
+            // TODO: Setup registry for line number to allow for retrieval and generate ID dynamically
+            // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
+            'no' => 9999993,
+            'item_code' => $itemCode,
+            'tax_code' => self::SHIPPING_LINE_TAX_CLASS, // TODO: Set to correct tax class
+            'description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,
+            'qty' => 1,
+            'amount' => $giftWrapCardAmount,
+            'discounted' => false,
+        ];
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        // TODO: Possibly cull this list
         if (isset($data['no'])) {
             $line->setNo($data['no']);
         }

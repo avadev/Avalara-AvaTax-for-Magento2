@@ -5,9 +5,9 @@
             <avatax>
                 <use_business_identification_number>1</use_business_identification_number>
                 <sku_shipping>Shipping</sku_shipping>
-                <sku_gw_order>GwOrder</sku_gw_order>
-                <sku_gw_items>GwItems</sku_gw_items>
-                <sku_gw_printed_card>GwPrintedCard</sku_gw_printed_card>
+                <sku_gift_wrap_order>GwOrder</sku_gift_wrap_order>
+                <sku_gift_wrap_item>GwItems</sku_gift_wrap_item>
+                <sku_gift_wrap_card>GwPrintedCard</sku_gift_wrap_card>
                 <sku_adjustment_positive>Adjustment</sku_adjustment_positive>
                 <sku_adjustment_negative>Adjustment</sku_adjustment_negative>
             </avatax>

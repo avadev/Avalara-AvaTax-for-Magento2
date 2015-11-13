@@ -55,7 +55,11 @@ class Address
      * @var array
      */
     protected $validAddressFields = [
-        'line1' => ['type' => 'string', 'required' => true, 'length' => 50],
+        /*
+         * The AvaTax API defines Line1 as required, however in implementation it is not required. We can't require
+         * it here, as we need to be able to calculate taxes from the cart page using Postal Code, Region, and Country.
+         */
+        'line1' => ['type' => 'string', 'length' => 50],
         'line2' => ['type' => 'string', 'length' => 50],
         'line3' => ['type' => 'string', 'length' => 50],
         'city' => ['type' => 'string', 'length' => 50], // Either city & region are required or postalCode is required.
