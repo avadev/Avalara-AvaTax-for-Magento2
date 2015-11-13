@@ -328,6 +328,23 @@ class Tax
             if (!is_null($line)) {
                 $lines[] = $line;
             }
+
+            $giftWrapItemLine = $this->interactionLine->getGiftWrapItemLine($item);
+            if ($giftWrapItemLine) {
+                $lines[] = $giftWrapItemLine;
+            }
+        }
+
+        // TODO: Apply the tax from the result to the order
+        $giftWrapOrderLine = $this->interactionLine->getGiftWrapOrderLine($quote);
+        if ($giftWrapOrderLine) {
+            $lines[] = $giftWrapOrderLine;
+        }
+
+        // TODO: Apply the tax from the result to the order
+        $giftWrapCardLine = $this->interactionLine->getGiftWrapCardLine($quote);
+        if ($giftWrapCardLine) {
+            $lines[] = $giftWrapCardLine;
         }
 
         // TODO: Apply the tax from the result to the order

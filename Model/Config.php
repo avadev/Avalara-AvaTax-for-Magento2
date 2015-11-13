@@ -42,7 +42,7 @@ class Config
 
     const XML_PATH_AVATAX_SKU_GIFT_WRAP_ITEM = 'tax/avatax/sku_gift_wrap_item';
 
-    const XML_PATH_AVATAX_SKU_GIFT_WRAP_PRINTED_CARD = 'tax/avatax/sku_gift_wrap_printed_card';
+    const XML_PATH_AVATAX_SKU_GIFT_WRAP_CARD = 'tax/avatax/sku_gift_wrap_card';
 
     const XML_PATH_AVATAX_SKU_ADJUSTMENT_POSITIVE = 'tax/avatax/sku_adjustment_positive';
 
@@ -426,15 +426,15 @@ class Config
     }
 
     /**
-     * Get SKU for Gift Wrap printed card
+     * Get SKU for Gift Wrap card
      *
      * @param null $store
      * @return string
      */
-    public function getSkuShippingGiftWrapPrintedCard($store = null)
+    public function getSkuShippingGiftWrapCard($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_SKU_GIFT_WRAP_PRINTED_CARD,
+            self::XML_PATH_AVATAX_SKU_GIFT_WRAP_CARD,
             ScopeInterface::SCOPE_STORE,
             $store
         );
