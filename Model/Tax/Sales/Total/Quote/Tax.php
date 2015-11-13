@@ -121,6 +121,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         // Get tax from AvaTax API
         $getTaxResult = $this->interactionGetTax->getTax($quote);
 
+        // TODO: Implement "Action on Error" M1 admin setting and either disable checkout or show error message upon failure. Logic should be contained in the \ClassyLlama\AvaTax\Framework\Interaction\Tax\Get::getTax method.
+        if (!$getTaxResult) {
+            return $this;
+        }
+
         $baseTaxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, true, $storeId);
         $taxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, false, $storeId);
 
