@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping">
+        <plugin name="avatax_giftwrapping_total_quote_tax_giftwrapping" type="ClassyLlama\AvaTax\Model\GiftWrapping\Total\Quote\Tax\GiftwrappingPlugin" />
+    </type>
+    <type name="Magento\GiftWrapping\Model\Total\Quote\Tax\GiftwrappingAfterTax">
+        <plugin name="avatax_giftwrapping_total_quote_tax_giftwrapping" type="ClassyLlama\AvaTax\Model\GiftWrapping\Total\Quote\Tax\GiftwrappingAfterTaxPlugin" />
+    </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
 </config>
