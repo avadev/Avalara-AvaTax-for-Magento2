@@ -143,6 +143,14 @@ class Line
             return null;
         }
 
+        // Same pattern used in \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItem
+        if (!$item->getBaseTaxCalculationPrice()) {
+            $item->setBaseTaxCalculationPrice($item->getBaseCalculationPriceOriginal());
+        }
+        $amount = $item->getBaseTaxCalculationPrice();
+        // TODO: Determine whether to send full amount or amount minus tax
+        $amount -= $item->getBaseDiscountAmount();
+
         return [
             'store_id' => $item->getStoreId(),
             'no' => $item->getItemId(),
@@ -151,8 +159,8 @@ class Line
 //            'customer_usage_type' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
-            'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
             'discounted' => (bool)($item->getDiscountAmount() > 0),
+            'amount' => $amount, // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
             'tax_included' => false,
 //            'ref1' => $this->getData($this->config->getRef1($item->getStoreId())), // TODO: Look into getting ref1 and ref2 from extensible Attributes and set as those
 //            'ref2' => $this->getData($this->config->getRef2($item->getStoreId())),
