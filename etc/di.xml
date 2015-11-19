@@ -9,5 +9,8 @@
     <type name="Magento\Catalog\Model\CustomOption\CustomOptionProcessor">
         <plugin name="avatax_set_refs_on_buy_request" type="ClassyLlama\AvaTax\Model\Catalog\CustomOption\CustomOptionProcessor\Plugin" />
     </type>
+    <type name="Magento\Checkout\Model\ShippingInformationManagement">
+        <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Model\ShippingInformationManagementPlugin" />
+    </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
 </config>
