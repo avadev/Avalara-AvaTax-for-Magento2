@@ -23,18 +23,18 @@ class ShippingInformationManagementPlugin
     /**
      * @var PaymentDetailsExtensionFactory|null
      */
-    protected $shippingInformationExtensionFactory = null;
+    protected $paymentDetailsExtensionFactory = null;
 
     public function __construct(
         ValidationInteraction $validationInteraction,
         ShippingInformation $shippingInformation,
         CartRepositoryInterface $quoteRepository,
-        PaymentDetailsExtensionFactory $shippingInformationExtensionFactory
+        PaymentDetailsExtensionFactory $paymentDetailsExtensionFactory
     ) {
         $this->validationInteraction = $validationInteraction;
         $this->shippingInformation = $shippingInformation;
         $this->quoteRepository = $quoteRepository;
-        $this->shippingInformationExtensionFactory = $shippingInformationExtensionFactory;
+        $this->paymentDetailsExtensionFactory = $paymentDetailsExtensionFactory;
     }
 
     public function aroundSaveAddressInformation(
@@ -60,9 +60,8 @@ class ShippingInformationManagementPlugin
 
         $returnValue = $proceed($cartId, $addressInformation);
 
-        $shippingInformationExtension = $this->shippingInformationExtensionFactory->create();
-
-        $shippingInformationExtension->setData('foo', 'bar');
+        $shippingInformationExtension = $this->paymentDetailsExtensionFactory->create();
+        $shippingInformationExtension->setValidatedAddress('bar');
 
 //        $extensibleAttribute =  $productOption->getExtensionAttributes()
 //            ? $productOption->getExtensionAttributes()
