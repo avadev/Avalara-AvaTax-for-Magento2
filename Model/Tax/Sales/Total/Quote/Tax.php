@@ -13,6 +13,7 @@ namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
 use ClassyLlama\AvaTax\Model\Tax\AvaTaxCalculation;
 use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Framework\Interaction\TaxDetailsItem;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
@@ -22,6 +23,7 @@ use Magento\Quote\Model\Quote\Address;
 use Magento\Tax\Model\Calculation;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Framework\DataObject;
+use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
 use Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
 
@@ -41,6 +43,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @var Config
      */
     protected $config = null;
+
+    /**
+     * @var TaxDetailsItem
+     */
+    protected $taxDetailsItem = null;
 
     /**
      * @var \Magento\Framework\Api\DataObjectHelper
@@ -71,11 +78,13 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         InteractionGet $interactionGetTax,
         AvaTaxCalculation $avaTaxCalculation,
         Config $config,
+        TaxDetailsItem $taxDetailsItem,
         \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->avaTaxCalculation = $avaTaxCalculation;
         $this->config = $config;
+        $this->taxDetailsItem = $taxDetailsItem;
         $this->dataObjectHelper = $dataObjectHelper;
         parent::__construct(
             $taxConfig,
@@ -130,6 +139,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $taxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, false, $storeId);
 
         $itemsByType = $this->organizeItemTaxDetailsByType($taxDetails, $baseTaxDetails);
+
+        if (count($this->taxDetailsItem->getGwItemCodeMapping())) {
+            $total->setGwItemCodeToItemMapping($this->taxDetailsItem->getGwItemCodeMapping());
+        }
 
         if (isset($itemsByType[self::ITEM_TYPE_PRODUCT])) {
             $this->processProductItems($shippingAssignment, $itemsByType[self::ITEM_TYPE_PRODUCT], $total);
