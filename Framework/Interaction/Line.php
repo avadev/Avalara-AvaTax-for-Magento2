@@ -149,13 +149,10 @@ class Line
             return null;
         }
 
-        // Same pattern used in \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItem
-        if (!$item->getBaseTaxCalculationPrice()) {
-            $item->setBaseTaxCalculationPrice($item->getBaseCalculationPriceOriginal());
-        }
-        $amount = $item->getBaseTaxCalculationPrice();
-        // TODO: Determine whether to send full amount or amount minus tax
-        $amount -= $item->getBaseDiscountAmount();
+
+        $baseDiscountRowTotal = $item->getBaseDiscountAmount() * $item->getQty();
+        $baseRowTotalMinusDiscount = $item->getBaseRowTotal() - $baseDiscountRowTotal;
+        $amount = $baseRowTotalMinusDiscount;
 
         return [
             'store_id' => $item->getStoreId(),
