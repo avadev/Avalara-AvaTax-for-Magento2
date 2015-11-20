@@ -7,32 +7,15 @@ use Magento\Backend\App\Action;
 /**
  * Adminhtml AvaTax log controller
  */
-abstract class Log extends \Magento\Backend\App\Action
+abstract class Log extends Action
 {
     /**
-     * Core registry
+     * Check for is allowed
      *
-     * @var \Magento\Framework\Registry
+     * @return boolean
      */
-    protected $_coreRegistry = null;
-
-    /**
-     * @var \Magento\Framework\View\Result\PageFactory
-     */
-    protected $resultPageFactory;
-
-    /**
-     * @param Action\Context $context
-     * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
-     * @param \Magento\Framework\Registry $registry
-     */
-    public function __construct(
-        Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory,
-        \Magento\Framework\Registry $registry
-    ) {
-        $this->resultPageFactory = $resultPageFactory;
-        $this->_coreRegistry = $registry;
-        parent::__construct($context);
+    protected function _isAllowed()
+    {
+        return $this->_authorization->isAllowed('ClassyLlama_AvaTax::manage_avatax');
     }
 }

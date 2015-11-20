@@ -2,28 +2,23 @@
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Log;
 
-class Index extends \ClassyLlama\AvaTax\Controller\Adminhtml\Log
+use ClassyLlama\AvaTax\Controller\Adminhtml\Log;
+use Magento\Backend\Model\View\Result\Page;
+use Magento\Framework\Controller\ResultFactory;
+
+class Index extends Log
 {
     /**
      * Log page
      *
-     * @return void
+     * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()
     {
-        $this->_view->loadLayout();
-        $this->_setActiveMenu('ClassyLlama_AvaTax::avatax_log');
-        $this->_view->getPage()->getConfig()->getTitle()->prepend(__('AvaTax Logs'));
-        $this->_view->renderLayout();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return bool
-     */
-    protected function _isAllowed()
-    {
-        return $this->_authorization->isAllowed('ClassyLlama_AvaTax::manage_avatax');
+        /** @var Page $pageResult */
+        $pageResult = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
+        $pageResult->setActiveMenu('ClassyLlama_AvaTax::avatax_log');
+        $pageResult->getConfig()->getTitle()->prepend(__('AvaTax Logs'));
+        return $pageResult;
     }
 }

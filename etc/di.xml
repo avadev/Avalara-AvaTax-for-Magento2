@@ -10,4 +10,18 @@
         <plugin name="avatax_set_refs_on_buy_request" type="ClassyLlama\AvaTax\Model\Catalog\CustomOption\CustomOptionProcessor\Plugin" />
     </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="avatax_log_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Log\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Log\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">avatax_log</argument>
+            <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Log</argument>
+        </arguments>
+    </type>
 </config>
