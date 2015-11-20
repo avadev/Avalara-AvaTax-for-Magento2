@@ -14,14 +14,14 @@
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
-                <item name="avatax_log_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Log\Collection</item>
+                <item name="avatax_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
             </argument>
         </arguments>
     </type>
-    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Log\Collection">
+    <virtualType name="AvaTaxLogGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">avatax_log</argument>
             <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Log</argument>
         </arguments>
-    </type>
+    </virtualType>
 </config>
