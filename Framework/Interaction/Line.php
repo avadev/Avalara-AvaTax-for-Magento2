@@ -149,10 +149,9 @@ class Line
             return null;
         }
 
-
-        $baseDiscountRowTotal = $item->getBaseDiscountAmount() * $item->getQty();
-        $baseRowTotalMinusDiscount = $item->getBaseRowTotal() - $baseDiscountRowTotal;
-        $amount = $baseRowTotalMinusDiscount;
+        // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
+        // from taxable amount
+        $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
 
         return [
             'store_id' => $item->getStoreId(),
@@ -162,8 +161,8 @@ class Line
 //            'customer_usage_type' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
-            'discounted' => (bool)($item->getDiscountAmount() > 0),
             'amount' => $amount, // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
+            'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'tax_included' => false,
 //            'ref1' => $this->getData($this->config->getRef1($item->getStoreId())), // TODO: Look into getting ref1 and ref2 from extensible Attributes and set as those
 //            'ref2' => $this->getData($this->config->getRef2($item->getStoreId())),
