@@ -39,26 +39,64 @@ class InstallSchema implements InstallSchemaInterface
                 'Log ID'
             )
             ->addColumn(
-                'logged_at',
+                'created_at',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
                 null,
-                [
-                    'nullable' => true,
-                    'default' => null
-                ],
+                ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
                 'Log Time'
             )
             ->addColumn(
-                'message',
+                'store_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                ['nullable' => false],
+                'Store ID'
+            )
+            ->addColumn(
+                'activity',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                20,
+                [],
+                'Activity Being Logged'
+            )
+            ->addColumn(
+                'source',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 255,
                 [],
-                'Message'
+                'Code Source Reference'
+            )
+            ->addColumn(
+                'activity_status',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                20,
+                [],
+                'Activity Status'
+            )
+            ->addColumn(
+                'request',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                '64k',
+                [],
+                'Request'
+            )
+            ->addColumn(
+                'result',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                '64k',
+                [],
+                'Result'
+            )
+            ->addColumn(
+                'additional',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                '64k',
+                [],
+                'Additional'
             )
             ->setComment('AvaTax Log Table');
         $installer->getConnection()->createTable($table);
 
         $installer->endSetup();
-
     }
 }
