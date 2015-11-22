@@ -278,8 +278,9 @@ class Line
                 // TODO: Get shipping amount for this method
                 break;
             case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
-                // TODO: Figure out why getBaseShippingAmount is returning 0. Switch to using getBaseShippingAmount
-                $shippingAmount = $data->getShippingAddress()->getBaseShippingAmount();
+                $baseShippingAmount = $data->getShippingAddress()->getBaseShippingAmount();
+                $baseShippingAmountDiscount = $data->getShippingAddress()->getBaseShippingDiscountAmount();
+                $shippingAmount = $baseShippingAmount - $baseShippingAmountDiscount;
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
                 // TODO: Get shipping amount for this method
