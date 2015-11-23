@@ -1,0 +1,11 @@
+<li id="validate" role="presentation" class="checkout-payment-method" data-bind="fadeVisible: isVisible">
+    <div class="step-title" data-bind="text: 'Validate Address'" data-role="title">Validate</div>
+    <div id="checkout-step-validate" class="step-content" data-role="content" role="tabpanel" aria-hidden="false">
+        <form id="co-validate-form" class="form validate" novalidate="novalidate">
+            <input type="radio" id="originalAddress" name="addressToUse">
+            <label for="originalAddress">Original Address</label>
+            <input type="radio" id="validatedAddress" name="addressToUse">
+            <label for="validatedAddress">Validated Address</label>
+        </form>
+    </div>
+</li>

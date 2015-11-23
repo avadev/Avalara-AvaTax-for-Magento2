@@ -183,6 +183,25 @@
                         <field id="use_business_identification_number">1</field>
                     </depends>
                 </field>
+                <field id="address_validation" translate="label comment" type="select" sortOrder="3030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Address Validation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>tax/avatax_settings/address_validation</config_path>
+                    <comment>Set this to yes to enable address validation in the checkout process</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_method" translate="label comment" type="select" sortOrder="3040" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow user to choose valid address</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>tax/avatax_settings/address_validation_method</config_path>
+                    <comment></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
             </group>
         </section>
     </system>
