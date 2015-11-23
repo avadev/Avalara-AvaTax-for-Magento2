@@ -113,7 +113,15 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
         $storeId = $quote->getStoreId();
-        if (!$this->config->isModuleEnabled($storeId)) {
+        $postcode = $shippingAssignment->getShipping()->getAddress()->getPostcode();
+        // If postcode is not present, then collect totals is being run from a context where customer has not submitted
+        // their address, such as on the product listing, product detail, or cart page. Once the user enters their
+        // postcode in the "Estimate Shipping & Tax" form on the cart page, or submits their shipping address in the
+        // checkout, then a postcode will be present.
+        // This will allow a merchant to configure default tax settings for their site using Magento's core tax
+        // calculation and AvaTax's calculation will only kick in during cart/checkout. This is useful for countries
+        // where merchants are required to display prices including tax (such as some countries that charge VAT tax).
+        if (!$this->config->isModuleEnabled($storeId) || !$postcode) {
             return parent::collect($quote, $shippingAssignment, $total);
         }
 
