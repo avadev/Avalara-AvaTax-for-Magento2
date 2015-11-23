@@ -13,11 +13,7 @@ use ClassyLlama\AvaTax\Model\Config;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
-use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
-use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
-use Magento\Tax\Api\Data\AppliedTaxInterfaceFactory;
-use Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory;
 use Zend\Filter\DateTimeFormatter;
 
 class Tax
@@ -56,21 +52,6 @@ class Tax
      * @var TaxClassRepositoryInterface
      */
     protected $taxClassRepository = null;
-
-    /**
-     * @var AppliedTaxInterfaceFactory
-     */
-    protected $appliedTaxDataObjectFactory;
-
-    /**
-     * @var AppliedTaxRateInterfaceFactory
-     */
-    protected $appliedTaxRateDataObjectFactory;
-
-    /**
-     * @var PriceCurrencyInterface
-     */
-    protected $priceCurrency;
 
     /**
      * @var DateTimeFormatter
@@ -156,10 +137,6 @@ class Tax
         GetTaxRequestFactory $getTaxRequestFactory,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
-        PriceCurrencyInterface $priceCurrency,
-        AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
-        TaxDetailsItemInterfaceFactory $taxDetailsItemDataObjectFactory,
-        AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory,
         DateTimeFormatter $dateTimeFormatter,
         Line $interactionLine
     ) {
@@ -170,10 +147,6 @@ class Tax
         $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
-        $this->priceCurrency = $priceCurrency;
-        $this->taxDetailsItemDataObjectFactory = $taxDetailsItemDataObjectFactory;
-        $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
-        $this->appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
         $this->dateTimeFormatter = $dateTimeFormatter;
         $this->interactionLine = $interactionLine;
     }
@@ -545,149 +518,5 @@ class Tax
         }
 
         return $getTaxRequest;
-    }
-
-    /**
-     * Convert a quote/order/invoice/credit memo item to a tax details item object
-     *
-     * @param $item
-     * @param \AvaTax\GetTaxResult $getTaxResult
-     * @param $useBaseCurrency
-     * @return bool|\Magento\Tax\Api\Data\TaxDetailsItemInterface
-     */
-    public function getTaxDetailsItem($item, \AvaTax\GetTaxResult $getTaxResult, $useBaseCurrency)
-    {
-        switch (true) {
-            case ($item instanceof \Magento\Sales\Api\Data\OrderItemInterface):
-                // TODO: Create this method
-                return $this->convertOrderItemToTaxDetailsItem($item, $getTaxResult, $useBaseCurrency);
-                break;
-            case ($item instanceof \Magento\Quote\Api\Data\CartItemInterface):
-                return $this->convertQuoteItemToTaxDetailsItem($item, $getTaxResult, $useBaseCurrency);
-                break;
-            case ($item instanceof \Magento\Sales\Api\Data\InvoiceItemInterface):
-                // TODO: Create this method
-                return $this->convertInvoiceItemToTaxDetailsItem($item, $getTaxResult, $useBaseCurrency);
-                break;
-            case ($item instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
-                // TODO: Create this method
-                return $this->convertCreditmemoItemToTaxDetailsItem($item, $getTaxResult, $useBaseCurrency);
-                break;
-            default:
-                return false;
-                break;
-        }
-    }
-
-    /**
-     * Convert quote item to tax details item
-     *
-     * @param \Magento\Quote\Api\Data\CartItemInterface $item
-     * @param \AvaTax\GetTaxResult $getTaxResult
-     * @param $useBaseCurrency
-     * @return bool|\Magento\Tax\Api\Data\TaxDetailsItemInterface
-     */
-    public function convertQuoteItemToTaxDetailsItem(
-        \Magento\Quote\Api\Data\CartItemInterface $item,
-        \AvaTax\GetTaxResult $getTaxResult,
-        $useBaseCurrency
-    ) {
-        /* @var $taxLine \AvaTax\TaxLine  */
-        $taxLine = $getTaxResult->getTaxLine($item->getId());
-
-        // Items that are children of other items won't have lines in the response
-        if (!$taxLine instanceof \AvaTax\TaxLine) {
-            return false;
-        }
-
-        $rate = (float) $taxLine->getRate() * self::RATE_MULTIPLIER;
-        $tax = (float)$taxLine->getTax();
-
-        $discountTaxCompensationAmount  = 0; // TODO: Add support for this
-
-        $quantity = $item->getQty(); // TODO: Add support for getting QTY from parent products See \Magento\Tax\Model\TaxCalculation::getTotalQuantity
-
-        // See \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItem
-        if ($useBaseCurrency) {
-            if (!$item->getBaseTaxCalculationPrice()) {
-                $item->setBaseTaxCalculationPrice($item->getBaseCalculationPriceOriginal());
-            }
-            $price = $item->getBaseTaxCalculationPrice(); // TODO: Run through $this->calculationTool->round($item->getUnitPrice());
-        } else {
-            if (!$item->getTaxCalculationPrice()) {
-                $item->setTaxCalculationPrice($item->getCalculationPriceOriginal());
-            }
-            $price = $item->getTaxCalculationPrice(); // TODO: Run through $this->calculationTool->round($item->getUnitPrice());
-        }
-        // TODO: Determine if we need to only round if certain admin settings are configured
-        $price = $this->priceCurrency->round($price);
-
-        $rowTotal = $price * $quantity;
-
-        if ($useBaseCurrency) {
-            $rowTax = $tax;
-        } else {
-            // TODO: Pass current store view to this method
-            $rowTax = $this->priceCurrency->convert($tax);
-        }
-        // TODO: Determine if we need to only round if certain admin settings are configured
-        $rowTax = $this->priceCurrency->round($rowTax);
-
-        $priceInclTax = $price + $rowTax;
-        $rowTotalInclTax = $rowTotal + $rowTax;
-
-        $appliedTaxes = $this->getAppliedTaxes($getTaxResult, $rowTax);
-
-        return $this->taxDetailsItemDataObjectFactory->create()
-            ->setCode($item->getTaxCalculationItemId()) // this may need to change to something like sequence-***
-            ->setType('product') // Correct data?
-            ->setRowTax($rowTax)
-            ->setPrice($price)
-            ->setPriceInclTax($priceInclTax)
-            ->setRowTotal($rowTotal)
-            ->setRowTotalInclTax($rowTotalInclTax)
-            ->setDiscountTaxCompensationAmount($discountTaxCompensationAmount)
-            ->setAssociatedItemCode($item->getAssociatedItemCode())
-            ->setTaxPercent($rate)
-            ->setAppliedTaxes($appliedTaxes)
-            ;
-    }
-
-    /**
-     * Get the associated tax rates that were applied to a quote/order/invoice/creditmemo item
-     *
-     * @param \AvaTax\GetTaxResult $getTaxResult
-     * @param float $rowTax
-     * @return \Magento\Tax\Api\Data\AppliedTaxInterface[]
-     */
-    protected function getAppliedTaxes(
-        \AvaTax\GetTaxResult $getTaxResult,
-        $rowTax
-    ) {
-        $appliedTaxDataObjects = [];
-
-        foreach ($getTaxResult->getTaxSummary() as $key => $row) {
-            $percent = $row->getRate() * self::RATE_MULTIPLIER;
-
-            $appliedTaxDataObject = $this->appliedTaxDataObjectFactory->create();
-            // TODO: Should we use the total tax amount ($row->getTax()) anywhere?
-            $appliedTaxDataObject->setAmount($rowTax);
-            $appliedTaxDataObject->setPercent($percent);
-            $appliedTaxDataObject->setTaxRateKey($row->getTaxName());
-
-            /** @var  \Magento\Tax\Api\Data\AppliedTaxRateInterface[] $rateDataObjects */
-            $rateDataObjects = [];
-
-            $id = 'avatax-' . $key;
-            //Skipped position, priority and rule_id
-            $rateDataObjects[$id] = $this->appliedTaxRateDataObjectFactory->create()
-                ->setPercent($percent)
-                ->setCode($row->getTaxName())
-                ->setTitle($row->getTaxName());
-            $appliedTaxDataObject->setRates($rateDataObjects);
-
-            $appliedTaxDataObjects[] = $appliedTaxDataObject;
-        }
-        return $appliedTaxDataObjects;
     }
 }
