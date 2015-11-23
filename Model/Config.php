@@ -55,6 +55,12 @@ class Config
     const XML_PATH_AVATAX_REF2 = 'tax/avatax/ref2';
 
     const XML_PATH_AVATAX_USE_VAT = 'tax/avatax/use_business_identification_number';
+
+    const XML_PATH_AVATAX_ERROR_ACTION = 'tax/avatax/error_action';
+
+    const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_FRONTEND = 'tax/avatax/error_action_disable_checkout_message_frontend';
+
+    const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND = 'tax/avatax/error_action_disable_checkout_message_backend';
     /**#@-*/
 
     /**#@+

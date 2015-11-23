@@ -23,6 +23,7 @@ use Magento\Quote\Model\Quote\Address;
 use Magento\Tax\Model\Calculation;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\RemoteServiceUnavailableException;
 use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
 use Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
@@ -59,12 +60,17 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      *
      * @param \Magento\Tax\Model\Config $taxConfig
      * @param \Magento\Tax\Api\TaxCalculationInterface $taxCalculationService
-     * @param \Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
+     * @param QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory
-     * @param \Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory
+     * @param TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory
      * @param CustomerAddressFactory $customerAddressFactory
      * @param CustomerAddressRegionFactory $customerAddressRegionFactory
      * @param \Magento\Tax\Helper\Data $taxData
+     * @param InteractionGet $interactionGetTax
+     * @param AvaTaxCalculation $avaTaxCalculation
+     * @param Config $config
+     * @param TaxDetailsItem $taxDetailsItem
+     * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
      */
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
@@ -138,9 +144,22 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         // Get tax from AvaTax API
         $getTaxResult = $this->interactionGetTax->getTax($quote);
 
-        // TODO: Implement "Action on Error" M1 admin setting and either disable checkout or show error message upon failure. Logic should be contained in the \ClassyLlama\AvaTax\Framework\Interaction\Tax\Get::getTax method.
         if (!$getTaxResult) {
-            return $this;
+            switch ($this->config->getErrorAction($quote->getStoreId())) {
+                case Config::ERROR_ACTION_DISABLE_CHECKOUT:
+                    $errorMessage = $this->config->getErrorActionDisableCheckoutMessage($quote->getStoreId());
+                    // TODO: This exception gets caught by the last try/catch block in \Magento\Checkout\Model\ShippingInformationManagement::saveAddressInformation, so getting our custom exception message to display to user will take a different approach
+                    throw new RemoteServiceUnavailableException($errorMessage);
+                    break;
+                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
+                    return parent::collect($quote, $shippingAssignment, $total);
+                    break;
+                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX:
+                default:
+                    // TODO: Get this fully working, as prices "including taxes" are still showing in checkout, and "Subtotal" is displaying $0. Reference how M1 does this.
+                    $this->clearValues($total);
+                    return null;
+                    break;
         }
 
         $baseTaxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, true, $storeId);
