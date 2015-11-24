@@ -193,7 +193,7 @@ class Address
     {
         $street = $address->getStreet();
 
-        return $data = [
+        return [
             'line1' => array_key_exists(0, $street) ? $street[0] : '',
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
@@ -215,7 +215,7 @@ class Address
     {
         $street = $address->getStreet();
 
-        return $data = [
+        return [
             'line1' => array_key_exists(0, $street) ? $street[0] : '',
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
@@ -237,7 +237,7 @@ class Address
     {
         $street = $address->getStreet();
 
-        return $data = [
+        return [
             'line1' => array_key_exists(0, $street) ? $street[0] : '',
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
@@ -250,9 +250,11 @@ class Address
 
 
     /**
+     * Convert ValidAddress to CustomerAddressInterface
+     *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \AvaTax\ValidAddress $address
-     * @return CustomerAddressInterface
+     * @return null|CustomerAddressInterface
      */
     public function convertAvaTaxValidAddressToCustomerAddress(\AvaTax\ValidAddress $address)
     {
@@ -272,7 +274,7 @@ class Address
 
         $region = $this->getRegionByCode($address->getRegion());
         if (is_null($region)) {
-            return $address;
+            return null;
         }
 
         return $this->customerAddressFactory->create(['data' => [
@@ -305,9 +307,11 @@ class Address
     }
 
     /**
+     * Convert ValidAddress to QuoteAddressInterface
+     *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \AvaTax\ValidAddress $address
-     * @return CustomerAddressInterface
+     * @return QuoteAddressInterface
      */
     public function convertAvaTaxValidAddressToQuoteAddress(\AvaTax\ValidAddress $address)
     {
@@ -338,13 +342,16 @@ class Address
             $data[QuoteAddressInterface::KEY_REGION_ID] = $region->getId();
             $data[QuoteAddressInterface::KEY_REGION] = $region;
         }
-        return $this->customerAddressFactory->create(['data' => $data]);
+        return $this->quoteAddressFactory->create(['data' => $data]);
     }
 
     /**
+     * Convert ValidAddress to OrderAddressInterface
+     * TODO: Remove this method if it ends up not getting used
+     *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \AvaTax\ValidAddress $address
-     * @return \AvaTax\ValidAddress|CustomerAddressInterface
+     * @return null|OrderAddressInterface
      */
     public function convertAvaTaxValidAddressToOrderAddress(\AvaTax\ValidAddress $address)
     {
@@ -364,19 +371,18 @@ class Address
 
         $region = $this->getRegionByCode($address->getRegion());
         if (is_null($region)) {
-            return $address;
+            return null;
         }
 
-        return $this->customerAddressFactory->create(['data' => [
-            CustomerAddressInterface::REGION => $region,
-            CustomerAddressInterface::REGION_ID => $region->getId(),
-            CustomerAddressInterface::COUNTRY_ID => $address->getCountry(),
-            CustomerAddressInterface::STREET => $street,
-            CustomerAddressInterface::POSTCODE => $address->getPostalCode(),
-            CustomerAddressInterface::CITY => $address->getCity(),
+        return $this->orderAddressFactory->create(['data' => [
+            OrderAddressInterface::REGION => $region,
+            OrderAddressInterface::REGION_ID => $region->getId(),
+            OrderAddressInterface::COUNTRY_ID => $address->getCountry(),
+            OrderAddressInterface::STREET => $street,
+            OrderAddressInterface::POSTCODE => $address->getPostalCode(),
+            OrderAddressInterface::CITY => $address->getCity(),
         ]]);
     }
-
 
     /**
      * Converts address model into AvaTax compatible data array
@@ -391,7 +397,7 @@ class Address
      */
     public function convertAddressModelToAvaTaxAddress(AddressModelInterface $address)
     {
-        return $data = [
+        return [
             'line1' => $address->getStreetLine(1),
             'line2' => $address->getStreetLine(2),
             'line3' => $address->getStreetLine(3),
