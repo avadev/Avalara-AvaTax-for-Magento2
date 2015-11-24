@@ -14,6 +14,7 @@ namespace ClassyLlama\AvaTax\Model\Tax;
 
 use AvaTax\GetTaxResult;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
+use ClassyLlama\AvaTax\Framework\Interaction\TaxDetailsItem;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\CalculatorFactory;
@@ -29,6 +30,11 @@ class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @var InteractionGet
      */
     protected $interactionGetTax = null;
+
+    /**
+     * @var TaxDetailsItem
+     */
+    protected $taxDetailsItem = null;
 
     /**
      * @param Calculation $calculation
@@ -50,9 +56,11 @@ class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
         StoreManagerInterface $storeManager,
         TaxClassManagementInterface $taxClassManagement,
         \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
-        InteractionGet $interactionGetTax
+        InteractionGet $interactionGetTax,
+        TaxDetailsItem $taxDetailsItem
     ) {
         $this->interactionGetTax = $interactionGetTax;
+        $this->taxDetailsItem = $taxDetailsItem;
         return parent::__construct(
             $calculation,
             $calculatorFactory,
@@ -68,12 +76,16 @@ class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
     /**
      * Calculates tax for each of the items in a quote/order/invoice/creditmemo
      *
+     * This code is a hybrid of these two methods:
+     * @see Magento\Tax\Model\Sales\Total\Quote\Tax::getQuoteTaxDetails()
+     * @see Magento\Tax\Model\TaxCalculation::calculateTax()
+     *
      * @param $data
      * @param GetTaxResult $getTaxResult
      * @param bool $useBaseCurrency
      * @param null $storeId
      * @param bool|true $round
-     * @return mixed
+     * @return \Magento\Tax\Api\Data\TaxDetailsInterface
      */
     public function calculateTaxDetails(
         $data,
@@ -83,7 +95,6 @@ class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
         // TODO: Use or remove this argument
         $round = true
     ) {
-        // Much of this code taken from Magento\Tax\Model\TaxCalculation::calculateTax
         if ($storeId === null) {
             // TODO: Use or remove this method
             $storeId = $this->storeManager->getStore()->getStoreId();
@@ -100,17 +111,30 @@ class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $processedItems = [];
         /** @var Item $quoteItem */
         // TODO: Add support for object types other than quote
+
+        $this->taxDetailsItem->resetGwItemCodeMapping();
         foreach ($data->getAllItems() as $quoteItem) {
-            $processedItem = $this->interactionGetTax->getTaxDetailsItem($quoteItem, $getTaxResult, $useBaseCurrency);
+            // TODO: Add logic like \OnePica_AvaTax_Model_Avatax_Abstract::isProductCalculated
+            $processedItemsRaw = $this->taxDetailsItem->getTaxDetailsItems($quoteItem, $getTaxResult, $useBaseCurrency);
 
             // Items that are children of other items won't have tax data
-            if (!$processedItem) {
+            if (!count($processedItemsRaw)) {
                 continue;
             }
 
-            $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
-            $processedItems[$quoteItem->getTaxCalculationItemId()] = $processedItem;
+            foreach ($processedItemsRaw as $processedItem) {
+                $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
+                $processedItems[$processedItem->getCode()] = $processedItem;
+            }
         }
+
+        // Get quote-level items
+        $processedItemsForQuote = $this->taxDetailsItem->getTaxDetailsItemsForQuote($data, $getTaxResult, $useBaseCurrency);
+        foreach ($processedItemsForQuote as $processedItem) {
+            $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
+            $processedItems[$processedItem->getCode()] = $processedItem;
+        }
+
         $taxDetailsDataObject = $this->taxDetailsDataObjectFactory->create();
         $this->dataObjectHelper->populateWithArray(
             $taxDetailsDataObject,

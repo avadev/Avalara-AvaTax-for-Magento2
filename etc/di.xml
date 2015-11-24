@@ -3,11 +3,11 @@
     <type name="Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping">
         <plugin name="avatax_giftwrapping_total_quote_tax_giftwrapping" type="ClassyLlama\AvaTax\Model\GiftWrapping\Total\Quote\Tax\GiftwrappingPlugin" />
     </type>
-    <type name="Magento\GiftWrapping\Model\Total\Quote\Tax\GiftwrappingAfterTax">
-        <plugin name="avatax_giftwrapping_total_quote_tax_giftwrapping" type="ClassyLlama\AvaTax\Model\GiftWrapping\Total\Quote\Tax\GiftwrappingAfterTaxPlugin" />
-    </type>
     <type name="Magento\Catalog\Model\CustomOption\CustomOptionProcessor">
         <plugin name="avatax_set_refs_on_buy_request" type="ClassyLlama\AvaTax\Model\Catalog\CustomOption\CustomOptionProcessor\Plugin" />
+    </type>
+    <type name="Magento\Checkout\Model\ShippingInformationManagement">
+        <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Model\ShippingInformationManagementPlugin" />
     </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\ValidAddressInterface" type="ClassyLlama\AvaTax\Model\AvaTax\ValidAddress" />

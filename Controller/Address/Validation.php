@@ -67,59 +67,59 @@ class Validation extends Action\Action
     {
         $contents = '';
 
-        $dataAddress = [
-            'line1' => '4064 S. Lone Pine Ave.',
-            'city' => 'Springfield',
-            'region' => 'MO',
-            'postalCode' => '65804',
-        ];
-
-        $address = $dataAddress;
-        $contents .= "Data Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-
-        $customer = $this->customerFactory->create()->load(2);
-
-        $i = 0;
-        foreach ($customer->getAddresses() as $address) {
-            ++$i;
-            $contents .= "Customer Address $i: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-        }
-
-        $serviceCustomer = $this->customerRepository->getById(2);
-
-        $i = 0;
-        foreach ($serviceCustomer->getAddresses() as $address) {
-            ++$i;
-            $contents .= "Service Address $i: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-        }
-
-        $order = $this->orderFactory->create()->load(2);
-
-        $address = $order->getBillingAddress();
-        $contents .= "Order Billing Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-
-        $address = $order->getShippingAddress();
-        $contents .= "Order Shipping Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-
-        $i = 0;
-        foreach ($order->getAddresses() as $address) {
-            ++$i;
-            $contents .= "Service Order Address $i: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-        }
-
-//        $quote = $this->quoteFactory->create()->load(2);
+//        $dataAddress = [
+//            'line1' => '4064 S. Lone Pine Ave.',
+//            'city' => 'Springfield',
+//            'region' => 'MO',
+//            'postalCode' => '65804',
+//        ];
 //
-//        $address = $quote->getBillingAddress();
-//        $contents .= "Quote Billing Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
+//        $address = $dataAddress;
+//        $contents .= "Data Address: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+//
+//        $customer = $this->customerFactory->create()->load(2);
+//
+//        $i = 0;
+//        foreach ($customer->getAddresses() as $address) {
+//            ++$i;
+//            $contents .= "Customer Address $i: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+//        }
+//
+//        $serviceCustomer = $this->customerRepository->getById(2);
+//
+//        $i = 0;
+//        foreach ($serviceCustomer->getAddresses() as $address) {
+//            ++$i;
+//            $contents .= "Service Address $i: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+//        }
+//
+//        $order = $this->orderFactory->create()->load(2);
+//
+//        $address = $order->getBillingAddress();
+//        $contents .= "Order Billing Address: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
 //
 //        $address = $order->getShippingAddress();
-//        $contents .= "Quote Shipping Address: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-
-        $i = 0;
-        foreach ($order->getAddresses() as $address) {
-            ++$i;
-            $contents .= "Service Quote Address $i: " . $this->validationInteraction->validateAddress($address) . "\n\n\n";
-        }
+//        $contents .= "Order Shipping Address: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+//
+//        $i = 0;
+//        foreach ($order->getAddresses() as $address) {
+//            ++$i;
+//            $contents .= "Service Order Address $i: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+//        }
+//
+//        $quote = $this->quoteFactory->create()->load(4);
+//
+//        $address = $quote->getBillingAddress();
+//        $contents .= "Quote Billing Address: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+//
+//        $address = $order->getShippingAddress();
+//        $contents .= "Quote Shipping Address: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+//
+//        $i = 0;
+//        foreach ($order->getAddresses() as $address) {
+//            ++$i;
+//            $contents .= "Service Quote Address $i: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+//        }
 
         /* @var $rawResult Controller\Result\Raw */
         $rawResult = $this->resultFactory->create(Controller\ResultFactory::TYPE_RAW);

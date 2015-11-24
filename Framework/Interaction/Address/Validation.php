@@ -7,6 +7,8 @@ use AvaTax\TextCase;
 use AvaTax\ValidateRequestFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 
 class Validation
 {
@@ -38,15 +40,15 @@ class Validation
      * TODO: request or implement an interface for /AvaTax/Address and /AvaTax/ValidAddress since they can't extend because of SoapClient bug
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @return string
+     * @return /AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
+     * @throws LocalizedException
      */
     public function validateAddress($addressInput)
     {
-
-        $response = '';
         $addressService = $this->interactionAddress->getAddressService();
-        try
-        {
+
+        // TODO: Move try to be only around SOAP request calls.  Other exceptions should fall through.
+        try {
             $returnCoordinates = 1;
             $validateRequest = $this->validateRequestFactory->create(
                 [
@@ -57,51 +59,36 @@ class Validation
             );
             $validateResult = $addressService->Validate($validateRequest);
 
-            $response .= "\n" . 'Validate ResultCode is: ' . $validateResult->getResultCode() . "\n";
-            if ($validateResult->getResultCode() != SeverityLevel::$Success)
-            {
-                foreach ($validateResult->getMessages() as $message)
-                {
-                    $response .= $message->getName() . ": " . $message->getSummary() . "\n";
-                }
-            } else
-            {
-                $response .= "Normalized Address: \n";
-                foreach ($validateResult->getValidAddresses() as $valid)
-                {
-                    /* @var $valid \AvaTax\ValidAddress */
-                    $response .= "Line 1: " . $valid->getLine1() . "\n";
-                    $response .= "Line 2: " . $valid->getLine2() . "\n";
-                    $response .= "Line 3: " . $valid->getLine3() . "\n";
-                    $response .= "Line 4: " . $valid->getLine4() . "\n";
-                    $response .= "City: " . $valid->getCity() . "\n";
-                    $response .= "Region: " . $valid->getRegion() . "\n";
-                    $response .= "Postal Code: " . $valid->getPostalCode() . "\n";
-                    $response .= "Country: " . $valid->getCountry() . "\n";
-                    $response .= "County: " . $valid->getCounty() . "\n";
-                    $response .= "FIPS Code: " . $valid->getFipsCode() . "\n";
-                    $response .= "PostNet: " . $valid->getPostNet() . "\n";
-                    $response .= "Carrier Route: " . $valid->getCarrierRoute() . "\n";
-                    $response .= "Address Type: " . $valid->getAddressType() . "\n";
-                    if ($returnCoordinates == 1)
-                    {
-                        $response .= "Latitude: " . $valid->getLatitude() . "\n";
-                        $response .= "Longitude: " . $valid->getLongitude() . "\n";
-                    }
-                }
-            }
-        } catch (SoapFault $exception)
-        {
-            $message = "Exception: ";
-            if ($exception)
-            {
-                $message .= $exception->faultstring;
-            }
-            $response .= $message . "\n";
-            $response .= $addressService->__getLastRequest() . "\n";
-            $response .= $addressService->__getLastResponse() . "\n   ";
-        }
+            if ($validateResult->getResultCode() == SeverityLevel::$Success) {
+                $validAddresses = $validateResult->getValidAddresses();
 
-        return $response;
+                if (isset($validAddresses[0])) {
+                    $validAddress =  $validAddresses[0];
+                } else {
+                    return null;
+                }
+                // Convert data back to the type it was passed in as
+                switch (true) {
+                    case ($addressInput instanceof \Magento\Customer\Api\Data\AddressInterface):
+                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToCustomerAddress($validAddress);
+                        break;
+                    case ($addressInput instanceof \Magento\Quote\Api\Data\AddressInterface):
+                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToOrderAddress($validAddress);
+                        break;
+                    case ($addressInput instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
+                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToOrderAddress($validAddress);
+                        break;
+                    case (is_array($addressInput)):
+                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToArray($validAddress);
+                        break;
+                }
+
+                return $validAddress;
+            } else {
+                return null;
+            }
+        } catch (\SoapFault $exception) {
+            throw new LocalizedException(new Phrase($exception->getMessage()));
+        }
     }
 }
