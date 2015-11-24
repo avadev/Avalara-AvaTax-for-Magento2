@@ -2,6 +2,13 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
+use Magento\Customer\Api\Data\AddressInterface as CustomerAddressInterface;
+use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressInterfaceFactory;
+use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
+use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFactory;
+use Magento\Quote\Model\ResourceModel\Quote;
+use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
 use AvaTax\ATConfigFactory;
 use AvaTax\AddressFactory;
 use AvaTax\AddressServiceSoapFactory;
@@ -44,6 +51,21 @@ class Address
     protected $regionCollection = null;
 
     /**
+     * @var CustomerAddressInterfaceFactory
+     */
+    protected $customerAddressFactory = null;
+
+    /**
+     * @var QuoteAddressInterfaceFactory
+     */
+    protected $quoteAddressFactory = null;
+
+    /**
+     * @var OrderAddressInterfaceFactory
+     */
+    protected $orderAddressFactory = null;
+
+    /**
      * @var AddressServiceSoap[]
      */
     protected $addressServiceSoap = [];
@@ -82,13 +104,19 @@ class Address
         Validation $validation,
         AddressFactory $addressFactory,
         AddressServiceSoapFactory $addressServiceSoapFactory,
-        RegionCollectionFactory $regionCollectionFactory
+        RegionCollectionFactory $regionCollectionFactory,
+        CustomerAddressInterfaceFactory $customerAddressFactory,
+        QuoteAddressInterfaceFactory $quoteAddressFactory,
+        OrderAddressInterfaceFactory $orderAddressFactory
     ) {
         $this->config = $config;
         $this->validation = $validation;
         $this->addressFactory = $addressFactory;
         $this->addressServiceSoapFactory = $addressServiceSoapFactory;
         $this->regionCollection = $regionCollectionFactory->create();
+        $this->customerAddressFactory = $customerAddressFactory;
+        $this->quoteAddressFactory = $quoteAddressFactory;
+        $this->orderAddressFactory = $orderAddressFactory;
     }
 
     /**
@@ -161,11 +189,11 @@ class Address
      * @param \Magento\Customer\Api\Data\AddressInterface $address
      * @return array
      */
-    protected function convertCustomerAddressToAvaTaxAddress(\Magento\Customer\Api\Data\AddressInterface $address)
+    public function convertCustomerAddressToAvaTaxAddress(CustomerAddressInterface $address)
     {
         $street = $address->getStreet();
 
-        return $data = [
+        return [
             'line1' => array_key_exists(0, $street) ? $street[0] : '',
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
@@ -183,11 +211,11 @@ class Address
      * @param \Magento\Quote\Api\Data\AddressInterface $address
      * @return array
      */
-    protected function convertQuoteAddressToAvaTaxAddress(\Magento\Quote\Api\Data\AddressInterface $address)
+    public function convertQuoteAddressToAvaTaxAddress(QuoteAddressInterface $address)
     {
         $street = $address->getStreet();
 
-        return $data = [
+        return [
             'line1' => array_key_exists(0, $street) ? $street[0] : '',
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
@@ -205,11 +233,11 @@ class Address
      * @param \Magento\Sales\Api\Data\OrderAddressInterface $address
      * @return array
      */
-    protected function convertOrderAddressToAvaTaxAddress(\Magento\Sales\Api\Data\OrderAddressInterface $address)
+    public function convertOrderAddressToAvaTaxAddress(OrderAddressInterface $address)
     {
         $street = $address->getStreet();
 
-        return $data = [
+        return [
             'line1' => array_key_exists(0, $street) ? $street[0] : '',
             'line2' => array_key_exists(1, $street) ? $street[1] : '',
             'line3' => array_key_exists(2, $street) ? $street[2] : '',
@@ -221,6 +249,140 @@ class Address
     }
 
 
+    /**
+     * Convert ValidAddress to CustomerAddressInterface
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param \AvaTax\ValidAddress $address
+     * @return null|CustomerAddressInterface
+     */
+    public function convertAvaTaxValidAddressToCustomerAddress(\AvaTax\ValidAddress $address)
+    {
+        $street = [];
+        if ($address->getLine1()) {
+            $street[] = $address->getLine1();
+        }
+        if ($address->getLine2()) {
+            $street[] = $address->getLine2();
+        }
+        if ($address->getLine3()) {
+            $street[] = $address->getLine3();
+        }
+        if ($address->getLine4()) {
+            $street[] = $address->getLine4();
+        }
+
+        $region = $this->getRegionByCode($address->getRegion());
+        if (is_null($region)) {
+            return null;
+        }
+
+        return $this->customerAddressFactory->create(['data' => [
+            CustomerAddressInterface::REGION => $region,
+            CustomerAddressInterface::REGION_ID => $region->getId(),
+            CustomerAddressInterface::COUNTRY_ID => $address->getCountry(),
+            CustomerAddressInterface::STREET => $street,
+            CustomerAddressInterface::POSTCODE => $address->getPostalCode(),
+            CustomerAddressInterface::CITY => $address->getCity(),
+        ]]);
+    }
+
+    /**
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param \AvaTax\ValidAddress $address
+     * @return array
+     */
+    public function convertAvaTaxValidAddressToArray(\AvaTax\ValidAddress $address)
+    {
+        return [
+            'region' => $address->getRegion(),
+            'country' => $address->getCountry(),
+            'line1' => $address->getLine1(),
+            'line2' => $address->getLine2(),
+            'line3' => $address->getLine3(),
+            'line4' => $address->getLine4(),
+            'postalCode' => $address->getPostalCode(),
+            'city' => $address->getCity(),
+        ];
+    }
+
+    /**
+     * Convert ValidAddress to QuoteAddressInterface
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param \AvaTax\ValidAddress $address
+     * @return QuoteAddressInterface
+     */
+    public function convertAvaTaxValidAddressToQuoteAddress(\AvaTax\ValidAddress $address)
+    {
+        $street = [];
+        if ($address->getLine1()) {
+            $street[] = $address->getLine1();
+        }
+        if ($address->getLine2()) {
+            $street[] = $address->getLine2();
+        }
+        if ($address->getLine3()) {
+            $street[] = $address->getLine3();
+        }
+        if ($address->getLine4()) {
+            $street[] = $address->getLine4();
+        }
+
+        $data = [
+            QuoteAddressInterface::KEY_COUNTRY_ID => $address->getCountry(),
+            QuoteAddressInterface::KEY_REGION_CODE => $address->getRegion(),
+            QuoteAddressInterface::KEY_STREET => $street,
+            QuoteAddressInterface::KEY_POSTCODE => $address->getPostalCode(),
+            QuoteAddressInterface::KEY_CITY => $address->getCity(),
+        ];
+
+        $region = $this->getRegionByCode($address->getRegion());
+        if (!is_null($region)) {
+            $data[QuoteAddressInterface::KEY_REGION_ID] = $region->getId();
+            $data[QuoteAddressInterface::KEY_REGION] = $region;
+        }
+        return $this->quoteAddressFactory->create(['data' => $data]);
+    }
+
+    /**
+     * Convert ValidAddress to OrderAddressInterface
+     * TODO: Remove this method if it ends up not getting used
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param \AvaTax\ValidAddress $address
+     * @return null|OrderAddressInterface
+     */
+    public function convertAvaTaxValidAddressToOrderAddress(\AvaTax\ValidAddress $address)
+    {
+        $street = [];
+        if ($address->getLine1()) {
+            $street[] = $address->getLine1();
+        }
+        if ($address->getLine2()) {
+            $street[] = $address->getLine2();
+        }
+        if ($address->getLine3()) {
+            $street[] = $address->getLine3();
+        }
+        if ($address->getLine4()) {
+            $street[] = $address->getLine4();
+        }
+
+        $region = $this->getRegionByCode($address->getRegion());
+        if (is_null($region)) {
+            return null;
+        }
+
+        return $this->orderAddressFactory->create(['data' => [
+            OrderAddressInterface::REGION => $region,
+            OrderAddressInterface::REGION_ID => $region->getId(),
+            OrderAddressInterface::COUNTRY_ID => $address->getCountry(),
+            OrderAddressInterface::STREET => $street,
+            OrderAddressInterface::POSTCODE => $address->getPostalCode(),
+            OrderAddressInterface::CITY => $address->getCity(),
+        ]]);
+    }
 
     /**
      * Converts address model into AvaTax compatible data array
@@ -233,9 +395,9 @@ class Address
      * @param AddressModelInterface $address
      * @return array
      */
-    protected function convertAddressModelToAvaTaxAddress(AddressModelInterface $address)
+    public function convertAddressModelToAvaTaxAddress(AddressModelInterface $address)
     {
-        return $data = [
+        return [
             'line1' => $address->getStreetLine(1),
             'line2' => $address->getStreetLine(2),
             'line3' => $address->getStreetLine(3),
@@ -267,5 +429,25 @@ class Address
         }
 
         return $region;
+    }
+
+    /**
+     * Return region by code and if no region is found
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $regionCode
+     * @return \Magento\Framework\DataObject|null
+     */
+    protected function getRegionByCode($regionCode)
+    {
+
+        /* @var $region \Magento\Framework\DataObject */
+        foreach ($this->regionCollection as $region) {
+            if ($region->getCode() == $regionCode) {
+                return $region;
+            }
+        }
+
+        return null;
     }
 }
