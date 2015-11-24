@@ -5,6 +5,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 use AvaTax\LineFactory;
 use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
+use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
 use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
 
 class Line
@@ -43,6 +44,11 @@ class Line
      * Avatax shipping tax class
      */
     const SHIPPING_LINE_TAX_CLASS = 'FR020100';
+
+    /**
+     * An arbitrary ID used to track tax for shipping
+     */
+    const SHIPPING_LINE_NO = 'shipping';
 
     /**
      * Description for Gift Wrap order line
@@ -143,6 +149,10 @@ class Line
             return null;
         }
 
+        // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
+        // from taxable amount
+        $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
+
         return [
             'store_id' => $item->getStoreId(),
             'no' => $item->getItemId(),
@@ -151,8 +161,8 @@ class Line
 //            'customer_usage_type' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
-            'amount' => $item->getRowTotal(), // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
-            'discounted' => (bool)($item->getDiscountAmount() > 0),
+            'amount' => $amount, // TODO: Figure out how to handle amount and discounted to comply with US and EU tax regulations correctly
+            'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'tax_included' => false,
 //            'ref1' => $this->getData($this->config->getRef1($item->getStoreId())), // TODO: Look into getting ref1 and ref2 from extensible Attributes and set as those
 //            'ref2' => $this->getData($this->config->getRef2($item->getStoreId())),
@@ -178,7 +188,8 @@ class Line
      * @param $data
      * @return \AvaTax\Line|null|bool
      */
-    public function getLine($data) {
+    public function getLine($data)
+    {
         switch (true) {
             case ($data instanceof \Magento\Sales\Api\Data\OrderItemInterface):
                 $data = $this->convertOrderItemToData($data);
@@ -260,14 +271,16 @@ class Line
      * @param $data
      * @return \AvaTax\Line|null
      */
-    public function getShippingLine($data) {
+    public function getShippingLine($data)
+    {
         switch (true) {
             case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
                 // TODO: Get shipping amount for this method
                 break;
             case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
-                // TODO: Figure out why getBaseShippingAmount is returning 0. Switch to using getBaseShippingAmount
-                $shippingAmount = $data->getShippingAddress()->getShippingAmount();
+                $baseShippingAmount = $data->getShippingAddress()->getBaseShippingAmount();
+                $baseShippingAmountDiscount = $data->getShippingAddress()->getBaseShippingDiscountAmount();
+                $shippingAmount = $baseShippingAmount - $baseShippingAmountDiscount;
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
                 // TODO: Get shipping amount for this method
@@ -289,7 +302,7 @@ class Line
         $data = [
             // TODO: Setup registry for line number to allow for retrieval and generate ID dynamically
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
-            'no' => 9999999,
+            'no' => self::SHIPPING_LINE_NO,
             'item_code' => $itemCode,
             'tax_code' => self::SHIPPING_LINE_TAX_CLASS,
             'description' => self::SHIPPING_LINE_DESCRIPTION,
@@ -358,7 +371,8 @@ class Line
      * @param $data
      * @return \AvaTax\Line|null
      */
-    public function getGiftWrapOrderLine($data) {
+    public function getGiftWrapOrderLine($data)
+    {
         switch (true) {
             case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
                 // TODO: Get amount for this type
@@ -385,7 +399,7 @@ class Line
         $data = [
             // TODO: Setup registry for line number to allow for retrieval and generate ID dynamically
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
-            'no' => 9999991,
+            'no' => Giftwrapping::CODE_QUOTE_GW,
             'item_code' => $itemCode,
             'tax_code' => self::SHIPPING_LINE_TAX_CLASS, // TODO: Set to correct tax class
             'description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
@@ -484,7 +498,7 @@ class Line
         $data = [
             // TODO: Setup registry for line number to allow for retrieval and generate ID dynamically
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
-            'no' => 9999992 . rand(1,99999),
+            'no' => Giftwrapping::CODE_ITEM_GW_PREFIX . $item->getItemId(),
             'item_code' => $itemCode,
             'tax_code' => 'AVATAX', // TODO: Set to correct tax class
             'description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
@@ -580,7 +594,7 @@ class Line
         $data = [
             // TODO: Setup registry for line number to allow for retrieval and generate ID dynamically
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
-            'no' => 9999993,
+            'no' => Giftwrapping::CODE_PRINTED_CARD,
             'item_code' => $itemCode,
             'tax_code' => self::SHIPPING_LINE_TAX_CLASS, // TODO: Set to correct tax class
             'description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,

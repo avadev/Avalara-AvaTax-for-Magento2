@@ -72,7 +72,6 @@
                         <field id="live_mode">0</field>
                     </depends>
                 </field>
-
                 <field id="data_mapping_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Data Mapping</strong>]]></label>
                     <depends>
@@ -159,7 +158,6 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-
                 <field id="general_header" translate="label" type="label" sortOrder="3000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>General Settings</strong>]]></label>
                     <depends>
@@ -181,6 +179,36 @@
                     <depends>
                         <field id="enabled">1</field>
                         <field id="use_business_identification_number">1</field>
+                    </depends>
+                </field>
+                <field id="error_handling_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Error Handling Settings</strong>]]></label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="error_action" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Error Action</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
+                    <comment>What should happen if Magento is unable to retrieve taxes from the AvaTax API</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Frontend Error Message</label>
+                    <comment>This error message will be displayed to user if there is an error calculating taxes</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="error_action">1</field>
+                    </depends>
+                </field>
+                <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Backend Error Message</label>
+                    <comment>This error message will be displayed to backend user if there is an error calculating taxes</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="error_action">1</field>
                     </depends>
                 </field>
             </group>
