@@ -5,6 +5,7 @@ namespace ClassyLlama\AvaTax\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use ClassyLlama\AvaTax\Model\LogFactory;
 
 /**
  * Auto Fill module base helper
@@ -17,14 +18,22 @@ class Logger extends AbstractHelper
     protected $avaTaxLogger;
 
     /**
+     * @var LogFactory
+     */
+    protected $logFactory;
+
+    /**
      * @param Context $context
      * @param AvaTaxLogger $avaTaxLogger
+     * @param LogFactory $logFactory
      */
     public function __construct(
         Context $context,
-        AvaTaxLogger $avaTaxLogger
+        AvaTaxLogger $avaTaxLogger,
+        LogFactory $logFactory
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->logFactory = $logFactory;
         parent::__construct($context);
     }
 
@@ -32,10 +41,40 @@ class Logger extends AbstractHelper
      * Convenience method for logging
      * Example after constructor injection: $this->logHelper->avaTaxLog("log contents");
      *
-     * @param $message
+     * @param $store_id int
+     * @param $activity string
+     * @param $source string
+     * @param $activity_status string
+     * @param $request string
+     * @param $result string
+     * @param $additional string
      */
-    public function avaTaxLog($message)
+    public function avaTaxLog($store_id, $activity, $source, $activity_status, $request, $result, $additional)
     {
-        $this->avaTaxLogger->info($message);
+        # Log to custom file
+        $this->avaTaxLogger->info(
+            $additional,
+            array( /* context */
+                'store_id' => $store_id,
+                'activity' => $activity,
+                'source' => $source,
+                'actibity_status' => $activity_status
+            )
+        );
+
+        # Log to database
+        /** @var \ClassyLlama\AvaTax\Model\Log $log */
+        $log = $this->logFactory->create()->setData(
+            [
+                'store_id' => $store_id,
+                'activity' => $activity,
+                'source' => $source,
+                'activity_status' => $activity_status,
+                'request' => $request,
+                'result' => $result,
+                'additional' => $additional
+            ]
+        );
+        $log->save();
     }
 }
