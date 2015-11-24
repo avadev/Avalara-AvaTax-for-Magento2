@@ -268,9 +268,7 @@ class Address
         if ($address->getLine3()) {
             $street[] = $address->getLine3();
         }
-        if ($address->getLine4()) {
-            $street[] = $address->getLine4();
-        }
+        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
 
         $region = $this->getRegionByCode($address->getRegion());
         if (is_null($region)) {
@@ -300,7 +298,6 @@ class Address
             'line1' => $address->getLine1(),
             'line2' => $address->getLine2(),
             'line3' => $address->getLine3(),
-            'line4' => $address->getLine4(),
             'postalCode' => $address->getPostalCode(),
             'city' => $address->getCity(),
         ];
@@ -325,9 +322,7 @@ class Address
         if ($address->getLine3()) {
             $street[] = $address->getLine3();
         }
-        if ($address->getLine4()) {
-            $street[] = $address->getLine4();
-        }
+        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
 
         $data = [
             QuoteAddressInterface::KEY_COUNTRY_ID => $address->getCountry(),
@@ -365,9 +360,7 @@ class Address
         if ($address->getLine3()) {
             $street[] = $address->getLine3();
         }
-        if ($address->getLine4()) {
-            $street[] = $address->getLine4();
-        }
+        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
 
         $region = $this->getRegionByCode($address->getRegion());
         if (is_null($region)) {
