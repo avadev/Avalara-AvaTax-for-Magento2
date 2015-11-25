@@ -272,8 +272,23 @@ class Line
                 // TODO: Get shipping amount for this method
                 break;
             case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
-                $baseShippingAmount = $data->getShippingAddress()->getBaseShippingAmount();
-                $baseShippingAmountDiscount = $data->getShippingAddress()->getBaseShippingDiscountAmount();
+                $shippingAddress = $data->getShippingAddress();
+                // TODO: Test latest M2 code to see if this bug still exists. If so, file bug report.
+                // There is a bug in Magento that causes the "base_shipping_amount" value to be 0 in certain situations.
+                // For example, if a user calculates tax on the cart using the "Estimate Shipping and Tax" form, the
+                // base_shipping_amount will be 0, but the shipping_amount will contain the value that should have been
+                // in the base_shipping_amount field.
+                if (
+                    $shippingAddress->getBaseShippingAmount() == 0
+                    && $shippingAddress->getShippingAmount() > 0
+                ) {
+                    $baseShippingAmount = $shippingAddress->getShippingAmount();
+                    $baseShippingAmountDiscount = $shippingAddress->getShippingDiscountAmount();
+                } else {
+                    $baseShippingAmount = $shippingAddress->getBaseShippingAmount();
+                    $baseShippingAmountDiscount = $shippingAddress->getBaseShippingDiscountAmount();
+                }
+
                 $shippingAmount = $baseShippingAmount - $baseShippingAmountDiscount;
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
