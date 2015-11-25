@@ -143,12 +143,6 @@ class Line
 
     protected function convertQuoteItemToData(\Magento\Quote\Api\Data\CartItemInterface $item)
     {
-        // Items that have parent items do not contain taxable information
-        // TODO: Confirm this is true for all item types
-        if ($item->getParentItem()) {
-            return null;
-        }
-
         // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
         // from taxable amount
         $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
