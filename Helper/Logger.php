@@ -53,19 +53,8 @@ class Logger extends AbstractHelper
     {
         # Log to custom file
         $this->avaTaxLogger->info(
-            $additional,
+            $activity,
             array( /* context */
-                'store_id' => $store_id,
-                'activity' => $activity,
-                'source' => $source,
-                'actibity_status' => $activity_status
-            )
-        );
-
-        # Log to database
-        /** @var \ClassyLlama\AvaTax\Model\Log $log */
-        $log = $this->logFactory->create()->setData(
-            [
                 'store_id' => $store_id,
                 'activity' => $activity,
                 'source' => $source,
@@ -73,8 +62,22 @@ class Logger extends AbstractHelper
                 'request' => $request,
                 'result' => $result,
                 'additional' => $additional
-            ]
+            )
         );
-        $log->save();
+
+        # Log to database
+        /** @var \ClassyLlama\AvaTax\Model\Log $log */
+//        $log = $this->logFactory->create()->setData(
+//            [
+//                'store_id' => $store_id,
+//                'activity' => $activity,
+//                'source' => $source,
+//                'activity_status' => $activity_status,
+//                'request' => $request,
+//                'result' => $result,
+//                'additional' => $additional
+//            ]
+//        );
+//        $log->save();
     }
 }

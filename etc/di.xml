@@ -25,7 +25,7 @@
         </arguments>
     </virtualType>
 
-    <type name="ClassyLlama\AvaTax\Model\Logger\AvaTaxHandler">
+    <type name="ClassyLlama\AvaTax\Model\Logger\FileHandler">
         <arguments>
             <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
         </arguments>
@@ -34,7 +34,8 @@
         <arguments>
             <argument name="name" xsi:type="string">avatax</argument>
             <argument name="handlers"  xsi:type="array">
-                <item name="system" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxHandler</item>
+                <item name="db" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
+                <item name="file" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
             </argument>
         </arguments>
     </type>
