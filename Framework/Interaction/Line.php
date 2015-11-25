@@ -41,9 +41,9 @@ class Line
     const SHIPPING_LINE_DESCRIPTION = 'Shipping costs';
 
     /**
-     * Avatax shipping tax class
+     * Avatax shipping tax code
      */
-    const SHIPPING_LINE_TAX_CLASS = 'FR020100';
+    const SHIPPING_LINE_TAX_CODE = 'FR020100';
 
     /**
      * An arbitrary ID used to track tax for shipping
@@ -304,7 +304,7 @@ class Line
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
             'no' => self::SHIPPING_LINE_NO,
             'item_code' => $itemCode,
-            'tax_code' => self::SHIPPING_LINE_TAX_CLASS,
+            'tax_code' => self::SHIPPING_LINE_TAX_CODE,
             'description' => self::SHIPPING_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $shippingAmount,
@@ -401,7 +401,7 @@ class Line
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
             'no' => Giftwrapping::CODE_QUOTE_GW,
             'item_code' => $itemCode,
-            'tax_code' => self::SHIPPING_LINE_TAX_CLASS, // TODO: Set to correct tax class
+            'tax_code' => $this->config->getWrappingTaxClass($data->getStoreId()),
             'description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapOrderAmount,
@@ -476,6 +476,7 @@ class Line
             case ($item instanceof \Magento\Quote\Api\Data\CartItemInterface):
                 $giftWrapItemPrice = $item->getGwBasePrice();
                 $qty = $item->getQty();
+                $storeId = $item->getQuote()->getStoreId();
                 break;
             case ($item instanceof \Magento\Sales\Api\Data\InvoiceItemInterface):
                 // TODO: Get amount for this type
@@ -500,7 +501,7 @@ class Line
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
             'no' => Giftwrapping::CODE_ITEM_GW_PREFIX . $item->getItemId(),
             'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'tax_code' => $this->config->getWrappingTaxClass($storeId),
             'description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapItemAmount,
@@ -596,7 +597,7 @@ class Line
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
             'no' => Giftwrapping::CODE_PRINTED_CARD,
             'item_code' => $itemCode,
-            'tax_code' => self::SHIPPING_LINE_TAX_CLASS, // TODO: Set to correct tax class
+            'tax_code' => $this->config->getWrappingTaxClass($data->getStoreId()),
             'description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapCardAmount,
