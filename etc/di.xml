@@ -34,8 +34,8 @@
         <arguments>
             <argument name="name" xsi:type="string">avatax</argument>
             <argument name="handlers"  xsi:type="array">
-                <item name="db" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
-                <item name="file" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
+                <item name="0" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
+                <item name="1" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
             </argument>
         </arguments>
     </type>
