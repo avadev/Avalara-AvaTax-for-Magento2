@@ -1,11 +1,25 @@
 <li id="validate" role="presentation" class="checkout-payment-method" data-bind="fadeVisible: isVisible">
-    <div class="step-title" data-bind="text: 'Validate Address'" data-role="title">Validate</div>
+    <div class="step-title" data-bind="i18n: 'Verify Your Address'" data-role="title"></div>
     <div id="checkout-step-validate" class="step-content" data-role="content" role="tabpanel" aria-hidden="false">
+        <div class="instructions">
+            <span data-bind="i18n: 'There is a problem with the address that you entered. Our suggested changes are in red. Please choose which address you would like to use. If neither option is correct, '" />
+            <a data-bind="i18n:'edit your address'"></a>.
+        </div>
         <form id="co-validate-form" class="form validate" novalidate="novalidate">
-            <input type="radio" id="originalAddress" name="addressToUse">
-            <label for="originalAddress">Original Address</label>
-            <input type="radio" id="validatedAddress" name="addressToUse">
-            <label for="validatedAddress">Validated Address</label>
+            <div class="originalContainer addressOption">
+                <div class="optionTitle" data-bind="i18n: 'Original Address'"></div>
+                <div class="optionAddress">
+                    <input type="radio" id="originalAddress" name="addressToUse">
+                    <label for="originalAddress"></label>
+                </div>
+            </div>
+            <div class="validContainer addressOption">
+                <div class="optionTitle" data-bind="i18n: 'Suggested Address'"></div>
+                <div class="optionAddress">
+                    <input type="radio" id="validAddress" name="addressToUse">
+                    <label for="validAddress"></label>
+                </div>
+            </div>
         </form>
     </div>
 </li>

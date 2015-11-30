@@ -18,12 +18,9 @@ define(
     ) {
         'use strict';
         return function () {
-            var payload;
             var serviceUrl;
-            payload = {
-                validAddress: {
-                    validAddress: quote.shippingAddress()
-                }
+            var payload = {
+                address: quote.shippingAddress()
             };
 
             serviceUrl = urlBuilder.createUrl('/carts/mine/valid-address', {});
@@ -31,9 +28,13 @@ define(
             return storage.post(
                 serviceUrl,
                 JSON.stringify(payload)
+            ).done(
+                function (response) {
+                    return response;
+                }
             ).fail(
                 function (response) {
-                    errorProcessor.process(response);
+                    return errorProcessor.process(response);
                 }
             );
         }

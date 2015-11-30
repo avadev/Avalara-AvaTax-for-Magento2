@@ -2,8 +2,6 @@
 
 namespace ClassyLlama\AvaTax\Api;
 
-use ClassyLlama\AvaTax\Api\Data\ValidAddressInterface;
-
 /**
  * Interface for managing valid address
  * @api
@@ -11,8 +9,8 @@ use ClassyLlama\AvaTax\Api\Data\ValidAddressInterface;
 interface ValidAddressManagementInterface
 {
     /**
-     * @param \ClassyLlama\AvaTax\Api\Data\ValidAddressInterface $validAddress
-     * @return string[]
+     * @param \Magento\Quote\Api\Data\AddressInterface $address
+     * @return \Magento\Quote\Api\Data\AddressInterface|string
      */
-    public function saveValidAddress(ValidAddressInterface $validAddress);
+    public function saveValidAddress(\Magento\Quote\Api\Data\AddressInterface $address);
 }

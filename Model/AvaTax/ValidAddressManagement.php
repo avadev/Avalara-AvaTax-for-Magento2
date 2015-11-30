@@ -6,43 +6,36 @@
 
 namespace ClassyLlama\AvaTax\Model\AvaTax;
 
-use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Checkout\Model\ShippingInformation;
 use ClassyLlama\AvaTax\Api\ValidAddressManagementInterface;
-use ClassyLlama\AvaTax\Api\Data\ValidAddressInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Address\Validation as ValidationInteraction;
 
 /**
+ * Class ValidAddressManagement
+ * @package ClassyLlama\AvaTax\Model\AvaTax
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ValidAddressManagement implements ValidAddressManagementInterface
 {
     /**
-     * @var ValidationInteraction
+     * @var \ClassyLlama\AvaTax\Framework\Interaction\Address\Validation
      */
     protected $validationInteraction = null;
 
-    protected $shippingInformation = null;
-
-    protected $quoteRepository = null;
-
+    /**
+     * ValidAddressManagement constructor.
+     * @param ValidationInteraction $validationInteraction
+     */
     public function __construct(
-        ValidationInteraction $validationInteraction,
-        ShippingInformation $shippingInformation,
-        CartRepositoryInterface $quoteRepository
+        ValidationInteraction $validationInteraction
     ) {
         $this->validationInteraction = $validationInteraction;
-        $this->shippingInformation = $shippingInformation;
-        $this->quoteRepository = $quoteRepository;
     }
 
     /**
-     * @param \ClassyLlama\AvaTax\Api\Data\ValidAddressInterface $validAddress
-     * @return string[]
+     * @param \Magento\Quote\Api\Data\AddressInterface $address
+     * @return \Magento\Quote\Api\Data\AddressInterface|string
      */
-    public function saveValidAddress(ValidAddressInterface $validAddress) {
-        $validAddress = $validAddress->getValidAddress();
-//        $validAddress = $this->validationInteraction->validateAddress($validAddress);
-        return $validAddress;
+    public function saveValidAddress(\Magento\Quote\Api\Data\AddressInterface $address) {
+        return $this->validationInteraction->validateAddress($address);
     }
 }

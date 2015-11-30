@@ -73,7 +73,7 @@ class Validation
                         $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToCustomerAddress($validAddress);
                         break;
                     case ($addressInput instanceof \Magento\Quote\Api\Data\AddressInterface):
-                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToOrderAddress($validAddress);
+                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToQuoteAddress($validAddress);
                         break;
                     case ($addressInput instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
                         $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToOrderAddress($validAddress);

@@ -313,14 +313,17 @@ class Address
     public function convertAvaTaxValidAddressToQuoteAddress(\AvaTax\ValidAddress $address)
     {
         $street = [];
+        $line = 0;
         if ($address->getLine1()) {
-            $street[] = $address->getLine1();
+            $street[$line] = $address->getLine1();
+            $line++;
         }
         if ($address->getLine2()) {
-            $street[] = $address->getLine2();
+            $street[$line] = $address->getLine2();
+            $line++;
         }
         if ($address->getLine3()) {
-            $street[] = $address->getLine3();
+            $street[$line] = $address->getLine3();
         }
         // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
 
