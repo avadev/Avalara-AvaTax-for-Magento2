@@ -13,6 +13,14 @@
                 <error_action>1</error_action>
                 <error_action_disable_checkout_message_frontend>Unfortunately, we could not calculate tax for your order. Please try again with a different address or contact us to complete your order.</error_action_disable_checkout_message_frontend>
                 <error_action_disable_checkout_message_backend>There was an error getting tax rates from Avalara. Please see the error log for details.</error_action_disable_checkout_message_backend>
+
+                <logging_db_level>250</logging_db_level>
+                <logging_db_lifetime>60</logging_db_lifetime>
+                <logging_db_detail>1</logging_db_detail>
+                <logging_file_enabled>1</logging_file_enabled>
+                <logging_file_mode>1</logging_file_mode>
+                <logging_file_level>200</logging_file_level>
+                <logging_file_detail>2</logging_file_detail>
             </avatax>
         </tax>
     </default>

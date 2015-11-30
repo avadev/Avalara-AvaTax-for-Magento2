@@ -3,17 +3,19 @@
 namespace ClassyLlama\AvaTax\Model\Logger;
 
 use Monolog\Logger;
-use Magento\Framework\Filesystem\DriverInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use ClassyLlama\AvaTax\Model\LogFactory;
+use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class DbHandler extends AbstractHandler
 {
-    const XML_PATH_AVATAX_LOGGING_ENABLED = 'tax/avatax/enabled';
-    const XML_PATH_AVATAX_LOG_LEVEL = 'tax/avatax/enabled';
+    const XML_PATH_AVATAX_LOG_DB_LEVEL = 'tax/avatax/logging_db_level';
+    const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
 
     /**
      * @var ScopeConfigInterface
@@ -26,48 +28,60 @@ class DbHandler extends AbstractHandler
     protected $logFactory;
 
     /**
+     * @var Config
+     */
+    protected $avaTaxConfig;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param LogFactory $logFactory
+     * @param Config $avaTaxConfig
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        LogFactory $logFactory
+        LogFactory $logFactory,
+        Config $avaTaxConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->logFactory = $logFactory;
+        $this->avaTaxConfig = $avaTaxConfig;
         parent::__construct(Logger::DEBUG, true);
         $this->setFormatter(new LineFormatter(null, null, true));
-    }
-
-    /**
-     * Return whether module is enabled
-     *
-     * @param null $store
-     * @return mixed
-     */
-    public function isLoggingEnabled($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOGGING_ENABLED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
     }
 
     /**
      * Return configured log level
      *
      * @param null $store
-     * @return mixed
+     * @return int
      */
-    public function logLevel($store = null)
+    public function logDbLevel($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_LEVEL,
+            self::XML_PATH_AVATAX_LOG_DB_LEVEL,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
+
+    /**
+     * Return configured log detail
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logDbDetail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+
+
+
 
 
 
@@ -76,7 +90,7 @@ class DbHandler extends AbstractHandler
      */
     public function isHandling(array $record)
     {
-        return $this->isLoggingEnabled() && $record['level'] >= $this->logLevel();
+        return $this->avaTaxConfig->isModuleEnabled() && $record['level'] >= $this->logDbLevel();
     }
 
     /**
@@ -107,17 +121,27 @@ class DbHandler extends AbstractHandler
     {
         # Log to database
         /** @var \ClassyLlama\AvaTax\Model\Log $log */
-        $log = $this->logFactory->create()->setData(
-            [
-                'store_id' => isset($record['context']['store_id']) ? $record['context']['store_id'] : null,
-                'activity' => isset($record['context']['activity']) ? $record['context']['activity'] : null,
-                'source' => isset($record['context']['source']) ? $record['context']['source'] : null,
-                'activity_status' => isset($record['context']['activity_status']) ? $record['context']['activity_status'] : null,
-                'request' => isset($record['context']['request']) ? $record['context']['request'] : null,
-                'result' => isset($record['context']['result']) ? $record['context']['result'] : null,
-                'additional' => isset($record['context']['additional']) ? $record['context']['additional'] : null
-            ]
-        );
+        $log = $this->logFactory->create();
+        $log->setData('store_id', isset($record['context']['store_id']) ? $record['context']['store_id'] : null);
+        $log->setData('activity', isset($record['context']['activity']) ? $record['context']['activity'] : null);
+        $log->setData('source', isset($record['context']['source']) ? $record['context']['source'] : null);
+        $log->setData('activity_status', isset($record['context']['activity_status']) ? $record['context']['activity_status'] : null);
+        if ($this->logDbDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
+            $log->setData('request', isset($record['context']['request']) ? $record['context']['request'] : null);
+            $log->setData('result', isset($record['context']['result']) ? $record['context']['result'] : null);
+        } elseif ($this->logDbDetail() == LogDetail::NORMAL) {
+            $log->setData('request', isset($record['context']['request']) ? $record['context']['request'] : null);
+            $log->setData('result', isset($record['context']['result']) ? $record['context']['result'] : null);
+            $log->setData('additional', isset($record['context']['additional']) ? $record['context']['additional'] : null);
+        } elseif ($this->logDbDetail() == LogDetail::EXTRA) {
+            $log->setData('request', isset($record['context']['request']) ? $record['context']['request'] : null);
+            $log->setData('result', isset($record['context']['result']) ? $record['context']['result'] : null);
+            $log->setData('additional',
+                (isset($record['context']['additional']) ? $record['context']['additional'] : "") .
+                (isset($record['context']['extra']) ? $record['context']['extra'] : "") .
+                (isset($record['context']['session']) ? $record['context']['session'] : "")
+            );
+        }
         $log->save();
     }
 
