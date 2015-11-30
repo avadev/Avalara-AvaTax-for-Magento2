@@ -15,6 +15,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Zend\Filter\DateTimeFormatter;
+use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 class Tax
 {
@@ -129,6 +130,11 @@ class Tax
      */
     const RATE_MULTIPLIER = 100;
 
+    /**
+     * @var AvaTaxLogger
+     */
+    protected $avaTaxLogger;
+
     public function __construct(
         Address $address,
         Config $config,
@@ -138,7 +144,8 @@ class Tax
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
         DateTimeFormatter $dateTimeFormatter,
-        Line $interactionLine
+        Line $interactionLine,
+        AvaTaxLogger $avaTaxLogger
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -149,6 +156,7 @@ class Tax
         $this->taxClassRepository = $taxClassRepository;
         $this->dateTimeFormatter = $dateTimeFormatter;
         $this->interactionLine = $interactionLine;
+        $this->avaTaxLogger = $avaTaxLogger;
     }
 
     /**
@@ -160,6 +168,7 @@ class Tax
      */
     public function getTaxService($type = null)
     {
+        $this->avaTaxLogger->debug('calling getTaxService', ['additional' => '$type: '.var_export($type)]);
         if (is_null($type)) {
             $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         }
@@ -195,6 +204,7 @@ class Tax
      */
     protected function getCustomerCode($name, $email, $id)
     {
+        $this->avaTaxLogger->debug('calling getCustomerCode', ['additional' => '$name: '.var_export($name)."\n".'$email: '.var_export($email)."\n".'$id: '.var_export($id)]);
         switch ($this->config->getCustomerCodeFormat()) {
             case Config::CUSTOMER_FORMAT_OPTION_EMAIL:
                 return $email;
@@ -222,6 +232,7 @@ class Tax
      */
     protected function getExchangeRate($baseCurrencyCode, $convertCurrencyCode)
     {
+        $this->avaTaxLogger->debug('calling getExchangeRate', ['additional' => '$baseCurrencyCode: '.var_export($baseCurrencyCode)."\n".'$convertCurrencyCode: '.var_export($convertCurrencyCode)]);
         return 1.00;
     }
 
@@ -245,6 +256,7 @@ class Tax
      */
     protected function convertOrderToData(\Magento\Sales\Api\Data\OrderInterface $order)
     {
+        $this->avaTaxLogger->debug('calling convertOrderToData');
         $customerGroupId = $order->getCustomerGroupId();
         if (!is_null($customerGroupId)) {
             $taxClassId = $this->groupRepository->getById($customerGroupId)->getTaxClassId();
@@ -296,6 +308,7 @@ class Tax
     
     protected function convertQuoteToData(\Magento\Quote\Api\Data\CartInterface $quote)
     {
+        $this->avaTaxLogger->debug('calling convertQuoteToData');
         $taxClassId = $quote->getCustomerTaxClassId();
         if (!is_null($taxClassId)) {
             $taxClass = $this->taxClassRepository->get($taxClassId);
@@ -384,12 +397,12 @@ class Tax
 
     protected function convertInvoiceToData(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
     {
-
+        $this->avaTaxLogger->debug('calling convertInvoiceToData');
     }
 
     protected function convertCreditMemoToData(\Magento\Sales\Api\Data\CreditmemoInterface $creditMemo)
     {
-
+        $this->avaTaxLogger->debug('calling convertCreditMemoToData');
     }
 
     /**
@@ -403,6 +416,7 @@ class Tax
      */
     public function getGetTaxRequest($data)
     {
+        $this->avaTaxLogger->debug('calling getGetTaxRequest');
         switch (true) {
             case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
                 $data = $this->convertOrderToData($data);
