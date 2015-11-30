@@ -121,13 +121,17 @@ define(
                 validResult += this.diffString(originalAddress.postcode, validAddress.postcode);
                 originalResult += originalAddress.postcode;
 
-                // Original Address label
-                $(this.validateAddressContainerSelector + " label:eq(0)").html(originalResult);
+                if (this.choice === 1) {
+                    // Original Address label
+                    $(this.validateAddressContainerSelector + " label:eq(0)").html(originalResult);
 
-                // Valid Address label
-                $(this.validateAddressContainerSelector + " label:eq(1)").html(validResult);
+                    // Valid Address label
+                    $(this.validateAddressContainerSelector + " label:eq(1)").html(validResult);
 
-                this.toggleRadioSelectedStyle('.addressOption', 'addressToUse', 'selected');
+                    this.toggleRadioSelectedStyle('.addressOption', 'addressToUse', 'selected');
+                } else {
+                    $(".validatedAddress").html(validResult);
+                }
             },
 
             sanitizePostcode: function (validPostcode, originalPostcode) {

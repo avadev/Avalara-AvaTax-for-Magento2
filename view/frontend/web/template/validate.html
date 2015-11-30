@@ -1,10 +1,8 @@
 <li id="validate" role="presentation" class="checkout-payment-method" data-bind="fadeVisible: isVisible">
+    <!-- ko if: choice == 1 -->
     <div class="step-title" data-bind="i18n: 'Verify Your Address'" data-role="title"></div>
     <div id="checkout-step-validate" class="step-content" data-role="content" role="tabpanel" aria-hidden="false">
-        <div class="instructions">
-            <span data-bind="i18n: 'There is a problem with the address that you entered. Our suggested changes are in red. Please choose which address you would like to use. If neither option is correct, '" />
-            <a data-bind="i18n:'edit your address'"></a>.
-        </div>
+        <div class="instructions" data-bind="html: instructions" />
         <form id="co-validate-form" class="form validate" novalidate="novalidate">
             <div class="originalContainer addressOption">
                 <div class="optionTitle" data-bind="i18n: 'Original Address'"></div>
@@ -22,4 +20,12 @@
             </div>
         </form>
     </div>
+    <!-- /ko -->
+    <!-- ko if: choice == 0 -->
+    <div class="step-title" data-bind="i18n: 'Verify Your Address'" data-role="title"></div>
+    <div id="checkout-step-validate" class="step-content" data-role="content" role="tabpanel" aria-hidden="false">
+        <div class="instructions" data-bind="html: instructions" />
+        <div class="validatedAddress"></div>
+    </div>
+    <!-- /ko -->
 </li>

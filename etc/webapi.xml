@@ -7,7 +7,7 @@
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
-    <route url="/V1/carts/mine/valid-address" method="POST">
+    <route url="/V1/carts/mine/validate-address" method="POST">
         <service class="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" method="saveValidAddress"/>
         <resources>
             <resource ref="anonymous" />

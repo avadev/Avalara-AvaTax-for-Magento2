@@ -181,21 +181,61 @@
                         <field id="use_business_identification_number">1</field>
                     </depends>
                 </field>
-                <field id="error_handling_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="address_validation_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Address Validation Settings</strong>]]></label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_enabled" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Address Validation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>tax/avatax_settings/address_validation_enabled</config_path>
+                    <comment>Enable validation of shipping address using the AvaTax Address Validation API</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_method" translate="label comment" type="select" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow user to choose valid address</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Set this to yes if you would like the user to choose the correct address between the original and validated addresses.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Address Validation Instructions With Choice</label>
+                    <comment>This text will be displayed to the user in the "Verify Your Address" step of the checkout process when the user is allowed to choose between the original and validated address.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_instructions_without_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Address Validation Instructions Without Choice</label>
+                    <comment><![CDATA[This text will be displayed to the user in the "Verify Your Address" step of the checkout process when the user is <strong>not</strong> allowed to choose between the original and validated address.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
+                <field id="error_handling_header" translate="label" type="label" sortOrder="5000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Error Handling Settings</strong>]]></label>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="error_action" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Error Action</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
-                    <comment>What should happen if Magento is unable to retrieve taxes from the AvaTax API</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
+                <!--<field id="error_action" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">-->
+                    <!--<label>Error Action</label>-->
+                    <!--<source_model>0</source_model>-->
+                    <!--<comment>What should happen if Magento is unable to retrieve taxes from the AvaTax API</comment>-->
+                    <!--<depends>-->
+                        <!--<field id="enabled">1</field>-->
+                    <!--</depends>-->
+                <!--</field>-->
+                <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="5020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Frontend Error Message</label>
                     <comment>This error message will be displayed to user if there is an error calculating taxes</comment>
                     <depends>
@@ -203,31 +243,12 @@
                         <field id="error_action">1</field>
                     </depends>
                 </field>
-                <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="5030" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Backend Error Message</label>
                     <comment>This error message will be displayed to backend user if there is an error calculating taxes</comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="error_action">1</field>
-                    </depends>
-                </field>
-				<field id="address_validation_enabled" translate="label comment" type="select" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enable Address Validation</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>tax/avatax_settings/address_validation</config_path>
-                    <comment>Set this to yes to enable address validation in the checkout process</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="address_validation_method" translate="label comment" type="select" sortOrder="4050" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow user to choose valid address</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>tax/avatax_settings/address_validation_method</config_path>
-                    <comment></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                        <field id="address_validation">1</field>
                     </depends>
                 </field>
             </group>

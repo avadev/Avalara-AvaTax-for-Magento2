@@ -61,6 +61,14 @@ class Config
     const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_FRONTEND = 'tax/avatax/error_action_disable_checkout_message_frontend';
 
     const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND = 'tax/avatax/error_action_disable_checkout_message_backend';
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED = "tax/avatax_settings/address_validation_enabled";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD = "tax/avatax_settings/address_validation_method";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE = "tax/avatax/address_validation_instructions_with_choice";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE = "tax/avatax/address_validation_instructions_without_choice";
     /**#@-*/
 
     /**#@+
@@ -617,6 +625,42 @@ class Config
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function isAddressValidationEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function allowUserToChooseAddress($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function getAddressValidationInstructionsWithChoice($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE ,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function getAddressValidationInstructionsWithoutChoice($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE ,
             ScopeInterface::SCOPE_STORE,
             $store
         );

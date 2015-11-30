@@ -23,7 +23,7 @@ define(
                 address: quote.shippingAddress()
             };
 
-            serviceUrl = urlBuilder.createUrl('/carts/mine/valid-address', {});
+            serviceUrl = urlBuilder.createUrl('/carts/mine/validate-address', {});
 
             return storage.post(
                 serviceUrl,
