@@ -123,7 +123,13 @@ class DbHandler extends AbstractHandler
         /** @var \ClassyLlama\AvaTax\Model\Log $log */
         $log = $this->logFactory->create();
         $log->setData('store_id', isset($record['context']['store_id']) ? $record['context']['store_id'] : null);
-        $log->setData('activity', isset($record['context']['activity']) ? $record['context']['activity'] : null);
+        $log->setData('level', isset($record['level_name']) ? $record['level_name'] : null);
+        if (isset($record['context']['activity'])) {
+            $log->setData('activity', isset($record['context']['activity']) ? $record['context']['activity'] : null);
+            $log->setData('additional', $log->getData('additional') . isset($record['message']) ? $record['message'] : null);
+        } else {
+            $log->setData('activity', isset($record['message']) ? $record['message'] : null);
+        }
         $log->setData('source', isset($record['context']['source']) ? $record['context']['source'] : null);
         $log->setData('activity_status', isset($record['context']['activity_status']) ? $record['context']['activity_status'] : null);
         if ($this->logDbDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
@@ -132,11 +138,12 @@ class DbHandler extends AbstractHandler
         } elseif ($this->logDbDetail() == LogDetail::NORMAL) {
             $log->setData('request', isset($record['context']['request']) ? $record['context']['request'] : null);
             $log->setData('result', isset($record['context']['result']) ? $record['context']['result'] : null);
-            $log->setData('additional', isset($record['context']['additional']) ? $record['context']['additional'] : null);
+            $log->setData('additional', $log->getData('additional') . isset($record['context']['additional']) ? $record['context']['additional'] : null);
         } elseif ($this->logDbDetail() == LogDetail::EXTRA) {
             $log->setData('request', isset($record['context']['request']) ? $record['context']['request'] : null);
             $log->setData('result', isset($record['context']['result']) ? $record['context']['result'] : null);
             $log->setData('additional',
+                $log->getData('additional') .
                 (isset($record['context']['additional']) ? $record['context']['additional'] : "") .
                 (isset($record['context']['extra']) ? $record['context']['extra'] : "") .
                 (isset($record['context']['session']) ? $record['context']['session'] : "")

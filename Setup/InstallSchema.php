@@ -53,9 +53,16 @@ class InstallSchema implements InstallSchemaInterface
                 'Store ID'
             )
             ->addColumn(
-                'activity',
+                'level',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 20,
+                [],
+                'Log Level'
+            )
+            ->addColumn(
+                'activity',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
                 [],
                 'Activity Being Logged'
             )
