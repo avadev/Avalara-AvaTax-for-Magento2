@@ -91,6 +91,16 @@ class Config
     const CUSTOMER_FORMAT_NAME_ID = '%s (%s)';
 
     /**#@+
+     * Error Action Options
+     */
+    const ERROR_ACTION_DISABLE_CHECKOUT = 1;
+
+    const ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX = 2;
+
+    const ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX = 3;
+    /**#@-*/
+
+    /**#@+
      * AvaTax API values
      */
     const API_URL_DEV = 'https://development.avalara.net';
@@ -118,17 +128,28 @@ class Config
     protected $magentoProductMetadata = null;
 
     /**
+     * @var \Magento\Framework\App\State
+     */
+    protected $appState;
+
+    /**
+     * Class constructor
+     *
      * @param ScopeConfigInterface $scopeConfig
+     * @param ProductMetadataInterface $magentoProductMetadata
+     * @param ATConfigFactory $avaTaxConfigFactory
+     * @param \Magento\Framework\App\State $appState
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
-        ATConfigFactory $avaTaxConfigFactory
-    )
-    {
+        ATConfigFactory $avaTaxConfigFactory,
+        \Magento\Framework\App\State $appState
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
+        $this->appState = $appState;
         $this->createAvaTaxProfile();
     }
 
@@ -534,6 +555,68 @@ class Config
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_USE_VAT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get action to take when error occurs
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getErrorAction($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ERROR_ACTION,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return "disable checkout" error message based on the current area context
+     *
+     * @param null $store
+     * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getErrorActionDisableCheckoutMessage($store = null)
+    {
+        // TODO: Ensure that this method of checking area actually works
+        if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
+            return $this->getErrorActionDisableCheckoutMessageBackend($store);
+        } else {
+            return $this->getErrorActionDisableCheckoutMessageFrontend($store);
+        }
+    }
+
+    /**
+     * Get "disable checkout" error message for frontend user
+     *
+     * @param null $store
+     * @return string
+     */
+    protected function getErrorActionDisableCheckoutMessageFrontend($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_FRONTEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get "disable checkout" error message for backend user
+     *
+     * @param null $store
+     * @return string
+     */
+    protected function getErrorActionDisableCheckoutMessageBackend($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND,
             ScopeInterface::SCOPE_STORE,
             $store
         );
