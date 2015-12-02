@@ -1,0 +1,39 @@
+<?php
+
+namespace ClassyLlama\AvaTax\Model\Logger;
+
+use Magento\Store\Model\StoreManagerInterface;
+
+/**
+ * Injects additional AvaTax context in all records
+ */
+class AvaTaxProcessor
+{
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @param StoreManagerInterface $storeManager
+     */
+    public function __construct(
+        StoreManagerInterface $storeManager
+    )
+    {
+        $this->storeManager = $storeManager;
+    }
+
+    /**
+     * @param  array $record
+     * @return array
+     */
+    public function __invoke(array $record)
+    {
+        // get the store_id and add it to the record
+        $store = $this->storeManager->getStore();
+        $record['extra']['store_id'] = $store->getId();
+
+        return $record;
+    }
+}

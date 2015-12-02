@@ -10,6 +10,8 @@ use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
 use Magento\Framework\Logger\Handler\Exception;
 use Magento\Framework\Logger\Handler\System;
 use ClassyLlama\AvaTax\Model\Config\Source\LogFileMode;
+use Monolog\Processor\WebProcessor;
+use Monolog\Processor\IntrospectionProcessor;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
@@ -54,14 +56,24 @@ class FileHandler extends System
         System $systemHandler,
         ScopeConfigInterface $scopeConfig,
         Config $avaTaxConfig,
+        IntrospectionProcessor $introspectionProcessor,
+        WebProcessor $webProcessor,
         $filePath = null
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->avaTaxConfig = $avaTaxConfig;
         $this->systemHandler = $systemHandler;
         parent::__construct($filesystem, $exceptionHandler, $filePath);
+        $this->setFormatter(new FileFormatter());
+        $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
     }
 
+    protected function addExtraProcessors(array $processors) {
+        // Add additional processors for extra detail
+        if ($this->logFileDetail() == LogDetail::EXTRA) {
+            $this->processors = $processors;
+        }
+    }
     /**
      * @param null $store
      * @return bool

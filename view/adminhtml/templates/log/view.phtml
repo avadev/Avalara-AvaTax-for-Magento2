@@ -29,16 +29,16 @@ $logModel = $block->getLog();
                     <td><?php echo $logModel->getStoreId(); ?></td>
                 </tr>
                 <tr>
-                    <th><?php echo __('Activity'); ?></th>
-                    <td><?php echo $logModel->getActivity(); ?></td>
+                    <th><?php echo __('Level'); ?></th>
+                    <td><?php echo $logModel->getLevel(); ?></td>
+                </tr>
+                <tr>
+                    <th><?php echo __('Message'); ?></th>
+                    <td><?php echo $logModel->getMessage(); ?></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Source'); ?></th>
                     <td><?php echo $logModel->getSource(); ?></td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Activity Status'); ?></th>
-                    <td><?php echo $logModel->getActivityStatus(); ?></td>
                 </tr>
                 </tbody>
             </table>

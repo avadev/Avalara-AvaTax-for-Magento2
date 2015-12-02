@@ -9,7 +9,8 @@ use Magento\Store\Model\ScopeInterface;
 use ClassyLlama\AvaTax\Model\LogFactory;
 use ClassyLlama\AvaTax\Model\Config;
 use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
-
+use Monolog\Processor\WebProcessor;
+use Monolog\Processor\IntrospectionProcessor;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class DbHandler extends AbstractHandler
@@ -40,13 +41,23 @@ class DbHandler extends AbstractHandler
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         LogFactory $logFactory,
-        Config $avaTaxConfig
+        Config $avaTaxConfig,
+        IntrospectionProcessor $introspectionProcessor,
+        WebProcessor $webProcessor
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->logFactory = $logFactory;
         $this->avaTaxConfig = $avaTaxConfig;
         parent::__construct(Logger::DEBUG, true);
         $this->setFormatter(new LineFormatter(null, null, true));
+        $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
+    }
+
+    protected function addExtraProcessors(array $processors) {
+        // Add additional processors for extra detail
+        if ($this->logDbDetail() == LogDetail::EXTRA) {
+            $this->processors = $processors;
+        }
     }
 
     /**
@@ -122,34 +133,89 @@ class DbHandler extends AbstractHandler
         # Log to database
         /** @var \ClassyLlama\AvaTax\Model\Log $log */
         $log = $this->logFactory->create();
-        $log->setData('store_id', isset($record['context']['store_id']) ? $record['context']['store_id'] : null);
+
         $log->setData('level', isset($record['level_name']) ? $record['level_name'] : null);
-        if (isset($record['context']['activity'])) {
-            $log->setData('activity', isset($record['context']['activity']) ? $record['context']['activity'] : null);
-            $log->setData('additional', $log->getData('additional') . isset($record['message']) ? $record['message'] : null);
-        } else {
-            $log->setData('activity', isset($record['message']) ? $record['message'] : null);
+        $log->setData('message', isset($record['message']) ? $record['message'] : null);
+
+        if (isset($record['extra']['store_id'])) {
+            $log->setData('store_id', $record['extra']['store_id']);
+            unset($record['extra']['store_id']);
         }
-        $log->setData('source', isset($record['context']['source']) ? $record['context']['source'] : null);
-        $log->setData('activity_status', isset($record['context']['activity_status']) ? $record['context']['activity_status'] : null);
+        if (isset($record['extra']['class']) && isset($record['extra']['line'])) {
+            $log->setData('source', $record['extra']['class'] . " [line:" . $record['extra']['line'] . "]");
+        }
+
         if ($this->logDbDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
-            $log->setData('request', isset($record['context']['request']) ? $record['context']['request'] : null);
-            $log->setData('result', isset($record['context']['result']) ? $record['context']['result'] : null);
+            $log->setData('request', $this->getRequest($record));
+            $log->setData('result', $this->getResult($record));
         } elseif ($this->logDbDetail() == LogDetail::NORMAL) {
-            $log->setData('request', isset($record['context']['request']) ? $record['context']['request'] : null);
-            $log->setData('result', isset($record['context']['result']) ? $record['context']['result'] : null);
-            $log->setData('additional', $log->getData('additional') . isset($record['context']['additional']) ? $record['context']['additional'] : null);
+            $log->setData('request', $this->getRequest($record));
+            $log->setData('result', $this->getResult($record));
+            $log->setData('additional', $this->getContextVarExport($record));
         } elseif ($this->logDbDetail() == LogDetail::EXTRA) {
-            $log->setData('request', isset($record['context']['request']) ? $record['context']['request'] : null);
-            $log->setData('result', isset($record['context']['result']) ? $record['context']['result'] : null);
+            $log->setData('request', $this->getRequest($record));
+            $log->setData('result', $this->getResult($record));
             $log->setData('additional',
-                $log->getData('additional') .
-                (isset($record['context']['additional']) ? $record['context']['additional'] : "") .
-                (isset($record['context']['extra']) ? $record['context']['extra'] : "") .
-                (isset($record['context']['session']) ? $record['context']['session'] : "")
+                $this->getExtraVarExport($record) .
+                (strlen($this->getExtraVarExport($record)) > 0 ? "\n" : '') .
+                $this->getContextVarExport($record)
             );
         }
         $log->save();
+    }
+
+    /**
+     * @param array $record
+     * @return string
+     */
+    protected function getContextVarExport(array $record)
+    {
+        $string = "";
+        if (isset($record['context']) && count($record['context']) > 0) {
+            $string = 'context: ' . var_export($record['context'], 1);
+        }
+        return $string;
+    }
+
+    /**
+     * @param array $record
+     * @return string
+     */
+    protected function getExtraVarExport(array $record)
+    {
+        $string = "";
+        if (isset($record['extra']) && count($record['extra']) > 0) {
+            $string = 'extra: ' . var_export($record['extra'], 1);
+        }
+        return $string;
+    }
+
+    /**
+     * @param array $record
+     * @return string
+     */
+    protected function getRequest(array &$record)
+    {
+        $string = "";
+        if (isset($record['context']['request'])) {
+            $string = $record['context']['request'];
+            unset($record['context']['request']);
+        }
+        return $string;
+    }
+
+    /**
+     * @param array $record
+     * @return string
+     */
+    protected function getResult(array &$record)
+    {
+        $string = "";
+        if (isset($record['context']['result'])) {
+            $string = $record['context']['result'];
+            unset($record['context']['result']);
+        }
+        return $string;
     }
 
     /**

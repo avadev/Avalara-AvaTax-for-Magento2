@@ -37,6 +37,17 @@
                 <item name="0" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
                 <item name="1" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
             </argument>
+            <argument name="processors"  xsi:type="array">
+                <item name="0" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Monolog\Processor\IntrospectionProcessor">
+        <arguments>
+            <argument name="skipClassesPartials"  xsi:type="array">
+                <item name="0" xsi:type="string">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
+                <item name="1" xsi:type="string">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
+            </argument>
         </arguments>
     </type>
 </config>

@@ -143,11 +143,11 @@
                 </item>
             </argument>
         </column>
-        <column name="activity">
+        <column name="message">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
-                    <item name="label" xsi:type="string" translate="true">Activity Being Logged</item>
+                    <item name="label" xsi:type="string" translate="true">Log Message</item>
                 </item>
             </argument>
         </column>
@@ -156,14 +156,6 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Code Source Reference</item>
-                </item>
-            </argument>
-        </column>
-        <column name="activity_status">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">text</item>
-                    <item name="label" xsi:type="string" translate="true">Activity Status</item>
                 </item>
             </argument>
         </column>

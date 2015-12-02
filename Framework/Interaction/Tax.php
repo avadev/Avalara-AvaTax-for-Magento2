@@ -168,7 +168,7 @@ class Tax
      */
     public function getTaxService($type = null)
     {
-        $this->avaTaxLogger->debug('calling getTaxService', ['additional' => '$type: '.var_export($type)]);
+        $this->avaTaxLogger->debug('calling getTaxService', ['$type' => $type]);
         if (is_null($type)) {
             $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         }
@@ -204,7 +204,7 @@ class Tax
      */
     protected function getCustomerCode($name, $email, $id)
     {
-        $this->avaTaxLogger->debug('calling getCustomerCode', ['additional' => '$name: '.var_export($name)."\n".'$email: '.var_export($email)."\n".'$id: '.var_export($id)]);
+        $this->avaTaxLogger->debug('calling getCustomerCode', ['$name' => $name, '$email' => $email, '$id' => $id]);
         switch ($this->config->getCustomerCodeFormat()) {
             case Config::CUSTOMER_FORMAT_OPTION_EMAIL:
                 return $email;
@@ -232,7 +232,7 @@ class Tax
      */
     protected function getExchangeRate($baseCurrencyCode, $convertCurrencyCode)
     {
-        $this->avaTaxLogger->debug('calling getExchangeRate', ['additional' => '$baseCurrencyCode: '.var_export($baseCurrencyCode)."\n".'$convertCurrencyCode: '.var_export($convertCurrencyCode)]);
+        $this->avaTaxLogger->debug('calling getExchangeRate', ['$baseCurrencyCode' => $baseCurrencyCode, '$convertCurrencyCode' => $convertCurrencyCode]);
         return 1.00;
     }
 

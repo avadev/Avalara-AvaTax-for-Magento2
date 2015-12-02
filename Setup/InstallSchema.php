@@ -60,11 +60,11 @@ class InstallSchema implements InstallSchemaInterface
                 'Log Level'
             )
             ->addColumn(
-                'activity',
+                'message',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 255,
                 [],
-                'Activity Being Logged'
+                'Message Being Logged'
             )
             ->addColumn(
                 'source',
@@ -72,13 +72,6 @@ class InstallSchema implements InstallSchemaInterface
                 255,
                 [],
                 'Code Source Reference'
-            )
-            ->addColumn(
-                'activity_status',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                20,
-                [],
-                'Activity Status'
             )
             ->addColumn(
                 'request',
