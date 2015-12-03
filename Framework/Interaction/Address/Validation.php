@@ -70,13 +70,16 @@ class Validation
                 // Convert data back to the type it was passed in as
                 switch (true) {
                     case ($addressInput instanceof \Magento\Customer\Api\Data\AddressInterface):
-                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToCustomerAddress($validAddress);
+                        $validAddress = $this->interactionAddress
+                            ->convertAvaTaxValidAddressToCustomerAddress($validAddress, $addressInput);
                         break;
                     case ($addressInput instanceof \Magento\Quote\Api\Data\AddressInterface):
-                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToQuoteAddress($validAddress);
+                        $validAddress = $this->interactionAddress
+                            ->convertAvaTaxValidAddressToQuoteAddress($validAddress, $addressInput);
                         break;
                     case ($addressInput instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
-                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToOrderAddress($validAddress);
+                        $validAddress = $this->interactionAddress
+                            ->convertAvaTaxValidAddressToOrderAddress($validAddress, $addressInput);
                         break;
                     case (is_array($addressInput)):
                         $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToArray($validAddress);
