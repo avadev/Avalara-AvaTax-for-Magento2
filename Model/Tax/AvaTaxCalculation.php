@@ -115,6 +115,10 @@ class AvaTaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $this->taxDetailsItem->resetGwItemCodeMapping();
         foreach ($data->getAllItems() as $quoteItem) {
             // TODO: Add logic like \OnePica_AvaTax_Model_Avatax_Abstract::isProductCalculated
+            // Try to retrieve TaxDetailsItem for all quote items, regardless if they are children of other items. This
+            // is important because some children items will contain tax (e.g., children bundled products).
+            // The \ClassyLlama\AvaTax\Framework\Interaction\Tax::convertQuoteToData method is responsible for
+            // determining which children items should have tax calculated.
             $processedItemsRaw = $this->taxDetailsItem->getTaxDetailsItemForItem($quoteItem, $getTaxResult, $useBaseCurrency);
 
             // Items that are children of other items won't have tax data

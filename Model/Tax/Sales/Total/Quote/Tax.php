@@ -160,7 +160,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                     $this->clearValues($total);
                     return null;
                     break;
-        }
+            }
         }
 
         $baseTaxDetails = $this->avaTaxCalculation->calculateTaxDetails($quote, $getTaxResult, true, $storeId);
