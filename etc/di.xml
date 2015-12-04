@@ -9,12 +9,22 @@
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Model\ShippingInformationManagementPlugin" />
     </type>
+    <type name="Magento\Sales\Model\Order\Invoice">
+        <plugin name="avatax_sales_order_invoice" type="ClassyLlama\AvaTax\Plugin\SalesOrderInvoice" />
+    </type>
+    <!--<type name="Magento\Sales\Api\InvoiceRepositoryInterface">-->
+        <!--<plugin name="avatax_sales_api_invoice_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiInvoiceRepositoryInterface" />-->
+    <!--</type>-->
+    <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
+        <plugin name="avatax_sales_api_creditmemo_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiCreditmemoRepositoryInterface" />
+    </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
 
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="avatax_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
+                <item name="avatax_queue_listing_data_source" xsi:type="string">AvaTaxQueueGridDataProvider</item>
             </argument>
         </arguments>
     </type>
@@ -22,6 +32,12 @@
         <arguments>
             <argument name="mainTable" xsi:type="string">avatax_log</argument>
             <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AvaTaxQueueGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">avatax_queue</argument>
+            <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Queue</argument>
         </arguments>
     </virtualType>
 
