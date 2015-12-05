@@ -67,15 +67,25 @@ class Validation extends Action\Action
     {
         $contents = '';
 
-//        $dataAddress = [
-//            'line1' => '4064 S. Lone Pine Ave.',
-//            'city' => 'Springfield',
-//            'region' => 'MO',
-//            'postalCode' => '65804',
-//        ];
-//
-//        $address = $dataAddress;
-//        $contents .= "Data Address: " . print_r($this->validationInteraction->validateAddress($address), true) . "\n\n\n";
+        $dataAddress = [
+            'line1' => '4064 S. Lone Pine Ave.',
+            'city' => 'Springfield',
+            'region' => 'MO',
+            'postalCode' => '65804',
+        ];
+
+        $address = $dataAddress;
+        $validAddress = $this->validationInteraction->validateAddress($address);
+
+        $contents .= "Data Address: " . print_r($validAddress, true) . "\n\n\n";
+
+        $validAddress = $this->validationInteraction->validateAddress($address);
+
+        $contents .= "Data Address: " . print_r($validAddress, true) . "\n\n\n";
+
+        $validAddress = $this->validationInteraction->validateAddress($validAddress);
+
+        $contents .= "Data Address: " . print_r($validAddress, true) . "\n\n\n";
 //
 //        $customer = $this->customerFactory->create()->load(2);
 //
