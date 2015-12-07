@@ -317,6 +317,10 @@ class Tax
             if (!$item->getItemId()) {
                 continue;
             }
+
+            if ($item->getParentItem()) {
+                continue;
+            }
             $line = $this->interactionLine->getLine($item);
             if ($line) {
                 $lines[] = $line;
@@ -325,6 +329,21 @@ class Tax
             $giftWrapItemLine = $this->interactionLine->getGiftWrapItemLine($item);
             if ($giftWrapItemLine) {
                 $lines[] = $giftWrapItemLine;
+            }
+
+            // See logic in \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItems
+            if ($item->getHasChildren() && $item->isChildrenCalculated()) {
+                foreach ($item->getChildren() as $child) {
+                    $line = $this->interactionLine->getLine($child);
+                    if ($line) {
+                        $lines[] = $line;
+                    }
+
+                    $giftWrapItemLine = $this->interactionLine->getGiftWrapItemLine($child);
+                    if ($giftWrapItemLine) {
+                        $lines[] = $giftWrapItemLine;
+                    }
+                }
             }
         }
 

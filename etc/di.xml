@@ -10,4 +10,14 @@
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\ShippingInformationManagementPlugin" />
     </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
+    <type name="ClassyLlama\AvaTax\Model\Session">
+        <arguments>
+            <argument name="storage" xsi:type="object">ClassyLlama\AvaTax\Model\Session\Storage</argument>
+        </arguments>
+    </type>
+    <virtualType name="ClassyLlama\AvaTax\Model\Session\Storage" type="Magento\Framework\Session\Storage">
+        <arguments>
+            <argument name="namespace" xsi:type="string">classyllama_avatax</argument>
+        </arguments>
+    </virtualType>
 </config>

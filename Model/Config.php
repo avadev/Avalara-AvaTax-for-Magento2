@@ -4,7 +4,6 @@ namespace ClassyLlama\AvaTax\Model;
 
 use AvaTax\ATConfigFactory;
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
-use Magento\Framework\AppInterface as MageAppInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Phrase;
@@ -12,6 +11,7 @@ use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Store\Model\Information;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
+use Magento\Tax\Api\TaxClassRepositoryInterface;
 
 class Config
 {
@@ -145,6 +145,11 @@ class Config
     protected $appState;
 
     /**
+     * @var TaxClassRepositoryInterface
+     */
+    protected $taxClassRepository = null;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
@@ -156,12 +161,14 @@ class Config
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
-        \Magento\Framework\App\State $appState
+        \Magento\Framework\App\State $appState,
+        TaxClassRepositoryInterface $taxClassRepository
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
+        $this->taxClassRepository = $taxClassRepository;
         $this->createAvaTaxProfile();
     }
 
@@ -632,6 +639,23 @@ class Config
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+	/**
+     * Get gift wrap tax class
+     *
+     * @param null $store
+     * @return \Magento\Tax\Api\Data\TaxClassInterface
+     */
+    public function getWrappingTaxClass($store = null)
+    {
+        $taxClassId = $this->scopeConfig->getValue(
+            \Magento\GiftWrapping\Helper\Data::XML_PATH_TAX_CLASS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+        // TODO: Implement logic like \OnePica_AvaTax_Model_Avatax_Abstract::_getGiftTaxClassCode once AvaTax custom tax codes are implemented
+        //return $this->taxClassRepository->get($taxClassId)->getClassName();
+        return null;
     }
 
     public function isAddressValidationEnabled($store = null)
