@@ -7,7 +7,7 @@ use ClassyLlama\AvaTax\Model\Config;
 class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
 {
 
-    const COMPONENT_PATH = 'ClassyLlama_AvaTax/js/view/ReviewPayment';
+    const COMPONENT_PATH = 'ClassyLlama_AvaTax/js/view/reviewPayment';
 
     /**
      * @var Config
@@ -58,7 +58,6 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
                     ['payment']['component'] = self::COMPONENT_PATH;
             }
         }
-
         return $jsLayout;
     }
 }
