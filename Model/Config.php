@@ -593,9 +593,9 @@ class Config
     {
         // TODO: Ensure that this method of checking area actually works
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
-            return $this->getErrorActionDisableCheckoutMessageBackend($store);
+            return __($this->getErrorActionDisableCheckoutMessageBackend($store));
         } else {
-            return $this->getErrorActionDisableCheckoutMessageFrontend($store);
+            return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
         }
     }
 
