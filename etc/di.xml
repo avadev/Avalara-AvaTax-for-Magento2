@@ -19,7 +19,16 @@
         <plugin name="avatax_sales_api_creditmemo_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiCreditmemoRepositoryInterface" />
     </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
-
+    <type name="ClassyLlama\AvaTax\Model\Session">
+        <arguments>
+            <argument name="storage" xsi:type="object">ClassyLlama\AvaTax\Model\Session\Storage</argument>
+        </arguments>
+    </type>
+    <virtualType name="ClassyLlama\AvaTax\Model\Session\Storage" type="Magento\Framework\Session\Storage">
+        <arguments>
+            <argument name="namespace" xsi:type="string">classyllama_avatax</argument>
+        </arguments>
+    </virtualType>
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
@@ -40,7 +49,6 @@
             <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Queue</argument>
         </arguments>
     </virtualType>
-
     <type name="ClassyLlama\AvaTax\Model\Logger\FileHandler">
         <arguments>
             <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>

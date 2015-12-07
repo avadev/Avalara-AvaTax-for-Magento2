@@ -168,7 +168,7 @@ class TaxDetailsItem
         // TODO: Switch to logic from \ClassyLlama\AvaTax\Framework\Interaction\Line::convertQuoteItemToData
         $rowTotal = $price * $quantity;
 
-        return $this->getTaxDetailsItem(
+        $taxDetailsItem = $this->getTaxDetailsItem(
             $getTaxResult,
             $item->getQuote()->getQuoteId(),
             $taxLineNo,
@@ -180,6 +180,13 @@ class TaxDetailsItem
             $rowTotal
         );
 
+        // If an item has children whose tax get calculated, then this item should not contain any Applied Taxes or else
+        // the total of Applied Taxes will include both the parent product tax as well as all of the children taxes
+        if ($item->getHasChildren() && $item->isChildrenCalculated()) {
+            $taxDetailsItem->setAppliedTaxes([]);
+        }
+
+        return $taxDetailsItem;
     }
 
     /**
@@ -397,9 +404,6 @@ class TaxDetailsItem
         $tax = (float)$taxLine->getTax();
 
         $discountTaxCompensationAmount  = 0; // TODO: Add support for this
-
-        // TODO: Determine if we need to only round if certain admin settings are configured
-//        $price = $this->priceCurrency->round($price, $store);
 
         if (!$rowTotal) {
             // TODO: Determine if we need to round $rowTotal

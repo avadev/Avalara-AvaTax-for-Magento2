@@ -6,6 +6,7 @@ use AvaTax\SeverityLevel;
 use AvaTax\TextCase;
 use AvaTax\ValidateRequestFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
+use ClassyLlama\AvaTax\Model\Session;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -19,6 +20,11 @@ class Validation
     protected $validateRequestFactory = null;
 
     /**
+     * @var Session
+     */
+    protected $session = null;
+
+    /**
      * @var Address
      */
     protected $interactionAddress = null;
@@ -29,9 +35,11 @@ class Validation
      */
     public function __construct(
         Address $interactionAddress,
+        Session $session,
         ValidateRequestFactory $validateRequestFactory
     ) {
         $this->interactionAddress = $interactionAddress;
+        $this->session = $session;
         $this->validateRequestFactory = $validateRequestFactory;
     }
 
@@ -50,24 +58,37 @@ class Validation
         // TODO: Move try to be only around SOAP request calls.  Other exceptions should fall through.
         try {
             $returnCoordinates = 1;
-            $validateRequest = $this->validateRequestFactory->create(
-                [
-                    'address' => $this->interactionAddress->getAddress($addressInput),
-                    'textCase' => (TextCase::$Mixed ? TextCase::$Mixed : TextCase::$Default),
-                    'coordinates' => $returnCoordinates,
-                ]
-            );
-            $validateResult = $addressService->Validate($validateRequest);
+            $avataxAddress = $this->interactionAddress->getAddress($addressInput);
 
-            if ($validateResult->getResultCode() == SeverityLevel::$Success) {
-                $validAddresses = $validateResult->getValidAddresses();
+            $validAddress = $this->session->getAddressResponse($avataxAddress);
 
-                if (isset($validAddresses[0])) {
-                    $validAddress =  $validAddresses[0];
-                } else {
-                    return null;
+            if (is_null($validAddress)) {
+                $validateRequest = $this->validateRequestFactory->create(
+                    [
+                        'address' => $avataxAddress,
+                        'textCase' => (TextCase::$Mixed ? TextCase::$Mixed : TextCase::$Default),
+                        'coordinates' => $returnCoordinates,
+                    ]
+                );
+                $validateResult = $addressService->Validate($validateRequest);
+                $resultCode = $validateResult->getResultCode();
+            } else {
+                $resultCode = SeverityLevel::$Success;
+            }
+
+            if ($resultCode == SeverityLevel::$Success) {
+
+                if (is_null($validAddress)) {
+                    $validAddresses = $validateResult->getValidAddresses();
+                    if (isset($validAddresses[0])) {
+                        $validAddress = $validAddresses[0];
+                        $this->session->addAddressResponse($avataxAddress, $validAddress);
+                    } else {
+                        return null;
+                    }
                 }
                 // Convert data back to the type it was passed in as
+                // TODO: Return null if address could not be converted to original type
                 switch (true) {
                     case ($addressInput instanceof \Magento\Customer\Api\Data\AddressInterface):
                         $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToCustomerAddress($validAddress);
