@@ -44,12 +44,18 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
             if ($this->config->isAddressValidationEnabled()) {
                 $userHasChoice = $this->config->allowUserToChooseAddress();
                 if ($userHasChoice) {
-                    $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']['payment']['config']['instructions'] = $this->config->getAddressValidationInstructionsWithChoice();
+                    $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
+                        ['payment']['config']['instructions'] = $this->config->getAddressValidationInstructionsWithChoice();
                 } else {
-                    $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']['payment']['config']['instructions'] = $this->config->getAddressValidationInstructionsWithoutChoice();
+                    $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
+                        ['payment']['config']['instructions'] = $this->config->getAddressValidationInstructionsWithoutChoice();
                 }
-                $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']['payment']['config']['choice'] = $userHasChoice;
-                $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']['payment']['component'] = self::COMPONENT_PATH;
+                $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
+                ['payment']['config']['errorInstructions'] = $this->config->getAddressValidationErrorInstructions();
+                $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
+                    ['payment']['config']['choice'] = $userHasChoice;
+                $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
+                    ['payment']['component'] = self::COMPONENT_PATH;
             }
         }
 
