@@ -8,6 +8,7 @@ use AvaTax\LineFactory;
 use AvaTax\Message;
 use AvaTax\SeverityLevel;
 use AvaTax\TaxLine;
+use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
 use ClassyLlama\AvaTax\Model\Config;
@@ -16,6 +17,11 @@ use Magento\Quote\Model\Quote\Item as QuoteItem;
 
 class Get
 {
+    /**
+     * @var TaxCalculation
+     */
+    protected $taxCalculation = null;
+
     /**
      * @var Address
      */
@@ -41,12 +47,18 @@ class Get
      */
     protected $errorMessage = null;
 
+    const KEY_TAX_DETAILS = 'tax_details';
+
+    const KEY_BASE_TAX_DETAILS = 'base_tax_details';
+
     public function __construct(
+        TaxCalculation $taxCalculation,
         Address $interactionAddress,
         Tax $interactionTax,
         LineFactory $lineFactory,
         Config $config
     ) {
+        $this->taxCalculation = $taxCalculation;
         $this->interactionAddress = $interactionAddress;
         $this->interactionTax = $interactionTax;
         $this->lineFactory = $lineFactory;
@@ -57,14 +69,21 @@ class Get
      * Convert quote/order/invoice/creditmemo to the AvaTax object and request tax from the Get Tax API
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @return bool|GetTaxResult
+     * @return bool|\Magento\Tax\Api\Data\TaxDetailsInterface[]
      */
-    public function getTax($data)
-    {
+    public function getTax(
+        \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
+        \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        $data
+    ) {
         $taxService = $this->interactionTax->getTaxService();
 
+        // Taxes need to be calculated on the base prices/amounts, not the current currency prices. As a result of this,
+        // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
+        // calculated by multiplying the base tax rates * currency conversion rate.
         /** @var $getTaxRequest GetTaxRequest */
-        $getTaxRequest = $this->interactionTax->getGetTaxRequest($data);
+        $getTaxRequest = $this->interactionTax->getGetTaxRequest($baseTaxQuoteDetails, $shippingAssignment, $data);
 
         if (is_null($getTaxRequest)) {
             // TODO: Possibly refactor all usages of setErrorMessage to throw exception instead so that this class can be stateless
@@ -74,9 +93,19 @@ class Get
 
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest);
-
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                return $getTaxResult;
+                $this->extraDebug($getTaxRequest, $getTaxResult, $data);
+
+                // TODO: Populate this
+                $storeId = null;
+
+                $taxDetails = $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $storeId);
+                $baseTaxDetails = $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $storeId);
+
+                return [
+                    self::KEY_TAX_DETAILS => $taxDetails,
+                    self::KEY_BASE_TAX_DETAILS => $baseTaxDetails
+                ];
             } else {
                 // TODO: Generate better error message
                 $this->setErrorMessage('Bad result code: ' . $getTaxResult->getResultCode());
