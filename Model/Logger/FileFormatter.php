@@ -6,7 +6,9 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Formatter\NormalizerFormatter;
 
 /**
- * Formats incoming records into a string
+ * Formats incoming records similar to LineFormatter
+ * but allows for new line characters in the context, and extra parts of the record
+ * and prints them on multiple lines instead of condencing those sections to a single line.
  *
  * @author Matt Johnson <matt.johnson@classyllama.com>
  */
@@ -35,7 +37,7 @@ class FileFormatter extends LineFormatter
 
         foreach ($vars['extra'] as $var => $val) {
             if (false !== strpos($output, '%extra.'.$var.'%')) {
-                $output = str_replace('%extra.'.$var.'%', var_export($val, 1), $output);
+                $output = str_replace('%extra.' . $var . '%', var_export($val, true), $output);
                 unset($vars['extra'][$var]);
             }
         }
@@ -44,9 +46,9 @@ class FileFormatter extends LineFormatter
             if (false !== strpos($output, '%'.$var.'%')) {
                 $val_output = '';
                 if ((is_array($val) && count($val) > 0) || is_array($val) === false) {
-                    $val_output = var_export($val, 1);
+                    $val_output = var_export($val, true);
                 }
-                $output = str_replace('%'.$var.'%', $val_output, $output);
+                $output = str_replace('%' . $var . '%', $val_output, $output);
             }
         }
 

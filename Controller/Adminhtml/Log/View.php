@@ -10,7 +10,7 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\Model\View\Result\Page;
 
 /**
- * View report action
+ * View log
  */
 class View extends Log
 {

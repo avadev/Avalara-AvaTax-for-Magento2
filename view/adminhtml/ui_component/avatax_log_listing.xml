@@ -113,6 +113,7 @@
                     <item name="filter" xsi:type="string">textRange</item>
                     <item name="sorting" xsi:type="string">asc</item>
                     <item name="label" xsi:type="string" translate="true">ID</item>
+                    <item name="sortOrder" xsi:type="number">10</item>
                 </item>
             </argument>
         </column>
@@ -123,6 +124,7 @@
                     <item name="dataType" xsi:type="string">date</item>
                     <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
                     <item name="label" xsi:type="string" translate="true">Log Time</item>
+                    <item name="sortOrder" xsi:type="number">20</item>
                 </item>
             </argument>
         </column>
@@ -132,6 +134,7 @@
                     <item name="filter" xsi:type="string">textRange</item>
                     <item name="sorting" xsi:type="string">asc</item>
                     <item name="label" xsi:type="string" translate="true">Store ID</item>
+                    <item name="sortOrder" xsi:type="number">30</item>
                 </item>
             </argument>
         </column>
@@ -140,6 +143,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Log Level</item>
+                    <item name="sortOrder" xsi:type="number">40</item>
                 </item>
             </argument>
         </column>
@@ -148,6 +152,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Log Message</item>
+                    <item name="sortOrder" xsi:type="number">50</item>
                 </item>
             </argument>
         </column>
@@ -156,6 +161,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Code Source Reference</item>
+                    <item name="sortOrder" xsi:type="number">60</item>
                 </item>
             </argument>
         </column>

@@ -8,7 +8,7 @@ use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\UrlInterface;
 
 /**
- * Class ProductActions
+ * Class LogActions
  */
 class LogActions extends Column
 {

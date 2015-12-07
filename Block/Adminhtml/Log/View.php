@@ -3,7 +3,7 @@
 namespace ClassyLlama\AvaTax\Block\Adminhtml\Log;
 
 /**
- * Form widget for viewing report
+ * Form widget for viewing log
  */
 class View extends \Magento\Backend\Block\Widget\Container
 {

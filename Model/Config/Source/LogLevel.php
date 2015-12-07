@@ -3,8 +3,9 @@
 namespace ClassyLlama\AvaTax\Model\Config\Source;
 
 use Monolog\Logger;
+use Magento\Framework\Option\ArrayInterface;
 
-class LogLevel implements \Magento\Framework\Option\ArrayInterface
+class LogLevel implements ArrayInterface
 {
     /**
      * @return array

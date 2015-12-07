@@ -2,7 +2,9 @@
 
 namespace ClassyLlama\AvaTax\Model\Config\Source;
 
-class LogDetail implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+
+class LogDetail implements ArrayInterface
 {
     const MINIMAL = 1;
     const NORMAL = 2;

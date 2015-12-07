@@ -3,34 +3,26 @@
 namespace ClassyLlama\AvaTax\Model\Logger;
 
 use Monolog\Logger;
-use Magento\Framework\Filesystem\DriverInterface;
-use Magento\Store\Model\ScopeInterface;
-use ClassyLlama\AvaTax\Model\Config;
-use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
-use Magento\Framework\Logger\Handler\Exception;
-use Magento\Framework\Logger\Handler\System;
-use ClassyLlama\AvaTax\Model\Config\Source\LogFileMode;
 use Monolog\Processor\WebProcessor;
 use Monolog\Processor\IntrospectionProcessor;
+use Magento\Framework\Filesystem\DriverInterface;
+use Magento\Framework\Logger\Handler\Exception;
+use Magento\Framework\Logger\Handler\System;
+use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
+use ClassyLlama\AvaTax\Model\Config\Source\LogFileMode;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-
+/**
+ * Monolog Hanlder for writing log entries to a custom file
+ *
+ * @author Matt Johnson <matt.johnson@classyllama.com>
+ */
 class FileHandler extends System
 {
-    const XML_PATH_AVATAX_LOG_FILE_ENABLED = 'tax/avatax/logging_file_enabled';
-    const XML_PATH_AVATAX_LOG_FILE_MODE = 'tax/avatax/logging_file_mode';
-    const XML_PATH_AVATAX_LOG_FILE_LEVEL = 'tax/avatax/logging_file_level';
-    const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
-
     /**
      * @var string
      */
     protected $fileName = '/var/log/avatax.log';
-
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
 
     /**
      * @var Config
@@ -46,115 +38,65 @@ class FileHandler extends System
      * @param DriverInterface $filesystem
      * @param Exception $exceptionHandler
      * @param System $systemHandler
-     * @param ScopeConfigInterface $scopeConfig
      * @param Config $avaTaxConfig
+     * @param IntrospectionProcessor $introspectionProcessor
+     * @param WebProcessor $webProcessor
      * @param null $filePath
      */
     public function __construct(
         DriverInterface $filesystem,
         Exception $exceptionHandler,
         System $systemHandler,
-        ScopeConfigInterface $scopeConfig,
         Config $avaTaxConfig,
         IntrospectionProcessor $introspectionProcessor,
         WebProcessor $webProcessor,
         $filePath = null
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->avaTaxConfig = $avaTaxConfig;
         $this->systemHandler = $systemHandler;
         parent::__construct($filesystem, $exceptionHandler, $filePath);
+
+        // Set our custom formatter so that the context and extra parts of the record will print on multiple lines
         $this->setFormatter(new FileFormatter());
         $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
     }
 
     protected function addExtraProcessors(array $processors) {
         // Add additional processors for extra detail
-        if ($this->logFileDetail() == LogDetail::EXTRA) {
+        if ($this->avaTaxConfig->logFileDetail() == LogDetail::EXTRA) {
             $this->processors = $processors;
         }
     }
-    /**
-     * @param null $store
-     * @return bool
-     */
-    public function logFileEnabled($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_ENABLED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
 
     /**
-     * @param null $store
-     * @return int
-     */
-    public function logFileMode($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_MODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * @param null $store
-     * @return int
-     */
-    public function logFileLevel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_LEVEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * @param null $store
-     * @return int
-     */
-    public function logFileDetail($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-
-
-
-
-
-
-
-    /**
-     * {@inheritdoc}
+     * Checks whether the given record will be handled by this handler.
+     *
+     * Uses the admin configuration settings to determine if the record should be handled
+     *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
+     * @param array $record
+     * @return Boolean
      */
     public function isHandling(array $record)
     {
-        return $this->avaTaxConfig->isModuleEnabled() && $this->logFileEnabled() && $record['level'] >= $this->logFileLevel();
+        return $this->avaTaxConfig->isModuleEnabled() && $this->avaTaxConfig->logFileEnabled() && $record['level'] >= $this->avaTaxConfig->logFileLevel();
     }
 
     /**
-     * @{inheritDoc}
+     * Writes the log record to a file based on admin configuration settings
      *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param $record array
      * @return void
      */
     public function write(array $record)
     {
         // Filter the log details
-        if ($this->logFileDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
+        if ($this->avaTaxConfig->logFileDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
             if (isset($record['context']['extra'])) unset($record['context']['extra']);
-        } elseif ($this->logFileDetail() == LogDetail::NORMAL) {
+        } elseif ($this->avaTaxConfig->logFileDetail() == LogDetail::NORMAL) {
             if (isset($record['context']['extra'])) unset($record['context']['extra']);
-        } elseif ($this->logFileDetail() == LogDetail::EXTRA) {
+        } elseif ($this->avaTaxConfig->logFileDetail() == LogDetail::EXTRA) {
             // do not remove any of the context data
         } else {
             if (isset($record['context']['request'])) unset($record['context']['request']);
@@ -164,9 +106,11 @@ class FileHandler extends System
         }
 
         // Write the log file
-        if ($this->logFileMode() == LogFileMode::COMBINED) {
+        if ($this->avaTaxConfig->logFileMode() == LogFileMode::COMBINED) {
+            // forward the record to the default system handler for processing instead
             $this->systemHandler->handle($record);
         } else {
+            // write the log to the custom log file
             parent::write($record);
         }
     }

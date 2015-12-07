@@ -73,9 +73,6 @@
                         <field id="live_mode">0</field>
                     </depends>
                 </field>
-
-
-
                 <field id="logging_settings_header" translate="label" type="label" sortOrder="1500" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Logging Settings</strong>]]></label>
                     <depends>
@@ -136,9 +133,6 @@
                     </depends>
                     <comment>Normal recommended for production use</comment>
                 </field>
-
-
-
                 <field id="data_mapping_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Data Mapping</strong>]]></label>
                     <depends>
