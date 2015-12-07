@@ -2,7 +2,9 @@
 
 namespace ClassyLlama\AvaTax\Model\Config\Source;
 
-class LogFileMode implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+
+class LogFileMode implements ArrayInterface
 {
     const COMBINED = 1;
     const SEPARATE = 2;

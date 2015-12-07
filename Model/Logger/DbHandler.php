@@ -5,24 +5,19 @@ namespace ClassyLlama\AvaTax\Model\Logger;
 use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
-use Magento\Store\Model\ScopeInterface;
+use Monolog\Processor\WebProcessor;
+use Monolog\Processor\IntrospectionProcessor;
 use ClassyLlama\AvaTax\Model\LogFactory;
 use ClassyLlama\AvaTax\Model\Config;
 use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
-use Monolog\Processor\WebProcessor;
-use Monolog\Processor\IntrospectionProcessor;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 
+/**
+ * Monolog Hanlder for writing log entries to a database table
+ *
+ * @author Matt Johnson <matt.johnson@classyllama.com>
+ */
 class DbHandler extends AbstractHandler
 {
-    const XML_PATH_AVATAX_LOG_DB_LEVEL = 'tax/avatax/logging_db_level';
-    const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
-
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
-
     /**
      * @var LogFactory
      */
@@ -34,18 +29,17 @@ class DbHandler extends AbstractHandler
     protected $avaTaxConfig;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
      * @param LogFactory $logFactory
      * @param Config $avaTaxConfig
+     * @param IntrospectionProcessor $introspectionProcessor
+     * @param WebProcessor $webProcessor
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
         LogFactory $logFactory,
         Config $avaTaxConfig,
         IntrospectionProcessor $introspectionProcessor,
         WebProcessor $webProcessor
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->logFactory = $logFactory;
         $this->avaTaxConfig = $avaTaxConfig;
         parent::__construct(Logger::DEBUG, true);
@@ -53,55 +47,31 @@ class DbHandler extends AbstractHandler
         $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
     }
 
+    /**
+     * Checking config a value, and conditionally adding extra processors to the handler
+     *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
+     * @param array $processors
+     */
     protected function addExtraProcessors(array $processors) {
         // Add additional processors for extra detail
-        if ($this->logDbDetail() == LogDetail::EXTRA) {
+        if ($this->avaTaxConfig->logDbDetail() == LogDetail::EXTRA) {
             $this->processors = $processors;
         }
     }
 
     /**
-     * Return configured log level
+     * Checks whether the given record will be handled by this handler.
      *
-     * @param null $store
-     * @return int
-     */
-    public function logDbLevel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_DB_LEVEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Return configured log detail
+     * Uses the admin configuration settings to determine if the record should be handled
      *
-     * @param null $store
-     * @return int
-     */
-    public function logDbDetail($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_DB_DETAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-
-
-
-
-
-
-    /**
-     * {@inheritdoc}
+     * @author Matt Johnson <matt.johnson@classyllama.com>
+     * @param array $record
+     * @return Boolean
      */
     public function isHandling(array $record)
     {
-        return $this->avaTaxConfig->isModuleEnabled() && $record['level'] >= $this->logDbLevel();
+        return $this->avaTaxConfig->isModuleEnabled() && $record['level'] >= $this->avaTaxConfig->logDbLevel();
     }
 
     /**
@@ -123,8 +93,9 @@ class DbHandler extends AbstractHandler
     }
 
     /**
-     * @{inheritDoc}
+     * Writes the log to the database by utilizing the Log model
      *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param $record array
      * @return void
      */
@@ -145,14 +116,14 @@ class DbHandler extends AbstractHandler
             $log->setData('source', $record['extra']['class'] . " [line:" . $record['extra']['line'] . "]");
         }
 
-        if ($this->logDbDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
+        if ($this->avaTaxConfig->logDbDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
             $log->setData('request', $this->getRequest($record));
             $log->setData('result', $this->getResult($record));
-        } elseif ($this->logDbDetail() == LogDetail::NORMAL) {
+        } elseif ($this->avaTaxConfig->logDbDetail() == LogDetail::NORMAL) {
             $log->setData('request', $this->getRequest($record));
             $log->setData('result', $this->getResult($record));
             $log->setData('additional', $this->getContextVarExport($record));
-        } elseif ($this->logDbDetail() == LogDetail::EXTRA) {
+        } elseif ($this->avaTaxConfig->logDbDetail() == LogDetail::EXTRA) {
             $log->setData('request', $this->getRequest($record));
             $log->setData('result', $this->getResult($record));
             $log->setData('additional',
@@ -165,6 +136,10 @@ class DbHandler extends AbstractHandler
     }
 
     /**
+     * If the record contains a context key
+     * export the variable contents and return it
+     *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return string
      */
@@ -172,12 +147,16 @@ class DbHandler extends AbstractHandler
     {
         $string = "";
         if (isset($record['context']) && count($record['context']) > 0) {
-            $string = 'context: ' . var_export($record['context'], 1);
+            $string = 'context: ' . var_export($record['context'], true);
         }
         return $string;
     }
 
     /**
+     * If the record contains a extra key in the context
+     * export the variable contents, return it, and remove the element from the context array
+     *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return string
      */
@@ -185,12 +164,16 @@ class DbHandler extends AbstractHandler
     {
         $string = "";
         if (isset($record['extra']) && count($record['extra']) > 0) {
-            $string = 'extra: ' . var_export($record['extra'], 1);
+            $string = 'extra: ' . var_export($record['extra'], true);
         }
         return $string;
     }
 
     /**
+     * If the record contains a request key in the context
+     * return it, and remove the element from the context array
+     *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return string
      */
@@ -205,6 +188,10 @@ class DbHandler extends AbstractHandler
     }
 
     /**
+     * If the record contains a result key in the context
+     * return it, and remove the element from the context array
+     *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return string
      */

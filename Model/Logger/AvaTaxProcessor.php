@@ -6,6 +6,8 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Injects additional AvaTax context in all records
+ *
+ * @author Matt Johnson <matt.johnson@classyllama.com>
  */
 class AvaTaxProcessor
 {
@@ -19,12 +21,14 @@ class AvaTaxProcessor
      */
     public function __construct(
         StoreManagerInterface $storeManager
-    )
-    {
+    ) {
         $this->storeManager = $storeManager;
     }
 
     /**
+     * Retrieves the current Store ID from Magento and adds it to the record
+     *
+     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param  array $record
      * @return array
      */

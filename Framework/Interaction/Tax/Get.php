@@ -69,7 +69,6 @@ class Get
      */
     public function getTax($data)
     {
-        $this->avaTaxLogger->debug('calling getTax');
         $taxService = $this->interactionTax->getTaxService();
 
         /** @var $getTaxRequest GetTaxRequest */
@@ -89,8 +88,8 @@ class Get
                 $this->avaTaxLogger->info(
                     'response from external api getTax',
                     [ /* context */
-                        'request' => var_export($getTaxRequest, 1),
-                        'result' => var_export($getTaxResult, 1),
+                        'request' => var_export($getTaxRequest, true),
+                        'result' => var_export($getTaxResult, true),
                     ]
                 );
                 return $getTaxResult;
@@ -100,8 +99,8 @@ class Get
                 $this->avaTaxLogger->warning(
                     'Bad result code: ' . $getTaxResult->getResultCode(),
                     [ /* context */
-                        'request' => var_export($getTaxRequest, 1),
-                        'result' => var_export($getTaxResult, 1),
+                        'request' => var_export($getTaxRequest, true),
+                        'result' => var_export($getTaxResult, true),
                     ]
                 );
                 return false;
@@ -117,8 +116,8 @@ class Get
             $this->avaTaxLogger->critical(
                 "Exception: \n" . ($exception) ? $exception->faultstring: "",
                 [ /* context */
-                    'request' => var_export($taxService->__getLastRequest(), 1),
-                    'result' => var_export($taxService->__getLastResponse(), 1),
+                    'request' => var_export($taxService->__getLastRequest(), true),
+                    'result' => var_export($taxService->__getLastResponse(), true),
                 ]
             );
         }
