@@ -41,9 +41,9 @@ class Line
     const SHIPPING_LINE_DESCRIPTION = 'Shipping costs';
 
     /**
-     * Avatax shipping tax class
+     * Avatax shipping tax code
      */
-    const SHIPPING_LINE_TAX_CLASS = 'FR020100';
+    const SHIPPING_LINE_TAX_CODE = 'FR020100';
 
     /**
      * An arbitrary ID used to track tax for shipping
@@ -143,12 +143,6 @@ class Line
 
     protected function convertQuoteItemToData(\Magento\Quote\Api\Data\CartItemInterface $item)
     {
-        // Items that have parent items do not contain taxable information
-        // TODO: Confirm this is true for all item types
-        if ($item->getParentItem()) {
-            return null;
-        }
-
         // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
         // from taxable amount
         $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
@@ -278,8 +272,23 @@ class Line
                 // TODO: Get shipping amount for this method
                 break;
             case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
-                $baseShippingAmount = $data->getShippingAddress()->getBaseShippingAmount();
-                $baseShippingAmountDiscount = $data->getShippingAddress()->getBaseShippingDiscountAmount();
+                $shippingAddress = $data->getShippingAddress();
+                // TODO: Test latest M2 code to see if this bug still exists. If so, file bug report.
+                // There is a bug in Magento that causes the "base_shipping_amount" value to be 0 in certain situations.
+                // For example, if a user calculates tax on the cart using the "Estimate Shipping and Tax" form, the
+                // base_shipping_amount will be 0, but the shipping_amount will contain the value that should have been
+                // in the base_shipping_amount field.
+                if (
+                    $shippingAddress->getBaseShippingAmount() == 0
+                    && $shippingAddress->getShippingAmount() > 0
+                ) {
+                    $baseShippingAmount = $shippingAddress->getShippingAmount();
+                    $baseShippingAmountDiscount = $shippingAddress->getShippingDiscountAmount();
+                } else {
+                    $baseShippingAmount = $shippingAddress->getBaseShippingAmount();
+                    $baseShippingAmountDiscount = $shippingAddress->getBaseShippingDiscountAmount();
+                }
+
                 $shippingAmount = $baseShippingAmount - $baseShippingAmountDiscount;
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
@@ -304,7 +313,7 @@ class Line
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
             'no' => self::SHIPPING_LINE_NO,
             'item_code' => $itemCode,
-            'tax_code' => self::SHIPPING_LINE_TAX_CLASS,
+            'tax_code' => self::SHIPPING_LINE_TAX_CODE,
             'description' => self::SHIPPING_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $shippingAmount,
@@ -401,7 +410,7 @@ class Line
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
             'no' => Giftwrapping::CODE_QUOTE_GW,
             'item_code' => $itemCode,
-            'tax_code' => self::SHIPPING_LINE_TAX_CLASS, // TODO: Set to correct tax class
+            'tax_code' => $this->config->getWrappingTaxClass($data->getStoreId()),
             'description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapOrderAmount,
@@ -476,6 +485,7 @@ class Line
             case ($item instanceof \Magento\Quote\Api\Data\CartItemInterface):
                 $giftWrapItemPrice = $item->getGwBasePrice();
                 $qty = $item->getQty();
+                $storeId = $item->getQuote()->getStoreId();
                 break;
             case ($item instanceof \Magento\Sales\Api\Data\InvoiceItemInterface):
                 // TODO: Get amount for this type
@@ -500,7 +510,7 @@ class Line
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
             'no' => Giftwrapping::CODE_ITEM_GW_PREFIX . $item->getItemId(),
             'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'tax_code' => $this->config->getWrappingTaxClass($storeId),
             'description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapItemAmount,
@@ -596,7 +606,7 @@ class Line
             // TODO: See OnePica_AvaTax_Model_Avatax_Estimate::_getItemIdByLine
             'no' => Giftwrapping::CODE_PRINTED_CARD,
             'item_code' => $itemCode,
-            'tax_code' => self::SHIPPING_LINE_TAX_CLASS, // TODO: Set to correct tax class
+            'tax_code' => $this->config->getWrappingTaxClass($data->getStoreId()),
             'description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapCardAmount,
