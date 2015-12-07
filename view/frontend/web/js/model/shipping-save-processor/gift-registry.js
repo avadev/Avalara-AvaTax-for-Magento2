@@ -8,7 +8,7 @@ define(
         'Magento_Checkout/js/model/error-processor',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/select-billing-address',
-        'ClassyLlama_AvaTax/js/view/validation'
+        'ClassyLlama_AvaTax/js/view/validationRenderer'
     ],
     function (
         quote,
@@ -19,7 +19,7 @@ define(
         errorProcessor,
         fullScreenLoader,
         selectBillingAddressAction,
-        validation
+        validationRenderer
     ) {
         'use strict';
         return {
@@ -48,7 +48,7 @@ define(
                         paymentService.setPaymentMethods(methodConverter(response.payment_methods));
                         quote.setTotals(response.totals);
                         // Begin Edit - Nathan Toombs <nathan.toombs@classyllama.com>
-                        validation.shippingInformationResponseHandeler(response);
+                        validationRenderer.shippingInformationResponseHandeler(response);
                         // End Edit
                         fullScreenLoader.stopLoader();
                     }
