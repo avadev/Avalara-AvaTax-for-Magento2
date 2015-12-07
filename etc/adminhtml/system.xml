@@ -205,7 +205,16 @@
                         <field id="address_validation">1</field>
                     </depends>
                 </field>
-                <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="address_validation_countries_enabled" translate="label comment" type="multiselect" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled Countries</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\AddressValidationCountries</source_model>
+                    <comment>Select the countries enable for address validation</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Address Validation Instructions With Choice</label>
                     <comment>This text will be displayed to the user in the "Verify Your Address" step of the checkout process when the user is allowed to choose between the original and validated address.</comment>
                     <depends>
@@ -213,9 +222,17 @@
                         <field id="address_validation">1</field>
                     </depends>
                 </field>
-                <field id="address_validation_instructions_without_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="address_validation_instructions_without_choice" translate="label comment" type="textarea" sortOrder="4050" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Address Validation Instructions Without Choice</label>
                     <comment><![CDATA[This text will be displayed to the user in the "Verify Your Address" step of the checkout process when the user is <strong>not</strong> allowed to choose between the original and validated address.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_error_instructions" translate="label comment" type="textarea" sortOrder="4060" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Address Validation Error Instructions</label>
+                    <comment><![CDATA[This text will be displayed to the user in the "Verify Your Address" step of the checkout process when there is an error in the validation process]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation">1</field>

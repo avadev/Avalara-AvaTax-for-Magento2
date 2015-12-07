@@ -66,9 +66,13 @@ class Config
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD = "tax/avatax_settings/address_validation_method";
 
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED = "tax/avatax_settings/address_validation_countries_enabled";
+
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE = "tax/avatax/address_validation_instructions_with_choice";
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE = "tax/avatax/address_validation_instructions_without_choice";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS = "tax/avatax/address_validation_error_instructions";
     /**#@-*/
 
     /**#@+
@@ -661,6 +665,24 @@ class Config
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE ,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function getAddressValidationErrorInstructions($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS ,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function getAddressValidationCountriesEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED ,
             ScopeInterface::SCOPE_STORE,
             $store
         );
