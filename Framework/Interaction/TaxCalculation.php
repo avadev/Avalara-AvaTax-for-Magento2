@@ -22,6 +22,7 @@ use Magento\Tax\Model\Config;
 use Magento\Tax\Api\TaxClassManagementInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Tax\Api\Data\AppliedTaxInterfaceFactory;
 use Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory;
 
 class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
@@ -37,6 +38,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @var PriceCurrencyInterface
      */
     protected $priceCurrency;
+
+    /**
+     * @var AppliedTaxInterfaceFactory
+     */
+    protected $appliedTaxDataObjectFactory;
 
     /**
      * @var AppliedTaxRateInterfaceFactory
@@ -55,6 +61,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param TaxClassManagementInterface $taxClassManagement
      * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
      * @param PriceCurrencyInterface $priceCurrency
+     * @param AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory
      * @param AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory
      */
     public function __construct(
@@ -67,10 +74,12 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         TaxClassManagementInterface $taxClassManagement,
         \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
         PriceCurrencyInterface $priceCurrency,
+        AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory
     ) {
         $this->priceCurrency = $priceCurrency;
-        $this->appliedTaxDataObjectFactory = $appliedTaxRateDataObjectFactory;
+        $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
+        $this->appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
         return parent::__construct(
             $calculation,
             $calculatorFactory,

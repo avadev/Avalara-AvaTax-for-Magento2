@@ -13,7 +13,6 @@ namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Model\Config;
-use ClassyLlama\AvaTax\Framework\Interaction\TaxDetailsItem;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
@@ -41,11 +40,6 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $config = null;
 
     /**
-     * @var TaxDetailsItem
-     */
-    protected $taxDetailsItem = null;
-
-    /**
      * @var \Magento\Framework\Api\DataObjectHelper
      */
     protected $dataObjectHelper;
@@ -69,7 +63,6 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param InteractionGet $interactionGetTax
      * @param TaxCalculation $taxCalculation
      * @param Config $config
-     * @param TaxDetailsItem $taxDetailsItem
      * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
      */
@@ -85,14 +78,12 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         InteractionGet $interactionGetTax,
         TaxCalculation $taxCalculation,
         Config $config,
-        TaxDetailsItem $taxDetailsItem,
         \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
         \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->taxCalculation = $taxCalculation;
         $this->config = $config;
-        $this->taxDetailsItem = $taxDetailsItem;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->extensionFactory = $extensionFactory;
         parent::__construct(
