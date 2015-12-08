@@ -293,83 +293,40 @@ class Tax
 //            'tax_override' => null,
         ];
     }
-    
-    protected function convertQuoteToData(\Magento\Quote\Api\Data\CartInterface $quote)
-    {
+
+    protected function convertTaxQuoteDetailsToData(
+        \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        \Magento\Quote\Api\Data\CartInterface $quote
+    ) {
         $taxClassId = $quote->getCustomerTaxClassId();
         if (!is_null($taxClassId)) {
             $taxClass = $this->taxClassRepository->get($taxClassId);
         }
 
         $lines = [];
-        $items = $quote->getItems();
+        $this->interactionLine->computeRelationships($taxQuoteDetails->getItems());
 
-        if (is_null($items)) {
-            if (method_exists($quote, 'getItemsCollection')) {
-                $items = $quote->getItemsCollection()->count() > 0 ? $quote->getItemsCollection() : null;
-            }
-            if (is_null($items)) {
-                return null;
-            }
-        }
-        foreach ($items as $item) {
-            // TODO: Implement a proper fix to this workaround. When items are being added to the cart (and ZIP code has been added to Tax & Estimate field on checkout), those items don't have an ID.
-            if (!$item->getItemId()) {
-                continue;
-            }
-
-            if ($item->getParentItem()) {
-                continue;
+        foreach ($this->interactionLine->getKeyedItems() as $item) {
+            if ($this->interactionLine->getChildrenItems($item->getCode())) {
+                foreach ($this->interactionLine->getChildrenItems($item->getCode()) as $childItem) {
+                    $line = $this->interactionLine->getLine($childItem);
+                    if ($line) {
+                        $lines[] = $line;
+                    }
+                }
             }
             $line = $this->interactionLine->getLine($item);
             if ($line) {
                 $lines[] = $line;
             }
-
-            $giftWrapItemLine = $this->interactionLine->getGiftWrapItemLine($item);
-            if ($giftWrapItemLine) {
-                $lines[] = $giftWrapItemLine;
-            }
-
-            // See logic in \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItems
-            if ($item->getHasChildren() && $item->isChildrenCalculated()) {
-                foreach ($item->getChildren() as $child) {
-                    $line = $this->interactionLine->getLine($child);
-                    if ($line) {
-                        $lines[] = $line;
-                    }
-
-                    $giftWrapItemLine = $this->interactionLine->getGiftWrapItemLine($child);
-                    if ($giftWrapItemLine) {
-                        $lines[] = $giftWrapItemLine;
-                    }
-                }
-            }
-        }
-
-        // TODO: Apply the tax from the result to the order
-        $giftWrapOrderLine = $this->interactionLine->getGiftWrapOrderLine($quote);
-        if ($giftWrapOrderLine) {
-            $lines[] = $giftWrapOrderLine;
-        }
-
-        // TODO: Apply the tax from the result to the order
-        $giftWrapCardLine = $this->interactionLine->getGiftWrapCardLine($quote);
-        if ($giftWrapCardLine) {
-            $lines[] = $giftWrapCardLine;
-        }
-
-        // TODO: Apply the tax from the result to the order
-        $shippingLine = $this->interactionLine->getShippingLine($quote);
-        if ($shippingLine) {
-            $lines[] = $shippingLine;
         }
 
         // Shipping Address not documented in the interface for some reason
         // they do have a constant for it but not a method in the interface
-
         try {
-            $address = $this->address->getAddress($quote->getShippingAddress());
+            $shippingAddress = $shippingAssignment->getShipping()->getAddress();
+            $address = $this->address->getAddress($shippingAddress);
         } catch (LocalizedException $e) {
             // TODO: Log this exception
             return null;
@@ -418,14 +375,17 @@ class Tax
      * @param $data \Magento\Sales\Api\Data\OrderInterface|\Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface|array
      * @return null|GetTaxRequest
      */
-    public function getGetTaxRequest($data)
-    {
+    public function getGetTaxRequest(
+        \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        $data
+    ) {
         switch (true) {
             case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
                 $data = $this->convertOrderToData($data);
                 break;
             case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
-                $data = $this->convertQuoteToData($data);
+                $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
                 $data = $this->convertInvoiceToData($data);
