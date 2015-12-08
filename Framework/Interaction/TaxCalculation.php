@@ -145,7 +145,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             if (isset($childrenItems[$item->getCode()])) {
                 $processedChildren = [];
                 foreach ($childrenItems[$item->getCode()] as $child) {
-                    $processedItem = $this->getTaxDetailsItem($child, $getTaxResult, $useBaseCurrency);
+                    $processedItem = $this->getTaxDetailsItem($child, $getTaxResult, $useBaseCurrency, $round);
                     if ($processedItem) {
                         $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
                         $processedItems[$processedItem->getCode()] = $processedItem;
@@ -156,7 +156,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 $processedItem->setCode($item->getCode());
                 $processedItem->setType($item->getType());
             } else {
-                $processedItem = $this->getTaxDetailsItem($item, $getTaxResult, $useBaseCurrency);
+                $processedItem = $this->getTaxDetailsItem($item, $getTaxResult, $useBaseCurrency, $round);
               $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
                 if ($processedItem) {
                     $processedItems[$processedItem->getCode()] = $processedItem;
@@ -182,13 +182,15 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item
      * @param GetTaxResult $getTaxResult
-     * @param $useBaseCurrency
+     * @param bool $useBaseCurrency
+     * @param bool $round
      * @return \Magento\Tax\Api\Data\TaxDetailsItemInterface
      */
     protected function getTaxDetailsItem(
         \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item,
         GetTaxResult $getTaxResult,
-        $useBaseCurrency
+        $useBaseCurrency,
+        $round
     ) {
         // TODO: Get store
         $store = null;
@@ -231,9 +233,9 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
         $priceInclTax = $rowTotalInclTax / $quantity;
         // TODO: Implement rounding logic
-        //if ($round) {
-        //    $priceInclTax = $this->calculationTool->round($priceInclTax);
-        //}
+        if ($round) {
+            $priceInclTax = $this->calculationTool->round($priceInclTax);
+        }
 
         $appliedTaxes = $this->getAppliedTaxes($getTaxResult, $rowTax);
 
