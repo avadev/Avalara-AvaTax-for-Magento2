@@ -15,6 +15,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <!-- TODO: Consider using the term "test" for non production/live environments instead of "development". -->
                 <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
@@ -71,6 +72,66 @@
                         <field id="enabled">1</field>
                         <field id="live_mode">0</field>
                     </depends>
+                </field>
+                <field id="logging_settings_header" translate="label" type="label" sortOrder="1500" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Logging Settings</strong>]]></label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="logging_db_level" translate="label" type="select" sortOrder="1510" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Level</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Notice or Warning recommended for production use</comment>
+                </field>
+                <field id="logging_db_detail" translate="label" type="select" sortOrder="1520" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Detail</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Minimal recommended for production use</comment>
+                </field>
+                <field id="logging_db_lifetime" translate="label" type="text" sortOrder="1530" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Record Lifetime, Days</label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="logging_file_enabled" translate="label" type="select" sortOrder="1540" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Logging To File</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Archiving of log files is affected by System -> Admin Actions Log Archiving</comment>
+                </field>
+                <field id="logging_file_mode" translate="label" type="select" sortOrder="1550" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Mode</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
+                    <depends>
+                        <field id="logging_file_enabled">1</field>
+                    </depends>
+                    <comment>Log files are located in the magento var/log/ directory</comment>
+                </field>
+                <field id="logging_file_level" translate="label" type="select" sortOrder="1560" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Level</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
+                    <depends>
+                        <field id="logging_file_enabled">1</field>
+                    </depends>
+                    <comment>Info or Notice recommended for production use</comment>
+                </field>
+                <field id="logging_file_detail" translate="label" type="select" sortOrder="1570" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Detail</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Normal recommended for production use</comment>
                 </field>
                 <field id="data_mapping_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Data Mapping</strong>]]></label>
