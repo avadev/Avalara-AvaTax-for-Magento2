@@ -9,17 +9,32 @@ define([
             title: 'Verify Your Address',
             modalClass: 'validationModal',
             responsive: true,
-            trigger: '.form-address-edit .submit',
+            trigger: '',
             modalLeftMargin: 45,
             closeText: $.mage.__('Close'),
             buttons: {}
         },
+        formSelector: '.form-address-edit',
         /**
          * Creates modal widget.
          */
         _create: function () {
             this._super();
-            console.log('modal open');
+            var self = this;
+            $(this.formSelector).on('submit', function (e) {
+                var isValid = $(':mage-validation').validation('isValid');
+                if (isValid) {
+                    e.preventDefault();
+                    self.openModal();
+                }
+            });
+        },
+        /**
+         * Open modal.
+         * * @return {Element} - current element.
+         */
+        openModal: function () {
+            this._super();
         }
     });
 
