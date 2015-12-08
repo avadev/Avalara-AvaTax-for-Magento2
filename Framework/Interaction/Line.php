@@ -10,8 +10,6 @@ use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
 
 class Line
 {
-    use TaxCalculationUtility;
-
     /**
      * @var Config
      */
@@ -145,10 +143,17 @@ class Line
 
     protected function convertTaxQuoteDetailsItemToData(\Magento\Tax\Api\Data\QuoteDetailsItemInterface $item)
     {
-        $quantity = $this->getTotalQuantity($item);
+        $extensionAttributes = $item->getExtensionAttributes();
+        if ($extensionAttributes) {
+            $quantity = $extensionAttributes->getTotalQuantity() !== null
+                ? $extensionAttributes->getTotalQuantity()
+                : $item->getQuantity();
+        } else {
+            $quantity = $item->getQuantity();
+        }
 
-        $itemCode = $item->getExtensionAttributes() ? $item->getExtensionAttributes()->getAvataxItemCode() : '';
-        $description = $item->getExtensionAttributes() ? $item->getExtensionAttributes()->getAvataxDescription() : '';
+        $itemCode = $extensionAttributes ? $extensionAttributes->getAvataxItemCode() : '';
+        $description = $extensionAttributes ? $extensionAttributes->getAvataxDescription() : '';
 
         // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
         // from taxable amount

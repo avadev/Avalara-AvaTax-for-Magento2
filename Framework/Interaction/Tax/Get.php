@@ -79,6 +79,11 @@ class Get
     ) {
         $taxService = $this->interactionTax->getTaxService();
 
+        // Total quantity of an item can be determined by multiplying parent * child quantity, so it's necessary
+        // to calculate total quantities on a list of all items
+        $this->taxCalculation->calculateTotalQuantities($taxQuoteDetails->getItems());
+        $this->taxCalculation->calculateTotalQuantities($baseTaxQuoteDetails->getItems());
+
         // Taxes need to be calculated on the base prices/amounts, not the current currency prices. As a result of this,
         // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
         // calculated by multiplying the base tax rates * currency conversion rate.

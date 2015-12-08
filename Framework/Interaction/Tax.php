@@ -14,6 +14,7 @@ use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
+use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Zend\Filter\DateTimeFormatter;
 
 class Tax
@@ -67,6 +68,11 @@ class Tax
      * @var TaxServiceSoap[]
      */
     protected $taxServiceSoap = [];
+
+    /**
+     * @var TaxCalculation
+     */
+    protected $taxCalculation = null;
 
     /**
      * List of types that we want to be used with setType
@@ -138,7 +144,9 @@ class Tax
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
         DateTimeFormatter $dateTimeFormatter,
-        Line $interactionLine
+        Line $interactionLine,
+        TaxCalculation $taxCalculation,
+        QuoteDetailsItemExtensionFactory $extensionFactory
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -149,6 +157,8 @@ class Tax
         $this->taxClassRepository = $taxClassRepository;
         $this->dateTimeFormatter = $dateTimeFormatter;
         $this->interactionLine = $interactionLine;
+        $this->taxCalculation = $taxCalculation;
+        $this->extensionFactory = $extensionFactory;
     }
 
     /**
@@ -305,11 +315,16 @@ class Tax
         }
 
         $lines = [];
-        $this->interactionLine->computeRelationships($taxQuoteDetails->getItems());
 
-        foreach ($this->interactionLine->getKeyedItems() as $item) {
-            if ($this->interactionLine->getChildrenItems($item->getCode())) {
-                foreach ($this->interactionLine->getChildrenItems($item->getCode()) as $childItem) {
+        $items = $taxQuoteDetails->getItems();
+        $keyedItems = $this->taxCalculation->getKeyedItems($items);
+        $childrenItems = $this->taxCalculation->getChildrenItems($items);
+
+        /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
+        foreach ($keyedItems as $item) {
+            if (isset($childrenItems[$item->getCode()])) {
+                /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $childItem */
+                foreach ($childrenItems[$item->getCode()] as $childItem) {
                     $line = $this->interactionLine->getLine($childItem);
                     if ($line) {
                         $lines[] = $line;
