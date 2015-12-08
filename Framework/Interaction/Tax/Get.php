@@ -94,7 +94,6 @@ class Get
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                $this->extraDebug($getTaxRequest, $getTaxResult, $data);
 
                 // TODO: Populate this
                 $storeId = null;
