@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Api/etc/extension_attributes.xsd">
+    <extension_attributes for="Magento\Tax\Api\Data\QuoteDetailsItemInterface">
+        <attribute code="avatax_item_code" type="string" />
+        <attribute code="avatax_description" type="string" />
+        <attribute code="avatax_ref1" type="string" />
+        <attribute code="avatax_ref2" type="string" />
+    </extension_attributes>
+</config>
