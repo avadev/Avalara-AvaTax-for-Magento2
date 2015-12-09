@@ -101,13 +101,15 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
      * @param GetTaxResult $getTaxResult
-     * @param $useBaseCurrency
+     * @param bool $useBaseCurrency
+     * @param \Magento\Framework\App\ScopeInterface $scope
      * @return \Magento\Tax\Api\Data\TaxDetailsInterface
      */
     public function calculateTaxDetails(
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         GetTaxResult $getTaxResult,
-        $useBaseCurrency
+        $useBaseCurrency,
+        $scope
     ) {
         // initial TaxDetails data
         $taxDetailsData = [
@@ -128,7 +130,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             if (isset($childrenItems[$item->getCode()])) {
                 $processedChildren = [];
                 foreach ($childrenItems[$item->getCode()] as $child) {
-                    $processedItem = $this->getTaxDetailsItem($child, $getTaxResult, $useBaseCurrency);
+                    $processedItem = $this->getTaxDetailsItem($child, $getTaxResult, $useBaseCurrency, $scope);
                     if ($processedItem) {
                         $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
                         $processedItems[$processedItem->getCode()] = $processedItem;
@@ -139,8 +141,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 $processedItem->setCode($item->getCode());
                 $processedItem->setType($item->getType());
             } else {
-                $processedItem = $this->getTaxDetailsItem($item, $getTaxResult, $useBaseCurrency);
-              $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
+                $processedItem = $this->getTaxDetailsItem($item, $getTaxResult, $useBaseCurrency, $scope);
+                $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
                 if ($processedItem) {
                     $processedItems[$processedItem->getCode()] = $processedItem;
                 }
@@ -163,19 +165,18 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      *
      * This includes tax for the item as well as any additional line item tax information like Gift Wrapping
      *
-     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item
+     * @param QuoteDetailsItemInterface $item
      * @param GetTaxResult $getTaxResult
      * @param bool $useBaseCurrency
+     * @param \Magento\Framework\App\ScopeInterface $scope
      * @return \Magento\Tax\Api\Data\TaxDetailsItemInterface
      */
     protected function getTaxDetailsItem(
-        \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item,
+        QuoteDetailsItemInterface $item,
         GetTaxResult $getTaxResult,
-        $useBaseCurrency
+        $useBaseCurrency,
+        $scope
     ) {
-        // TODO: Get store
-        $store = null;
-
         $price = $item->getUnitPrice();
 
         /* @var $taxLine \AvaTax\TaxLine  */
@@ -210,7 +211,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             // but using the taxable amount returned back from AvaTax is the only way to get an accurate amount as
             // some items sent to AvaTax may be tax exempt
             $taxableAmount = (float)$taxLine->getTaxable();
-            $amount = $this->priceCurrency->convert($taxableAmount, $store);
+            $amount = $this->priceCurrency->convert($taxableAmount, $scope);
 
             $tax = $amount * $taxLine->getRate();
             $tax = $this->calculationTool->round($tax);
