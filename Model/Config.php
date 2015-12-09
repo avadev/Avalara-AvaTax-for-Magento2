@@ -11,6 +11,7 @@ use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Store\Model\Information;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
+use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 
 class Config
@@ -61,6 +62,18 @@ class Config
     const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_FRONTEND = 'tax/avatax/error_action_disable_checkout_message_frontend';
 
     const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND = 'tax/avatax/error_action_disable_checkout_message_backend';
+
+    const XML_PATH_AVATAX_LOG_DB_LEVEL = 'tax/avatax/logging_db_level';
+
+    const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
+
+    const XML_PATH_AVATAX_LOG_FILE_ENABLED = 'tax/avatax/logging_file_enabled';
+
+    const XML_PATH_AVATAX_LOG_FILE_MODE = 'tax/avatax/logging_file_mode';
+
+    const XML_PATH_AVATAX_LOG_FILE_LEVEL = 'tax/avatax/logging_file_level';
+
+    const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
     /**#@-*/
 
     /**#@+
@@ -143,13 +156,14 @@ class Config
      * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $magentoProductMetadata
      * @param ATConfigFactory $avaTaxConfigFactory
-     * @param \Magento\Framework\App\State $appState
+     * @param State $appState
+     * @param TaxClassRepositoryInterface $taxClassRepository
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
-        \Magento\Framework\App\State $appState,
+        State $appState,
         TaxClassRepositoryInterface $taxClassRepository
     ) {
         $this->scopeConfig = $scopeConfig;
@@ -645,5 +659,95 @@ class Config
         // TODO: Implement logic like \OnePica_AvaTax_Model_Avatax_Abstract::_getGiftTaxClassCode once AvaTax custom tax codes are implemented
         //return $this->taxClassRepository->get($taxClassId)->getClassName();
         return null;
+    }
+
+    /**
+     * Return configured log level
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logDbLevel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_LEVEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log detail
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logDbDetail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return if file logging is enabled
+     *
+     * @param null $store
+     * @return bool
+     */
+    public function logFileEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log mode
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileMode($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log level
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileLevel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_LEVEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log detail
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileDetail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

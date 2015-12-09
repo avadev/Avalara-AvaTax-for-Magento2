@@ -390,12 +390,10 @@ class Tax
 
     protected function convertInvoiceToData(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
     {
-
     }
 
     protected function convertCreditMemoToData(\Magento\Sales\Api\Data\CreditmemoInterface $creditMemo)
     {
-
     }
 
     /**
