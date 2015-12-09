@@ -207,9 +207,12 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          * The second approach is more accurate and is what we are doing here.
          */
         if (!$useBaseCurrency) {
-            // We could recalculate the amount using the same logic found in $this->convertTaxQuoteDetailsItemToData,
-            // but using the taxable amount returned back from AvaTax is the only way to get an accurate amount as
-            // some items sent to AvaTax may be tax exempt
+            /**
+             * We could recalculate the amount using the same logic found in this class:
+             * @see \ClassyLlama\AvaTax\Framework\Interaction\Line::convertTaxQuoteDetailsItemToData,
+             * but using the taxable amount returned back from AvaTax is the only way to get an accurate amount as
+             * some items sent to AvaTax may be tax exempt
+             */
             $taxableAmount = (float)$taxLine->getTaxable();
             $amount = $this->priceCurrency->convert($taxableAmount, $scope);
 
