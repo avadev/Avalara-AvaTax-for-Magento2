@@ -14,10 +14,6 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 class Get
 {
-    const KEY_TAX_DETAILS = 'tax_details';
-
-    const KEY_BASE_TAX_DETAILS = 'base_tax_details';
-
     /**
      * @var TaxCalculation
      */
