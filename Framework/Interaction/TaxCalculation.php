@@ -208,6 +208,35 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $rate = (float)($taxLine->getRate() * Tax::RATE_MULTIPLIER);
         $tax = (float)$taxLine->getTax();
 
+        /*
+         * Magento uses base rates for determining what to charge a customer, not the currency rate (i.e., the non-base
+         * rate). Because of this, the base amounts are what is being sent to AvaTax for rate calculation. When we get
+         * the base tax amounts back from AvaTax, we have to convert those to the current store's currency using the
+         * \Magento\Framework\Pricing\PriceCurrencyInterface::convert() method. However if we simply convert the AvaTax
+         * base tax amount * currency multiplier, we may run into issues due to rounding.
+         *
+         * For example, a $9.90 USD base price * a 6% tax rate equals a tax amount of $0.59 (.594 rounded). Assume the
+         * current currency has a conversion rate of 2x. The price will display to the user as $19.80. There are two
+         * ways we can calculate the tax amount:
+         * 1. Multiply the tax amount received back from AvaTax, which would be $1.18 ($0.59 * 2).
+         * 2. Multiply using this formula (base price * currency rate) * tax rate) ((9.99 * 2) * .06)
+         *    which would be $1.19 (1.188 rounded)
+         *
+         * The second approach is more accurate and is what we are doing here.
+         */
+        if (!$useBaseCurrency) {
+            // We could recalculate the amount using the same logic found in $this->convertTaxQuoteDetailsItemToData,
+            // but using the taxable amount returned back from AvaTax is the only way to get an accurate amount as
+            // some items sent to AvaTax may be tax exempt
+            $taxableAmount = (float)$taxLine->getTaxable();
+            $amount = $this->priceCurrency->convert($taxableAmount, $store);
+
+            $tax = $amount * $taxLine->getRate();
+            $tax = $this->calculationTool->round($tax);
+        }
+
+        $rowTax = $tax;
+
         // TODO: Add support for this
         $discountTaxCompensationAmount  = 0;
 
@@ -219,16 +248,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         } else {
             $quantity = $item->getQuantity();
         }
-
         $rowTotal = $price * $quantity;
-
-        if ($useBaseCurrency) {
-            $rowTax = $tax;
-        } else {
-            // TODO: Pass current store view to this method
-            $rowTax = $this->priceCurrency->convert($tax, $store);
-        }
-
         $rowTotalInclTax = $rowTotal + $rowTax;
 
         $priceInclTax = $rowTotalInclTax / $quantity;
