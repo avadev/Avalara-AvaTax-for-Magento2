@@ -1,8 +1,6 @@
 <?php
 /**
- * AvaTaxCalculation.php
- *
- * This code is separated into its own class as it uses specific methods of its parent class
+ * TaxCalculation.php
  *
  * @category    ClassyLlama
  * @package     AvaTax
@@ -109,23 +107,13 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
      * @param GetTaxResult $getTaxResult
      * @param $useBaseCurrency
-     * @param null $storeId
-     * @param bool|true $round
      * @return \Magento\Tax\Api\Data\TaxDetailsInterface
      */
     public function calculateTaxDetails(
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         GetTaxResult $getTaxResult,
-        $useBaseCurrency,
-        $storeId = null,
-        // TODO: Use or remove this argument
-        $round = true
+        $useBaseCurrency
     ) {
-        if ($storeId === null) {
-            // TODO: Use or remove this method
-            $storeId = $this->storeManager->getStore()->getStoreId();
-        }
-
         // initial TaxDetails data
         $taxDetailsData = [
             TaxDetails::KEY_SUBTOTAL => 0.0,
@@ -145,7 +133,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             if (isset($childrenItems[$item->getCode()])) {
                 $processedChildren = [];
                 foreach ($childrenItems[$item->getCode()] as $child) {
-                    $processedItem = $this->getTaxDetailsItem($child, $getTaxResult, $useBaseCurrency, $round);
+                    $processedItem = $this->getTaxDetailsItem($child, $getTaxResult, $useBaseCurrency);
                     if ($processedItem) {
                         $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
                         $processedItems[$processedItem->getCode()] = $processedItem;
@@ -156,7 +144,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 $processedItem->setCode($item->getCode());
                 $processedItem->setType($item->getType());
             } else {
-                $processedItem = $this->getTaxDetailsItem($item, $getTaxResult, $useBaseCurrency, $round);
+                $processedItem = $this->getTaxDetailsItem($item, $getTaxResult, $useBaseCurrency);
               $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
                 if ($processedItem) {
                     $processedItems[$processedItem->getCode()] = $processedItem;
@@ -183,14 +171,12 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item
      * @param GetTaxResult $getTaxResult
      * @param bool $useBaseCurrency
-     * @param bool $round
      * @return \Magento\Tax\Api\Data\TaxDetailsItemInterface
      */
     protected function getTaxDetailsItem(
         \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item,
         GetTaxResult $getTaxResult,
-        $useBaseCurrency,
-        $round
+        $useBaseCurrency
     ) {
         // TODO: Get store
         $store = null;
@@ -250,9 +236,12 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         }
         $rowTotal = $price * $quantity;
         $rowTotalInclTax = $rowTotal + $rowTax;
-
         $priceInclTax = $rowTotalInclTax / $quantity;
-        // TODO: Implement rounding logic
+
+        // The \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxNotInPrice method that this
+        // method is patterned off of has $round as a variable, but any time that method is used in the context
+        // of a collect totals on a quote, rounding is always used
+        $round = true;
         if ($round) {
             $priceInclTax = $this->calculationTool->round($priceInclTax);
         }

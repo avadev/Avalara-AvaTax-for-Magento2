@@ -5,7 +5,6 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 use AvaTax\LineFactory;
 use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
-use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
 use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
 
 class Line
@@ -92,6 +91,14 @@ class Line
         'tax_override' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
     ];
 
+    /**
+     * Class constructor
+     *
+     * @param Config $config
+     * @param Validation $validation
+     * @param LineFactory $lineFactory
+     * @param ResourceProduct $resourceProduct
+     */
     public function __construct(
         Config $config,
         Validation $validation,
@@ -141,6 +148,12 @@ class Line
         ];
     }
 
+    /**
+     * Convert \Magento\Tax\Model\Sales\Quote\ItemDetails to an array to be used for building an \AvaTax\Line object
+     *
+     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item
+     * @return array
+     */
     protected function convertTaxQuoteDetailsItemToData(\Magento\Tax\Api\Data\QuoteDetailsItemInterface $item)
     {
         $extensionAttributes = $item->getExtensionAttributes();
@@ -157,11 +170,10 @@ class Line
 
         // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
         // from taxable amount
-//        $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
         $amount = ($item->getUnitPrice() * $quantity) - $item->getDiscountAmount();
 
-        $ref1 = $item->getExtensionAttributes() ? $item->getExtensionAttributes()->getAvataxRef1() : null;
-        $ref2 = $item->getExtensionAttributes() ? $item->getExtensionAttributes()->getAvataxRef2() : null;
+        $ref1 = $extensionAttributes ? $extensionAttributes->getAvataxRef1() : null;
+        $ref2 = $extensionAttributes ? $extensionAttributes->getAvataxRef2() : null;
 
         return [
 //            'store_id' => $item->getStoreId(),
