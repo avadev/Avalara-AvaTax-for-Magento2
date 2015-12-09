@@ -235,9 +235,6 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             $rowTaxBeforeDiscount = 0;
         }
 
-        // TODO: Add support for this
-        $discountTaxCompensationAmount = 0;
-
         $extensionAttributes = $item->getExtensionAttributes();
         if ($extensionAttributes) {
             $quantity = $extensionAttributes->getTotalQuantity() !== null
@@ -249,6 +246,14 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $rowTotal = $price * $quantity;
         $rowTotalInclTax = $rowTotal + $rowTaxBeforeDiscount;
         $priceInclTax = $rowTotalInclTax / $quantity;
+
+        /**
+         * Since the AvaTax extension does not support merchants adding products with tax already factored into the
+         * price, we don't need to do any calculations for this number. The only time this value would be something
+         * other than 0 is when this method runs:
+         * @see \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxInPrice
+         */
+        $discountTaxCompensationAmount = 0;
 
         /**
          * The \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxNotInPrice method that this
