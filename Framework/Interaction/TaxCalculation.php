@@ -28,11 +28,6 @@ use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 {
     /**
-     * Prefix for applied taxes ID
-     */
-    const APPLIED_TAXES_ID_PREFIX = 'avatax-';
-
-    /**
      * @var PriceCurrencyInterface
      */
     protected $priceCurrency;
@@ -255,15 +250,20 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $rowTotalInclTax = $rowTotal + $rowTaxBeforeDiscount;
         $priceInclTax = $rowTotalInclTax / $quantity;
 
-        // The \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxNotInPrice method that this
-        // method is patterned off of has $round as a variable, but any time that method is used in the context
-        // of a collect totals on a quote, rounding is always used
+        /**
+         * The \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxNotInPrice method that this
+         * method is patterned off of has $round as a variable, but any time that method is used in the context of a
+         * collect totals on a quote, rounding is always used.
+         */
         $round = true;
         if ($round) {
             $priceInclTax = $this->calculationTool->round($priceInclTax);
         }
 
-        $appliedTaxes = $this->getAppliedTaxes($getTaxResult, $rowTax);
+        $appliedTax = $this->getAppliedTax($getTaxResult, $rowTax);
+        $appliedTaxes = [
+            $appliedTax->getTaxRateKey() => $appliedTax
+        ];
 
         return $this->taxDetailsItemDataObjectFactory->create()
             ->setCode($item->getCode())
@@ -281,42 +281,48 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     }
 
     /**
-     * Get the associated tax rates that were applied to a quote/order/invoice/creditmemo item
+     * Convert the AvaTax Tax Summary to a Magento object
+     *
+     * @see \Magento\Tax\Model\Calculation\AbstractCalculator::getAppliedTax()
      *
      * @param GetTaxResult $getTaxResult
      * @param float $rowTax
-     * @return \Magento\Tax\Api\Data\AppliedTaxInterface[]
+     * @return \Magento\Tax\Api\Data\AppliedTaxInterface
      */
-    protected function getAppliedTaxes(
+    protected function getAppliedTax(
         GetTaxResult $getTaxResult,
         $rowTax
     ) {
-        $appliedTaxDataObjects = [];
+        $totalPercent = 0.00;
+        $taxNames = [];
 
+        /** @var  \Magento\Tax\Api\Data\AppliedTaxRateInterface[] $rateDataObjects */
+        $rateDataObjects = [];
+
+        /* @var \AvaTax\TaxDetail $row */
         foreach ($getTaxResult->getTaxSummary() as $key => $row) {
-            /* @var \AvaTax\TaxDetail $row */
-            $percent = (float)($row->getRate() * Tax::RATE_MULTIPLIER);
+            $ratePercent = (float)($row->getRate() * Tax::RATE_MULTIPLIER);
+            $totalPercent += $ratePercent;
+            $taxNames[] = $row->getTaxName();
+            // In case jurisdiction codes are duplicated, prepending the $key ensures we have a unique ID
+            $id = $key . '_' . $row->getJurisCode();
 
-            $appliedTaxDataObject = $this->appliedTaxDataObjectFactory->create();
-            // TODO: Should we use the total tax amount ($row->getTax()) anywhere?
-            $appliedTaxDataObject->setAmount($rowTax);
-            $appliedTaxDataObject->setPercent($percent);
-            $appliedTaxDataObject->setTaxRateKey($row->getTaxName());
-
-            /** @var  \Magento\Tax\Api\Data\AppliedTaxRateInterface[] $rateDataObjects */
-            $rateDataObjects = [];
-
-            $id = self::APPLIED_TAXES_ID_PREFIX . $key;
             // Skipped position, priority and rule_id
             $rateDataObjects[$id] = $this->appliedTaxRateDataObjectFactory->create()
-                ->setPercent($percent)
-                ->setCode($row->getTaxName())
+                ->setPercent($ratePercent)
+                ->setCode($row->getJurisCode())
                 ->setTitle($row->getTaxName());
-            $appliedTaxDataObject->setRates($rateDataObjects);
-
-            $appliedTaxDataObjects[] = $appliedTaxDataObject;
         }
-        return $appliedTaxDataObjects;
+        $rateKey = implode(' - ', $taxNames);
+
+        $appliedTaxDataObject = $this->appliedTaxDataObjectFactory->create();
+        // TODO: Should we use the total tax amount ($row->getTax()) anywhere?
+        $appliedTaxDataObject->setAmount($rowTax);
+        $appliedTaxDataObject->setPercent($totalPercent);
+        $appliedTaxDataObject->setTaxRateKey($rateKey);
+        $appliedTaxDataObject->setRates($rateDataObjects);
+
+        return $appliedTaxDataObject;
     }
 
     /**
