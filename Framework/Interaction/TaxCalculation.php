@@ -194,7 +194,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $rate = (float)($taxLine->getRate() * Tax::RATE_MULTIPLIER);
         $tax = (float)$taxLine->getTax();
 
-        /*
+        /**
          * Magento uses base rates for determining what to charge a customer, not the currency rate (i.e., the non-base
          * rate). Because of this, the base amounts are what is being sent to AvaTax for rate calculation. When we get
          * the base tax amounts back from AvaTax, we have to convert those to the current store's currency using the
@@ -223,8 +223,25 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
         $rowTax = $tax;
 
+        /**
+         * In native Magento, the "row_total_incl_tax" and "base_row_total_incl_tax" fields contain the tax before
+         * discount. The AvaTax 15 API doesn't have the concept of before/after discount tax, so in order to determine
+         * the "before discount tax amount", we need to multiply the discount by the rate returned by AvaTax.
+         * @see \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxNotInPrice
+         *
+         * If the rate is 0, then this product doesn't have taxes applied and tax on discount shouldn't be calculated.
+         */
+        if ($taxLine->getRate() > 0) {
+            $taxOnDiscountAmount =
+            $taxOnDiscountAmount = $item->getDiscountAmount() * $taxLine->getRate();
+            $taxOnDiscountAmount = $this->calculationTool->round($taxOnDiscountAmount);
+            $rowTaxBeforeDiscount = $rowTax + $taxOnDiscountAmount;
+        } else {
+            $rowTaxBeforeDiscount = 0;
+        }
+
         // TODO: Add support for this
-        $discountTaxCompensationAmount  = 0;
+        $discountTaxCompensationAmount = 0;
 
         $extensionAttributes = $item->getExtensionAttributes();
         if ($extensionAttributes) {
@@ -235,7 +252,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             $quantity = $item->getQuantity();
         }
         $rowTotal = $price * $quantity;
-        $rowTotalInclTax = $rowTotal + $rowTax;
+        $rowTotalInclTax = $rowTotal + $rowTaxBeforeDiscount;
         $priceInclTax = $rowTotalInclTax / $quantity;
 
         // The \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxNotInPrice method that this
