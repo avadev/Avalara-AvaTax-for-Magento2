@@ -3,11 +3,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
 use AvaTax\GetTaxRequest;
-use AvaTax\GetTaxResult;
 use AvaTax\LineFactory;
-use AvaTax\Message;
-use AvaTax\SeverityLevel;
-use AvaTax\TaxLine;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
@@ -18,10 +14,6 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 class Get
 {
-    const KEY_TAX_DETAILS = 'tax_details';
-
-    const KEY_BASE_TAX_DETAILS = 'base_tax_details';
-
     /**
      * @var TaxCalculation
      */
@@ -57,6 +49,14 @@ class Get
      */
     protected $avaTaxLogger;
 
+    /**#@+
+     * Keys for non-base and base tax details
+     */
+    const KEY_TAX_DETAILS = 'tax_details';
+
+    const KEY_BASE_TAX_DETAILS = 'base_tax_details';
+    /**#@-*/
+
     /**
      * @param TaxCalculation $taxCalculation
      * @param Address $interactionAddress
@@ -85,21 +85,30 @@ class Get
      * Convert quote/order/invoice/creditmemo to the AvaTax object and request tax from the Get Tax API
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails
+     * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @return bool|\Magento\Tax\Api\Data\TaxDetailsInterface[]
      */
-    public function getTax(
+    public function getTaxDetailsForQuote(
+        \Magento\Quote\Model\Quote $quote,
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails,
-        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
-        $data
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
         $taxService = $this->interactionTax->getTaxService();
+
+        // Total quantity of an item can be determined by multiplying parent * child quantity, so it's necessary
+        // to calculate total quantities on a list of all items
+        $this->taxCalculation->calculateTotalQuantities($taxQuoteDetails->getItems());
+        $this->taxCalculation->calculateTotalQuantities($baseTaxQuoteDetails->getItems());
 
         // Taxes need to be calculated on the base prices/amounts, not the current currency prices. As a result of this,
         // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
         // calculated by multiplying the base tax rates * currency conversion rate.
         /** @var $getTaxRequest GetTaxRequest */
-        $getTaxRequest = $this->interactionTax->getGetTaxRequest($baseTaxQuoteDetails, $shippingAssignment, $data);
+        $getTaxRequest = $this->interactionTax->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
 
         if (is_null($getTaxRequest)) {
             // TODO: Possibly refactor all usages of setErrorMessage to throw exception instead so that this class can be stateless
@@ -111,7 +120,6 @@ class Get
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-
                 $this->avaTaxLogger->info(
                     'response from external api getTax',
                     [ /* context */
@@ -119,12 +127,10 @@ class Get
                         'result' => var_export($getTaxResult, true),
                     ]
                 );
+                $storeId = $quote->getStoreId();
 
-                // TODO: Populate this
-                $storeId = null;
-
-                $taxDetails = $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $storeId);
-                $baseTaxDetails = $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $storeId);
+                $taxDetails = $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false);
+                $baseTaxDetails = $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true);
 
                 return [
                     self::KEY_TAX_DETAILS => $taxDetails,

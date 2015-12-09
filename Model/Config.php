@@ -600,7 +600,7 @@ class Config
      * Return "disable checkout" error message based on the current area context
      *
      * @param null $store
-     * @return string
+     * @return \Magento\Framework\Phrase
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getErrorActionDisableCheckoutMessage($store = null)

@@ -14,6 +14,7 @@ use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
+use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Zend\Filter\DateTimeFormatter;
 
 class Tax
@@ -67,6 +68,11 @@ class Tax
      * @var TaxServiceSoap[]
      */
     protected $taxServiceSoap = [];
+
+    /**
+     * @var TaxCalculation
+     */
+    protected $taxCalculation = null;
 
     /**
      * List of types that we want to be used with setType
@@ -129,6 +135,21 @@ class Tax
      */
     const RATE_MULTIPLIER = 100;
 
+    /**
+     * Class constructor
+     *
+     * @param Address $address
+     * @param Config $config
+     * @param Validation $validation
+     * @param TaxServiceSoapFactory $taxServiceSoapFactory
+     * @param GetTaxRequestFactory $getTaxRequestFactory
+     * @param GroupRepositoryInterface $groupRepository
+     * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param DateTimeFormatter $dateTimeFormatter
+     * @param Line $interactionLine
+     * @param TaxCalculation $taxCalculation
+     * @param QuoteDetailsItemExtensionFactory $extensionFactory
+     */
     public function __construct(
         Address $address,
         Config $config,
@@ -138,7 +159,9 @@ class Tax
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
         DateTimeFormatter $dateTimeFormatter,
-        Line $interactionLine
+        Line $interactionLine,
+        TaxCalculation $taxCalculation,
+        QuoteDetailsItemExtensionFactory $extensionFactory
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -149,6 +172,8 @@ class Tax
         $this->taxClassRepository = $taxClassRepository;
         $this->dateTimeFormatter = $dateTimeFormatter;
         $this->interactionLine = $interactionLine;
+        $this->taxCalculation = $taxCalculation;
+        $this->extensionFactory = $extensionFactory;
     }
 
     /**
@@ -305,11 +330,16 @@ class Tax
         }
 
         $lines = [];
-        $this->interactionLine->computeRelationships($taxQuoteDetails->getItems());
 
-        foreach ($this->interactionLine->getKeyedItems() as $item) {
-            if ($this->interactionLine->getChildrenItems($item->getCode())) {
-                foreach ($this->interactionLine->getChildrenItems($item->getCode()) as $childItem) {
+        $items = $taxQuoteDetails->getItems();
+        $keyedItems = $this->taxCalculation->getKeyedItems($items);
+        $childrenItems = $this->taxCalculation->getChildrenItems($items);
+
+        /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
+        foreach ($keyedItems as $item) {
+            if (isset($childrenItems[$item->getCode()])) {
+                /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $childItem */
+                foreach ($childrenItems[$item->getCode()] as $childItem) {
                     $line = $this->interactionLine->getLine($childItem);
                     if ($line) {
                         $lines[] = $line;
@@ -367,36 +397,40 @@ class Tax
     }
 
     /**
-     * Creates and returns a populated getTaxRequest
+     * Creates and returns a populated getTaxRequest for a quote
      * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
      * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data \Magento\Sales\Api\Data\OrderInterface|\Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface|array
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
+     * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @return null|GetTaxRequest
+     * @throws LocalizedException
      */
-    public function getGetTaxRequest(
+    public function getGetTaxRequestForQuote(
+        \Magento\Quote\Model\Quote $quote,
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
-        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
-        $data
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
-        switch (true) {
-            case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
-                $data = $this->convertOrderToData($data);
-                break;
-            case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
-                $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $data);
-                break;
-            case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
-                $data = $this->convertInvoiceToData($data);
-                break;
-            case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
-                $data = $this->convertCreditMemoToData($data);
-                break;
-            case (!is_array($data)):
-                return false;
-                break;
-        }
+        // TODO: Implement new methods to return GetTaxRequest for other object types
+        //switch// (true) {
+        //    case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
+        //        $data = $this->convertOrderToData($data);
+        //        break;
+        //    case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
+        //        $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $data);
+        //        break;
+        //    case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
+        //        $data = $this->convertInvoiceToData($data);
+        //        break;
+        //    case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
+        //        $data = $this->convertCreditMemoToData($data);
+        //        break;
+        //    case (!is_array($data)):
+        //        return false;
+        //        break;
+        //}
+        $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $quote);
 
         if (is_null($data)) {
             return null;

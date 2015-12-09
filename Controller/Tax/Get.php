@@ -51,25 +51,25 @@ class Get extends Action\Action
         $contents = '';
 
         $data = $this->orderRepository->get(1);
-        $success = $this->interactionGetTax->getTax($data);
+        $success = $this->interactionGetTax->getTaxDetailsForQuote($data);
         if ($success) {
             $contents .= $this->dumpTaxData($success) . "\n\n";
         }
 
         $data = $this->orderRepository->get(2);
-        $success = $this->interactionGetTax->getTax($data);
+        $success = $this->interactionGetTax->getTaxDetailsForQuote($data);
         if ($success) {
             $contents .= $this->dumpTaxData($success) . "\n\n";
         }
 
         $data = $this->quoteRepository->get(1);
-        $success = $this->interactionGetTax->getTax($data);
+        $success = $this->interactionGetTax->getTaxDetailsForQuote($data);
         if ($success) {
             $contents .= $this->dumpTaxData($success) . "\n\n";
         }
 
         $data = $this->quoteRepository->get(2);
-        $success = $this->interactionGetTax->getTax($data);
+        $success = $this->interactionGetTax->getTaxDetailsForQuote($data);
         if ($success) {
             $contents .= $this->dumpTaxData($success) . "\n\n";
         }
