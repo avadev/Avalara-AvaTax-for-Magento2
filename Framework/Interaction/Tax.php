@@ -337,6 +337,14 @@ class Tax
 
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($keyedItems as $item) {
+            /**
+             * If a quote has children and they are calculated (e.g., Bundled products with dynamic pricing)
+             * @see \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItems
+             * then we only need to pass child items to AvaTax. Due to the logic in
+             * @see \ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation::calculateTaxDetails
+             * the parent tax gets calculated based on children items
+             */
+            //
             if (isset($childrenItems[$item->getCode()])) {
                 /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $childItem */
                 foreach ($childrenItems[$item->getCode()] as $childItem) {
@@ -345,10 +353,11 @@ class Tax
                         $lines[] = $line;
                     }
                 }
-            }
-            $line = $this->interactionLine->getLine($item);
-            if ($line) {
-                $lines[] = $line;
+            } else {
+                $line = $this->interactionLine->getLine($item);
+                if ($line) {
+                    $lines[] = $line;
+                }
             }
         }
 
