@@ -127,10 +127,10 @@ class Get
                         'result' => var_export($getTaxResult, true),
                     ]
                 );
-                $storeId = $quote->getStoreId();
 
-                $taxDetails = $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false);
-                $baseTaxDetails = $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true);
+                $store = $quote->getStore();
+                $taxDetails = $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
+                $baseTaxDetails = $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
 
                 return [
                     self::KEY_TAX_DETAILS => $taxDetails,

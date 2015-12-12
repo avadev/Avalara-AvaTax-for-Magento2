@@ -16,6 +16,7 @@ use Magento\Framework\Phrase;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Zend\Filter\DateTimeFormatter;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class Tax
 {
@@ -58,6 +59,11 @@ class Tax
      * @var DateTimeFormatter
      */
     protected $dateTimeFormatter = null;
+
+    /**
+     * @var TimezoneInterface
+     */
+    protected $localeDate;
 
     /**
      * @var Line
@@ -130,6 +136,11 @@ class Tax
     ];
 
     /**
+     * Format for the AvaTax dates
+     */
+    const AVATAX_DATE_FORMAT = 'Y-m-d';
+
+    /**
      * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
      * convert AvaTax rate to Magento's rate
      */
@@ -145,7 +156,7 @@ class Tax
      * @param GetTaxRequestFactory $getTaxRequestFactory
      * @param GroupRepositoryInterface $groupRepository
      * @param TaxClassRepositoryInterface $taxClassRepository
-     * @param DateTimeFormatter $dateTimeFormatter
+     * @param TimezoneInterface $localeDate
      * @param Line $interactionLine
      * @param TaxCalculation $taxCalculation
      * @param QuoteDetailsItemExtensionFactory $extensionFactory
@@ -158,7 +169,7 @@ class Tax
         GetTaxRequestFactory $getTaxRequestFactory,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
-        DateTimeFormatter $dateTimeFormatter,
+        TimezoneInterface $localeDate,
         Line $interactionLine,
         TaxCalculation $taxCalculation,
         QuoteDetailsItemExtensionFactory $extensionFactory
@@ -170,7 +181,7 @@ class Tax
         $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
-        $this->dateTimeFormatter = $dateTimeFormatter;
+        $this->localeDate = $localeDate;
         $this->interactionLine = $interactionLine;
         $this->taxCalculation = $taxCalculation;
         $this->extensionFactory = $extensionFactory;
@@ -293,8 +304,12 @@ class Tax
             return null;
         }
 
+        $store = $order->getStore();
+        $currentDate = $this->getFormattedDate($store);
+        $docDate = $this->getFormattedDate($store, $order->getCreatedAt());
+
         return [
-            'store_id' => $order->getStoreId(),
+            'store_id' => $store->getId(),
             'commit' => $this->shouldCommit($order),
             'currency_code' => $order->getOrderCurrencyCode(), // TODO: Make sure these all map correctly
             'customer_code' => $this->getCustomerCode(
@@ -306,10 +321,10 @@ class Tax
             'destination_address' => $address,
             'discount' => $order->getDiscountAmount(),
             'doc_code' => $order->getIncrementId(),
-            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($order->getCreatedAt()), // TODO: Account for GMT Conversion
+            'doc_date' => $docDate,
             'doc_type' => DocumentType::$PurchaseInvoice,
             'exchange_rate' => $this->getExchangeRate($order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
-            'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(time()),
+            'exchange_rate_eff_date' => $currentDate,
             'lines' => $lines,
 //            'payment_date' => null,
             'purchase_order_number' => $order->getIncrementId(),
@@ -337,6 +352,14 @@ class Tax
 
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($keyedItems as $item) {
+            /**
+             * If a quote has children and they are calculated (e.g., Bundled products with dynamic pricing)
+             * @see \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItems
+             * then we only need to pass child items to AvaTax. Due to the logic in
+             * @see \ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation::calculateTaxDetails
+             * the parent tax gets calculated based on children items
+             */
+            //
             if (isset($childrenItems[$item->getCode()])) {
                 /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $childItem */
                 foreach ($childrenItems[$item->getCode()] as $childItem) {
@@ -345,10 +368,11 @@ class Tax
                         $lines[] = $line;
                     }
                 }
-            }
-            $line = $this->interactionLine->getLine($item);
-            if ($line) {
-                $lines[] = $line;
+            } else {
+                $line = $this->interactionLine->getLine($item);
+                if ($line) {
+                    $lines[] = $line;
+                }
             }
         }
 
@@ -362,8 +386,14 @@ class Tax
             return null;
         }
 
+        $store = $quote->getStore();
+        $currentDate = $this->getFormattedDate($store);
+
+        // Quote created/updated date is not relevant, so just pass the current date
+        $docDate = $currentDate;
+
         return [
-            'store_id' => $quote->getStoreId(),
+            'store_id' => $store->getId(),
             'commit' => false,
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'customer_code' => $this->getCustomerCode(
@@ -375,10 +405,10 @@ class Tax
             'destination_address' => $address,
 //            'discount' => $quote->getDiscountAmount(), // TODO: Determine if discounts are available on quotes
             'doc_code' => $quote->getReservedOrderId(),
-            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($quote->getCreatedAt()), // TODO: Account for GMT Conversion
+            'doc_date' => $docDate,
             'doc_type' => DocumentType::$PurchaseOrder,
             'exchange_rate' => $this->getExchangeRate($quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
-            'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(time()),
+            'exchange_rate_eff_date' => $currentDate,
             'lines' => $lines,
 //            'payment_date' => null,
             'purchase_order_number' => $quote->getReservedOrderId(),
@@ -529,5 +559,21 @@ class Tax
         }
 
         return $getTaxRequest;
+    }
+
+    /**
+     * Return date in the current scope's timezone, formatted in AvaTax format
+     *
+     * @param $scope
+     * @param null $time
+     * @return string
+     */
+    protected function getFormattedDate($scope, $time = null)
+    {
+        $time = $time ?: 'now';
+        $timezone = $this->localeDate->getConfigTimezone(null, $scope);
+        $date = new \DateTime($time, new \DateTimeZone($this->localeDate->getDefaultTimezone()));
+        $date->setTimezone(new \DateTimeZone($timezone));
+        return $date->format(self::AVATAX_DATE_FORMAT);
     }
 }
