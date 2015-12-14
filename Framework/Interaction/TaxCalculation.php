@@ -325,7 +325,6 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $rateKey = implode(' - ', $taxNames);
 
         $appliedTaxDataObject = $this->appliedTaxDataObjectFactory->create();
-        // TODO: Should we use the total tax amount ($row->getTax()) anywhere?
         $appliedTaxDataObject->setAmount($rowTax);
         $appliedTaxDataObject->setPercent($totalPercent);
         $appliedTaxDataObject->setTaxRateKey($rateKey);
