@@ -141,6 +141,10 @@ class Tax
     const AVATAX_DATE_FORMAT = 'Y-m-d';
 
     /**
+     * Prefix for the DocCode field
+     */
+    const AVATAX_DOC_CODE_PREFIX = 'quote-';
+
      * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
      * convert AvaTax rate to Magento's rate
      */
@@ -411,7 +415,7 @@ class Tax
 //            'customer_usage_type' => null,//$taxClass->,
             'destination_address' => $address,
 //            'discount' => $quote->getDiscountAmount(), // TODO: Determine if discounts are available on quotes
-            'doc_code' => $quote->getReservedOrderId(),
+            'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'doc_date' => $docDate,
             'doc_type' => DocumentType::$PurchaseOrder,
             'exchange_rate' => $this->getExchangeRate($store, $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
