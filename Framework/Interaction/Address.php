@@ -259,7 +259,7 @@ class Address
      */
     public function convertAvaTaxValidAddressToCustomerAddress(
         \AvaTax\ValidAddress $address,
-        \Magento\Customer\Api\Data\AddressInterface $originalAddress
+        CustomerAddressInterface $originalAddress
     ) {
         $street = [];
         if ($address->getLine1()) {
@@ -278,9 +278,32 @@ class Address
             return null;
         }
 
+        $originalAddressData = [
+            CustomerAddressInterface::COUNTRY_ID => $originalAddress->getCountryId(),
+            CustomerAddressInterface::STREET => $originalAddress->getStreet(),
+            CustomerAddressInterface::POSTCODE => $originalAddress->getPostcode(),
+            CustomerAddressInterface::CITY => $originalAddress->getCity(),
+            CustomerAddressInterface::COMPANY => $originalAddress->getCompany(),
+            CustomerAddressInterface::CUSTOM_ATTRIBUTES => $originalAddress->getCustomAttributes(),
+            CustomerAddressInterface::CUSTOMER_ID => $originalAddress->getCustomerId(),
+            CustomerAddressInterface::EXTENSION_ATTRIBUTES_KEY => $originalAddress->getExtensionAttributes(),
+            CustomerAddressInterface::FAX => $originalAddress->getFax(),
+            CustomerAddressInterface::FIRSTNAME => $originalAddress->getFirstname(),
+            CustomerAddressInterface::ID => $originalAddress->getId(),
+            CustomerAddressInterface::LASTNAME => $originalAddress->getLastname(),
+            CustomerAddressInterface::MIDDLENAME => $originalAddress->getMiddlename(),
+            CustomerAddressInterface::PREFIX => $originalAddress->getPrefix(),
+            CustomerAddressInterface::REGION => $originalAddress->getRegion(),
+            CustomerAddressInterface::REGION_ID => $originalAddress->getRegionId(),
+            CustomerAddressInterface::STREET => $originalAddress->getStreet(),
+            CustomerAddressInterface::SUFFIX => $originalAddress->getSuffix(),
+            CustomerAddressInterface::TELEPHONE => $originalAddress->getTelephone(),
+            CustomerAddressInterface::VAT_ID => $originalAddress->getVatId()
+        ];
+
         // Get data from original address so that information like name and telephone will be preserved
-        $data = array_merge($originalAddress->getData(), [
-            CustomerAddressInterface::REGION => $region,
+        $data = array_merge($originalAddressData, [
+            CustomerAddressInterface::REGION => $region->getName(),
             CustomerAddressInterface::REGION_ID => $region->getId(),
             CustomerAddressInterface::COUNTRY_ID => $address->getCountry(),
             CustomerAddressInterface::STREET => $street,

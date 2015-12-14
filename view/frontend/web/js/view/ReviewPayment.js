@@ -8,9 +8,7 @@ define(
         'Magento_Checkout/js/model/step-navigator',
         'Magento_Checkout/js/model/payment-service',
         'Magento_Checkout/js/model/payment/method-converter',
-        'Magento_Checkout/js/model/address-converter',
         'Magento_Checkout/js/action/get-payment-information',
-        'ClassyLlama_AvaTax/js/action/set-valid-address',
         'Magento_Checkout/js/model/checkout-data-resolver'
     ],
     function (
@@ -22,9 +20,7 @@ define(
         stepNavigator,
         paymentService,
         methodConverter,
-        addressConverter,
         getPaymentInformation,
-        setValidAddress,
         checkoutDataResolver
     ) {
         'use strict';
@@ -41,6 +37,7 @@ define(
             isPaymentMethodsAvailable: ko.computed(function () {
                 return paymentService.getAvailablePaymentMethods().length > 0;
             }),
+            context: 'checkout',
 
             initialize: function () {
                 this._super();

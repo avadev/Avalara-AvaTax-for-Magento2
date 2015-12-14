@@ -10,7 +10,7 @@
     <route url="/V1/carts/mine/validate-address" method="POST">
         <service class="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" method="saveValidAddress"/>
         <resources>
-            <resource ref="anonymous" />
+            <resource ref="self" />
         </resources>
     </route>
 </routes>
