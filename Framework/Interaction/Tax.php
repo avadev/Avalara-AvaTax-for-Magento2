@@ -414,7 +414,6 @@ class Tax
             ),
 //            'customer_usage_type' => null,//$taxClass->,
             'destination_address' => $address,
-//            'discount' => $quote->getDiscountAmount(), // TODO: Determine if discounts are available on quotes
             'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'doc_date' => $docDate,
             'doc_type' => DocumentType::$PurchaseOrder,
