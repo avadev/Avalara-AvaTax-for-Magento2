@@ -15,7 +15,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
-use Zend\Filter\DateTimeFormatter;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class Tax
@@ -56,9 +56,9 @@ class Tax
     protected $taxClassRepository = null;
 
     /**
-     * @var DateTimeFormatter
+     * @var PriceCurrencyInterface
      */
-    protected $dateTimeFormatter = null;
+    protected $priceCurrency;
 
     /**
      * @var TimezoneInterface
@@ -156,6 +156,7 @@ class Tax
      * @param GetTaxRequestFactory $getTaxRequestFactory
      * @param GroupRepositoryInterface $groupRepository
      * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param PriceCurrencyInterface $priceCurrency
      * @param TimezoneInterface $localeDate
      * @param Line $interactionLine
      * @param TaxCalculation $taxCalculation
@@ -169,6 +170,7 @@ class Tax
         GetTaxRequestFactory $getTaxRequestFactory,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
+        PriceCurrencyInterface $priceCurrency,
         TimezoneInterface $localeDate,
         Line $interactionLine,
         TaxCalculation $taxCalculation,
@@ -181,6 +183,7 @@ class Tax
         $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
+        $this->priceCurrency = $priceCurrency;
         $this->localeDate = $localeDate;
         $this->interactionLine = $interactionLine;
         $this->taxCalculation = $taxCalculation;
@@ -249,16 +252,20 @@ class Tax
 
     /**
      * Return the exchange rate between base currency and destination currency code
-     * TODO: Calculate the exchange rate from the system exchange rates
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $baseCurrencyCode
-     * @param $convertCurrencyCode
-     * @return double
+     * @param $scope
+     * @param string $baseCurrencyCode
+     * @param string $convertCurrencyCode
+     * @return float
      */
-    protected function getExchangeRate($baseCurrencyCode, $convertCurrencyCode)
+    protected function getExchangeRate($scope, $baseCurrencyCode, $convertCurrencyCode)
     {
-        return 1.00;
+        /** @var \Magento\Directory\Model\Currency $currency */
+        $currency = $this->priceCurrency->getCurrency($scope, $baseCurrencyCode);
+
+        $rate = $currency->getRate($convertCurrencyCode);
+        return $rate;
     }
 
     /**
@@ -323,7 +330,7 @@ class Tax
             'doc_code' => $order->getIncrementId(),
             'doc_date' => $docDate,
             'doc_type' => DocumentType::$PurchaseInvoice,
-            'exchange_rate' => $this->getExchangeRate($order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
+            'exchange_rate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
             'exchange_rate_eff_date' => $currentDate,
             'lines' => $lines,
 //            'payment_date' => null,
@@ -407,7 +414,7 @@ class Tax
             'doc_code' => $quote->getReservedOrderId(),
             'doc_date' => $docDate,
             'doc_type' => DocumentType::$PurchaseOrder,
-            'exchange_rate' => $this->getExchangeRate($quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
+            'exchange_rate' => $this->getExchangeRate($store, $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
             'exchange_rate_eff_date' => $currentDate,
             'lines' => $lines,
 //            'payment_date' => null,
