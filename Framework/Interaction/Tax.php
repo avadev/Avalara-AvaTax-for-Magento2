@@ -396,11 +396,7 @@ class Tax
             'store_id' => $store->getId(),
             'commit' => false,
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
-            'customer_code' => $this->getCustomerCode(
-                $quote->getShippingAddress()->getFirstname(), // TODO: Determine if these three values will always be available and if they won't use ones that will
-                $quote->getCustomer()->getEmail(),
-                $quote->getCustomer()->getId()
-            ),
+            'customer_code' => $this->getCustomerCodeForQuote($quote),
 //            'customer_usage_type' => null,//$taxClass->,
             'destination_address' => $address,
             'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
