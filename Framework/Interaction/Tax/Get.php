@@ -170,7 +170,7 @@ class Get
     /**
      * Set error message
      *
-     * @return void
+     * @param $message
      */
     public function setErrorMessage($message)
     {

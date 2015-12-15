@@ -145,6 +145,7 @@ class Tax
      */
     const AVATAX_DOC_CODE_PREFIX = 'quote-';
 
+    /**
      * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
      * convert AvaTax rate to Magento's rate
      */
@@ -252,24 +253,6 @@ class Tax
                 return $email;
                 break;
         }
-    }
-
-    /**
-     * Return the exchange rate between base currency and destination currency code
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $scope
-     * @param string $baseCurrencyCode
-     * @param string $convertCurrencyCode
-     * @return float
-     */
-    protected function getExchangeRate($scope, $baseCurrencyCode, $convertCurrencyCode)
-    {
-        /** @var \Magento\Directory\Model\Currency $currency */
-        $currency = $this->priceCurrency->getCurrency($scope, $baseCurrencyCode);
-
-        $rate = $currency->getRate($convertCurrencyCode);
-        return $rate;
     }
 
     /**

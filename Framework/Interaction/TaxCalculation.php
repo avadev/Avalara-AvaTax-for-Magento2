@@ -11,6 +11,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\GetTaxResult;
+use ClassyLlama\AvaTax\Model\Session;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\CalculatorFactory;
@@ -48,6 +49,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     protected $extensionFactory;
 
     /**
+     * @var Session
+     */
+    protected $session = null;
+
+    /**
      * Constructor
      *
      * @param Calculation $calculation
@@ -62,6 +68,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory
      * @param AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory
      * @param QuoteDetailsItemExtensionFactory $extensionFactory
+     * @param Session $session
      */
     public function __construct(
         Calculation $calculation,
@@ -75,7 +82,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         PriceCurrencyInterface $priceCurrency,
         AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory,
-        QuoteDetailsItemExtensionFactory $extensionFactory
+        QuoteDetailsItemExtensionFactory $extensionFactory,
+        Session $session
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
@@ -94,7 +102,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     }
 
     /**
-     * Calculates tax for each of the items in a quote/order/invoice/creditmemo
+     * Calculates tax for each of the items in a quote/order/invoice/credit memo
      *
      * This code is heavily influenced by this method:
      * @see Magento\Tax\Model\TaxCalculation::calculateTax()
@@ -285,8 +293,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             ->setDiscountTaxCompensationAmount($discountTaxCompensationAmount)
             ->setAssociatedItemCode($item->getAssociatedItemCode())
             ->setTaxPercent($rate)
-            ->setAppliedTaxes($appliedTaxes)
-            ;
+            ->setAppliedTaxes($appliedTaxes);
     }
 
     /**

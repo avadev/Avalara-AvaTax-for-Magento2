@@ -9,7 +9,6 @@ use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFacto
 use Magento\Quote\Model\ResourceModel\Quote;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
-use AvaTax\ATConfigFactory;
 use AvaTax\AddressFactory;
 use AvaTax\AddressServiceSoapFactory;
 use AvaTax\AddressServiceSoap;
@@ -94,10 +93,15 @@ class Address
     ];
 
     /**
-     * @param ATConfigFactory $avaTaxConfigFactory
      * @param Config $config
+     * @param Validation $validation
      * @param AddressFactory $addressFactory
      * @param AddressServiceSoapFactory $addressServiceSoapFactory
+     * @param RegionCollectionFactory $regionCollectionFactory
+     * @param CustomerAddressInterfaceFactory $customerAddressFactory
+     * @param QuoteAddressInterfaceFactory $quoteAddressFactory
+     * @param OrderAddressInterfaceFactory $orderAddressFactory
+     * @internal param ATConfigFactory $avaTaxConfigFactory
      */
     public function __construct(
         Config $config,

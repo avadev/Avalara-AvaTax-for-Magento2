@@ -36,6 +36,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $interactionGetTax = null;
 
     /**
+     * @var TaxCalculation
+     */
+    protected $taxCalculation = null;
+
+    /**
      * @var Config
      */
     protected $config = null;
