@@ -146,6 +146,11 @@ class Config
     const API_APP_NAME_PREFIX = 'Magento 2';
 
     /**
+     * Cache tag code
+     */
+    const AVATAX_CACHE_TAG = 'AVATAX';
+
+    /**
      * @var ScopeConfigInterface
      */
     protected $scopeConfig = null;
