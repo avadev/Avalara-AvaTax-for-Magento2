@@ -413,18 +413,12 @@ class Tax
         ];
     }
 
-    protected function convertInvoiceToData(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
-    {
-    }
-
     protected function convertCreditMemoToData(\Magento\Sales\Api\Data\CreditmemoInterface $creditMemo)
     {
     }
 
     /**
      * Creates and returns a populated getTaxRequest for a quote
-     * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
-     * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
      *
      * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
@@ -437,43 +431,15 @@ class Tax
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
-        // TODO: Implement new methods to return GetTaxRequest for other object types
-        //switch// (true) {
-        //    case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
-        //        $data = $this->convertOrderToData($data);
-        //        break;
-        //    case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
-        //        $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $data);
-        //        break;
-        //    case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
-        //        $data = $this->convertInvoiceToData($data);
-        //        break;
-        //    case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
-        //        $data = $this->convertCreditMemoToData($data);
-        //        break;
-        //    case (!is_array($data)):
-        //        return false;
-        //        break;
-        //}
         $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $quote);
 
         if (is_null($data)) {
             return null;
         }
 
-        $storeId = isset($data['store_id']) ? $data['store_id'] : null;
-        if ($this->config->getLiveMode() == Config::API_PROFILE_NAME_PROD) {
-            $companyCode = $this->config->getCompanyCode($storeId);
-        } else {
-            $companyCode = $this->config->getDevelopmentCompanyCode($storeId);
-        }
+        $store = $quote->getStore();
         $data = array_merge(
-            [
-                'business_identification_no' => $this->config->getBusinessIdentificationNumber(),
-                'company_code' => $companyCode,
-                'detail_level' => DetailLevel::$Diagnostic,
-                'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)), // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
-            ],
+            $this->retrieveGetTaxRequestFields($store),
             $data
         );
 
@@ -482,6 +448,85 @@ class Tax
         /** @var $getTaxRequest GetTaxRequest */
         $getTaxRequest = $this->getTaxRequestFactory->create();
 
+        $this->populateGetTaxRequest($data, $getTaxRequest);
+
+        return $getTaxRequest;
+    }
+
+    /**
+     * Creates and returns a populated getTaxRequest for a quote
+     * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
+     * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
+     *
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @return null|GetTaxRequest
+     * @throws LocalizedException
+     */
+    public function getGetTaxRequestForInvoice(
+        \Magento\Sales\Api\Data\InvoiceInterface $invoice
+    ) {
+        $data = $this->convertInvoiceToData($invoice);
+
+        if (is_null($data)) {
+            return null;
+        }
+
+        $storeId = $invoice->getStoreId();
+        $data = array_merge(
+            $this->retrieveGetTaxRequestFields($storeId),
+            $data
+        );
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+
+        /** @var $getTaxRequest GetTaxRequest */
+        $getTaxRequest = $this->getTaxRequestFactory->create();
+
+        $this->populateGetTaxRequest($data, $getTaxRequest);
+
+        return $getTaxRequest;
+    }
+
+    protected function convertInvoiceToData(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
+    {
+        return false;
+    }
+
+    /**
+     * Get details for GetTaxRequest
+     *
+     * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
+     * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
+     *
+     * @param $store
+     * @return array
+     * @throws LocalizedException
+     */
+    protected function retrieveGetTaxRequestFields($store)
+    {
+        if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {
+            $companyCode = $this->config->getCompanyCode($store);
+        } else {
+            $companyCode = $this->config->getDevelopmentCompanyCode($store);
+        }
+        return [
+            'business_identification_no' => $this->config->getBusinessIdentificationNumber($store),
+            'company_code' => $companyCode,
+            'detail_level' => DetailLevel::$Diagnostic,
+            // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
+            'origin_address' => $this->address->getAddress($this->config->getOriginAddress($store)),
+        ];
+    }
+
+    /**
+     * Map data array to methods in GetTaxRequest object
+     *
+     * @param array $data
+     * @param GetTaxRequest $getTaxRequest
+     * @return GetTaxRequest
+     */
+    public function populateGetTaxRequest(array $data, GetTaxRequest $getTaxRequest)
+    {
         // Set any data elements that exist on the getTaxRequest
         if (isset($data['business_identification_no'])) {
             $getTaxRequest->setBusinessIdentificationNo($data['business_identification_no']);
@@ -552,7 +597,6 @@ class Tax
         if (isset($data['tax_override'])) {
             $getTaxRequest->setTaxOverride($data['tax_override']);
         }
-
         return $getTaxRequest;
     }
 
