@@ -229,28 +229,34 @@ class Tax
 
     /**
      * Return customer code according to the admin configured format
-     * TODO: Make sure this function works even if any of these values are empty
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $name
-     * @param $email
-     * @param $id
+     * @param $quote
      * @return string
      */
-    protected function getCustomerCode($name, $email, $id)
+    protected function getCustomerCodeForQuote(\Magento\Quote\Api\Data\CartInterface $quote)
     {
-        switch ($this->config->getCustomerCodeFormat()) {
+        switch ($this->config->getCustomerCodeFormat($quote->getStoreId())) {
             case Config::CUSTOMER_FORMAT_OPTION_EMAIL:
-                return $email;
+                $email = $quote->getCustomerEmail();
+                return $email ?: Config::CUSTOMER_MISSING_EMAIL;
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_NAME_ID:
-                return sprintf(Config::CUSTOMER_FORMAT_NAME_ID);
+                $customer = $quote->getCustomer();
+                if ($customer->getId()) {
+                    $name = $customer->getFirstname() . ' ' . $customer->getLastname();
+                    $id = $customer->getId();
+                } else {
+                    $name = $quote->getShippingAddress()->getFirstname() . ' ' . $quote->getShippingAddress()->getLastname();
+                    if (!trim($name)) {
+                        $name = Config::CUSTOMER_MISSING_NAME;
+                    }
+                    $id = Config::CUSTOMER_GUEST_ID;
+                }
+                return sprintf(Config::CUSTOMER_FORMAT_NAME_ID, $name, $id);
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_ID:
-                return $id;
-                break;
             default:
-                return $email;
+                return $quote->getCustomerId() ?: strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $quote->getId();
                 break;
         }
     }

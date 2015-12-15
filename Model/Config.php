@@ -103,6 +103,21 @@ class Config
      */
     const CUSTOMER_FORMAT_NAME_ID = '%s (%s)';
 
+    /**
+     * If user is guest, ID to use for "name_id" option
+     */
+    const CUSTOMER_GUEST_ID = 'Guest';
+
+    /**
+     * Value to send as "customer_code" if "email" is selected and quote doesn't have email
+     */
+    const CUSTOMER_MISSING_EMAIL = 'No email';
+
+    /**
+     * Value to send as "customer_code" if "name_id" is selected and quote doesn't have name
+     */
+    const CUSTOMER_MISSING_NAME = 'No name';
+
     /**#@+
      * Error Action Options
      */
