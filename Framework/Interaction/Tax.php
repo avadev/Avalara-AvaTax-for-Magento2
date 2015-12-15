@@ -262,6 +262,24 @@ class Tax
     }
 
     /**
+     * Return the exchange rate between base currency and destination currency code
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $scope
+     * @param string $baseCurrencyCode
+     * @param string $convertCurrencyCode
+     * @return float
+     */
+    protected function getExchangeRate($scope, $baseCurrencyCode, $convertCurrencyCode)
+    {
+        /** @var \Magento\Directory\Model\Currency $currency */
+        $currency = $this->priceCurrency->getCurrency($scope, $baseCurrencyCode);
+
+        $rate = $currency->getRate($convertCurrencyCode);
+        return $rate;
+    }
+
+    /**
      * Convert an order into data to be used in some kind of tax request
      * TODO: Find out what happens if Business Identification Number is passed and we do not want to consider VAT.  Probably add config field to allow user to not consider VAT.  Hide the Business Identification Number field using depends node.
      * TODO: Map config field of Business Identification Number to one in our module config.
