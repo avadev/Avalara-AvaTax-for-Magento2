@@ -64,7 +64,7 @@ class Config
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED = "tax/avatax_settings/address_validation_enabled";
 
-    const XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD = "tax/avatax_settings/address_validation_method";
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_USER_HAS_CHOICE = "tax/avatax_settings/address_validation_user_has_choice";
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED = "tax/avatax_settings/address_validation_countries_enabled";
 
@@ -658,6 +658,13 @@ class Config
         return null;
     }
 
+    /**
+     * Return if address validation is enabled
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return mixed
+     */
     public function isAddressValidationEnabled($store = null)
     {
         return $this->scopeConfig->getValue(
@@ -667,15 +674,29 @@ class Config
         );
     }
 
+    /**
+     * Returns if user is allowed to choose between the original address and the validated address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return mixed
+     */
     public function allowUserToChooseAddress($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD,
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_USER_HAS_CHOICE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
     }
 
+    /**
+     * Instructions for the user if they have a choice between the original address and validated address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return string
+     */
     public function getAddressValidationInstructionsWithChoice($store = null)
     {
         return (string)$this->scopeConfig->getValue(
@@ -685,6 +706,13 @@ class Config
         );
     }
 
+    /**
+     * Instructions for the user if they do not have a choice between the original address and the validated address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return string
+     */
     public function getAddressValidationInstructionsWithoutChoice($store = null)
     {
         return (string)$this->scopeConfig->getValue(
@@ -694,6 +722,13 @@ class Config
         );
     }
 
+    /**
+     * Instructions for the user if there was an error in validating their address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return string
+     */
     public function getAddressValidationErrorInstructions($store = null)
     {
         return (string)$this->scopeConfig->getValue(
@@ -703,6 +738,13 @@ class Config
         );
     }
 
+    /**
+     * Returns which countries were enabled to validate the users address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return mixed
+     */
     public function getAddressValidationCountriesEnabled($store = null)
     {
         return $this->scopeConfig->getValue(

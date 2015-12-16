@@ -1,9 +1,10 @@
 <?php
 
-namespace ClassyLlama\AvaTax\Plugin;
+namespace ClassyLlama\AvaTax\Plugin\Checkout\Model;
 
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address\Validation as ValidationInteraction;
+use ClassyLlama\AvaTax\Framework\Interaction\Address as AddressInteraction;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Checkout\Model\ShippingInformationManagement;
 use Magento\Checkout\Api\Data\ShippingInformationInterface;
@@ -21,8 +22,19 @@ class ShippingInformationManagementPlugin
      */
     protected $validationInteraction = null;
 
+    /**
+     * @var AddressInteraction|null
+     */
+    protected $addressInteraction = null;
+
+    /**
+     * @var ShippingInformation|null
+     */
     protected $shippingInformation = null;
 
+    /**
+     * @var CartRepositoryInterface|null
+     */
     protected $quoteRepository = null;
 
     /**
@@ -53,6 +65,7 @@ class ShippingInformationManagementPlugin
     /**
      * ShippingInformationManagementPlugin constructor.
      * @param ValidationInteraction $validationInteraction
+     * @param AddressInteraction $addressInteraction
      * @param ShippingInformation $shippingInformation
      * @param CartRepositoryInterface $quoteRepository
      * @param PaymentDetailsExtensionFactory $paymentDetailsExtensionFactory
@@ -63,6 +76,7 @@ class ShippingInformationManagementPlugin
      */
     public function __construct(
         ValidationInteraction $validationInteraction,
+        AddressInteraction $addressInteraction,
         ShippingInformation $shippingInformation,
         CartRepositoryInterface $quoteRepository,
         PaymentDetailsExtensionFactory $paymentDetailsExtensionFactory,
@@ -72,6 +86,7 @@ class ShippingInformationManagementPlugin
         Config $config
     ) {
         $this->validationInteraction = $validationInteraction;
+        $this->addressInteraction = $addressInteraction;
         $this->shippingInformation = $shippingInformation;
         $this->quoteRepository = $quoteRepository;
         $this->paymentDetailsExtensionFactory = $paymentDetailsExtensionFactory;
@@ -91,9 +106,10 @@ class ShippingInformationManagementPlugin
 
         $shippingInformationExtension = $addressInformation->getExtensionAttributes();
 
-        $errorMessage = '';
+        $errorMessage = null;
         $validAddress = null;
         $customerAddress = null;
+        $quoteAddress = null;
 
         $shouldValidateAddress = true;
         if (!is_null($shippingInformationExtension)) {
@@ -110,28 +126,30 @@ class ShippingInformationManagementPlugin
         if ($shouldValidateAddress) {
             try {
                 $validAddress = $this->validationInteraction->validateAddress($shippingAddress);
-                if (!is_null($validAddress)) {
-                    if ($customerAddressId) {
-//                        $customerAddress = $this->customerAddressRepository->getById($customerAddressId);
-//                        $this->mapQuoteAddressData($validAddress, $customerAddress);
-//                        $validAddress = $validAddress->importCustomerAddressData($customerAddress);
-//                        $this->customerAddressRepository->save($customerAddress);
-                    } else {
-                        $addressInformation->setShippingAddress($validAddress);
-                    }
-                }
             } catch (AddressValidateException $e) {
                 $errorMessage = $e->getMessage();
             }
         }
-//        else {
-//            // Is this really necessary? This will happen anyway in the original method.
-//            if ($customerAddressId) {
-//                $customerAddress = $this->customerAddressRepository->getById($customerAddressId);
-//                $customerAddress->setData($shippingAddress);
-//                $this->customerAddressRepository->save($customerAddress);
-//            }
-//        }
+
+        // Determine which address to save to the customer or shipping addresses
+        if (!is_null($validAddress)) {
+            $quoteAddress = $validAddress;
+        } else {
+            $quoteAddress = $shippingAddress;
+        }
+
+        if ($customerAddressId) {
+            // Update the customer address
+            $customerAddress = $this->customerAddressRepository->getById($customerAddressId);
+            $mergedCustomerAddress = $this->addressInteraction->copyQuoteAddressToCustomerAddress(
+                $quoteAddress,
+                $customerAddress
+            );
+            $this->customerAddressRepository->save($mergedCustomerAddress);
+        } else {
+            // Update the shipping address
+            $addressInformation->setShippingAddress($quoteAddress);
+        }
 
         $returnValue = $proceed($cartId, $addressInformation);
 
@@ -156,19 +174,5 @@ class ShippingInformationManagementPlugin
         $returnValue->setExtensionAttributes($paymentDetailsExtension);
 
         return $returnValue;
-    }
-
-    public function mapQuoteAddressData(\Magento\Quote\Model\Quote\Address $address, $customerAddress) {
-        $sourceData = $address->getData();
-        if (isset($sourceData['street']) && !is_array($sourceData['street'])) {
-            $sourceData['street'] = [$sourceData['street']];
-        }
-
-        $this->objectCopyService->copyFieldsetToTarget(
-            'avatax_quote_address',
-            'to_customer_address',
-            $sourceData,
-            $customerAddress
-        );
     }
 }

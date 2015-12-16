@@ -6,7 +6,9 @@ use ClassyLlama\AvaTax\Model\Config;
 
 class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
 {
-
+    /**
+     * @const Path to template
+     */
     const COMPONENT_PATH = 'ClassyLlama_AvaTax/js/view/reviewPayment';
 
     /**
@@ -18,9 +20,7 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
      * LayoutProcessor constructor.
      * @param Config $config
      */
-    public function __construct(
-        Config $config
-    ) {
+    public function __construct(Config $config) {
         $this->config = $config;
     }
 
@@ -28,7 +28,7 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
      * Overrides payment component and adds config variable to be used in the component and template
      *
      * This class takes the place of a layout config change to checkout_index_index.xml. Making the changes to the
-     * layout this way is necessecary because the in the process of merging the layout files, layout overrides are
+     * layout this way is necessary because in the process of merging the layout files, layout overrides are
      * applied over existing nodes in alphabetical order by Namespace_ModuleName. So Magento_Checkout overrides
      * ClassyLlama_AvaTax because Magento_Checkout layout files are merged after ClassyLlama_AvaTax layout files. The
      * solution is to set the value of the converted object after the layout files have been merged. Additionally,

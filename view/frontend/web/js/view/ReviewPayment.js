@@ -57,7 +57,7 @@ define(
                 var self = this;
                 getPaymentInformation().done(function () {
                     self.isVisible(true);
-                    $('#validate').hide();
+                    $('#validate_address').hide();
                 });
             },
 
