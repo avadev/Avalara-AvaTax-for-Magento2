@@ -81,6 +81,64 @@ class Get
         $this->avaTaxLogger = $avaTaxLogger;
     }
 
+    public function processInvoice(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
+    {
+        $taxService = $this->interactionTax->getTaxService();
+
+        /** @var $getTaxRequest GetTaxRequest */
+        $getTaxRequest = $this->interactionTax->getGetTaxRequestForInvoice($invoice);
+
+        if (is_null($getTaxRequest)) {
+            // TODO: Possibly refactor all usages of setErrorMessage to throw exception instead so that this class can be stateless
+            $this->avaTaxLogger->warning('$quote was empty or address was not valid so not running getTax request.');
+            $this->setErrorMessage('$quote was empty or address was not valid so not running getTax request.');
+            return false;
+        }
+
+        try {
+            $getTaxResult = $taxService->getTax($getTaxRequest);
+            if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+                $this->avaTaxLogger->info(
+                    'response from external api getTax',
+                    [ /* context */
+                        'request' => var_export($getTaxRequest, true),
+                        'result' => var_export($getTaxResult, true),
+                    ]
+                );
+               return true;
+            } else {
+                // TODO: Generate better error message
+                $this->setErrorMessage('Bad result code: ' . $getTaxResult->getResultCode());
+                $this->avaTaxLogger->warning(
+                    'Bad result code: ' . $getTaxResult->getResultCode(),
+                    [ /* context */
+                        'request' => var_export($getTaxRequest, true),
+                        'result' => var_export($getTaxResult, true),
+                    ]
+                );
+
+
+                return $getTaxResult;
+            }
+        } catch (\SoapFault $exception) {
+            $message = "Exception: \n";
+            if ($exception) {
+                $message .= $exception->faultstring;
+            }
+            $message .= $taxService->__getLastRequest() . "\n";
+            $message .= $taxService->__getLastResponse() . "\n";
+            $this->setErrorMessage($message);
+            $this->avaTaxLogger->critical(
+                "Exception: \n" . ($exception) ? $exception->faultstring: "",
+                [ /* context */
+                    'request' => var_export($taxService->__getLastRequest(), true),
+                    'result' => var_export($taxService->__getLastResponse(), true),
+                ]
+            );
+        }
+        return false;
+    }
+
     /**
      * Convert quote/order/invoice/creditmemo to the AvaTax object and request tax from the Get Tax API
      *

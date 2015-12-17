@@ -10,6 +10,7 @@ use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
 use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -44,6 +45,11 @@ class Tax
      * @var GetTaxRequestFactory
      */
     protected $getTaxRequestFactory = null;
+
+    /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $customerRepository = null;
 
     /**
      * @var GroupRepositoryInterface
@@ -159,6 +165,7 @@ class Tax
      * @param Validation $validation
      * @param TaxServiceSoapFactory $taxServiceSoapFactory
      * @param GetTaxRequestFactory $getTaxRequestFactory
+     * @param CustomerRepositoryInterface $customerRepository
      * @param GroupRepositoryInterface $groupRepository
      * @param TaxClassRepositoryInterface $taxClassRepository
      * @param PriceCurrencyInterface $priceCurrency
@@ -173,6 +180,7 @@ class Tax
         Validation $validation,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
+        CustomerRepositoryInterface $customerRepository,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
         PriceCurrencyInterface $priceCurrency,
@@ -186,6 +194,7 @@ class Tax
         $this->validation = $validation;
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
+        $this->customerRepository = $customerRepository;
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
         $this->priceCurrency = $priceCurrency;
@@ -230,23 +239,24 @@ class Tax
     /**
      * Return customer code according to the admin configured format
      *
-     * @param $quote
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\OrderInterface $data
      * @return string
      */
-    protected function getCustomerCodeForQuote(\Magento\Quote\Api\Data\CartInterface $quote)
+    protected function getCustomerCode($data)
     {
-        switch ($this->config->getCustomerCodeFormat($quote->getStoreId())) {
+        switch ($this->config->getCustomerCodeFormat($data->getStoreId())) {
             case Config::CUSTOMER_FORMAT_OPTION_EMAIL:
-                $email = $quote->getCustomerEmail();
+                $email = $data->getCustomerEmail();
                 return $email ?: Config::CUSTOMER_MISSING_EMAIL;
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_NAME_ID:
-                $customer = $quote->getCustomer();
+                $customer = $this->getCustomerById($data->getCustomerId());
                 if ($customer->getId()) {
                     $name = $customer->getFirstname() . ' ' . $customer->getLastname();
                     $id = $customer->getId();
                 } else {
-                    $name = $quote->getShippingAddress()->getFirstname() . ' ' . $quote->getShippingAddress()->getLastname();
+                    // TODO: What happens with virtual orders?
+                    $name = $data->getShippingAddress()->getFirstname() . ' ' . $data->getShippingAddress()->getLastname();
                     if (!trim($name)) {
                         $name = Config::CUSTOMER_MISSING_NAME;
                     }
@@ -256,9 +266,20 @@ class Tax
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_ID:
             default:
-                return $quote->getCustomerId() ?: strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $quote->getId();
+                return $data->getCustomerId() ?: strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $data->getId();
                 break;
         }
+    }
+
+    /**
+     * Get customer by ID
+     *
+     * @param $customerId
+     * @return \Magento\Customer\Api\Data\CustomerInterface
+     */
+    protected function getCustomerById($customerId)
+    {
+        return $this->customerRepository->getById($customerId);
     }
 
     /**
@@ -297,6 +318,7 @@ class Tax
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return array
      */
+    /* TODO: Remove this method since orders will never have tax calculated for them
     protected function convertOrderToData(\Magento\Sales\Api\Data\OrderInterface $order)
     {
         $customerGroupId = $order->getCustomerGroupId();
@@ -351,6 +373,7 @@ class Tax
 //            'tax_override' => null,
         ];
     }
+    */
 
     protected function convertTaxQuoteDetailsToData(
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
@@ -414,7 +437,7 @@ class Tax
             'store_id' => $store->getId(),
             'commit' => false,
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
-            'customer_code' => $this->getCustomerCodeForQuote($quote),
+            'customer_code' => $this->getCustomerCode($quote),
 //            'customer_usage_type' => null,//$taxClass->,
             'destination_address' => $address,
             'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
@@ -472,9 +495,7 @@ class Tax
     }
 
     /**
-     * Creates and returns a populated getTaxRequest for a quote
-     * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
-     * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
+     * Creates and returns a populated getTaxRequest for a invoice
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @return null|GetTaxRequest
@@ -483,11 +504,71 @@ class Tax
     public function getGetTaxRequestForInvoice(
         \Magento\Sales\Api\Data\InvoiceInterface $invoice
     ) {
-        $data = $this->convertInvoiceToData($invoice);
+        /** @var \Magento\Sales\Model\Order $order */
+        $order = $invoice->getOrder();
 
-        if (is_null($data)) {
+        $lines = [];
+        $items = $invoice->getItems();
+
+        /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
+        foreach ($items as $item) {
+            $line = $this->interactionLine->getLine($item);
+            if ($line) {
+                $lines[] = $line;
+            }
+        }
+
+        $shippingLine = $this->interactionLine->getShippingLine($invoice);
+        if ($lines) {
+            $lines[] = $shippingLine;
+        }
+        $line = $this->interactionLine->getGiftWrapItemsLine($invoice);
+        if ($line) {
+            $lines[] = $line;
+        }
+        $line = $this->interactionLine->getGiftWrapOrderLine($invoice);
+        if ($line) {
+            $lines[] = $line;
+        }
+        $line = $this->interactionLine->getGiftWrapCardLine($invoice);
+        if ($line) {
+            $lines[] = $line;
+        }
+
+        try {
+            $shippingAddress = $order->getShippingAddress();
+            $address = $this->address->getAddress($shippingAddress);
+        } catch (LocalizedException $e) {
+            // TODO: Log this exception
             return null;
         }
+
+        $store = $invoice->getStore();
+        $currentDate = $this->getFormattedDate($store);
+
+        $docDate = $this->getFormattedDate($store, $invoice->getCreatedAt());
+
+        $data = [
+            'store_id' => $store->getId(),
+            'commit' => false,
+            'currency_code' => $order->getOrderCurrencyCode(),
+            'customer_code' => $this->getCustomerCode($order),
+//            'customer_usage_type' => null,//$taxClass->,
+            'destination_address' => $address,
+            'doc_code' => $invoice->getIncrementId(),
+            'doc_date' => $docDate,
+            'doc_type' => DocumentType::$SalesInvoice,
+
+            'exchange_rate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
+            'exchange_rate_eff_date' => $currentDate,
+            'lines' => $lines,
+//            'payment_date' => null,
+            // TODO: Is this the appropriate value to set?
+            'purchase_order_number' => $invoice->getIncrementId(),
+//            'reference_code' => null, // Most likely only set on credit memos or order edits
+//            'salesperson_code' => null,
+//            'tax_override' => null,
+        ];
 
         $storeId = $invoice->getStoreId();
         $data = array_merge(
@@ -543,7 +624,7 @@ class Tax
      * @param GetTaxRequest $getTaxRequest
      * @return GetTaxRequest
      */
-    public function populateGetTaxRequest(array $data, GetTaxRequest $getTaxRequest)
+    protected function populateGetTaxRequest(array $data, GetTaxRequest $getTaxRequest)
     {
         // Set any data elements that exist on the getTaxRequest
         if (isset($data['business_identification_no'])) {
