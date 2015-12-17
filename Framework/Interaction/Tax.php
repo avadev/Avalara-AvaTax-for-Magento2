@@ -497,40 +497,40 @@ class Tax
     /**
      * Creates and returns a populated getTaxRequest for a invoice
      *
-     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
      * @return null|GetTaxRequest
      * @throws LocalizedException
      */
-    public function getGetTaxRequestForInvoice(
-        \Magento\Sales\Api\Data\InvoiceInterface $invoice
-    ) {
+    public function getGetTaxRequestForSalesObject($object) {
         /** @var \Magento\Sales\Model\Order $order */
-        $order = $invoice->getOrder();
+        $order = $object->getOrder();
 
         $lines = [];
-        $items = $invoice->getItems();
+        $items = $object->getItems();
+
+        $credit = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
 
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($items as $item) {
-            $line = $this->interactionLine->getLine($item);
+            $line = $this->interactionLine->getLine($item, $credit);
             if ($line) {
                 $lines[] = $line;
             }
         }
 
-        $shippingLine = $this->interactionLine->getShippingLine($invoice);
+        $shippingLine = $this->interactionLine->getShippingLine($object, $credit);
         if ($lines) {
             $lines[] = $shippingLine;
         }
-        $line = $this->interactionLine->getGiftWrapItemsLine($invoice);
+        $line = $this->interactionLine->getGiftWrapItemsLine($object, $credit);
         if ($line) {
             $lines[] = $line;
         }
-        $line = $this->interactionLine->getGiftWrapOrderLine($invoice);
+        $line = $this->interactionLine->getGiftWrapOrderLine($object, $credit);
         if ($line) {
             $lines[] = $line;
         }
-        $line = $this->interactionLine->getGiftWrapCardLine($invoice);
+        $line = $this->interactionLine->getGiftWrapCardLine($object, $credit);
         if ($line) {
             $lines[] = $line;
         }
@@ -543,10 +543,16 @@ class Tax
             return null;
         }
 
-        $store = $invoice->getStore();
+        $store = $object->getStore();
         $currentDate = $this->getFormattedDate($store);
 
-        $docDate = $this->getFormattedDate($store, $invoice->getCreatedAt());
+        $docDate = $this->getFormattedDate($store, $object->getCreatedAt());
+
+        if ($object instanceof \Magento\Sales\Api\Data\InvoiceInterface) {
+            $docType = DocumentType::$SalesInvoice;
+        } else {
+            $docType = DocumentType::$ReturnInvoice;
+        }
 
         $data = [
             'store_id' => $store->getId(),
@@ -555,22 +561,21 @@ class Tax
             'customer_code' => $this->getCustomerCode($order),
 //            'customer_usage_type' => null,//$taxClass->,
             'destination_address' => $address,
-            'doc_code' => $invoice->getIncrementId(),
+            'doc_code' => $object->getIncrementId(),
             'doc_date' => $docDate,
-            'doc_type' => DocumentType::$SalesInvoice,
-
+            'doc_type' => $docType,
             'exchange_rate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
             'exchange_rate_eff_date' => $currentDate,
             'lines' => $lines,
 //            'payment_date' => null,
             // TODO: Is this the appropriate value to set?
-            'purchase_order_number' => $invoice->getIncrementId(),
+            'purchase_order_number' => $object->getIncrementId(),
 //            'reference_code' => null, // Most likely only set on credit memos or order edits
 //            'salesperson_code' => null,
 //            'tax_override' => null,
         ];
 
-        $storeId = $invoice->getStoreId();
+        $storeId = $object->getStoreId();
         $data = array_merge(
             $this->retrieveGetTaxRequestFields($storeId),
             $data

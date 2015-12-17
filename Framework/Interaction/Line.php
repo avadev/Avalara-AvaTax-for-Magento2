@@ -136,13 +136,48 @@ class Line
             return false;
         }
 
-        if ($item->getQty() == 0) {
+        // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
+        // from taxable amount
+        $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
+
+        if ($item->getQty() == 0 || $amount == 0) {
+            return false;
+        }
+
+        return [
+            'store_id' => $item->getStoreId(),
+            'no' => $item->getEntityId(),
+            'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
+//            'tax_code' => null,
+//            'customer_usage_type' => null,
+            'description' => $item->getName(),
+            'qty' => $item->getQty(),
+            'amount' => $amount,
+            'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
+            'tax_included' => false,
+            'ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
+            'ref2' => $this->config->getRef2($item->getStoreId()),
+//            'tax_override' => null,
+        ];
+    }
+
+    protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $item, $credit)
+    {
+        if (!$this->isProductCalculated($item->getOrderItem())) {
             return false;
         }
 
         // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
         // from taxable amount
         $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
+
+        if ($item->getQty() == 0 || $amount == 0) {
+            return false;
+        }
+
+        if ($credit) {
+            $amount *= -1;
+        }
 
         return [
             'store_id' => $item->getStoreId(),
@@ -204,11 +239,6 @@ class Line
         ];
     }
 
-    protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $data)
-    {
-
-    }
-
     /**
      *
      * TODO: Figure out if we need to account for Streamlined Sales Tax requirements for description
@@ -217,7 +247,7 @@ class Line
      * @param $data
      * @return \AvaTax\Line|null|bool
      */
-    public function getLine($data)
+    public function getLine($data, $credit = false)
     {
         switch (true) {
             case ($data instanceof \Magento\Tax\Api\Data\QuoteDetailsItemInterface):
@@ -227,7 +257,7 @@ class Line
                 $data = $this->convertInvoiceItemToData($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
-//                $data = $this->convertCreditMemoItemToData($data);
+                $data = $this->convertCreditMemoItemToData($data, $credit);
                 break;
             case (!is_array($data)):
                 return false;
@@ -252,13 +282,17 @@ class Line
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
      */
-    public function getShippingLine($data)
+    public function getShippingLine($data, $credit)
     {
         $shippingAmount = $data->getBaseShippingAmount();
 
         // If shipping rate doesn't have cost associated with it, do nothing
         if ($shippingAmount <= 0) {
             return false;
+        }
+
+        if ($credit) {
+            $shippingAmount *= -1;
         }
 
         $itemCode = $this->config->getSkuShipping();
@@ -287,12 +321,16 @@ class Line
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
      */
-    public function getGiftWrapOrderLine($data)
+    public function getGiftWrapOrderLine($data, $credit)
     {
         $giftWrapOrderAmount = $data->getGwBasePrice();
 
         if ($giftWrapOrderAmount <= 0) {
             return false;
+        }
+
+        if ($credit) {
+            $giftWrapOrderAmount *= -1;
         }
 
         $itemCode = $this->config->getSkuGiftWrapOrder();
@@ -320,7 +358,7 @@ class Line
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
      */
-    public function getGiftWrapItemsLine($data) {
+    public function getGiftWrapItemsLine($data, $credit) {
         $giftWrapItemsPrice = $data->getGwItemsBasePrice();
 
         if ($giftWrapItemsPrice <= 0) {
@@ -330,6 +368,10 @@ class Line
 
 //        $giftWrapItemAmount = $giftWrapItemsPrice * $qty;
         $giftWrapItemAmount = $giftWrapItemsPrice;
+
+        if ($credit) {
+            $giftWrapItemAmount *= -1;
+        }
 
         $itemCode = $this->config->getSkuShippingGiftWrapItem();
         $data = [
@@ -356,11 +398,15 @@ class Line
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
      */
-    public function getGiftWrapCardLine($data) {
+    public function getGiftWrapCardLine($data, $credit) {
         $giftWrapCardAmount = $data->getGwCardBasePrice();
 
         if ($giftWrapCardAmount <= 0) {
             return false;
+        }
+
+        if ($credit) {
+            $giftWrapCardAmount *= -1;
         }
 
         $itemCode = $this->config->getSkuShippingGiftWrapCard();

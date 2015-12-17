@@ -81,12 +81,18 @@ class Get
         $this->avaTaxLogger = $avaTaxLogger;
     }
 
-    public function processInvoice(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
+    /**
+     * Process invoice or credit memo
+     *
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
+     * @return bool
+     */
+    public function processSalesObject($object)
     {
         $taxService = $this->interactionTax->getTaxService();
 
         /** @var $getTaxRequest GetTaxRequest */
-        $getTaxRequest = $this->interactionTax->getGetTaxRequestForInvoice($invoice);
+        $getTaxRequest = $this->interactionTax->getGetTaxRequestForSalesObject($object);
 
         if (is_null($getTaxRequest)) {
             // TODO: Possibly refactor all usages of setErrorMessage to throw exception instead so that this class can be stateless

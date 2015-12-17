@@ -6,9 +6,9 @@ use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\CreditmemoRepositoryInterface;
 
-class Invoice extends Action\Action
+class Creditmemo extends Action\Action
 {
     /**
      * @var Get
@@ -16,17 +16,17 @@ class Invoice extends Action\Action
     protected $interactionGetTax = null;
 
     /**
-     * @var InvoiceRepositoryInterface
+     * @var CreditmemoRepositoryInterface
      */
-    protected $invoiceRepository = null;
+    protected $creditmemoRepository = null;
 
     public function __construct(
         Context $context,
         InteractionGet $interactionGetTax,
-        InvoiceRepositoryInterface $invoiceRepository
+        CreditmemoRepositoryInterface $creditmemoRepository
     ) {
         $this->interactionGetTax = $interactionGetTax;
-        $this->invoiceRepository = $invoiceRepository;
+        $this->creditmemoRepository = $creditmemoRepository;
 
         parent::__construct($context);
     }
@@ -42,7 +42,9 @@ class Invoice extends Action\Action
         $contents = '';
 
         $id = $this->_request->getParam('id');
-        $data = $this->invoiceRepository->get($id);
+
+        // Don't test any credit memos before 14 as the base_tax_amounts are off
+        $data = $this->creditmemoRepository->get($id);
 
         $contents = $this->interactionGetTax->processSalesObject($data);
 
