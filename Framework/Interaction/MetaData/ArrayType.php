@@ -60,12 +60,12 @@ class ArrayType extends MetaDataAbstract
      * Returns true if children are valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param ValidationObject $children
+     * @param ValidationObject $subtype
      * @return bool
      */
-    public function setChildren(ValidationObject $children)
+    public function setSubtype(ValidationObject $subtype = null)
     {
-        $this->data[self::ATTR_CHILDREN] = $children;
+        $this->data[self::ATTR_SUBTYPE] = $subtype;
         return true;
     }
 
@@ -73,7 +73,6 @@ class ArrayType extends MetaDataAbstract
      * Pass in a value and get the validated value back
      * If your data can be converted to an array, please do so explicitly before passing in
      * because automated array conversion will not be attempted since it can have unexpected results.
-     * // TODO: Finish validating remaining array checks
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
@@ -82,18 +81,34 @@ class ArrayType extends MetaDataAbstract
      */
     public function validateData($value)
     {
-
-        if ($this->getType() == $this->getType($value)) {
+        if ($this->getType() != getType($value)) {
             if ($this->getRequired()) {
                 throw new ValidationException(new Phrase(
                     'The value you passed in is not an array. ' .
                     'If your data can be converted to an array, please do so explicitly before passing in' .
-                    'because automated array conversion will not be attempted since it can have unexpected results.',
-                    [
-                        print_r($this->getValidOptions(), true)
-                    ]
+                    'because automated array conversion will not be attempted since it can have unexpected results.'
                 ));
             }
+        } else {
+            $value = [];
+        }
+
+        // If a subtype is defined, call this function for that contents of the array
+        if (!is_null($this->getSubtype())) {
+            $value = $this->getSubtype()->validateData($value);
+        }
+
+        // If the length exceeds the maximum allowed length, throw an exception
+        if ($this->getLength() > 0) {
+            throw new ValidationException(new Phrase(
+                'You attempted to pass data to the AvaTax API with the key of %1,' . '
+                         with a length of %2, the max allowed length is %3.',
+                [
+                    $this->getName(),
+                    count($value),
+                    $this->getLength(),
+                ]
+            ));
         }
 
         return $value;

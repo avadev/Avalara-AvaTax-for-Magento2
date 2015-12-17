@@ -19,7 +19,7 @@ abstract class MetaDataAbstract
      *
      * @var array
      */
-    protected $types = ['boolean', 'integer', 'string', 'double', 'object', 'array'];
+    public static $types = ['boolean', 'integer', 'string', 'double', 'object', 'array'];
 
     /**
      * Store all metadata
@@ -27,12 +27,12 @@ abstract class MetaDataAbstract
      * @var array
      */
     protected $data = [
-        self::ATTR_LENGTH => -1,
+        self::ATTR_LENGTH => 0,
         self::ATTR_REQUIRED => false,
         self::ATTR_FORMAT => '',
         self::ATTR_VALID_OPTIONS => [],
         self::ATTR_CLASS => '',
-        self::ATTR_CHILDREN => [],
+        self::ATTR_SUBTYPE => null,
         self::ATTR_USE_IN_CACHE_KEY => true,
     ];
 
@@ -44,7 +44,7 @@ abstract class MetaDataAbstract
     const ATTR_CLASS = 'class';
     const ATTR_LENGTH = 'length';
     const ATTR_VALID_OPTIONS = 'options';
-    const ATTR_CHILDREN = 'subtype';
+    const ATTR_SUBTYPE = 'subtype';
     const ATTR_USE_IN_CACHE_KEY = 'use_in_cache_key';
 
     /**
@@ -55,7 +55,7 @@ abstract class MetaDataAbstract
      */
     public function __construct($type, $name, array $data = [])
     {
-        if (is_string($type) && is_string($name) && in_array($type, $this->types)) {
+        if (is_string($type) && is_string($name) && in_array($type, $this::types)) {
             $this->data[self::ATTR_TYPE] = $type;
             $this->data[self::ATTR_NAME] = $name;
         } else {
@@ -227,11 +227,11 @@ abstract class MetaDataAbstract
      * Get children metadata objects of this metadata object
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @return array
+     * @return ValidationObject
      */
-    public function getChildren()
+    public function getSubtype()
     {
-        return $this->data[self::ATTR_CHILDREN];
+        return $this->data[self::ATTR_SUBTYPE];
     }
 
     /**
@@ -240,10 +240,10 @@ abstract class MetaDataAbstract
      * Returns true if children are valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param ValidationObject $children
+     * @param ValidationObject $subtype
      * @return bool
      */
-    public function setChildren(ValidationObject $children)
+    public function setSubtype(ValidationObject $subtype)
     {
         return false;
     }
