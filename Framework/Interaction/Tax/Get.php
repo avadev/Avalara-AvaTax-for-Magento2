@@ -141,7 +141,7 @@ class Get
                 $message = $this->getErrorMessageFromGetTaxResult($getTaxResult);
 
                 $this->avaTaxLogger->warning(
-                    'Bad result code: ' . $getTaxResult->getResultCode(),
+                    $message,
                     [ /* context */
                         'request' => var_export($getTaxRequest, true),
                         'result' => var_export($getTaxResult, true),
@@ -287,8 +287,15 @@ class Get
 
         $message .= __('Result code: ') . $getTaxResult->getResultCode() . PHP_EOL;
 
+        /** @var \AvaTax\Message $avataxMessage */
         foreach ($getTaxResult->getMessages() as $avataxMessage) {
-            $message .= $avataxMessage . PHP_EOL;
+            $message .= __('Message:') . PHP_EOL;
+            $message .= __('    Name: ') . $avataxMessage->getName() . PHP_EOL;
+            $message .= __('    Summary: ') . $avataxMessage->getSummary() . PHP_EOL;
+            $message .= __('    Details: ') . $avataxMessage->getDetails() . PHP_EOL;
+            $message .= __('    RefersTo: ') . $avataxMessage->getRefersTo() . PHP_EOL;
+            $message .= __('    Severity: ') . $avataxMessage->getSeverity() . PHP_EOL;
+            $message .= __('    Source: ') . $avataxMessage->getSource() . PHP_EOL;
         }
 
         return $message;
