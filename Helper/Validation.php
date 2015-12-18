@@ -55,8 +55,6 @@ class Validation
      *      ],
      *  ]
      *
-     * TODO: Figure out if LocalizedException is the best exception type to use everywhere or if there are specific exception types I should be using or maybe I should create custom types
-     *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data array
      * @param $validFields array

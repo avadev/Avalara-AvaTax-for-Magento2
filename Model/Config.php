@@ -11,6 +11,7 @@ use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Store\Model\Information;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
+use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 
 class Config
@@ -73,6 +74,18 @@ class Config
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE = "tax/avatax/address_validation_instructions_without_choice";
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS = "tax/avatax/address_validation_error_instructions";
+
+	const XML_PATH_AVATAX_LOG_DB_LEVEL = 'tax/avatax/logging_db_level';
+
+    const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
+
+    const XML_PATH_AVATAX_LOG_FILE_ENABLED = 'tax/avatax/logging_file_enabled';
+
+    const XML_PATH_AVATAX_LOG_FILE_MODE = 'tax/avatax/logging_file_mode';
+
+    const XML_PATH_AVATAX_LOG_FILE_LEVEL = 'tax/avatax/logging_file_level';
+
+    const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
     /**#@-*/
 
     /**#@+
@@ -101,6 +114,21 @@ class Config
      * Customer Code Format for "name_id" option
      */
     const CUSTOMER_FORMAT_NAME_ID = '%s (%s)';
+
+    /**
+     * If user is guest, ID to use for "name_id" option
+     */
+    const CUSTOMER_GUEST_ID = 'Guest';
+
+    /**
+     * Value to send as "customer_code" if "email" is selected and quote doesn't have email
+     */
+    const CUSTOMER_MISSING_EMAIL = 'No email';
+
+    /**
+     * Value to send as "customer_code" if "name_id" is selected and quote doesn't have name
+     */
+    const CUSTOMER_MISSING_NAME = 'No name';
 
     /**#@+
      * Error Action Options
@@ -155,13 +183,14 @@ class Config
      * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $magentoProductMetadata
      * @param ATConfigFactory $avaTaxConfigFactory
-     * @param \Magento\Framework\App\State $appState
+     * @param State $appState
+     * @param TaxClassRepositoryInterface $taxClassRepository
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
-        \Magento\Framework\App\State $appState,
+        State $appState,
         TaxClassRepositoryInterface $taxClassRepository
     ) {
         $this->scopeConfig = $scopeConfig;
@@ -598,16 +627,16 @@ class Config
      * Return "disable checkout" error message based on the current area context
      *
      * @param null $store
-     * @return string
+     * @return \Magento\Framework\Phrase
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getErrorActionDisableCheckoutMessage($store = null)
     {
         // TODO: Ensure that this method of checking area actually works
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
-            return $this->getErrorActionDisableCheckoutMessageBackend($store);
+            return __($this->getErrorActionDisableCheckoutMessageBackend($store));
         } else {
-            return $this->getErrorActionDisableCheckoutMessageFrontend($store);
+            return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
         }
     }
 
@@ -640,7 +669,8 @@ class Config
             $store
         );
     }
-	/**
+
+    /**
      * Get gift wrap tax class
      *
      * @param null $store
@@ -749,6 +779,96 @@ class Config
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED ,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log level
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logDbLevel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_LEVEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log detail
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logDbDetail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return if file logging is enabled
+     *
+     * @param null $store
+     * @return bool
+     */
+    public function logFileEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log mode
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileMode($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log level
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileLevel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_LEVEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log detail
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileDetail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );

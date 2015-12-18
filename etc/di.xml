@@ -9,6 +9,12 @@
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagementPlugin" />
     </type>
+    <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
+        <plugin name="avatax_tax_model_sales_total_quote_subtotal" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Subtotal" />
+    </type>
+    <type name="Magento\Tax\Model\Sales\Total\Quote\Shipping">
+        <plugin name="avatax_tax_model_sales_total_quote_shipping" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Shipping" />
+    </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <type name="ClassyLlama\AvaTax\Model\Session">
         <arguments>
@@ -20,5 +26,42 @@
             <argument name="namespace" xsi:type="string">classyllama_avatax</argument>
         </arguments>
     </virtualType>
-    <preference for="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" type="ClassyLlama\AvaTax\Model\ValidAddressManagement" />
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="avatax_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="AvaTaxLogGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">avatax_log</argument>
+            <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Log</argument>
+        </arguments>
+    </virtualType>
+    <type name="ClassyLlama\AvaTax\Model\Logger\FileHandler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger">
+        <arguments>
+            <argument name="name" xsi:type="string">avatax</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="0" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
+                <item name="1" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
+            </argument>
+            <argument name="processors"  xsi:type="array">
+                <item name="0" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Monolog\Processor\IntrospectionProcessor">
+        <arguments>
+            <argument name="skipClassesPartials"  xsi:type="array">
+                <item name="0" xsi:type="string">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
+                <item name="1" xsi:type="string">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

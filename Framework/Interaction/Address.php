@@ -109,6 +109,7 @@ class Address
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
      * @param QuoteAddressInterfaceFactory $quoteAddressFactory
      * @param OrderAddressInterfaceFactory $orderAddressFactory
+     * @internal param ATConfigFactory $avaTaxConfigFactory
      * @param DataObjectHelper $dataObjectHelper
      */
     public function __construct(

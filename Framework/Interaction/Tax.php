@@ -14,7 +14,9 @@ use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
-use Zend\Filter\DateTimeFormatter;
+use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class Tax
 {
@@ -54,9 +56,14 @@ class Tax
     protected $taxClassRepository = null;
 
     /**
-     * @var DateTimeFormatter
+     * @var PriceCurrencyInterface
      */
-    protected $dateTimeFormatter = null;
+    protected $priceCurrency;
+
+    /**
+     * @var TimezoneInterface
+     */
+    protected $localeDate;
 
     /**
      * @var Line
@@ -67,6 +74,11 @@ class Tax
      * @var TaxServiceSoap[]
      */
     protected $taxServiceSoap = [];
+
+    /**
+     * @var TaxCalculation
+     */
+    protected $taxCalculation = null;
 
     /**
      * List of types that we want to be used with setType
@@ -124,11 +136,37 @@ class Tax
     ];
 
     /**
+     * Format for the AvaTax dates
+     */
+    const AVATAX_DATE_FORMAT = 'Y-m-d';
+
+    /**
+     * Prefix for the DocCode field
+     */
+    const AVATAX_DOC_CODE_PREFIX = 'quote-';
+
+    /**
      * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
      * convert AvaTax rate to Magento's rate
      */
     const RATE_MULTIPLIER = 100;
 
+    /**
+     * Class constructor
+     *
+     * @param Address $address
+     * @param Config $config
+     * @param Validation $validation
+     * @param TaxServiceSoapFactory $taxServiceSoapFactory
+     * @param GetTaxRequestFactory $getTaxRequestFactory
+     * @param GroupRepositoryInterface $groupRepository
+     * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param PriceCurrencyInterface $priceCurrency
+     * @param TimezoneInterface $localeDate
+     * @param Line $interactionLine
+     * @param TaxCalculation $taxCalculation
+     * @param QuoteDetailsItemExtensionFactory $extensionFactory
+     */
     public function __construct(
         Address $address,
         Config $config,
@@ -137,8 +175,11 @@ class Tax
         GetTaxRequestFactory $getTaxRequestFactory,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
-        DateTimeFormatter $dateTimeFormatter,
-        Line $interactionLine
+        PriceCurrencyInterface $priceCurrency,
+        TimezoneInterface $localeDate,
+        Line $interactionLine,
+        TaxCalculation $taxCalculation,
+        QuoteDetailsItemExtensionFactory $extensionFactory
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -147,8 +188,11 @@ class Tax
         $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
-        $this->dateTimeFormatter = $dateTimeFormatter;
+        $this->priceCurrency = $priceCurrency;
+        $this->localeDate = $localeDate;
         $this->interactionLine = $interactionLine;
+        $this->taxCalculation = $taxCalculation;
+        $this->extensionFactory = $extensionFactory;
     }
 
     /**
@@ -185,44 +229,54 @@ class Tax
 
     /**
      * Return customer code according to the admin configured format
-     * TODO: Make sure this function works even if any of these values are empty
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $name
-     * @param $email
-     * @param $id
+     * @param $quote
      * @return string
      */
-    protected function getCustomerCode($name, $email, $id)
+    protected function getCustomerCodeForQuote(\Magento\Quote\Api\Data\CartInterface $quote)
     {
-        switch ($this->config->getCustomerCodeFormat()) {
+        switch ($this->config->getCustomerCodeFormat($quote->getStoreId())) {
             case Config::CUSTOMER_FORMAT_OPTION_EMAIL:
-                return $email;
+                $email = $quote->getCustomerEmail();
+                return $email ?: Config::CUSTOMER_MISSING_EMAIL;
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_NAME_ID:
-                return sprintf(Config::CUSTOMER_FORMAT_NAME_ID);
+                $customer = $quote->getCustomer();
+                if ($customer->getId()) {
+                    $name = $customer->getFirstname() . ' ' . $customer->getLastname();
+                    $id = $customer->getId();
+                } else {
+                    $name = $quote->getShippingAddress()->getFirstname() . ' ' . $quote->getShippingAddress()->getLastname();
+                    if (!trim($name)) {
+                        $name = Config::CUSTOMER_MISSING_NAME;
+                    }
+                    $id = Config::CUSTOMER_GUEST_ID;
+                }
+                return sprintf(Config::CUSTOMER_FORMAT_NAME_ID, $name, $id);
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_ID:
-                return $id;
-                break;
             default:
-                return $email;
+                return $quote->getCustomerId() ?: strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $quote->getId();
                 break;
         }
     }
 
     /**
      * Return the exchange rate between base currency and destination currency code
-     * TODO: Calculate the exchange rate from the system exchange rates
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $baseCurrencyCode
-     * @param $convertCurrencyCode
-     * @return double
+     * @param $scope
+     * @param string $baseCurrencyCode
+     * @param string $convertCurrencyCode
+     * @return float
      */
-    protected function getExchangeRate($baseCurrencyCode, $convertCurrencyCode)
+    protected function getExchangeRate($scope, $baseCurrencyCode, $convertCurrencyCode)
     {
-        return 1.00;
+        /** @var \Magento\Directory\Model\Currency $currency */
+        $currency = $this->priceCurrency->getCurrency($scope, $baseCurrencyCode);
+
+        $rate = $currency->getRate($convertCurrencyCode);
+        return $rate;
     }
 
     /**
@@ -268,8 +322,12 @@ class Tax
             return null;
         }
 
+        $store = $order->getStore();
+        $currentDate = $this->getFormattedDate($store);
+        $docDate = $this->getFormattedDate($store, $order->getCreatedAt());
+
         return [
-            'store_id' => $order->getStoreId(),
+            'store_id' => $store->getId(),
             'commit' => $this->shouldCommit($order),
             'currency_code' => $order->getOrderCurrencyCode(), // TODO: Make sure these all map correctly
             'customer_code' => $this->getCustomerCode(
@@ -281,10 +339,10 @@ class Tax
             'destination_address' => $address,
             'discount' => $order->getDiscountAmount(),
             'doc_code' => $order->getIncrementId(),
-            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($order->getCreatedAt()), // TODO: Account for GMT Conversion
+            'doc_date' => $docDate,
             'doc_type' => DocumentType::$PurchaseInvoice,
-            'exchange_rate' => $this->getExchangeRate($order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
-            'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(time()),
+            'exchange_rate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
+            'exchange_rate_eff_date' => $currentDate,
             'lines' => $lines,
 //            'payment_date' => null,
             'purchase_order_number' => $order->getIncrementId(),
@@ -293,105 +351,77 @@ class Tax
 //            'tax_override' => null,
         ];
     }
-    
-    protected function convertQuoteToData(\Magento\Quote\Api\Data\CartInterface $quote)
-    {
+
+    protected function convertTaxQuoteDetailsToData(
+        \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        \Magento\Quote\Api\Data\CartInterface $quote
+    ) {
         $taxClassId = $quote->getCustomerTaxClassId();
         if (!is_null($taxClassId)) {
             $taxClass = $this->taxClassRepository->get($taxClassId);
         }
 
         $lines = [];
-        $items = $quote->getItems();
 
-        if (is_null($items)) {
-            if (method_exists($quote, 'getItemsCollection')) {
-                $items = $quote->getItemsCollection()->count() > 0 ? $quote->getItemsCollection() : null;
-            }
-            if (is_null($items)) {
-                return null;
-            }
-        }
-        foreach ($items as $item) {
-            // TODO: Implement a proper fix to this workaround. When items are being added to the cart (and ZIP code has been added to Tax & Estimate field on checkout), those items don't have an ID.
-            if (!$item->getItemId()) {
-                continue;
-            }
+        $items = $taxQuoteDetails->getItems();
+        $keyedItems = $this->taxCalculation->getKeyedItems($items);
+        $childrenItems = $this->taxCalculation->getChildrenItems($items);
 
-            if ($item->getParentItem()) {
-                continue;
-            }
-            $line = $this->interactionLine->getLine($item);
-            if ($line) {
-                $lines[] = $line;
-            }
-
-            $giftWrapItemLine = $this->interactionLine->getGiftWrapItemLine($item);
-            if ($giftWrapItemLine) {
-                $lines[] = $giftWrapItemLine;
-            }
-
-            // See logic in \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItems
-            if ($item->getHasChildren() && $item->isChildrenCalculated()) {
-                foreach ($item->getChildren() as $child) {
-                    $line = $this->interactionLine->getLine($child);
+        /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
+        foreach ($keyedItems as $item) {
+            /**
+             * If a quote has children and they are calculated (e.g., Bundled products with dynamic pricing)
+             * @see \Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector::mapItems
+             * then we only need to pass child items to AvaTax. Due to the logic in
+             * @see \ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation::calculateTaxDetails
+             * the parent tax gets calculated based on children items
+             */
+            //
+            if (isset($childrenItems[$item->getCode()])) {
+                /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $childItem */
+                foreach ($childrenItems[$item->getCode()] as $childItem) {
+                    $line = $this->interactionLine->getLine($childItem);
                     if ($line) {
                         $lines[] = $line;
                     }
-
-                    $giftWrapItemLine = $this->interactionLine->getGiftWrapItemLine($child);
-                    if ($giftWrapItemLine) {
-                        $lines[] = $giftWrapItemLine;
-                    }
+                }
+            } else {
+                $line = $this->interactionLine->getLine($item);
+                if ($line) {
+                    $lines[] = $line;
                 }
             }
         }
 
-        // TODO: Apply the tax from the result to the order
-        $giftWrapOrderLine = $this->interactionLine->getGiftWrapOrderLine($quote);
-        if ($giftWrapOrderLine) {
-            $lines[] = $giftWrapOrderLine;
-        }
-
-        // TODO: Apply the tax from the result to the order
-        $giftWrapCardLine = $this->interactionLine->getGiftWrapCardLine($quote);
-        if ($giftWrapCardLine) {
-            $lines[] = $giftWrapCardLine;
-        }
-
-        // TODO: Apply the tax from the result to the order
-        $shippingLine = $this->interactionLine->getShippingLine($quote);
-        if ($shippingLine) {
-            $lines[] = $shippingLine;
-        }
-
         // Shipping Address not documented in the interface for some reason
         // they do have a constant for it but not a method in the interface
-
         try {
-            $address = $this->address->getAddress($quote->getShippingAddress());
+            $shippingAddress = $shippingAssignment->getShipping()->getAddress();
+            $address = $this->address->getAddress($shippingAddress);
         } catch (LocalizedException $e) {
             // TODO: Log this exception
             return null;
         }
 
+        $store = $quote->getStore();
+        $currentDate = $this->getFormattedDate($store);
+
+        // Quote created/updated date is not relevant, so just pass the current date
+        $docDate = $currentDate;
+
         return [
-            'store_id' => $quote->getStoreId(),
+            'store_id' => $store->getId(),
             'commit' => false,
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
-            'customer_code' => $this->getCustomerCode(
-                $quote->getShippingAddress()->getFirstname(), // TODO: Determine if these three values will always be available and if they won't use ones that will
-                $quote->getCustomer()->getEmail(),
-                $quote->getCustomer()->getId()
-            ),
+            'customer_code' => $this->getCustomerCodeForQuote($quote),
 //            'customer_usage_type' => null,//$taxClass->,
             'destination_address' => $address,
-//            'discount' => $quote->getDiscountAmount(), // TODO: Determine if discounts are available on quotes
-            'doc_code' => $quote->getReservedOrderId(),
-            'doc_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter($quote->getCreatedAt()), // TODO: Account for GMT Conversion
+            'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
+            'doc_date' => $docDate,
             'doc_type' => DocumentType::$PurchaseOrder,
-            'exchange_rate' => $this->getExchangeRate($quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
-            'exchange_rate_eff_date' => $this->dateTimeFormatter->setFormat('Y-m-d')->filter(time()),
+            'exchange_rate' => $this->getExchangeRate($store, $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
+            'exchange_rate_eff_date' => $currentDate,
             'lines' => $lines,
 //            'payment_date' => null,
             'purchase_order_number' => $quote->getReservedOrderId(),
@@ -403,42 +433,47 @@ class Tax
 
     protected function convertInvoiceToData(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
     {
-
     }
 
     protected function convertCreditMemoToData(\Magento\Sales\Api\Data\CreditmemoInterface $creditMemo)
     {
-
     }
 
     /**
-     * Creates and returns a populated getTaxRequest
+     * Creates and returns a populated getTaxRequest for a quote
      * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
      * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data \Magento\Sales\Api\Data\OrderInterface|\Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface|array
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
+     * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @return null|GetTaxRequest
+     * @throws LocalizedException
      */
-    public function getGetTaxRequest($data)
-    {
-        switch (true) {
-            case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
-                $data = $this->convertOrderToData($data);
-                break;
-            case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
-                $data = $this->convertQuoteToData($data);
-                break;
-            case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
-                $data = $this->convertInvoiceToData($data);
-                break;
-            case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
-                $data = $this->convertCreditMemoToData($data);
-                break;
-            case (!is_array($data)):
-                return false;
-                break;
-        }
+    public function getGetTaxRequestForQuote(
+        \Magento\Quote\Model\Quote $quote,
+        \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
+    ) {
+        // TODO: Implement new methods to return GetTaxRequest for other object types
+        //switch// (true) {
+        //    case ($data instanceof \Magento\Sales\Api\Data\OrderInterface):
+        //        $data = $this->convertOrderToData($data);
+        //        break;
+        //    case ($data instanceof \Magento\Quote\Api\Data\CartInterface):
+        //        $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $data);
+        //        break;
+        //    case ($data instanceof \Magento\Sales\Api\Data\InvoiceInterface):
+        //        $data = $this->convertInvoiceToData($data);
+        //        break;
+        //    case ($data instanceof \Magento\Sales\Api\Data\CreditmemoInterface):
+        //        $data = $this->convertCreditMemoToData($data);
+        //        break;
+        //    case (!is_array($data)):
+        //        return false;
+        //        break;
+        //}
+        $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $quote);
 
         if (is_null($data)) {
             return null;
@@ -537,5 +572,21 @@ class Tax
         }
 
         return $getTaxRequest;
+    }
+
+    /**
+     * Return date in the current scope's timezone, formatted in AvaTax format
+     *
+     * @param $scope
+     * @param null $time
+     * @return string
+     */
+    protected function getFormattedDate($scope, $time = null)
+    {
+        $time = $time ?: 'now';
+        $timezone = $this->localeDate->getConfigTimezone(null, $scope);
+        $date = new \DateTime($time, new \DateTimeZone($this->localeDate->getDefaultTimezone()));
+        $date->setTimezone(new \DateTimeZone($timezone));
+        return $date->format(self::AVATAX_DATE_FORMAT);
     }
 }
