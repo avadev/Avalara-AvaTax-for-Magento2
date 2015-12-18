@@ -507,16 +507,16 @@ class Tax
         $lines = [];
         $items = $object->getItems();
 
-        $credit = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
 
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($items as $item) {
-            $line = $this->interactionLine->getLine($item, $credit);
+            $line = $this->interactionLine->getLine($item);
             if ($line) {
                 $lines[] = $line;
             }
         }
 
+        $credit = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
         $shippingLine = $this->interactionLine->getShippingLine($object, $credit);
         if ($lines) {
             $lines[] = $shippingLine;

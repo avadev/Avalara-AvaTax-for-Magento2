@@ -161,7 +161,7 @@ class Line
         ];
     }
 
-    protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $item, $credit)
+    protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $item)
     {
         if (!$this->isProductCalculated($item->getOrderItem())) {
             return false;
@@ -171,12 +171,11 @@ class Line
         // from taxable amount
         $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
 
+        // Credit memo amounts need to be sent to AvaTax as negative numbers
+        $amount *= -1;
+
         if ($item->getQty() == 0 || $amount == 0) {
             return false;
-        }
-
-        if ($credit) {
-            $amount *= -1;
         }
 
         return [
@@ -247,7 +246,7 @@ class Line
      * @param $data
      * @return \AvaTax\Line|null|bool
      */
-    public function getLine($data, $credit = false)
+    public function getLine($data)
     {
         switch (true) {
             case ($data instanceof \Magento\Tax\Api\Data\QuoteDetailsItemInterface):
@@ -257,7 +256,7 @@ class Line
                 $data = $this->convertInvoiceItemToData($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
-                $data = $this->convertCreditMemoItemToData($data, $credit);
+                $data = $this->convertCreditMemoItemToData($data);
                 break;
             case (!is_array($data)):
                 return false;
