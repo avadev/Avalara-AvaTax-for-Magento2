@@ -304,7 +304,8 @@ class Line
             $shippingAmount *= -1;
         }
 
-        $itemCode = $this->config->getSkuShipping();
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuShipping($storeId);
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -342,7 +343,8 @@ class Line
             $giftWrapOrderAmount *= -1;
         }
 
-        $itemCode = $this->config->getSkuGiftWrapOrder();
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuGiftWrapOrder($storeId);
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -352,6 +354,7 @@ class Line
             'amount' => $giftWrapOrderAmount,
             'discounted' => false,
         ];
+
 
         $data = $this->validation->validateData($data, $this->validDataFields);
         /** @var $line \AvaTax\Line */
@@ -382,7 +385,8 @@ class Line
             $giftWrapItemAmount *= -1;
         }
 
-        $itemCode = $this->config->getSkuShippingGiftWrapItem();
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuShippingGiftWrapItem($storeId);
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -418,7 +422,8 @@ class Line
             $giftWrapCardAmount *= -1;
         }
 
-        $itemCode = $this->config->getSkuShippingGiftWrapCard();
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuShippingGiftWrapCard($storeId);
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
