@@ -4,6 +4,7 @@ namespace ClassyLlama\AvaTax\Plugin;
 
 use ClassyLlama\AvaTax\Model\Config;
 use ClassyLlama\AvaTax\Model\QueueFactory;
+USE ClassyLlama\AvaTax\Model\Queue;
 
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -11,8 +12,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 class SalesApiCreditmemoRepositoryInterface
 {
     const XML_PATH_AVATAX_QUEUE_SUBMIT_ENABLED = 'tax/avatax/enabled';
-
-    const ENTITY_TYPE_CREDITMEMO = 'creditmemo';
 
     /**
      * @var Config
@@ -80,14 +79,14 @@ class SalesApiCreditmemoRepositoryInterface
         if ($this->avaTaxConfig->isModuleEnabled() && $this->queueSubmitEnabled()) {
 
             //$entityTypeCode = $result->getEntityType();
-            $entityType = $this->eavConfig->getEntityType(self::ENTITY_TYPE_CREDITMEMO);
+            $entityType = $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_CREDITMEMO);
 
-            /** @var \ClassyLlama\AvaTax\Model\Queue $queue */
+            /** @var Queue $queue */
             $queue = $this->queueFactory->create();
 
             $queue->setData('store_id', $result->getStoreId());
             $queue->setData('entity_type_id', $entityType->getEntityTypeId());
-            $queue->setData('entity_type_code', self::ENTITY_TYPE_CREDITMEMO);
+            $queue->setData('entity_type_code', Queue::ENTITY_TYPE_CODE_CREDITMEMO);
             $queue->setData('entity_id', $result->getEntityId());
             $queue->setData('increment_id', $result->getIncrementId());
             $queue->setData('queue_status', 'pending');
