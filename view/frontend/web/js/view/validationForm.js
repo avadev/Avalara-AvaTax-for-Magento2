@@ -31,40 +31,8 @@ define(
                     $(this.errorMessageContainerSelector).hide();
                 }
 
-                var originalAddress = addressModel.originalAddress();
-                var validAddress = addressModel.validAddress();
-
-                // Full Name
-                var validResult = originalAddress.firstname + " " + originalAddress.lastname + "<br/>";
-                var originalResult = validResult;
-
-                // Streets
-                for(var i = 0; i < 3; i++) {
-                    var originalStreet = typeof originalAddress.street[i] === 'undefined'?'':originalAddress.street[i];
-                    var validStreet = typeof validAddress.street[i] === 'undefined'?'':validAddress.street[i];
-                    var validatedStreet = diffAddress.diffString(originalStreet, validStreet);
-                    validResult += validatedStreet;
-                    validResult += validatedStreet.length?"<br/>":"";
-                }
-                $.each(originalAddress.street, function(index, value) {
-                    originalResult += value + "<br/>";
-                });
-
-                // City
-                validResult += diffAddress.diffString(originalAddress.city, validAddress.city) + ", ";
-                originalResult += originalAddress.city + ", ";
-
-                // State - The region_code isn't used for customer addresses
-                if (typeof originalAddress.region_code !== 'undefined') {
-                    validResult += diffAddress.diffString(originalAddress.region_code, validAddress.region_code) + " ";
-                } else {
-                    validResult += diffAddress.diffString(originalAddress.region, validAddress.region) + " ";
-                }
-                originalResult += originalAddress.region_code + " ";
-
-                // ZIP code
-                validResult += diffAddress.diffString(originalAddress.postcode, validAddress.postcode);
-                originalResult += originalAddress.postcode;
+                var originalAddress = this.buildOriginalAddress(addressModel.originalAddress());
+                var validAddress = this.buildValidAddress(addressModel.originalAddress(), addressModel.validAddress());
 
                 if (!diffAddress.isDifferent) {
                     $(this.validateAddressContainerSelector + ' *').hide();
@@ -75,12 +43,71 @@ define(
 
                 if (userCanChooseOriginalAddress) {
                     // Original Address label
-                    $(this.validateAddressContainerSelector + " " + this.originalAddressTextSelector).html(originalResult);
-
+                    $(this.originalAddressTextSelector).html(originalAddress);
                     this.toggleRadioSelectedStyle('.addressOption', 'addressToUse', 'selected');
                 }
 
-                $(this.validAddressTextSelector).html(validResult);
+                $(this.validAddressTextSelector).html(validAddress);
+            },
+
+            buildValidAddress: function (originalAddress, validAddress) {
+                var result = "";
+
+                // Name
+                result += originalAddress.firstname + " " + originalAddress.lastname + "<br/>";
+
+                // Streets
+                for(var i = 0; i < 3; i++) {
+                    var originalStreet = typeof originalAddress.street[i] === 'undefined'?'':originalAddress.street[i];
+                    var validStreet = typeof validAddress.street[i] === 'undefined'?'':validAddress.street[i];
+                    var validatedStreet = diffAddress.diffString(originalStreet, validStreet);
+                    result += validatedStreet;
+                    result += validatedStreet.length?"<br/>":"";
+                }
+
+                // City
+                result += diffAddress.diffString(originalAddress.city, validAddress.city) + ", ";
+
+                // State - The region_code isn't used for customer addresses
+                if (typeof originalAddress.region_code !== 'undefined') {
+                    result += diffAddress.diffString(originalAddress.region_code, validAddress.region_code) + " ";
+                } else {
+                    result += diffAddress.diffString(originalAddress.region, validAddress.region) + " ";
+                }
+
+                // ZIP code
+                result += diffAddress.diffString(originalAddress.postcode, validAddress.postcode);
+
+                return result;
+            },
+
+            buildOriginalAddress: function (originalAddress) {
+                var result = "";
+
+                // Name
+                result += originalAddress.firstname + " " + originalAddress.lastname + "<br/>";
+
+                // Streets
+                $.each(originalAddress.street, function(index, value) {
+                    if (value !== "") {
+                        result += value + "<br/>";
+                    }
+                });
+
+                // City
+                result += originalAddress.city + ", ";
+
+                // State - The region_code isn't used for customer addresses
+                if (typeof originalAddress.region_code !== 'undefined') {
+                    result += originalAddress.region_code + " ";
+                } else {
+                    result += originalAddress.region + " ";
+                }
+
+                // Zip code
+                result += originalAddress.postcode;
+
+                return result;
             },
 
             /**

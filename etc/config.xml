@@ -17,7 +17,7 @@
                 <address_validation_user_has_choice>1</address_validation_user_has_choice>
                 <address_validation_instructions_with_choice><![CDATA[There is a problem with the address that you entered. The removed text is in red and the added text is in green. Please choose which address you would like to use. If neither option is correct, <a>edit your address</a>.]]></address_validation_instructions_with_choice>
                 <address_validation_instructions_without_choice><![CDATA[There is a problem with the address that you entered. The removed text is in red and the added text is in green. If this address is not correct, <a>edit your address</a>.]]></address_validation_instructions_without_choice>
-                <address_validation_error_instructions><![CDATA[[We were unable to validate your address. If the address below is correct then you don’t need to do anything. To change your address, <a>click here</a>.]]></address_validation_error_instructions>
+                <address_validation_error_instructions><![CDATA[[We were unable to validate your address: <br/> <p class='error'>"%1"</p> If the address below is correct then you don’t need to do anything. To change your address, <a>click here</a>.]]></address_validation_error_instructions>
                 <address_validation_countries_enabled>CA,US</address_validation_countries_enabled>
             </avatax>
         </tax>

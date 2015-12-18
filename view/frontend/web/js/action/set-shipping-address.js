@@ -44,7 +44,7 @@ define(
             payload = {
                 addressInformation: {
                     extension_attributes: {
-                        should_validate_address: !validSelected
+                        should_validate_address: validSelected
                     },
                     // Since the updateAddress method above changes the shippingAddress, quote.shippingAddress()
                     // will return whichever option the user has submitted.

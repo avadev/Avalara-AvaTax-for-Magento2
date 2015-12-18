@@ -29,7 +29,7 @@ define(
             defaults: {
                 template: 'ClassyLlama_AvaTax/reviewPayment',
                 paymentTemplate: 'Magento_Checkout/payment',
-                validateTemplate: 'ClassyLlama_AvaTax/validate',
+                validateTemplate: 'ClassyLlama_AvaTax/checkoutValidate',
                 activeMethod: ''
             },
             isVisible: ko.observable(quote.isVirtual()),

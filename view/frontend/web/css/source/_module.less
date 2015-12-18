@@ -1,7 +1,8 @@
 @color-inserted: #93EE9E;
-@color-deleted: #FFE8E8;
+@color-deleted: #ffc1c3;
 
-.checkout-container #validate_address {
+.checkout-container #validate_address,
+.validate-binding {
     .form.validate {
         display: flex;
         flex-wrap: wrap;
@@ -45,11 +46,10 @@
     ins {
         text-decoration: none;
         background-color: @color-inserted;
-        outline: 1px solid darken(@color-inserted, 30%);
     }
     del {
+        text-decoration: none;
         background-color: @color-deleted;
-        outline: 1px solid darken(@color-deleted, 30%);
     }
     .errorMessageText {
         margin-top: 10px;
@@ -61,3 +61,4 @@
         cursor: pointer;
     }
 }
+

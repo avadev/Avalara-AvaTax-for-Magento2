@@ -29,7 +29,7 @@ define(
                     updateAddress(response.extension_attributes.valid_address);
                     addressModel.originalAddress(response.extension_attributes.original_address);
                     addressModel.validAddress(response.extension_attributes.valid_address);
-                    if (typeof response.extension_attributes.error_message != undefined) {
+                    if (typeof response.extension_attributes.error_message !== 'undefined') {
                         addressModel.error(response.extension_attributes.error_message)
                     }
                     validationForm.fillValidateForm();

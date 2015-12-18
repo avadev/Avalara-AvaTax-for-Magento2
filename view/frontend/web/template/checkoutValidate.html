@@ -1,8 +1,6 @@
-<li id="validate" role="presentation" class="checkout-payment-method" data-bind="fadeVisible: isVisible">
-<!-- ko if: context == "checkout" -->
+<li id="validate_address" role="presentation" class="checkout-payment-method" data-bind="fadeVisible: isVisible">
     <div class="step-title" data-bind="i18n: 'Verify Your Address'" data-role="title" />
     <div class="step-content" data-role="content" role="tabpanel" aria-hidden="false">
-<!-- /ko -->
         <div class="instructions noError" data-bind="html: instructions" />
     <!-- ko if: choice == 1 -->
         <form id="co-validate-form" class="form validate noError" novalidate="novalidate">
@@ -23,13 +21,11 @@
         </form>
     <!-- /ko -->
     <!-- ko if: choice == 0 -->
-        <div class="validAddressText noError" />
+        <div class="validAddressText validatedAddress noError" />
     <!-- /ko -->
         <div class="errorMessageContainer yesError">
             <div class="instructions" data-bind="text: errorInstructions" />
             <div class="errorMessageText" />
         </div>
-<!-- ko if: context == "checkout"-->
     </div>
 </li>
-<!-- /ko -->

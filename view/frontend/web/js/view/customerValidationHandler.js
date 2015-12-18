@@ -12,9 +12,8 @@ define(
         'use strict';
 
         return {
-            options: {
-                validateAddressContainerSelector: '#validate_address'
-            },
+            validationContainer: '.validationModal .modal-content > div',
+            bindingElement: '.validate-binding',
 
             validationResponseHandler: function (response) {
                 if (typeof response !== 'undefined') {
@@ -24,6 +23,7 @@ define(
                         addressModel.validAddress(response);
                     }
                     validationForm.fillValidateForm();
+                    $(this.bindingElement).trigger('processStop');
                 } else {
                     //$(this.options.validateAddressContainerSelector + ' *').hide();
                 }

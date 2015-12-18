@@ -41,14 +41,14 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template {
 
     public function getInstructions() {
         if ($this->getChoice()) {
-            return htmlspecialchars($this->config->getAddressValidationInstructionsWithChoice());
+            return addslashes($this->config->getAddressValidationInstructionsWithChoice());
         } else {
-            return htmlspecialchars($this->config->getAddressValidationInstructionsWithOutChoice());
+            return addslashes($this->config->getAddressValidationInstructionsWithOutChoice());
         }
     }
 
     public function getErrorInstructions() {
-        return htmlspecialchars($this->config->getAddressValidationErrorInstructions());
+        return addslashes($this->config->getAddressValidationErrorInstructions());
     }
 
     public function getCountriesEnabled() {
