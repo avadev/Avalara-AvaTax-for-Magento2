@@ -146,7 +146,7 @@ class Line
 
         return [
             'store_id' => $item->getStoreId(),
-            'no' => $item->getEntityId(),
+            'no' => $this->getLineNumber(),
             'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
@@ -181,7 +181,7 @@ class Line
 
         return [
             'store_id' => $item->getStoreId(),
-            'no' => $item->getEntityId(),
+            'no' => $this->getLineNumber(),
             'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
