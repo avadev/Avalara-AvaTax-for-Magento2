@@ -12,7 +12,8 @@
     <type name="Magento\Tax\Model\Sales\Total\Quote\Shipping">
         <plugin name="avatax_tax_model_sales_total_quote_shipping" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Shipping" />
     </type>
-    <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
+    <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
     <type name="ClassyLlama\AvaTax\Model\Session">
         <arguments>
             <argument name="storage" xsi:type="object">ClassyLlama\AvaTax\Model\Session\Storage</argument>

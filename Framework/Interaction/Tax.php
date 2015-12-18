@@ -498,8 +498,7 @@ class Tax
      * Creates and returns a populated getTaxRequest for a invoice
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
-     * @return null|GetTaxRequest
-     * @throws LocalizedException
+     * @return GetTaxRequest
      */
     public function getGetTaxRequestForSalesObject($object) {
         /** @var \Magento\Sales\Model\Order $order */
@@ -535,13 +534,8 @@ class Tax
             $lines[] = $line;
         }
 
-        try {
-            $shippingAddress = $order->getShippingAddress();
-            $address = $this->address->getAddress($shippingAddress);
-        } catch (LocalizedException $e) {
-            // TODO: Log this exception
-            return null;
-        }
+        $shippingAddress = $order->getShippingAddress();
+        $address = $this->address->getAddress($shippingAddress);
 
         $store = $object->getStore();
         $currentDate = $this->getFormattedDate($store);
