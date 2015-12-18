@@ -516,10 +516,12 @@ class Tax
             }
         }
 
-        $credit = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
-        $shippingLine = $this->interactionLine->getShippingLine($object, $credit);
-        if ($lines) {
-            $lines[] = $shippingLine;
+        $objectIsCreditMemo = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
+
+        $credit = $objectIsCreditMemo;
+        $line = $this->interactionLine->getShippingLine($object, $credit);
+        if ($line) {
+            $lines[] = $line;
         }
         $line = $this->interactionLine->getGiftWrapItemsLine($object, $credit);
         if ($line) {
@@ -532,6 +534,17 @@ class Tax
         $line = $this->interactionLine->getGiftWrapCardLine($object, $credit);
         if ($line) {
             $lines[] = $line;
+        }
+
+        if ($objectIsCreditMemo) {
+            $line = $this->interactionLine->getPositiveAdjustmentLine($object);
+            if ($line) {
+                $lines[] = $line;
+            }
+            $line = $this->interactionLine->getNegativeAdjustmentLine($object);
+            if ($line) {
+                $lines[] = $line;
+            }
         }
 
         $shippingAddress = $order->getShippingAddress();

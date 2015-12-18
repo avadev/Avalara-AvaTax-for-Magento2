@@ -65,6 +65,16 @@ class Line
     const GIFT_WRAP_CARD_LINE_DESCRIPTION = 'Gift Wrap Printed Card Amount';
 
     /**
+     * Description for Adjustment refund line
+     */
+    const ADJUSTMENT_POSITIVE_LINE_DESCRIPTION = 'Adjustment refund';
+
+    /**
+     * Description for Adjustment fee line
+     */
+    const ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION = 'Adjustment fee';
+
+    /**
      * A list of valid fields for the data array and meta data about their types to use in validation
      * based on the API documentation.
      * Validation based on API documentation found here:
@@ -276,7 +286,7 @@ class Line
     }
 
     /**
-     * Accepts a an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
@@ -315,7 +325,7 @@ class Line
     }
 
     /**
-     * Accepts a an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
@@ -352,7 +362,7 @@ class Line
     }
 
     /**
-     * Accepts a an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
@@ -392,7 +402,7 @@ class Line
     }
 
     /**
-     * Accepts a an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
@@ -427,6 +437,78 @@ class Line
         return $line;
     }
 
+    /**
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     *
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
+     * @return \AvaTax\Line|bool
+     */
+    public function getPositiveAdjustmentLine($data) {
+        $amount = $data->getBaseAdjustmentPositive();
+
+        if ($amount == 0) {
+            return false;
+        }
+
+        // Credit memo amounts need to be sent to AvaTax as negative numbers
+        $amount *= -1;
+
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuAdjustmentPositive($storeId);
+        $data = [
+            'no' => $this->getLineNumber(),
+            'item_code' => $itemCode,
+            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'description' => self::ADJUSTMENT_POSITIVE_LINE_DESCRIPTION,
+            'qty' => 1,
+            'amount' => $amount,
+            'discounted' => false,
+            // Since taxes will already be included in this amount, set this flag to true
+            'tax_included' => true
+        ];
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        $this->populateLine($data, $line);
+        return $line;
+    }
+
+    /**
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     *
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
+     * @return \AvaTax\Line|bool
+     */
+    public function getNegativeAdjustmentLine($data) {
+        $amount = $data->getBaseAdjustmentNegative();
+
+        if ($amount == 0) {
+            return false;
+        }
+
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuAdjustmentNegative($storeId);
+        $data = [
+            'no' => $this->getLineNumber(),
+            'item_code' => $itemCode,
+            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'description' => self::ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION,
+            'qty' => 1,
+            'amount' => $amount,
+            'discounted' => false,
+            // Since taxes will already be included in this amount, set this flag to true
+            'tax_included' => true
+        ];
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        $this->populateLine($data, $line);
+        return $line;
+    }
     /**
      * @param array $data
      * @param \AvaTax\Line $line
