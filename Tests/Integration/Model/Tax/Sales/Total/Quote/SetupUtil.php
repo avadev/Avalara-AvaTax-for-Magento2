@@ -462,6 +462,7 @@ class SetupUtil
         $product->isObjectNew(true);
         $product->setTypeId('simple')
             ->setAttributeSetId(4)
+            ->setWebsiteIds([1])
             ->setName('Simple Product' . $sku)
             ->setSku($sku)
             ->setPrice($price)
@@ -627,7 +628,7 @@ class SetupUtil
      * @param array $itemsData
      * @return $this
      */
-    protected function addProductToQuote($quote, $itemsData)
+    protected function addProductsToQuote(\Magento\Quote\Model\Quote $quote, $itemsData)
     {
         foreach ($itemsData as $itemData) {
             $sku = $itemData['sku'];
@@ -636,8 +637,11 @@ class SetupUtil
             $taxClassName =
                 isset($itemData['tax_class_name']) ? $itemData['tax_class_name'] : self::PRODUCT_TAX_CLASS_1;
             $taxClassId = $this->productTaxClasses[$taxClassName];
-            $product = $this->createSimpleProduct($sku, $price, $taxClassId);
-            $quote->addProduct($product, $qty);
+
+            if ($itemData['type'] == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE) {
+                $product = $this->createSimpleProduct($sku, $price, $taxClassId);
+            }
+            $this->addProductToQuote($quote, $product, $qty);
         }
         return $this;
     }
@@ -654,7 +658,7 @@ class SetupUtil
 
         $quote = $this->createQuote($quoteData, $customer);
 
-        $this->addProductToQuote($quote, $quoteData['items']);
+        $this->addProductsToQuote($quote, $quoteData['items']);
 
         //Set shipping amount
         if (isset($quoteData['shipping'])) {
