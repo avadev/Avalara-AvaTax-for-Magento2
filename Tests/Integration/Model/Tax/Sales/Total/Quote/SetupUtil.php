@@ -839,6 +839,58 @@ class SetupUtil
     }
 
     /**
+     * Add product to quote
+     *
+     * This file was inspired by
+     * @see dev/tests/integration/testsuite/Magento/Checkout/_files/quote_with_bundle_and_options.php
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param \Magento\Catalog\Model\Product $product
+     * @param int $qty
+     * @throws \Exception
+     */
+    protected function addProductToQuote(
+        \Magento\Quote\Model\Quote $quote,
+        \Magento\Catalog\Model\Product $product,
+        $qty
+    ) {
+        if ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE) {
+            $quote->addProduct($product, $qty);
+        } elseif ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
+            /** @var $typeInstance \Magento\Bundle\Model\Product\Type */
+            //Load options
+            $typeInstance = $product->getTypeInstance();
+            $typeInstance->setStoreFilter($product->getStoreId(), $product);
+            $optionCollection = $typeInstance->getOptionsCollection($product);
+
+            $bundleOptions = [];
+            $bundleOptionsQty = [];
+            /** @var $option \Magento\Bundle\Model\Option */
+            foreach ($optionCollection as $option) {
+                $selectionsCollection = $typeInstance->getSelectionsCollection([$option->getId()], $product);
+                if ($option->isMultiSelection()) {
+                    $bundleOptions[$option->getId()] = array_column($selectionsCollection->toArray(), 'selection_id');
+                } else {
+                    $bundleOptions[$option->getId()] = $selectionsCollection->getFirstItem()->getSelectionId();
+                }
+                $bundleOptionsQty[$option->getId()] = 1;
+            }
+
+            $requestInfo = new \Magento\Framework\DataObject(
+                [
+                    'qty' => $qty,
+                    'bundle_option' => $bundleOptions,
+                    'bundle_option_qty' => $bundleOptionsQty
+                ]
+            );
+
+            $quote->addProduct($product, $requestInfo);
+        } else {
+            throw new \Exception('Unrecognized type: ' . $product->getTypeId());
+        }
+    }
+
+    /**
      * Create a quote based on given data
      *
      * @param array $quoteData
