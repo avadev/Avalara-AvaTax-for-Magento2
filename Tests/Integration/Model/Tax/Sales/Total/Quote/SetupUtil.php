@@ -657,8 +657,16 @@ class SetupUtil
         $this->addProductToQuote($quote, $quoteData['items']);
 
         //Set shipping amount
-        if (isset($quoteData['shipping_method'])) {
-            $quote->getShippingAddress()->setShippingMethod($quoteData['shipping_method']);
+        if (isset($quoteData['shipping'])) {
+            $shippingMethod = $quoteData['shipping']['method'];
+            $shippingAmount = $quoteData['shipping']['amount'];
+            $shippingBaseAmount = $quoteData['shipping']['base_amount'];
+            $quote->getShippingAddress()->setShippingMethod($shippingMethod)
+                ->setShippingDescription('Flat Rate - Fixed')
+                ->setShippingAmount($shippingAmount)
+                ->setBaseShippingAmount($shippingBaseAmount)
+                ->save();
+
             $quote->getShippingAddress()->setCollectShippingRates(true);
         }
 

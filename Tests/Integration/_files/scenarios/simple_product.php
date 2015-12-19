@@ -27,6 +27,11 @@ $taxCalculationData['simple_product'] = [
         'shipping_address' => [
             'region_id' => SetupUtil::REGION_MI,
         ],
+        'shipping' => [
+            'method' => 'flatrate_flatrate',
+            'amount' => 6,
+            'base_amount' => 6,
+        ],
         'items' => [
             [
                 'sku' => 'simple1',
