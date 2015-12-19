@@ -486,6 +486,196 @@ class SetupUtil
     }
 
     /**
+     * Create bundled product and children
+     *
+     * This file was inspired by
+     * @see dev/tests/integration/testsuite/Magento/Bundle/_files/product_with_multiple_options.php
+     *
+     * @param $sku
+     * @param $price
+     * @param $taxClassId
+     * @param $itemData
+     * @return \Magento\Catalog\Model\Product
+     */
+    protected function createBundledProduct($sku, $price, $taxClassId, $itemData)
+    {
+        $objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
+
+        $children = [];
+        foreach ($itemData['children'] as $child) {
+            $taxClassName =
+                isset($child['tax_class_name']) ? $child['tax_class_name'] : self::PRODUCT_TAX_CLASS_1;
+            $taxClassId = $this->productTaxClasses[$taxClassName];
+            $children[] = $this->createSimpleProduct($child['sku'], $child['price'], $taxClassId);
+        }
+
+        $bundleOptionsData = [
+            // Required "Drop-down" option
+            [
+                'title' => 'Option 1',
+                'default_title' => 'Option 1',
+                'type' => 'select',
+                'required' => 1,
+                'delete' => '',
+            ],
+            // Required "Radio Buttons" option
+            [
+                'title' => 'Option 2',
+                'default_title' => 'Option 2',
+                'type' => 'radio',
+                'required' => 1,
+                'delete' => '',
+            ],
+            // Required "Checkbox" option
+            [
+                'title' => 'Option 3',
+                'default_title' => 'Option 3',
+                'type' => 'checkbox',
+                'required' => 1,
+                'delete' => '',
+            ],
+            // Required "Multiple Select" option
+            [
+                'title' => 'Option 4',
+                'default_title' => 'Option 4',
+                'type' => 'multi',
+                'required' => 1,
+                'delete' => '',
+            ],
+            // Non-required "Multiple Select" option
+            [
+                'title' => 'Option 5',
+                'default_title' => 'Option 5',
+                'type' => 'multi',
+                'required' => 0,
+                'delete' => '',
+            ]
+        ];
+
+//        $bundleSelectionsData = [
+//            [
+//                [
+//                    'product_id' => 10,
+//                    'selection_qty' => 1,
+//                    'selection_can_change_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 1
+//                ],
+//                [
+//                    'product_id' => 11,
+//                    'selection_qty' => 1,
+//                    'selection_can_change_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 1
+//                ]
+//            ],
+//            [
+//                [
+//                    'product_id' => 10,
+//                    'selection_qty' => 1,
+//                    'selection_can_change_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 2
+//                ],
+//                [
+//                    'product_id' => 11,
+//                    'selection_qty' => 1,
+//                    'selection_can_change_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 2
+//                ]
+//            ],
+//            [
+//                [
+//                    'product_id' => 10,
+//                    'selection_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 3
+//                ],
+//                [
+//                    'product_id' => 11,
+//                    'selection_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 3
+//                ]
+//            ],
+//            [
+//                [
+//                    'product_id' => 10,
+//                    'selection_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 4
+//                ],
+//                [
+//                    'product_id' => 11,
+//                    'selection_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 4
+//                ]
+//            ],
+//            [
+//                [
+//                    'product_id' => 10,
+//                    'selection_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 5
+//                ],
+//                [
+//                    'product_id' => 11,
+//                    'selection_qty' => 1,
+//                    'delete' => '',
+//                    'option_id' => 5
+//                ]
+//            ]
+//        ];
+        // Add each child to a group
+        $bundleSelectionsData = [];
+        foreach ($bundleOptionsData as $optionsKey => $optionsData) {
+            $optionGroup = [];
+            $optionsKey++;
+            foreach ($children as $key => $child) {
+                $optionGroup[] = [
+                    'product_id' => $child->getId(),
+                    'selection_qty' => 1,
+                    'selection_can_change_qty' => 1,
+                    'delete' => '',
+                    'option_id' => $optionsKey
+                ];
+            }
+            if (count($optionGroup)) {
+                $bundleSelectionsData[] = $optionGroup;
+            }
+        }
+
+        $priceType = $itemData['price_type'];
+
+        /** @var $product \Magento\Catalog\Model\Product */
+        $product = $objectManager->create('Magento\Catalog\Model\Product');
+        $product->setTypeId(\Magento\Catalog\Model\Product\Type::TYPE_BUNDLE)
+            ->setAttributeSetId(4)
+            ->setWebsiteIds([1])
+            ->setName('Bundle Product ' . $sku)
+            ->setSku($sku)
+            ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
+            ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
+            ->setStockData([
+                'use_config_manage_stock' => 1,
+                'qty' => 100,
+                'is_qty_decimal' => 0,
+                'is_in_stock' => 1
+            ])
+            ->setPriceView(1)
+            ->setPriceType($priceType)
+            ->setPrice($price)
+            ->setTaxClassId($taxClassId)
+            ->setBundleOptionsData($bundleOptionsData)
+            ->setBundleSelectionsData($bundleSelectionsData)
+            ->save();
+
+        return $product;
+    }
+
+    /**
      * Create a customer group and associated it with given customer tax class
      *
      * @param int $customerTaxClassId
@@ -640,6 +830,8 @@ class SetupUtil
 
             if ($itemData['type'] == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE) {
                 $product = $this->createSimpleProduct($sku, $price, $taxClassId);
+            } else {
+                $product = $this->createBundledProduct($sku, $price, $taxClassId, $itemData);
             }
             $this->addProductToQuote($quote, $product, $qty);
         }
