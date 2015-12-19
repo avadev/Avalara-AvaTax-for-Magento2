@@ -210,6 +210,11 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         foreach ($quoteItems as $item) {
             /** @var  \Magento\Quote\Model\Quote\Address\Item $item */
             $sku = $item->getProduct()->getSku();
+
+            if (!isset($expectedResults['items_data'][$sku])) {
+                throw new \Exception("Missing array key in 'expected_results' for $sku");
+            }
+
             $expectedItemData = $expectedResults['items_data'][$sku];
             $this->verifyItem($item, $expectedItemData);
         }
