@@ -12,7 +12,7 @@ $credentialsConfig = require __DIR__ . '/credentials.php';
  */
 $taxCalculationData = [];
 
-require_once __DIR__ . '/scenarios/simple_product.php';
+require_once __DIR__ . '/scenarios/comprensive_test.php';
 //require_once __DIR__ . '/scenarios/excluding_tax_apply_tax_after_discount.php';
 //require_once __DIR__ . '/scenarios/excluding_tax_apply_tax_after_discount_discount_tax.php';
 //require_once __DIR__ . '/scenarios/excluding_tax_apply_tax_before_discount.php';
