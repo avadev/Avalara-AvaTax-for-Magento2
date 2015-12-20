@@ -219,6 +219,16 @@ class TaxTest extends \PHPUnit_Framework_TestCase
             $this->verifyItem($item, $expectedItemData);
         }
 
+        // Make sure all 'expected_result' items are present in quote
+        foreach ($quoteItems as $item) {
+            unset($expectedResults['items_data'][$item->getProduct()->getSku()]);
+        }
+        $this->assertEmpty(
+            $expectedResults['items_data'],
+            'The following expected_results items were not present in quote: '
+                . implode(', ', array_keys($expectedResults['items_data']))
+        );
+
         return $this;
     }
 
