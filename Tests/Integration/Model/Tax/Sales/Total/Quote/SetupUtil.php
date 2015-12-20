@@ -506,137 +506,24 @@ class SetupUtil
             $taxClassName =
                 isset($child['tax_class_name']) ? $child['tax_class_name'] : self::PRODUCT_TAX_CLASS_1;
             $taxClassId = $this->productTaxClasses[$taxClassName];
-            $children[] = $this->createSimpleProduct($child['sku'], $child['price'], $taxClassId);
+            $children[$child['sku']] = $this->createSimpleProduct($child['sku'], $child['price'], $taxClassId);
         }
 
-        $bundleOptionsData = [
-            // Required "Drop-down" option
-            [
-                'title' => 'Option 1',
-                'default_title' => 'Option 1',
-                'type' => 'select',
-                'required' => 1,
-                'delete' => '',
-            ],
-            // Required "Radio Buttons" option
-            [
-                'title' => 'Option 2',
-                'default_title' => 'Option 2',
-                'type' => 'radio',
-                'required' => 1,
-                'delete' => '',
-            ],
-            // Required "Checkbox" option
-            [
-                'title' => 'Option 3',
-                'default_title' => 'Option 3',
-                'type' => 'checkbox',
-                'required' => 1,
-                'delete' => '',
-            ],
-            // Required "Multiple Select" option
-            [
-                'title' => 'Option 4',
-                'default_title' => 'Option 4',
-                'type' => 'multi',
-                'required' => 1,
-                'delete' => '',
-            ],
-            // Non-required "Multiple Select" option
-            [
-                'title' => 'Option 5',
-                'default_title' => 'Option 5',
-                'type' => 'multi',
-                'required' => 0,
-                'delete' => '',
-            ]
-        ];
 
-//        $bundleSelectionsData = [
-//            [
-//                [
-//                    'product_id' => 10,
-//                    'selection_qty' => 1,
-//                    'selection_can_change_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 1
-//                ],
-//                [
-//                    'product_id' => 11,
-//                    'selection_qty' => 1,
-//                    'selection_can_change_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 1
-//                ]
-//            ],
-//            [
-//                [
-//                    'product_id' => 10,
-//                    'selection_qty' => 1,
-//                    'selection_can_change_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 2
-//                ],
-//                [
-//                    'product_id' => 11,
-//                    'selection_qty' => 1,
-//                    'selection_can_change_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 2
-//                ]
-//            ],
-//            [
-//                [
-//                    'product_id' => 10,
-//                    'selection_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 3
-//                ],
-//                [
-//                    'product_id' => 11,
-//                    'selection_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 3
-//                ]
-//            ],
-//            [
-//                [
-//                    'product_id' => 10,
-//                    'selection_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 4
-//                ],
-//                [
-//                    'product_id' => 11,
-//                    'selection_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 4
-//                ]
-//            ],
-//            [
-//                [
-//                    'product_id' => 10,
-//                    'selection_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 5
-//                ],
-//                [
-//                    'product_id' => 11,
-//                    'selection_qty' => 1,
-//                    'delete' => '',
-//                    'option_id' => 5
-//                ]
-//            ]
-//        ];
+        $bundleOptionsData = $itemData['bundled_options'];
+
         // Add each child to a group
         $bundleSelectionsData = [];
         foreach ($bundleOptionsData as $optionsKey => $optionsData) {
             $optionGroup = [];
             $optionsKey++;
-            foreach ($children as $key => $child) {
+
+            $selectedSkus = $optionsData['selected_skus'];
+            foreach ($selectedSkus as $sku) {
+                $product = $children[$sku];
                 $optionGroup[] = [
-                    'product_id' => $child->getId(),
-                    'selection_qty' => 1,
+                    'product_id' => $product->getId(),
+                    'selection_qty' => 1, // The qty of this option is set by the ['bundled_options']['qty'] value
                     'selection_can_change_qty' => 1,
                     'delete' => '',
                     'option_id' => $optionsKey
@@ -833,7 +720,7 @@ class SetupUtil
             } else {
                 $product = $this->createBundledProduct($sku, $price, $taxClassId, $itemData);
             }
-            $this->addProductToQuote($quote, $product, $qty);
+            $this->addProductToQuote($quote, $product, $qty, $itemData);
         }
         return $this;
     }
@@ -852,7 +739,8 @@ class SetupUtil
     protected function addProductToQuote(
         \Magento\Quote\Model\Quote $quote,
         \Magento\Catalog\Model\Product $product,
-        $qty
+        $qty,
+        $itemData
     ) {
         if ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE) {
             $quote->addProduct($product, $qty);
@@ -875,7 +763,15 @@ class SetupUtil
                 } else {
                     $bundleOptions[$option->getId()] = $selectionsCollection->getFirstItem()->getSelectionId();
                 }
-                $bundleOptionsQty[$option->getId()] = 1;
+                $optionQty = 1;
+                foreach ($itemData['bundled_options'] as $bundledOptionData) {
+                    if ($option->getTitle() == $bundledOptionData['title']) {
+                        $optionQty = $bundledOptionData['qty'];
+                        break;
+                    }
+                }
+
+                $bundleOptionsQty[$option->getId()] = $optionQty;
             }
 
             $requestInfo = new \Magento\Framework\DataObject(
