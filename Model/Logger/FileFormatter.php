@@ -8,7 +8,7 @@ use Monolog\Formatter\NormalizerFormatter;
 /**
  * Formats incoming records similar to LineFormatter
  * but allows for new line characters in the context, and extra parts of the record
- * and prints them on multiple lines instead of condencing those sections to a single line.
+ * and prints them on multiple lines instead of condensing those sections to a single line.
  *
  * @author Matt Johnson <matt.johnson@classyllama.com>
  */

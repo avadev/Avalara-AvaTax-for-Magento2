@@ -93,7 +93,7 @@ class Get extends Action\Action
             $response .= "TotalAmount: " . $getTaxResult->getTotalAmount() . "\n";
             $response .= "TotalTax: " . $getTaxResult->getTotalTax() . "\n";
 //Line Level Results (from TaxLines array class)
-            /** @var $currentTaxLine TaxLine */
+            /** @var $currentTaxLine \AvaTax\TaxLine */
             foreach ($getTaxResult->getTaxLines() as $currentTaxLine) {
                 $response .= "     Line: " . $currentTaxLine->getNo() . " Tax: " . $currentTaxLine->getTax() . " TaxCode: " . $currentTaxLine->getTaxCode() . "\n";
 //Line Level Results
@@ -104,7 +104,7 @@ class Get extends Action\Action
             }
 //If NOT success - display error messages to console
         } else {
-            /** @var $message Message */
+            /** @var $message \AvaTax\Message */
             foreach ($getTaxResult->getMessages() as $message) {
                 $response .= $message->getName() . ": " . $message->getSummary() . "\n";
             }

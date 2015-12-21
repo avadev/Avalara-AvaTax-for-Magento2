@@ -3,6 +3,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
 use AvaTax\GetTaxRequest;
+use AvaTax\GetTaxResult;
 use AvaTax\LineFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
@@ -40,6 +41,11 @@ class Get
     protected $config = null;
 
     /**
+     * @var Get\ResponseFactory
+     */
+    protected $getTaxResponseFactory;
+
+    /**
      * @var null
      */
     protected $errorMessage = null;
@@ -63,6 +69,7 @@ class Get
      * @param Tax $interactionTax
      * @param LineFactory $lineFactory
      * @param Config $config
+     * @param Get\ResponseFactory $getTaxResponseFactory
      * @param AvaTaxLogger $avaTaxLogger
      */
     public function __construct(
@@ -71,6 +78,9 @@ class Get
         Tax $interactionTax,
         LineFactory $lineFactory,
         Config $config,
+        // TODO: Figure out why a factory for the interface isn't working:
+        //ClassyLlama\AvaTax\Api\Data\GetTaxResponseFactory $getTaxResponseFactory
+        Get\ResponseFactory $getTaxResponseFactory,
         AvaTaxLogger $avaTaxLogger
     ) {
         $this->taxCalculation = $taxCalculation;
@@ -78,7 +88,85 @@ class Get
         $this->interactionTax = $interactionTax;
         $this->lineFactory = $lineFactory;
         $this->config = $config;
+        $this->getTaxResponseFactory = $getTaxResponseFactory;
         $this->avaTaxLogger = $avaTaxLogger;
+    }
+
+    /**
+     * Process invoice or credit memo
+     *
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
+     * @return \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface
+     * @throws Get\Exception
+     */
+    public function processSalesObject($object)
+    {
+        $taxService = $this->interactionTax->getTaxService();
+        try {
+            /** @var $getTaxRequest GetTaxRequest */
+            $getTaxRequest = $this->interactionTax->getGetTaxRequestForSalesObject($object);
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $this->avaTaxLogger->warning($message);
+            throw new Get\Exception($message, $e->getCode(), $e);
+        }
+
+        if (is_null($getTaxRequest)) {
+            $message = '$getTaxRequest was empty so not running getTax request.';
+            $this->avaTaxLogger->warning($message);
+            throw new Get\Exception($message);
+        }
+
+        try {
+            $getTaxResult = $taxService->getTax($getTaxRequest);
+            if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+                $this->avaTaxLogger->info(
+                    'response from external api getTax',
+                    [ /* context */
+                        'request' => var_export($getTaxRequest, true),
+                        'result' => var_export($getTaxResult, true),
+                    ]
+                );
+                $this->extraDebug($getTaxRequest, $getTaxResult, $object);
+
+                // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
+                $avataxTaxAmount = abs($getTaxResult->getTotalTax());
+                $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
+
+                $response = $this->getTaxResponseFactory->create();
+                $response->setIsUnbalanced($unbalanced)
+                    ->setBaseAvataxTaxAmount($avataxTaxAmount);
+                return $response;
+            } else {
+                $message = $this->getErrorMessageFromGetTaxResult($getTaxResult);
+
+                $this->avaTaxLogger->warning(
+                    $message,
+                    [ /* context */
+                        'request' => var_export($getTaxRequest, true),
+                        'result' => var_export($getTaxResult, true),
+                    ]
+                );
+
+                throw new Get\Exception($message);
+            }
+        } catch (\SoapFault $exception) {
+            $message = "Exception: \n";
+            if ($exception) {
+                $message .= $exception->faultstring;
+            }
+            $message .= $taxService->__getLastRequest() . "\n";
+            $message .= $taxService->__getLastResponse() . "\n";
+            $this->avaTaxLogger->critical(
+                "Exception: \n" . ($exception) ? $exception->faultstring: "",
+                [ /* context */
+                    'request' => var_export($taxService->__getLastRequest(), true),
+                    'result' => var_export($taxService->__getLastResponse(), true),
+                ]
+            );
+
+            throw new Get\Exception($message);
+        }
     }
 
     /**
@@ -170,7 +258,7 @@ class Get
     /**
      * Set error message
      *
-     * @return void
+     * @param $message
      */
     public function setErrorMessage($message)
     {
@@ -187,4 +275,29 @@ class Get
         return $this->errorMessage;
     }
 
+    /**
+     * Get formatted error message from GetTaxResult
+     *
+     * @param GetTaxResult $getTaxResult
+     * @return string
+     */
+    protected function getErrorMessageFromGetTaxResult(GetTaxResult $getTaxResult)
+    {
+        $message = '';
+
+        $message .= __('Result code: ') . $getTaxResult->getResultCode() . PHP_EOL;
+
+        /** @var \AvaTax\Message $avataxMessage */
+        foreach ($getTaxResult->getMessages() as $avataxMessage) {
+            $message .= __('Message:') . PHP_EOL;
+            $message .= __('    Name: ') . $avataxMessage->getName() . PHP_EOL;
+            $message .= __('    Summary: ') . $avataxMessage->getSummary() . PHP_EOL;
+            $message .= __('    Details: ') . $avataxMessage->getDetails() . PHP_EOL;
+            $message .= __('    RefersTo: ') . $avataxMessage->getRefersTo() . PHP_EOL;
+            $message .= __('    Severity: ') . $avataxMessage->getSeverity() . PHP_EOL;
+            $message .= __('    Source: ') . $avataxMessage->getSource() . PHP_EOL;
+        }
+
+        return $message;
+    }
 }
