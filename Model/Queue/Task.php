@@ -28,6 +28,11 @@ class Task
         $this->queueCollectionFactory = $queueCollectionFactory;
     }
 
+    public function cronProcessQueue()
+    {
+        $this->processPendingQueue();
+    }
+
     /*
      *
      */

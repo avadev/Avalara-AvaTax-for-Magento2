@@ -73,7 +73,7 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         \Magento\Sales\Api\InvoiceManagementInterface $invoiceManagement,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Sales\Api\InvoiceCommentRepositoryInterface $invoiceCommentRepository,
-        \Magento\Sales\Api\Data\InvoiceCommentInterfaceFactory $invoiceCommentInterfaceFactory, /* TODO: would prefer to use interface but no save method exists */
+        // \Magento\Sales\Api\Data\InvoiceCommentInterfaceFactory $invoiceCommentFactory, /* TODO: would prefer to use interface but no save method exists */
         \Magento\Sales\Model\Order\Invoice\CommentFactory $invoiceCommentFactory,
         \Magento\Sales\Api\Data\InvoiceCommentInterfacePersistor $invoiceCommentPersistor,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -130,15 +130,15 @@ class Queue extends \Magento\Framework\Model\AbstractModel
 
                 $allComments = $this->invoiceManagement->getCommentsList($invoice->getEntityId());
 
-                $comment_from_factory = $this->invoiceCommentFactory->create();
-                $comment_from_factory->setParentId($invoice->getEntityId());
-                $comment_from_factory->setComment('howdy partner');
-                $comment_from_factory->setIsCustomerNotified(false);
-                $comment_from_factory->setIsVisibleOnFront(false);
+                $commentFromFactory = $this->invoiceCommentFactory->create();
+                $commentFromFactory->setParentId($invoice->getEntityId());
+                $commentFromFactory->setComment('howdy partner');
+                $commentFromFactory->setIsCustomerNotified(false);
+                $commentFromFactory->setIsVisibleOnFront(false);
 
                 // save the comment
                 //$this->invoiceCommentRepository->save($comment_from_repository);
-                $comment_from_factory->save();
+                $commentFromFactory->save();
             } else {
                 throw new \Exception('Invoice not found: (EntityId: ' . $this->getEntityId() . ', IncrementId: ' . $this->getIncrementId() . ')');
             }
