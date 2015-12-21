@@ -4,7 +4,7 @@
         <plugin name="avatax_set_refs_on_buy_request" type="ClassyLlama\AvaTax\Model\Catalog\CustomOption\CustomOptionProcessor\Plugin" />
     </type>
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
-        <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Model\ShippingInformationManagementPlugin" />
+        <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\ShippingInformationManagementPlugin" />
     </type>
     <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
         <plugin name="avatax_tax_model_sales_total_quote_subtotal" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Subtotal" />

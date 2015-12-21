@@ -63,6 +63,18 @@ class Config
 
     const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND = 'tax/avatax/error_action_disable_checkout_message_backend';
 
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED = "tax/avatax_settings/address_validation_enabled";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD = "tax/avatax_settings/address_validation_method";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED = "tax/avatax_settings/address_validation_countries_enabled";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE = "tax/avatax/address_validation_instructions_with_choice";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE = "tax/avatax/address_validation_instructions_without_choice";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS = "tax/avatax/address_validation_error_instructions";
+
     const XML_PATH_AVATAX_LOG_DB_LEVEL = 'tax/avatax/logging_db_level';
 
     const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
@@ -657,8 +669,7 @@ class Config
             $store
         );
     }
-
-    /**
+	/**
      * Get gift wrap tax class
      *
      * @param null $store
@@ -674,6 +685,60 @@ class Config
         // TODO: Implement logic like \OnePica_AvaTax_Model_Avatax_Abstract::_getGiftTaxClassCode once AvaTax custom tax codes are implemented
         //return $this->taxClassRepository->get($taxClassId)->getClassName();
         return null;
+    }
+
+    public function isAddressValidationEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function allowUserToChooseAddress($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function getAddressValidationInstructionsWithChoice($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE ,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function getAddressValidationInstructionsWithoutChoice($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE ,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function getAddressValidationErrorInstructions($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS ,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    public function getAddressValidationCountriesEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED ,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**

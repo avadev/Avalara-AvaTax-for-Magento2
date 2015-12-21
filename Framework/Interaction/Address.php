@@ -258,10 +258,13 @@ class Address
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \AvaTax\ValidAddress $address
+     * @param CustomerAddressInterface $originalAddress
      * @return null|CustomerAddressInterface
      */
-    public function convertAvaTaxValidAddressToCustomerAddress(\AvaTax\ValidAddress $address)
-    {
+    public function convertAvaTaxValidAddressToCustomerAddress(
+        \AvaTax\ValidAddress $address,
+        \Magento\Customer\Api\Data\AddressInterface $originalAddress
+    ) {
         $street = [];
         if ($address->getLine1()) {
             $street[] = $address->getLine1();
@@ -272,23 +275,24 @@ class Address
         if ($address->getLine3()) {
             $street[] = $address->getLine3();
         }
-        if ($address->getLine4()) {
-            $street[] = $address->getLine4();
-        }
+        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
 
         $region = $this->getRegionByCode($address->getRegion());
         if (is_null($region)) {
             return null;
         }
 
-        return $this->customerAddressFactory->create(['data' => [
+        // Get data from original address so that information like name and telephone will be preserved
+        $data = array_merge($originalAddress->getData(), [
             CustomerAddressInterface::REGION => $region,
             CustomerAddressInterface::REGION_ID => $region->getId(),
             CustomerAddressInterface::COUNTRY_ID => $address->getCountry(),
             CustomerAddressInterface::STREET => $street,
             CustomerAddressInterface::POSTCODE => $address->getPostalCode(),
             CustomerAddressInterface::CITY => $address->getCity(),
-        ]]);
+        ]);
+
+        return $this->customerAddressFactory->create(['data' => $data]);
     }
 
     /**
@@ -304,7 +308,6 @@ class Address
             'line1' => $address->getLine1(),
             'line2' => $address->getLine2(),
             'line3' => $address->getLine3(),
-            'line4' => $address->getLine4(),
             'postalCode' => $address->getPostalCode(),
             'city' => $address->getCity(),
         ];
@@ -315,31 +318,36 @@ class Address
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \AvaTax\ValidAddress $address
+     * @param QuoteAddressInterface $originalAddress
      * @return QuoteAddressInterface
      */
-    public function convertAvaTaxValidAddressToQuoteAddress(\AvaTax\ValidAddress $address)
-    {
+    public function convertAvaTaxValidAddressToQuoteAddress(
+        \AvaTax\ValidAddress $address,
+        \Magento\Quote\Api\Data\AddressInterface $originalAddress
+    ) {
         $street = [];
+        $line = 0;
         if ($address->getLine1()) {
-            $street[] = $address->getLine1();
+            $street[$line] = $address->getLine1();
+            $line++;
         }
         if ($address->getLine2()) {
-            $street[] = $address->getLine2();
+            $street[$line] = $address->getLine2();
+            $line++;
         }
         if ($address->getLine3()) {
-            $street[] = $address->getLine3();
+            $street[$line] = $address->getLine3();
         }
-        if ($address->getLine4()) {
-            $street[] = $address->getLine4();
-        }
+        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
 
-        $data = [
+        // Get data from original address so that information like name and telephone will be preserved
+        $data = array_merge($originalAddress->getData(), [
             QuoteAddressInterface::KEY_COUNTRY_ID => $address->getCountry(),
             QuoteAddressInterface::KEY_REGION_CODE => $address->getRegion(),
             QuoteAddressInterface::KEY_STREET => $street,
             QuoteAddressInterface::KEY_POSTCODE => $address->getPostalCode(),
             QuoteAddressInterface::KEY_CITY => $address->getCity(),
-        ];
+        ]);
 
         $region = $this->getRegionByCode($address->getRegion());
         if (!is_null($region)) {
@@ -355,10 +363,13 @@ class Address
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \AvaTax\ValidAddress $address
+     * @param OrderAddressInterface $originalAddress
      * @return null|OrderAddressInterface
      */
-    public function convertAvaTaxValidAddressToOrderAddress(\AvaTax\ValidAddress $address)
-    {
+    public function convertAvaTaxValidAddressToOrderAddress(
+        \AvaTax\ValidAddress $address,
+        \Magento\Sales\Api\Data\OrderAddressInterface $originalAddress
+    ) {
         $street = [];
         if ($address->getLine1()) {
             $street[] = $address->getLine1();
@@ -369,23 +380,24 @@ class Address
         if ($address->getLine3()) {
             $street[] = $address->getLine3();
         }
-        if ($address->getLine4()) {
-            $street[] = $address->getLine4();
-        }
+        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
 
         $region = $this->getRegionByCode($address->getRegion());
         if (is_null($region)) {
             return null;
         }
 
-        return $this->orderAddressFactory->create(['data' => [
+        // Get data from original address so that information like name and telephone will be preserved
+        $data = array_merge($originalAddress->getData(), [
             OrderAddressInterface::REGION => $region,
             OrderAddressInterface::REGION_ID => $region->getId(),
             OrderAddressInterface::COUNTRY_ID => $address->getCountry(),
             OrderAddressInterface::STREET => $street,
             OrderAddressInterface::POSTCODE => $address->getPostalCode(),
             OrderAddressInterface::CITY => $address->getCity(),
-        ]]);
+        ]);
+
+        return $this->orderAddressFactory->create(['data' => $data]);
     }
 
     /**

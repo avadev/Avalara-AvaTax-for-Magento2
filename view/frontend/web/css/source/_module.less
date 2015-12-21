@@ -1,0 +1,63 @@
+@color-inserted: #93EE9E;
+@color-deleted: #FFE8E8;
+
+.checkout-container #validate {
+    .form.validate {
+        display: flex;
+        flex-wrap: wrap;
+        .addressOption {
+            padding: 10px;
+            margin: 20px 0 0 0;
+            cursor: pointer;
+            flex:1 0 auto;
+            .optionTitle {
+                font-weight: bold;
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+            .optionAddress {
+                display: flex;
+                input {
+                    outline: none;
+                    cursor: pointer;
+                    width: 20px;
+                    &:focus {
+                        box-shadow: none;
+                    }
+                }
+                label {
+                    width: 100%;
+                    cursor: pointer;
+                }
+            }
+            &.selected {
+                outline: 1px solid @color-gray80;
+                background: @color-white-smoke;
+            }
+        }
+    }
+    .validatedAddress {
+        margin-top: 10px;
+        padding: 10px;
+        outline: 1px solid @color-gray80;
+        background: @color-white-smoke;
+    }
+    ins {
+        text-decoration: none;
+        background-color: @color-inserted;
+        outline: 1px solid darken(@color-inserted, 30%);
+    }
+    del {
+        background-color: @color-deleted;
+        outline: 1px solid darken(@color-deleted, 30%);
+    }
+    .errorMessageText {
+        margin-top: 10px;
+        padding: 10px;
+        outline: 1px solid @color-gray80;
+        background: @color-white-smoke;
+    }
+    .instructions a {
+        cursor: pointer;
+    }
+}
