@@ -235,7 +235,7 @@
                 </field>
                 <field id="business_identification_number" translate="label comment" type="text" sortOrder="3020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>VAT Number</label>
-                    <config_path>tax/avatax_settings/business_identification_number</config_path>
+                    <config_path>tax/avatax/business_identification_number</config_path>
                     <comment>VAT Number can also be found at GENERAL: General -> Store Information -> VAT Number</comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -251,7 +251,7 @@
                 <field id="address_validation_enabled" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable Address Validation</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>tax/avatax_settings/address_validation_enabled</config_path>
+                    <config_path>tax/avatax/address_validation_enabled</config_path>
                     <comment>Enable validation of shipping address using the AvaTax Address Validation API</comment>
                     <depends>
                         <field id="enabled">1</field>

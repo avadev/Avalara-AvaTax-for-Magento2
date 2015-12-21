@@ -63,11 +63,11 @@ class Config
 
     const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND = 'tax/avatax/error_action_disable_checkout_message_backend';
 
-    const XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED = "tax/avatax_settings/address_validation_enabled";
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED = "tax/avatax/address_validation_enabled";
 
-    const XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD = "tax/avatax_settings/address_validation_method";
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD = "tax/avatax/address_validation_method";
 
-    const XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED = "tax/avatax_settings/address_validation_countries_enabled";
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED = "tax/avatax/address_validation_countries_enabled";
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE = "tax/avatax/address_validation_instructions_with_choice";
 
