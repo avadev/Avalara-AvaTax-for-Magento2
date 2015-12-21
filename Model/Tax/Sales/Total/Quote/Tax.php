@@ -25,6 +25,7 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\RemoteServiceUnavailableException;
 use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
 use Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory;
+use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
 
 class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
@@ -33,6 +34,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @var InteractionGet
      */
     protected $interactionGetTax = null;
+
+    /**
+     * @var TaxCalculation
+     */
+    protected $taxCalculation = null;
 
     /**
      * @var Config
@@ -55,7 +61,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Tax\Model\Config $taxConfig
      * @param \Magento\Tax\Api\TaxCalculationInterface $taxCalculationService
      * @param QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
-     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory
+     * @param QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory
      * @param TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory
      * @param CustomerAddressFactory $customerAddressFactory
      * @param CustomerAddressRegionFactory $customerAddressRegionFactory
@@ -69,9 +75,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
         \Magento\Tax\Api\TaxCalculationInterface $taxCalculationService,
-        \Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory,
-        \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory,
-        \Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory,
+        QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory,
+        QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory,
+        TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory,
         CustomerAddressFactory $customerAddressFactory,
         CustomerAddressRegionFactory $customerAddressRegionFactory,
         \Magento\Tax\Helper\Data $taxData,
@@ -101,27 +107,31 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     /**
      * Collect tax totals for quote address
      *
-     * @param \Magento\Quote\Model\Quote $quote
+     * @param Quote $quote
      * @param ShippingAssignmentInterface $shippingAssignment
      * @param Address\Total $total
      * @return $this
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws RemoteServiceUnavailableException
      */
     public function collect(
-        \Magento\Quote\Model\Quote $quote,
-        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
-        \Magento\Quote\Model\Quote\Address\Total $total
+        Quote $quote,
+        ShippingAssignmentInterface $shippingAssignment,
+        Address\Total $total
     ) {
         $storeId = $quote->getStoreId();
-        $postcode = $shippingAssignment->getShipping()->getAddress()->getPostcode();
+        // This will allow a merchant to configure default tax settings for their site using Magento's core tax
+        // calculation and AvaTax's calculation will only kick in during cart/checkout. This is useful for countries
+        // where merchants are required to display prices including tax (such as some countries that charge VAT tax).
+        if (!$this->config->isModuleEnabled($storeId)) {
+            return parent::collect($quote, $shippingAssignment, $total);
+        }
+
         // If postcode is not present, then collect totals is being run from a context where customer has not submitted
         // their address, such as on the product listing, product detail, or cart page. Once the user enters their
         // postcode in the "Estimate Shipping & Tax" form on the cart page, or submits their shipping address in the
         // checkout, then a postcode will be present.
-        // This will allow a merchant to configure default tax settings for their site using Magento's core tax
-        // calculation and AvaTax's calculation will only kick in during cart/checkout. This is useful for countries
-        // where merchants are required to display prices including tax (such as some countries that charge VAT tax).
-        if (!$this->config->isModuleEnabled($storeId) || !$postcode) {
+        $postcode = $shippingAssignment->getShipping()->getAddress()->getPostcode();
+        if (!$postcode) {
             return parent::collect($quote, $shippingAssignment, $total);
         }
 
@@ -133,8 +143,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $taxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, false);
         $baseTaxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, true);
 
-        // Get tax from AvaTax API
-        $taxDetailsList = $this->interactionGetTax->getTax($taxQuoteDetails, $baseTaxQuoteDetails, $shippingAssignment, $quote);
+        // Get array of tax details
+        $taxDetailsList = $this->interactionGetTax->getTaxDetailsForQuote($quote, $taxQuoteDetails, $baseTaxQuoteDetails, $shippingAssignment);
 
         if (!$taxDetailsList) {
             switch ($this->config->getErrorAction($quote->getStoreId())) {
@@ -186,46 +196,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     }
 
     /**
-     * Map an item to item data object
+     * Generate \Magento\Tax\Model\Sales\Quote\QuoteDetails object based on shipping assignment
      *
-     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $itemDataObjectFactory
-     * @param Item\AbstractItem $item
-     * @param bool $priceIncludesTax
-     * @param bool $useBaseCurrency
-     * @param string $parentCode
-     * @return \Magento\Tax\Api\Data\QuoteDetailsItemInterface
-     */
-    public function mapItem(
-        \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $itemDataObjectFactory,
-        Item\AbstractItem $item,
-        $priceIncludesTax,
-        $useBaseCurrency,
-        $parentCode = null
-    ) {
-        $quoteDetailsItem = parent::mapItem($itemDataObjectFactory, $item, $priceIncludesTax, $useBaseCurrency, $parentCode);
-
-        // TODO: Pass store ID
-        if (!$this->config->isModuleEnabled()) {
-            return $quoteDetailsItem;
-        }
-
-        /** @var \Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterface $extensionAttribute */
-        $extensionAttribute = $quoteDetailsItem->getExtensionAttributes()
-            ? $quoteDetailsItem->getExtensionAttributes()
-            : $this->extensionFactory->create();
-
-        $extensionAttribute->setAvataxItemCode($item->getSku());
-        $extensionAttribute->setAvataxDescription($item->getName());
-        // TODO: Implement logic for Ref1/Ref2
-        //$extensionAttribute->setAvataxRef1();
-        //$extensionAttribute->setAvataxRef2();
-        $quoteDetailsItem->setExtensionAttributes($extensionAttribute);
-
-        return $quoteDetailsItem;
-    }
-
-    /**
-     * Call tax calculation service to get tax details on the quote and items
+     * Base closely on this method, with the exception of the tax calculation call to calculate taxes:
+     * @see \Magento\Tax\Model\Sales\Total\Quote\Tax::getQuoteTaxDetails()
      *
      * @param ShippingAssignmentInterface $shippingAssignment
      * @param Address\Total $total
@@ -262,20 +236,72 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         return $quoteDetails;
     }
 
+    /**
+     * Map an item to item data object. Add AvaTax details to extension objects.
+     *
+     * @param QuoteDetailsItemInterfaceFactory $itemDataObjectFactory
+     * @param Item\AbstractItem $item
+     * @param bool $priceIncludesTax
+     * @param bool $useBaseCurrency
+     * @param string $parentCode
+     * @return \Magento\Tax\Api\Data\QuoteDetailsItemInterface
+     */
+    public function mapItem(
+        QuoteDetailsItemInterfaceFactory $itemDataObjectFactory,
+        Item\AbstractItem $item,
+        $priceIncludesTax,
+        $useBaseCurrency,
+        $parentCode = null
+    ) {
+        $quoteDetailsItem = parent::mapItem($itemDataObjectFactory, $item, $priceIncludesTax, $useBaseCurrency, $parentCode);
+
+        $storeId = $item->getStore()->getId();
+        if (!$this->config->isModuleEnabled($storeId)) {
+            return $quoteDetailsItem;
+        }
+
+        /** @var \Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterface $extensionAttribute */
+        $extensionAttribute = $quoteDetailsItem->getExtensionAttributes()
+            ? $quoteDetailsItem->getExtensionAttributes()
+            : $this->extensionFactory->create();
+
+        $extensionAttribute->setAvataxItemCode($item->getSku());
+        $extensionAttribute->setAvataxDescription($item->getName());
+        // TODO: Implement logic for Ref1/Ref2
+        //$extensionAttribute->setAvataxRef1();
+        //$extensionAttribute->setAvataxRef2();
+        $quoteDetailsItem->setExtensionAttributes($extensionAttribute);
+
+        return $quoteDetailsItem;
+    }
+
+    /**
+     * Add extension attribute fields to the \Magento\Tax\Model\Sales\Quote\ItemDetails object for the shipping record
+     *
+     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject
+     * @return $this
+     */
     protected function addInfoToQuoteDetailsItemForShipping(\Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject)
     {
         $itemCode = \ClassyLlama\AvaTax\Framework\Interaction\Line::SHIPPING_LINE_TAX_CODE;
-        $itemDescription =
+        $itemDescription = \ClassyLlama\AvaTax\Framework\Interaction\Line::SHIPPING_LINE_DESCRIPTION;
 
         $this->addExtensionAttributesToTaxQuoteDetailsItem(
             $shippingDataObject,
             $itemCode,
-            // TODO: Move this constant into this class?
-            \ClassyLlama\AvaTax\Framework\Interaction\Line::SHIPPING_LINE_DESCRIPTION
+            $itemDescription
         );
         return $this;
     }
 
+    /**
+     * Add AvaTax specific extension attribute fields to a \Magento\Tax\Model\Sales\Quote\ItemDetails object
+     *
+     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $quoteDetailsItem
+     * @param $avaTaxItemCode
+     * @param $avaTaxDescription
+     * @return $this
+     */
     protected function addExtensionAttributesToTaxQuoteDetailsItem(
         \Magento\Tax\Api\Data\QuoteDetailsItemInterface $quoteDetailsItem,
         $avaTaxItemCode,
@@ -295,14 +321,14 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     /**
      * Map item extra taxables
      *
-     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $itemDataObjectFactory
+     * @param QuoteDetailsItemInterfaceFactory $itemDataObjectFactory
      * @param Item\AbstractItem $item
      * @param bool $priceIncludesTax
      * @param bool $useBaseCurrency
      * @return \Magento\Tax\Api\Data\QuoteDetailsItemInterface[]
      */
     public function mapItemExtraTaxables(
-        \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $itemDataObjectFactory,
+        QuoteDetailsItemInterfaceFactory $itemDataObjectFactory,
         Item\AbstractItem $item,
         $priceIncludesTax,
         $useBaseCurrency
@@ -314,15 +340,18 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             $useBaseCurrency
         );
 
+        $storeId = $item->getStore()->getId();
+        if (!$this->config->isModuleEnabled($storeId)) {
+            return $itemDataObjects;
+        }
+
         foreach ($itemDataObjects as $itemDataObject) {
             switch ($itemDataObject->getType()) {
                 case Giftwrapping::ITEM_TYPE:
-                    // TODO: Pass store
-                    $itemCode = $this->config->getSkuShippingGiftWrapItem();
+                    $itemCode = $this->config->getSkuShippingGiftWrapItem($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
-                        // TODO: Move this constant into this class?
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ITEM_LINE_DESCRIPTION
                     );
                     break;
@@ -333,15 +362,15 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     }
 
     /**
-     * Map extra taxables associated with quote
+     * Map extra taxables associated with quote. Add AvaTax details to extension objects.
      *
-     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $itemDataObjectFactory
+     * @param QuoteDetailsItemInterfaceFactory $itemDataObjectFactory
      * @param Address $address
      * @param bool $useBaseCurrency
      * @return \Magento\Tax\Api\Data\QuoteDetailsItemInterface[]
      */
     public function mapQuoteExtraTaxables(
-        \Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory $itemDataObjectFactory,
+        QuoteDetailsItemInterfaceFactory $itemDataObjectFactory,
         Address $address,
         $useBaseCurrency
     ) {
@@ -351,25 +380,26 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             $useBaseCurrency
         );
 
+        $storeId = $address->getQuote()->getStore()->getId();
+        if (!$this->config->isModuleEnabled($storeId)) {
+            return $itemDataObjects;
+        }
+
         foreach ($itemDataObjects as $itemDataObject) {
             switch ($itemDataObject->getType()) {
                 case Giftwrapping::QUOTE_TYPE:
-                    // TODO: Pass store
-                    $itemCode = $this->config->getSkuGiftWrapOrder();
+                    $itemCode = $this->config->getSkuGiftWrapOrder($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
-                        // TODO: Move this constant into this class?
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ORDER_LINE_DESCRIPTION
                     );
                     break;
                 case Giftwrapping::PRINTED_CARD_TYPE:
-                    // TODO: Pass store
-                    $itemCode = $this->config->getSkuShippingGiftWrapCard();
+                    $itemCode = $this->config->getSkuShippingGiftWrapCard($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
-                        // TODO: Move this constant into this class?
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ORDER_LINE_DESCRIPTION
                     );
                     break;

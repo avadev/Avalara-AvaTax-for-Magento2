@@ -12,7 +12,7 @@ use ClassyLlama\AvaTax\Model\Config;
 use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
 
 /**
- * Monolog Hanlder for writing log entries to a database table
+ * Monolog Handler for writing log entries to a database table
  *
  * @author Matt Johnson <matt.johnson@classyllama.com>
  */
