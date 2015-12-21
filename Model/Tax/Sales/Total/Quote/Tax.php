@@ -151,7 +151,12 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                 case Config::ERROR_ACTION_DISABLE_CHECKOUT:
                     $errorMessage = $this->config->getErrorActionDisableCheckoutMessage($quote->getStoreId());
                     // TODO: This exception gets caught by the last try/catch block in \Magento\Checkout\Model\ShippingInformationManagement::saveAddressInformation, so getting our custom exception message to display to user will take a different approach
-                    throw new RemoteServiceUnavailableException($errorMessage);
+                    /**
+                     * Using this exception type will cause Magento to display this error message to the user when
+                     * request is made from the web API
+                     * @see \Magento\Framework\Webapi\ErrorProcessor::maskException
+                     */
+                    throw new \Magento\Framework\Exception\LocalizedException(__($errorMessage));
                     break;
                 case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
                     return parent::collect($quote, $shippingAssignment, $total);

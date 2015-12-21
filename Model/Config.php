@@ -615,16 +615,16 @@ class Config
      * Return "disable checkout" error message based on the current area context
      *
      * @param null $store
-     * @return \Magento\Framework\Phrase
+     * @return string
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getErrorActionDisableCheckoutMessage($store = null)
     {
         // TODO: Ensure that this method of checking area actually works
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
-            return __($this->getErrorActionDisableCheckoutMessageBackend($store));
+            return $this->getErrorActionDisableCheckoutMessageBackend($store);
         } else {
-            return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
+            return $this->getErrorActionDisableCheckoutMessageFrontend($store);
         }
     }
 
