@@ -159,13 +159,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                     throw new \Magento\Framework\Exception\LocalizedException(__($errorMessage));
                     break;
                 case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
-                    return parent::collect($quote, $shippingAssignment, $total);
-                    break;
-                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX:
                 default:
-                    // TODO: Get this fully working, as prices "including taxes" are still showing in checkout, and "Subtotal" is displaying $0. Reference how M1 does this.
-                    $this->clearValues($total);
-                    return null;
                     break;
             }
         } else {

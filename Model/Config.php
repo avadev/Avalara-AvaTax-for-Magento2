@@ -135,9 +135,7 @@ class Config
      */
     const ERROR_ACTION_DISABLE_CHECKOUT = 1;
 
-    const ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX = 2;
-
-    const ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX = 3;
+    const ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX = 2;
     /**#@-*/
 
     /**#@+
