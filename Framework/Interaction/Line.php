@@ -92,8 +92,8 @@ class Line
         'customer_usage_type' => ['type' => 'string', 'length' => 25],
         'exemption_no' => ['type' => 'string', 'length' => 25],
         'description' => ['type' => 'string', 'length' => 255],
-        'qty' => ['type' => 'float'],
-        'amount' => ['type' => 'float'], // Required but $0 value is acceptable so removing required attribute.
+        'qty' => ['type' => 'double'],
+        'amount' => ['type' => 'double'], // Required but $0 value is acceptable so removing required attribute.
         'discounted' => ['type' => 'boolean'],
         'tax_included' => ['type' => 'boolean'],
         'ref1' => ['type' => 'string', 'length' => 250],

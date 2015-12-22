@@ -86,7 +86,7 @@ class StringType extends MetaDataAbstract
      */
     protected function validateLength($value)
     {
-        if ($this->getLength() > -1 &&
+        if ($this->getLength() > 0 &&
             strlen($value) > $this->getLength()) {
             $value = substr($value, 0, $this->getLength());
         }

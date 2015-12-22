@@ -2,6 +2,8 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use Magento\Customer\Api\Data\AddressInterface as CustomerAddressInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressInterfaceFactory;
 use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
@@ -33,6 +35,11 @@ class Address
      * @var Validation
      */
     protected $validation = null;
+
+    /**
+     * @var MetaDataObject
+     */
+    protected $metaDataObject = null;
 
     /**
      * @var AddressFactory
@@ -87,9 +94,9 @@ class Address
         'region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
         'postalCode' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
         'country' => ['type' => 'string', 'length' => 2],
-        'taxRegionId' => ['type' => 'integer'],
-        'latitude' => ['type' => 'string'],
-        'longitude' => ['type' => 'string'],
+        'taxRegionId' => ['type' => 'integer', 'use_in_cache_key' => false],
+        'latitude' => ['type' => 'string', 'use_in_cache_key' => false],
+        'longitude' => ['type' => 'string', 'use_in_cache_key' => false],
     ];
 
     /**
@@ -106,6 +113,7 @@ class Address
     public function __construct(
         Config $config,
         Validation $validation,
+        MetaDataObjectFactory $metaDataObjectFactory,
         AddressFactory $addressFactory,
         AddressServiceSoapFactory $addressServiceSoapFactory,
         RegionCollectionFactory $regionCollectionFactory,
@@ -115,6 +123,7 @@ class Address
     ) {
         $this->config = $config;
         $this->validation = $validation;
+        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this->validAddressFields]);
         $this->addressFactory = $addressFactory;
         $this->addressServiceSoapFactory = $addressServiceSoapFactory;
         $this->regionCollection = $regionCollectionFactory->create();
@@ -182,7 +191,8 @@ class Address
             unset($data['regionId']);
         }
 
-        $data = $this->validation->validateData($data, $this->validAddressFields);
+//        $data = $this->validation->validateData($data, $this->validAddressFields); // TODO: Compare all processes in side by side to ensure validation is same
+        $data = $this->metaDataObject->validateData($data);
         return  $this->addressFactory->create($data);
     }
 

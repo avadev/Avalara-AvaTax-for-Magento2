@@ -17,7 +17,7 @@ class BooleanType extends MetaDataAbstract
 
     /**
      * Set valid options of metadata object
-     * Valid for integer, string, float
+     * Valid for integer, string, double (float)
      * Returns true if valid options is valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>

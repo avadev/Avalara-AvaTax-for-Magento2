@@ -42,7 +42,7 @@ class ArrayType extends MetaDataAbstract
 
     /**
      * Set valid options of metadata object
-     * Valid for integer, string, float
+     * Valid for integer, string, double (float)
      * Returns true if valid options is valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -60,10 +60,10 @@ class ArrayType extends MetaDataAbstract
      * Returns true if children are valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param ValidationObject $subtype
+     * @param MetaDataObject $subtype
      * @return bool
      */
-    public function setSubtype(ValidationObject $subtype = null)
+    public function setSubtype(MetaDataObject $subtype = null)
     {
         $this->data[self::ATTR_SUBTYPE] = $subtype;
         return true;
@@ -89,7 +89,6 @@ class ArrayType extends MetaDataAbstract
                     'because automated array conversion will not be attempted since it can have unexpected results.'
                 ));
             }
-        } else {
             $value = [];
         }
 
@@ -99,7 +98,7 @@ class ArrayType extends MetaDataAbstract
         }
 
         // If the length exceeds the maximum allowed length, throw an exception
-        if ($this->getLength() > 0) {
+        if ($this->getLength() > 0 && count($value) > $this->getLength()) {
             throw new ValidationException(new Phrase(
                 'You attempted to pass data to the AvaTax API with the key of %1,' . '
                          with a length of %2, the max allowed length is %3.',

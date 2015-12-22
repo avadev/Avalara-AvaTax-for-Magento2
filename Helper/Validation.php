@@ -12,14 +12,14 @@ class Validation
      *
      * @var array
      */
-    protected $simpleTypes = ['boolean', 'integer', 'string', 'float'];
+    protected $simpleTypes = ['boolean', 'integer', 'string', 'double'];
 
     /**
      * List of all available types
      *
      * @var array
      */
-    protected $types = ['boolean', 'integer', 'string', 'float', 'object', 'array'];
+    protected $types = ['boolean', 'integer', 'string', 'double', 'object', 'array'];
 
     // All available attribute keys
     const ATTR_TYPE = 'type';

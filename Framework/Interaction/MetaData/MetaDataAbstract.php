@@ -55,7 +55,7 @@ abstract class MetaDataAbstract
      */
     public function __construct($type, $name, array $data = [])
     {
-        if (is_string($type) && is_string($name) && in_array($type, $this::types)) {
+        if (is_string($type) && is_string($name) && in_array($type, self::$types)) {
             $this->data[self::ATTR_TYPE] = $type;
             $this->data[self::ATTR_NAME] = $name;
         } else {
@@ -170,7 +170,7 @@ abstract class MetaDataAbstract
 
     /**
      * Set valid options of metadata object
-     * Valid for integer, string, float
+     * Valid for integer, string, double (float)
      * Returns true if valid options is valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -227,7 +227,7 @@ abstract class MetaDataAbstract
      * Get children metadata objects of this metadata object
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @return ValidationObject
+     * @return MetaDataObject
      */
     public function getSubtype()
     {
@@ -240,10 +240,10 @@ abstract class MetaDataAbstract
      * Returns true if children are valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param ValidationObject $subtype
+     * @param MetaDataObject $subtype
      * @return bool
      */
-    public function setSubtype(ValidationObject $subtype)
+    public function setSubtype(MetaDataObject $subtype)
     {
         return false;
     }

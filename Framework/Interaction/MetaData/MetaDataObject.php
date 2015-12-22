@@ -4,14 +4,14 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\MetaData;
 
 use Magento\Framework\Phrase;
 
-class ValidationObject
+class MetaDataObject
 {
     const ALL_NAME = '*';
 
     /**
-     * @var ValidationObjectFactory
+     * @var MetaDataObjectFactory
      */
-    protected $validationObjectFactory = null;
+    protected $metaDataObjectFactory = null;
 
     /**
      * @var ArrayTypeFactory
@@ -48,7 +48,7 @@ class ValidationObject
      *
      * @var array
      */
-    protected $validationRules = [];
+    protected $metaDataProperties = [];
 
     /**
      * Stores all required fields
@@ -58,47 +58,50 @@ class ValidationObject
     protected $requiredRules = [];
 
     /**
-     * @param ValidationObjectFactory $validationObjectFactory
+     * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param ArrayTypeFactory $arrayTypeFactory
      * @param BooleanTypeFactory $booleanTypeFactory
      * @param DoubleTypeFactory $doubleTypeFactory
      * @param IntegerTypeFactory $integerTypeFactory
      * @param ObjectTypeFactory $objectTypeFactory
      * @param StringTypeFactory $stringTypeFactory
-     * @param array $validationRules
+     * @param array $metaDataProperties
      */
     public function __construct(
-        ValidationObjectFactory $validationObjectFactory,
+        MetaDataObjectFactory $metaDataObjectFactory,
         ArrayTypeFactory $arrayTypeFactory,
         BooleanTypeFactory $booleanTypeFactory,
         DoubleTypeFactory $doubleTypeFactory,
         IntegerTypeFactory $integerTypeFactory,
         ObjectTypeFactory $objectTypeFactory,
         StringTypeFactory $stringTypeFactory,
-        array $validationRules
+        array $metaDataProperties
     ) {
-        $this->validationObjectFactory = $validationObjectFactory;
+        $this->metaDataObjectFactory = $metaDataObjectFactory;
         $this->arrayTypeFactory = $arrayTypeFactory;
         $this->booleanTypeFactory = $booleanTypeFactory;
         $this->doubleTypeFactory = $doubleTypeFactory;
         $this->integerTypeFactory = $integerTypeFactory;
         $this->objectTypeFactory = $objectTypeFactory;
         $this->stringTypeFactory = $stringTypeFactory;
-        foreach ($validationRules as $name => $validationRule) {
-            if (in_array($validationRule[MetaDataAbstract::ATTR_TYPE], MetaDataAbstract::$types)) {
-                if (isset($validationRule[MetaDataAbstract::ATTR_SUBTYPE])) {
-                    $validationRule[MetaDataAbstract::ATTR_SUBTYPE] = $this->validationObjectFactory->create(
-                        ['validationRules' => $validationRule[MetaDataAbstract::ATTR_SUBTYPE]]
+        foreach ($metaDataProperties as $name => $metaDataRule) {
+            if (in_array($metaDataRule[MetaDataAbstract::ATTR_TYPE], MetaDataAbstract::$types)) {
+                $subtype = isset($metaDataRule[MetaDataAbstract::ATTR_SUBTYPE]) ?
+                    $metaDataRule[MetaDataAbstract::ATTR_SUBTYPE] :
+                    null;
+                if (isset($subtype) && !($subtype instanceof $this)) {
+                    $metaDataRule[MetaDataAbstract::ATTR_SUBTYPE] = $this->metaDataObjectFactory->create(
+                        ['metaDataProperties' => $subtype]
                     );
                 }
 
-                $factoryVariableName = $validationRule[MetaDataAbstract::ATTR_TYPE] . 'TypeFactory';
+                $factoryVariableName = $metaDataRule[MetaDataAbstract::ATTR_TYPE] . 'TypeFactory';
 
                 /** @var $rule MetaDataAbstract */
                 $rule = $this->$factoryVariableName->create(
-                    ['name' => $name, 'data' => $validationRule]
+                    ['name' => $name, 'data' => $metaDataRule]
                 );
-                $this->validationRules[$rule->getName()] = $rule;
+                $this->metaDataProperties[$rule->getName()] = $rule;
 
                 if ($rule->getRequired()) {
                     $this->requiredRules[$rule->getName()] = $rule;
@@ -121,20 +124,20 @@ class ValidationObject
         $validatedData = [];
 
         /** @var $defaultValidator MetaDataAbstract */
-        $defaultValidator = isset($this->validationRules[self::ALL_NAME]) ?
-            $this->validationRules[self::ALL_NAME] :
+        $defaultValidator = isset($this->metaDataProperties[self::ALL_NAME]) ?
+            $this->metaDataProperties[self::ALL_NAME] :
             null;
 
         foreach ($data as $name => $item) {
             /** @var $validator MetaDataAbstract */
-            $validator = isset($this->validationRules[$name]) ? $this->validationRules[$name] : $defaultValidator;
+            $validator = isset($this->metaDataProperties[$name]) ? $this->metaDataProperties[$name] : $defaultValidator;
             if (!is_null($validator)) {
                 $validatedData[$name] = $validator->validateData($item);
             }
         }
 
         foreach ($this->requiredRules as $requiredRule) {
-            if (!isset($validatedData[$requiredRule->getName()])) {
+            if (!array_key_exists($requiredRule->getName(), $validatedData)) {
                 throw new ValidationException(new Phrase(
                     '%1 is a required field and was either not passed in or did not pass validation.',
                     [

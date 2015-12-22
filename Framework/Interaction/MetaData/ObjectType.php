@@ -19,7 +19,7 @@ class ObjectType extends MetaDataAbstract
 
     /**
      * Set valid options of metadata object
-     * Valid for integer, string, float
+     * Valid for integer, string, double (float)
      * Returns true if valid options is valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -65,7 +65,6 @@ class ObjectType extends MetaDataAbstract
             if ($this->getRequired()) {
                 throw new ValidationException(new Phrase('The value you passed in is not an object.'));
             }
-        } else {
             $value = null;
         }
 
