@@ -160,6 +160,13 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                     break;
                 case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
                 default:
+                    /**
+                     * Note: while this should return Magento's tax calculation, the tax calculation may be slightly
+                     * off, as these two collect methods will not have run:
+                     * @see \Magento\Tax\Model\Sales\Total\Quote\Shipping::collect()
+                     * @see \Magento\Tax\Model\Sales\Total\Quote\Subtotal::collect()
+                     */
+                    return parent::collect($quote, $shippingAssignment, $total);
                     break;
             }
         } else {
