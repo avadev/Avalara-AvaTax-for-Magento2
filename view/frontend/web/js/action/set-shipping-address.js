@@ -31,10 +31,6 @@ define(
         return function (validSelected) {
             var payload;
 
-            if (!quote.billingAddress()) {
-                selectBillingAddressAction(quote.shippingAddress());
-            }
-
             if (validSelected) {
                 updateAddress(addressModel.validAddress());
             } else {

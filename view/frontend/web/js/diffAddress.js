@@ -37,12 +37,12 @@ define([], function(){
 
             if (out.n.length == 0) {
                 for (var i = 0; i < out.o.length; i++) {
-                    str += '<del>' + out.o[i] + "</del>" + oSpace[i] + " ";
+                    str += '<del>' + out.o[i] + "</del>" + oSpace[i];
                 }
             } else {
                 if (out.n[0].text == null) {
                     for (n = 0; n < out.o.length && out.o[n].text == null; n++) {
-                        str += '<del>' + out.o[n] + "</del>" + oSpace[n] + " ";
+                        str += '<del>' + out.o[n] + "</del>" + oSpace[n];
                     }
                 }
 
@@ -55,7 +55,7 @@ define([], function(){
                         var pre = "";
 
                         for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text == null; n++ ) {
-                            pre += '<del>' + out.o[n] + "</del>" + oSpace[n] + " ";
+                            pre += '<del>' + out.o[n] + "</del>" + oSpace[n];
                         }
                         str += out.n[i].text + nSpace[i] + pre;
                     }

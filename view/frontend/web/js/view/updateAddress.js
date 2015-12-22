@@ -13,8 +13,7 @@ define(
             var quoteShippingAddress = quote.shippingAddress();
             var newAddress = $.extend(quoteShippingAddress, address);
             quote.shippingAddress(newAddress);
-            // TODO: Find a more consistent method to check for when that checkbox is selected
-            if ($('input[name=billing-address-same-as-shipping]:checked')) {
+            if ($('input[name=billing-address-same-as-shipping]').filter(':checked').length) {
                 quote.billingAddress(newAddress);
             }
         };

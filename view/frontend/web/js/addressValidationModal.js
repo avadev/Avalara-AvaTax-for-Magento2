@@ -100,20 +100,26 @@ define([
                 if (isValid) {
                     e.preventDefault();
                     var addressObject = addressConverter.formAddressDataToCustomerAddress(self.serializeObject($(self.formSelector)));
-                    addressModel.originalAddress(addressObject);
-                    $(self.bindingElement).trigger('processStart');
-                    setCustomerAddress().done(function (response) {
-                        if (addressModel.error() != null) {
-                            $(this.errorInstructionSelector).val($(this.errorInstructionSelector).replace('%s', addressModel.error()));
-                        }
-                        customerValidationHandler.validationResponseHandler(response);
-                        if (diffAddress.isDifferent || addressModel.error() != null) {
-                            self.openModal();
-                        } else {
-                            $(self.formSelector).off();
-                            $(self.formSelector).submit();
-                        }
-                    });
+                    var inCountry = $.inArray(addressObject.countryId, self.options.countriesEnabled.split(',')) >= 0;
+                    if (inCountry) {
+                        addressModel.originalAddress(addressObject);
+                        $(self.bindingElement).trigger('processStart');
+                        setCustomerAddress().done(function (response) {
+                            if (addressModel.error() != null) {
+                                $(this.errorInstructionSelector).val($(this.errorInstructionSelector).replace('%s', addressModel.error()));
+                            }
+                            customerValidationHandler.validationResponseHandler(response);
+                            if ((diffAddress.isDifferent || addressModel.error() != null)) {
+                                self.openModal();
+                            } else {
+                                $(self.formSelector).off();
+                                $(self.formSelector).submit();
+                            }
+                        });
+                    } else {
+                        $(self.formSelector).off();
+                        $(self.formSelector).submit();
+                    }
                 }
             });
         },
