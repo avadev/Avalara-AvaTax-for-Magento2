@@ -695,6 +695,10 @@ class SetupUtil
             ->setCheckoutMethod('register')
             ->setPasswordHash($this->accountManagement->getPasswordHash(static::CUSTOMER_PASSWORD));
 
+        if (isset($quoteData['currency_rates'])) {
+            $this->createCurrencyRate($quoteData['currency_rates'], $quote);
+        }
+
         return $quote;
     }
 
@@ -786,6 +790,33 @@ class SetupUtil
         } else {
             throw new \Exception('Unrecognized type: ' . $product->getTypeId());
         }
+    }
+
+    /**
+     * Create currency rates and set rate on quote
+     *
+     * @param $ratesData
+     * @param \Magento\Quote\Model\Quote $quote
+     */
+    protected function createCurrencyRate($ratesData, \Magento\Quote\Model\Quote $quote)
+    {
+        $baseCurrencyCode = $ratesData['base_currency_code'];
+        $quoteCurrencyCode = $ratesData['quote_currency_code'];
+        $currencyConversionRate = $ratesData['currency_conversion_rate'];
+
+        $newRate = [
+            $baseCurrencyCode => [$quoteCurrencyCode => $currencyConversionRate]
+        ];
+        /** @var \Magento\Directory\Model\Currency $currency */
+        $currency = $this->objectManager->get('Magento\Directory\Model\Currency');
+        $currency->saveRates($newRate);
+
+        // Set the currency code on the store so that the \Magento\Quote\Model\Quote::beforeSave() method sets the
+        // quote_currency_code to the appropriate value
+        $quote->getStore()->getCurrentCurrency()->setData('currency_code', $quoteCurrencyCode);
+
+        // Save the quote to register the quote_currency_code
+        $quote->save();
     }
 
     /**

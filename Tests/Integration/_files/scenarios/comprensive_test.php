@@ -27,10 +27,11 @@ $taxCalculationData['simple_product'] = [
                 'discount_amount' => 15,
             ],
         ],
-        // TODO: Add support for currency
-        'base_currency_code' => 'USD', // TODO: Replace with constant,
-        'quote_currency_code' => 'EUR', // TODO: Replace with constant,
-        'currency_conversion_rate' => 2, // TODO: Replace with constant,
+        'currency_rates' => [
+            'base_currency_code' => 'USD',
+            'quote_currency_code' => 'EUR',
+            'currency_conversion_rate' => 2,
+        ],
         'items' => [
             [
                 'type' => \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
