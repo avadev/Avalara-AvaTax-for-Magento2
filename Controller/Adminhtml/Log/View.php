@@ -55,6 +55,7 @@ class View extends Log
     public function execute()
     {
         try {
+            /** @var \ClassyLlama\AvaTax\Model\Log $model */
             $model = $this->initLog();
             if (!$model->getId()) {
                 $this->messageManager->addError(__('Requested log no longer exists.'));

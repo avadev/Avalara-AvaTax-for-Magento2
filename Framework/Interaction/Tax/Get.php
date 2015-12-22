@@ -127,7 +127,9 @@ class Get
                         'result' => var_export($getTaxResult, true),
                     ]
                 );
-                $this->extraDebug($getTaxRequest, $getTaxResult, $object);
+
+                // TODO: If debug logging is on, log the extra debug info
+                //$this->extraDebug($getTaxRequest, $getTaxResult, $object);
 
                 // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
                 $avataxTaxAmount = abs($getTaxResult->getTotalTax());
