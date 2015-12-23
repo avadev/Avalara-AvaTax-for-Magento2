@@ -209,7 +209,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         $quoteItems = $quoteAddress->getAllItems();
         foreach ($quoteItems as $item) {
             /** @var  \Magento\Quote\Model\Quote\Address\Item $item */
-            $sku = $item->getProduct()->getSku();
+            $sku = $this->getActualSkuForQuoteItem($item);
 
             $this->assertTrue(
                 isset($expectedResults['items_data'][$sku]),
@@ -222,7 +222,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
 
         // Make sure all 'expected_result' items are present in quote
         foreach ($quoteItems as $item) {
-            unset($expectedResults['items_data'][$item->getProduct()->getSku()]);
+            unset($expectedResults['items_data'][$this->getActualSkuForQuoteItem($item)]);
         }
         $this->assertEmpty(
             $expectedResults['items_data'],
@@ -231,6 +231,18 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         );
 
         return $this;
+    }
+
+    /**
+     * Get actual SKU for quote item. This used since configurable product quote items report the child SKU when
+     * $item->getProduct()->getSku() is called
+     *
+     * @param \Magento\Quote\Model\Quote\Item\AbstractItem $item
+     * @return mixed
+     */
+    protected function getActualSkuForQuoteItem(\Magento\Quote\Model\Quote\Item\AbstractItem $item)
+    {
+        return $item->getProduct()->getData('sku');
     }
 
     /**

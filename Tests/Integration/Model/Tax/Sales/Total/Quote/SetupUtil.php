@@ -141,6 +141,11 @@ class SetupUtil
     ];
 
     /**
+     * Name to be used for configurable attribute
+     */
+    const CONFIGURABLE_ATTRIBUTE_NAME = 'config_attribute';
+
+    /**
      * Object manager
      *
      * @var \Magento\Framework\ObjectManagerInterface
@@ -453,9 +458,10 @@ class SetupUtil
      * @param string $sku
      * @param float $price
      * @param int $taxClassId
+     * @param array|null $additionalAttributes
      * @return \Magento\Catalog\Model\Product
      */
-    public function createSimpleProduct($sku, $price, $taxClassId)
+    public function createSimpleProduct($sku, $price, $taxClassId, $additionalAttributes = [])
     {
         /** @var \Magento\Catalog\Model\Product $product */
         $product = $this->objectManager->create('Magento\Catalog\Model\Product');
@@ -478,11 +484,178 @@ class SetupUtil
             ->setMetaKeyword('meta keyword')
             ->setMetaDescription('meta description')
             ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
-            ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
-            ->save();
+            ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
+
+        foreach ($additionalAttributes as $key => $value) {
+            $product->setData($key, $value);
+        }
+
+        $product->save();
 
         $product = $product->load($product->getId());
+        $this->products[$sku] = $product;
         return $product;
+    }
+
+    /**
+     * Create configurable product and children
+     *
+     * This file was inspired by
+     * @see dev/tests/integration/testsuite/Magento/ConfigurableProduct/_files/product_configurable.php
+     *
+     * @param $sku
+     * @param $price
+     * @param $taxClassId
+     * @param $itemData
+     * @return \Magento\Catalog\Model\Product
+     */
+    protected function createConfigurableProduct($sku, $price, $taxClassId, $itemData)
+    {
+        if (isset($this->products[$sku])) {
+            return $this->products[$sku];
+        }
+
+        $options = $itemData['options'];
+
+        $attribute = $this->createConfigurableAttribute(self::CONFIGURABLE_ATTRIBUTE_NAME, $options);
+
+        /* Create simple products per each option value*/
+        /** @var \Magento\Eav\Api\Data\AttributeOptionInterface[] $options */
+        $options = $attribute->getOptions();
+        array_shift($options); //remove the first option which is empty
+
+        $associatedProductIds = [];
+        $attributeValues = [];
+        $i = 1;
+        foreach ($options as $option) {
+            $taxClassName = self::PRODUCT_TAX_CLASS_1;
+            $taxClassId = $this->productTaxClasses[$taxClassName];
+            $childSku = $sku . '_child' . $i++;
+            $additionalAttributes = [
+                self::CONFIGURABLE_ATTRIBUTE_NAME => $option->getValue(),
+            ];
+
+            $attributeValues[] = [
+                'label' => 'test',
+                'attribute_id' => $attribute->getId(),
+                'value_index' => $option->getValue(),
+            ];
+
+            // TODO: Add child price support?
+            $associatedProductIds[] = $this->createSimpleProduct($childSku, $price, $taxClassId, $additionalAttributes)->getId();
+        }
+
+        /** @var $product \Magento\Catalog\Model\Product */
+        $product = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create('Magento\Catalog\Model\Product');
+        $product->setTypeId(\Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE)
+            ->setAttributeSetId(4)
+            ->setWebsiteIds([1])
+            ->setName('Configurable Product')
+            ->setSku($sku)
+            ->setTaxClassId($taxClassId)
+            ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
+            ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
+            ->setStockData(['use_config_manage_stock' => 1, 'is_in_stock' => 1])
+            ->setAssociatedProductIds($associatedProductIds)
+            ->setConfigurableAttributesData(
+                [
+                    [
+                        'attribute_id' => $attribute->getId(),
+                        'attribute_code' => $attribute->getAttributeCode(),
+                        'frontend_label' => 'test',
+                        'values' => $attributeValues,
+                    ],
+                ]
+            )
+            ->save();
+
+        $this->products[$sku] = $product;
+
+        return $product;
+    }
+
+    /**
+     * Get configurable attribute created earlier
+     *
+     * @param $attributeName
+     * @return bool|\Magento\Catalog\Model\ResourceModel\Eav\Attribute
+     */
+    protected function getConfigurableAttribute($attributeName)
+    {
+        if (isset($this->configurableAttributes[$attributeName])) {
+            return $this->configurableAttributes[$attributeName];
+        }
+        return false;
+    }
+
+    /**
+     * Create configurable attribute
+     *
+     * @see dev/tests/integration/testsuite/Magento/ConfigurableProduct/_files/configurable_attribute.php
+     *
+     * @param $attributeName
+     * @param array $options
+     * @return \Magento\Catalog\Model\ResourceModel\Eav\Attribute
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function createConfigurableAttribute($attributeName, $options)
+    {
+        if (isset($this->configurableAttributes[$attributeName])) {
+            return $this->configurableAttributes[$attributeName];
+        }
+
+        $eavConfig = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->get('Magento\Eav\Model\Config');
+        $attribute = $eavConfig->getAttribute('catalog_product', $attributeName);
+        if ($attribute instanceof \Magento\Eav\Model\Entity\Attribute\AbstractAttribute
+            && $attribute->getId()
+        ) {
+            $attribute->delete();
+        }
+        $eavConfig->clear();
+        /* Create attribute */
+        /** @var $installer \Magento\Catalog\Setup\CategorySetup */
+        $installer = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create('Magento\Catalog\Setup\CategorySetup');
+
+        /** @var $attribute \Magento\Catalog\Model\ResourceModel\Eav\Attribute */
+        $attribute = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            'Magento\Catalog\Model\ResourceModel\Eav\Attribute'
+        );
+        $attribute->setData(
+            [
+                'attribute_code' => $attributeName,
+                'entity_type_id' => $installer->getEntityTypeId('catalog_product'),
+                'is_global' => 1,
+                'is_user_defined' => 1,
+                'frontend_input' => 'select',
+                'is_unique' => 0,
+                'is_required' => 1,
+                'is_searchable' => 0,
+                'is_visible_in_advanced_search' => 0,
+                'is_comparable' => 0,
+                'is_filterable' => 0,
+                'is_filterable_in_search' => 0,
+                'is_used_for_promo_rules' => 0,
+                'is_html_allowed_on_front' => 1,
+                'is_visible_on_front' => 0,
+                'used_in_product_listing' => 0,
+                'used_for_sort_by' => 0,
+                'frontend_label' => ['Test Configurable'],
+                'backend_type' => 'int',
+                'option' => $options,
+            ]
+        );
+        $attribute->save();
+
+        /* Assign attribute to attribute set */
+        $installer->addAttributeToGroup('catalog_product', 'Default', 'General', $attribute->getId());
+
+        /** @var \Magento\Eav\Model\Config $eavConfig */
+        $eavConfig = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->get('Magento\Eav\Model\Config');
+        $eavConfig->clear();
+
+        $this->configurableAttributes[$attributeName] = $attribute;
+
+        return $attribute;
     }
 
     /**
@@ -719,10 +892,12 @@ class SetupUtil
                 isset($itemData['tax_class_name']) ? $itemData['tax_class_name'] : self::PRODUCT_TAX_CLASS_1;
             $taxClassId = $this->productTaxClasses[$taxClassName];
 
-            if ($itemData['type'] == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE) {
-                $product = $this->createSimpleProduct($sku, $price, $taxClassId);
-            } else {
+            if ($itemData['type'] == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
                 $product = $this->createBundledProduct($sku, $price, $taxClassId, $itemData);
+            } elseif ($itemData['type'] == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+                $product = $this->createConfigurableProduct($sku, $price, $taxClassId, $itemData);
+            } else {
+                $product = $this->createSimpleProduct($sku, $price, $taxClassId);
             }
             $this->addProductToQuote($quote, $product, $qty, $itemData);
         }
@@ -748,6 +923,27 @@ class SetupUtil
     ) {
         if ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE) {
             $quote->addProduct($product, $qty);
+        } elseif ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+
+            $attribute = $this->getConfigurableAttribute(self::CONFIGURABLE_ATTRIBUTE_NAME);
+
+            /** @var \Magento\Eav\Api\Data\AttributeOptionInterface[] $options */
+            $options = $attribute->getOptions();
+            array_shift($options); //remove the first option which is empty
+
+            /** @var DataObject $requestInfo */
+            $requestInfo = new \Magento\Framework\DataObject;
+
+            if (!empty($options)) {
+                $option = $options[0];
+                $requestData = [];
+                /** @var ConfigurableItemOptionValueInterface $option */
+                $requestData['super_attribute'][$attribute->getId()] = $option->getValue();
+                $requestInfo->addData($requestData);
+            }
+
+            $quote->addProduct($product, $requestInfo);
+
         } elseif ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
             /** @var $typeInstance \Magento\Bundle\Model\Product\Type */
             //Load options
