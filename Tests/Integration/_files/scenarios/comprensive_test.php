@@ -161,6 +161,8 @@ $taxCalculationData['simple_product'] = [
         ],
     ],
     'expected_results' => [
+        // TODO: This won't work as bundled products are triggering some sort of error when \ClassyLlama\AvaTax\Tests\Integration\Model\Tax\Sales\Total\Quote\TaxTest::testNativeVsMagentoTaxCalculation is run
+        'compare_with_native_tax_calculation' => true,
         'address_data' => [
             'subtotal' => 400,
             'base_subtotal' => 400,
@@ -184,6 +186,9 @@ $taxCalculationData['simple_product'] = [
             'base_shipping_discount_tax_compensation_amount' => 0,
             'grand_total' => 20 + $taxAmount,
             'base_grand_total' => 20 + $taxAmount,
+        ],
+        'address_data_diff_native_vs_magento' => [
+            'applied_taxes'
         ],
         'items_data' => [
             'simple1' => [

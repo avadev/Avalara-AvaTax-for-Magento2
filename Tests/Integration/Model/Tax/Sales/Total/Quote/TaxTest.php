@@ -20,6 +20,36 @@ class TaxTest extends \PHPUnit_Framework_TestCase
      */
     protected $setupUtil = null;
 
+    protected $quoteItemsToCompare = [
+        'qty',
+        'price',
+        'base_price',
+        'custom_price',
+        'discount_percent',
+        'discount_amount',
+        'base_discount_amount',
+        'tax_percent',
+        'tax_amount',
+        'base_tax_amount',
+        'row_total',
+        'base_row_total',
+        'row_total_with_discount',
+        'base_tax_before_discount',
+        'tax_before_discount',
+        'original_custom_price',
+        'base_cost',
+        'price_incl_tax',
+        'base_price_incl_tax',
+        'row_total_incl_tax',
+        'base_row_total_incl_tax',
+        'discount_tax_compensation_amount',
+        'base_discount_tax_compensation_amount',
+        'gw_base_price',
+        'gw_price',
+        'gw_base_tax_amount',
+        'gw_tax_amount',
+    ];
+
     /**
      * Test taxes collection for quote.
      *
@@ -272,6 +302,203 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         $quoteAddress = $quote->getShippingAddress();
         $totalsCollector->collectAddressTotals($quote, $quoteAddress);
         $this->verifyResult($quoteAddress, $expectedResults);
+    }
+
+    /**
+     * Test tax calculation with various configuration and combination of items
+     * This method will test various collectors through $quoteAddress->collectTotals() method
+     *
+     * @param array $configData
+     * @param array $quoteData
+     * @param array $expectedResults
+     * @magentoDbIsolation enabled
+     * @magentoAppIsolation enabled
+     * @dataProvider taxDataProvider
+     * @return void
+     */
+    public function testNativeVsMagentoTaxCalculation($configData, $quoteData, $expectedResults)
+    {
+        // Only compare with native Magento taxes if this test is configured to do so
+        if (!isset($expectedResults['compare_with_native_tax_calculation'])
+            || !$expectedResults['compare_with_native_tax_calculation']
+        ) {
+            return;
+        }
+
+        /** @var  \Magento\Framework\ObjectManagerInterface $objectManager */
+        $objectManager = Bootstrap::getObjectManager();
+        //Setup tax configurations
+        $this->setupUtil = new SetupUtil($objectManager);
+        // Ensure AvaTax is disabled
+        $nativeConfigData = [
+            SetupUtil::CONFIG_OVERRIDES => [
+                \ClassyLlama\AvaTax\Model\Config::XML_PATH_AVATAX_MODULE_ENABLED => 0,
+            ],
+        ];
+        $nativeQuoteAddress = $this->calculateTaxes($nativeConfigData, $quoteData);
+        $avaTaxQuoteAddress = $this->calculateTaxes($configData, $quoteData, false);
+        $this->compareResults($nativeQuoteAddress, $avaTaxQuoteAddress, $expectedResults);
+    }
+
+    /**
+     * Calculate taxes based on the specified config values
+     *
+     * @param $configData
+     * @param $quoteData
+     * @param bool $setupTaxData
+     * @return \Magento\Quote\Model\Quote\Address
+     */
+    protected function calculateTaxes($configData, $quoteData, $setupTaxData = true)
+    {
+        /** @var  \Magento\Framework\ObjectManagerInterface $objectManager */
+        $objectManager = Bootstrap::getObjectManager();
+        /** @var  \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector */
+        $totalsCollector = $objectManager->create('Magento\Quote\Model\Quote\TotalsCollector');
+
+        if ($setupTaxData) {
+            $this->setupUtil->setupTax($configData);
+        } elseif (!empty($configData[SetupUtil::CONFIG_OVERRIDES])) {
+            //Tax calculation configuration
+            $this->setupUtil->setConfig($configData[SetupUtil::CONFIG_OVERRIDES]);
+        }
+
+        $quote = $this->setupUtil->setupQuote($quoteData);
+        $quoteAddress = $quote->getShippingAddress();
+        $totalsCollector->collectAddressTotals($quote, $quoteAddress);
+        return $quoteAddress;
+    }
+
+    /**
+     * Compare two quote addresses and ensure that their values either match or don't match
+     *
+     * @param \Magento\Quote\Model\Quote\Address $nativeQuoteAddress
+     * @param \Magento\Quote\Model\Quote\Address $avaTaxQuoteAddress
+     * @param $expectedResults
+     * @return $this
+     * @throws \Exception
+     */
+    protected function compareResults(
+        \Magento\Quote\Model\Quote\Address $nativeQuoteAddress,
+        \Magento\Quote\Model\Quote\Address $avaTaxQuoteAddress,
+        $expectedResults
+    ) {
+        $addressData = $expectedResults['address_data'];
+        $addressDataDiff = isset($expectedResults['address_data_diff_native_vs_magento'])
+            ? $expectedResults['address_data_diff_native_vs_magento']
+            : [];
+        $this->compareQuoteAddresses($nativeQuoteAddress, $avaTaxQuoteAddress, $addressData, $addressDataDiff);
+
+        $avaTaxItemsBySku = [];
+        foreach ($avaTaxQuoteAddress->getAllItems() as $item) {
+            if (isset($avaTaxItemsBySku[$this->getActualSkuForQuoteItem($item)])) {
+                throw new \Exception(__('Quote contains items containing the same SKU.'
+                    . ' This will not work since SKU must be used as the GUID to compare quote items.'));
+            }
+            $avaTaxItemsBySku[$this->getActualSkuForQuoteItem($item)] = $item;
+        }
+
+        $quoteItems = $nativeQuoteAddress->getAllItems();
+        foreach ($quoteItems as $item) {
+            /** @var  \Magento\Quote\Model\Quote\Address\Item $item */
+            $sku = $this->getActualSkuForQuoteItem($item);
+
+            $this->assertTrue(
+                isset($expectedResults['items_data'][$sku]),
+                "Missing array key in 'expected_results' for $sku"
+            );
+
+            if (!isset($avaTaxItemsBySku[$sku])) {
+                throw new \Exception(__('Sku %1 was not found in AvaTax quote.', $sku));
+            }
+
+            $avaTaxItem = $avaTaxItemsBySku[$sku];
+            $this->compareItems($item, $avaTaxItem);
+        }
+
+        // Make sure all 'expected_result' items are present in quote
+        foreach ($quoteItems as $item) {
+            unset($expectedResults['items_data'][$this->getActualSkuForQuoteItem($item)]);
+        }
+        $this->assertEmpty(
+            $expectedResults['items_data'],
+            'The following expected_results items were not present in quote: '
+            . implode(', ', array_keys($expectedResults['items_data']))
+        );
+
+        return $this;
+    }
+
+    /**
+     * Compare quote address and ensure fields match / don't match
+     *
+     * @param \Magento\Quote\Model\Quote\Address $nativeQuoteAddress
+     * @param \Magento\Quote\Model\Quote\Address $avaTaxQuoteAddress
+     * @param array $expectedAddressData
+     * @param array $expectedAddressDataDiff
+     * @return $this
+     */
+    protected function compareQuoteAddresses($nativeQuoteAddress, $avaTaxQuoteAddress, $expectedAddressData, $expectedAddressDataDiff)
+    {
+        foreach ($expectedAddressData as $key => $value) {
+            try {
+                $this->assertEquals(
+                    $nativeQuoteAddress->getData($key),
+                    $avaTaxQuoteAddress->getData($key),
+                    'native/AvaTax calcalation does not match for quote field: ' . $key
+                );
+            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
+                $this->logError($e->getMessage());
+            }
+        }
+
+        foreach ($expectedAddressDataDiff as $value) {
+            try {
+                $this->assertNotEquals(
+                    $nativeQuoteAddress->getData($value),
+                    $avaTaxQuoteAddress->getData($value),
+                    'native/AvaTax calcalation matches (but shouldn\'t be) for quote field: ' . $value
+                );
+            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
+                $this->logError($e->getMessage());
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Compare quote items and ensure fields match
+     *
+     * @param \Magento\Quote\Model\Quote\Item\AbstractItem $nativeItem
+     * @param \Magento\Quote\Model\Quote\Item\AbstractItem $avaTaxItem
+     * @return $this
+     */
+    protected function compareItems(
+        \Magento\Quote\Model\Quote\Item\AbstractItem $nativeItem,
+        \Magento\Quote\Model\Quote\Item\AbstractItem $avaTaxItem
+    ) {
+        foreach ($this->quoteItemsToCompare as $value) {
+            try {
+                $this->assertEquals(
+                    $nativeItem->getData($value),
+                    $avaTaxItem->getData($value),
+                    'native/AvaTax calcalation does not match for quote item field: ' . $value
+                );
+            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
+                $this->logError($this->getActualSkuForQuoteItem($nativeItem) . ' ' . $e->getMessage());
+            }
+        }
+
+        return $this;
+    }
+
+    protected function logError($message)
+    {
+        file_put_contents(
+            BP . '/var/log/avatax_tests.log',
+            $message . PHP_EOL,
+            FILE_APPEND
+        );
     }
 
     /**

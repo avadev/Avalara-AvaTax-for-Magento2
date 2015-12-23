@@ -27,6 +27,7 @@ class SetupUtil
 
     const TAX_RATE_TX = 'tax_rate_tx';
     const TAX_RATE_AUSTIN = 'tax_rate_austin';
+    const TAX_RATE_MI = 'tax_rate_mi';
     const TAX_RATE_SHIPPING = 'tax_rate_shipping';
     const TAX_STORE_RATE = 'tax_store_rate';
     const REGION_TX = '57';
@@ -81,6 +82,16 @@ class SetupUtil
                 'tax_postcode' => '*',
                 'code' => self::TAX_STORE_RATE,
                 'rate' => '8.25',
+            ],
+            'id' => null,
+        ],
+        self::TAX_RATE_MI => [
+            'data' => [
+                'tax_country_id' => self::COUNTRY_US,
+                'tax_region_id' => self::REGION_MI,
+                'tax_postcode' => '*',
+                'code' => self::TAX_RATE_MI,
+                'rate' => '6',
             ],
             'id' => null,
         ],
@@ -144,6 +155,29 @@ class SetupUtil
      * Name to be used for configurable attribute
      */
     const CONFIGURABLE_ATTRIBUTE_NAME = 'config_attribute';
+
+    /**
+     * Storage for customer so that it can be reused by this test
+     * @see \ClassyLlama\AvaTax\Tests\Integration\Model\Tax\Sales\Total\Quote\TaxTest::testNativeVsMagentoTaxCalculation
+     *
+     * @var null
+     */
+    protected $customer = null;
+
+    /**
+     * Storage for products so that they can be reused by this test
+     * @see \ClassyLlama\AvaTax\Tests\Integration\Model\Tax\Sales\Total\Quote\TaxTest::testNativeVsMagentoTaxCalculation
+     *
+     * @var null
+     */
+    protected $products = [];
+
+    /**
+     * Storage for configurable attributes so they can be retrieved after being created
+     *
+     * @var array
+     */
+    protected $configurableAttributes = [];
 
     /**
      * Object manager
@@ -214,7 +248,7 @@ class SetupUtil
      * @param array $configData
      * @return $this
      */
-    protected function setConfig($configData)
+    public function setConfig($configData)
     {
         /** @var \Magento\Config\Model\ResourceModel\Config $config */
         $config = $this->objectManager->get('Magento\Config\Model\ResourceModel\Config');
@@ -318,6 +352,7 @@ class SetupUtil
     {
         $taxRateIds = [
             $this->taxRates[self::TAX_RATE_TX]['id'],
+            $this->taxRates[self::TAX_RATE_MI]['id'],
             $this->taxRates[self::TAX_STORE_RATE]['id'],
         ];
 
@@ -463,6 +498,10 @@ class SetupUtil
      */
     public function createSimpleProduct($sku, $price, $taxClassId, $additionalAttributes = [])
     {
+        if (isset($this->products[$sku])) {
+            return $this->products[$sku];
+        }
+
         /** @var \Magento\Catalog\Model\Product $product */
         $product = $this->objectManager->create('Magento\Catalog\Model\Product');
         $product->isObjectNew(true);
@@ -672,6 +711,10 @@ class SetupUtil
      */
     protected function createBundledProduct($sku, $price, $taxClassId, $itemData)
     {
+        if (isset($this->products[$sku])) {
+            return $this->products[$sku];
+        }
+
         $objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
 
         $children = [];
@@ -692,8 +735,8 @@ class SetupUtil
             $optionsKey++;
 
             $selectedSkus = $optionsData['selected_skus'];
-            foreach ($selectedSkus as $sku) {
-                $product = $children[$sku];
+            foreach ($selectedSkus as $selectedSku) {
+                $product = $children[$selectedSku];
                 $optionGroup[] = [
                     'product_id' => $product->getId(),
                     'selection_qty' => 1, // The qty of this option is set by the ['bundled_options']['qty'] value
@@ -732,6 +775,8 @@ class SetupUtil
             ->setBundleSelectionsData($bundleSelectionsData)
             ->save();
 
+        $this->products[$sku] = $product;
+
         return $product;
     }
 
@@ -760,6 +805,10 @@ class SetupUtil
      */
     protected function createCustomer()
     {
+        if ($this->customer) {
+            return $this->customer;
+        }
+
         $customerGroupId = $this->createCustomerGroup($this->customerTaxClasses[self::CUSTOMER_TAX_CLASS_1]);
         /** @var \Magento\Customer\Model\Customer $customer */
         $customer = $this->objectManager->create('Magento\Customer\Model\Customer');
@@ -776,7 +825,9 @@ class SetupUtil
             ->setLastname('Lastname')
             ->save();
 
-        return $this->customerRepository->getById($customer->getId());
+        $this->customer = $this->customerRepository->getById($customer->getId());
+
+        return $this->customer;
     }
 
     /**
