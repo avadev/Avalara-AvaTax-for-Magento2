@@ -87,7 +87,7 @@ class SalesOrderInvoice
             $queue->setData('entity_type_code', $result->getEntityType());
             $queue->setData('entity_id', $result->getEntityId());
             $queue->setData('increment_id', $result->getIncrementId());
-            $queue->setData('queue_status', 'pending');
+            $queue->setData('queue_status', \ClassyLlama\AvaTax\Model\Queue::QUEUE_STATUS_PENDING);
             $queue->setData('attempts', 0);
             $queue->save();
         }

@@ -23,8 +23,11 @@ class Process extends Queue
     protected $avaTaxLogger;
 
     /**
+     * Process constructor
+     *
      * @param Context $context
      * @param Task $queueTask
+     * @param AvaTaxLogger $avaTaxLogger
      */
     public function __construct(
         Context $context,
@@ -46,7 +49,25 @@ class Process extends Queue
         // Initiate Queue Processing of pending queued entities
         try {
             $this->queueTask->processPendingQueue();
-            $this->messageManager->addSuccess(__('The queue was successfully processed.') . __('%1 queued records were processed.', $this->queueTask->processCount));
+            $message = __('The queue was successfully processed.') .
+                __('%1 queued records were processed.', $this->queueTask->processCount);
+
+            $this->messageManager->addSuccess($message);
+
+            if ($this->queueTask->errorCount > 0)
+            {
+                $errorMessage = __('Some queue records received errors while processing.') .
+                    __('%1 queued records had errors.', $this->queueTask->errorCount);
+
+                // Include the error messages from the queue task
+                foreach ($this->queueTask->errorMessages as $queueErrorMessage)
+                {
+                    $errorMessage .= $queueErrorMessage;
+                }
+
+                // Display error message on the page
+                $this->messageManager->addErrorMessage($errorMessage);
+            }
         } catch (\Exception $e) {
 
             // Build error message
