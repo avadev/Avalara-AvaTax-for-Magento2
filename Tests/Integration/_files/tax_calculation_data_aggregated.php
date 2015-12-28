@@ -26,5 +26,5 @@ require_once __DIR__ . '/scenarios/bundled_product_fixed_pricing.php';
  * - Product tax classes that make a product tax-exempt
  * - Customer tax classes that make a quote tax-exempt
  * - Virtual product with no shipping address
- *
+ * - Multi address checkout (if it is reasonable to test this)
  */
