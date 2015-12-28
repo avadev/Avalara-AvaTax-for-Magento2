@@ -1,10 +1,6 @@
 <?php
-/**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
+$credentialsConfig = require __DIR__ . '/../credentials.php';
 
-$credentialsConfig = require __DIR__ . '/credentials.php';
 /**
  * Global array that holds test scenarios data
  *
