@@ -1,30 +1,31 @@
 @color-inserted: #93EE9E;
 @color-deleted: #ffc1c3;
 
+.addressBox() {
+    outline: @border-width__base solid @border-color__base;
+    background: @panel__background-color;
+}
+
 .checkout-container #validate_address,
 .validate-binding {
     .form.validate {
         display: flex;
         flex-wrap: wrap;
-        .addressOption {
+        .address-option {
             padding: 10px;
-            margin: 20px 0 0 0;
+            margin-top: 20px;
             cursor: pointer;
-            flex:1 0 auto;
-            .optionTitle {
-                font-weight: bold;
-                font-size: 14px;
+            flex: 1 0 auto;
+            .option-title {
+                font-weight: @font-weight__bold;
+                font-size: @font-size__base;
                 margin-bottom: 5px;
             }
-            .optionAddress {
+            .option-address {
                 display: flex;
-                input {
-                    outline: none;
+                div {
                     cursor: pointer;
                     width: 20px;
-                    &:focus {
-                        box-shadow: none;
-                    }
                 }
                 label {
                     width: 100%;
@@ -32,16 +33,14 @@
                 }
             }
             &.selected {
-                outline: 1px solid @color-gray80;
-                background: @color-white-smoke;
+                .addressBox;
             }
         }
     }
-    .validatedAddress {
+    .validated-address {
         margin-top: 10px;
         padding: 10px;
-        outline: 1px solid @color-gray80;
-        background: @color-white-smoke;
+        .addressBox;
     }
     ins {
         text-decoration: none;
@@ -51,17 +50,15 @@
         text-decoration: none;
         background-color: @color-deleted;
     }
-    .errorMessageContainer {
+    .error-message-container {
         .instructions p,
-        .originalAddressText {
+        .original-address-text {
             margin-top: 10px;
             padding: 10px;
-            outline: 1px solid @color-gray80;
-            background: @color-white-smoke;
+            .addressBox;
         }
     }
     .instructions a {
         cursor: pointer;
     }
 }
-

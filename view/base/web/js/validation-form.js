@@ -13,10 +13,14 @@ define(
 
         return {
             validateAddressContainerSelector: '#validate_address',
-            originalAddressTextSelector: ".originalAddressText",
-            validAddressTextSelector: ".validAddressText",
-            errorMessageContainerSelector: '.errorMessageContainer',
-            errorMessageTextSelector: '.errorMessageText',
+            originalAddressTextSelector: ".original-address-text",
+            validAddressTextSelector: ".valid-address-text",
+            errorMessageContainerSelector: '.error-message-container',
+            errorMessageTextSelector: '.error-message-text',
+            addressOptionSelector: '.address-option',
+            addressRadioGroupName: 'addressToUse',
+            selectedAddressClass: 'selected',
+
 
             fillValidateForm: function () {
                 if (addressModel.error() != null) {
@@ -44,11 +48,10 @@ define(
                 if (userCanChooseOriginalAddress) {
                     // Original Address label
                     $(this.originalAddressTextSelector).html(originalAddress);
-                    this.toggleRadioSelectedStyle('.addressOption', 'addressToUse', 'selected');
+                    this.toggleRadioSelectedStyle(this.addressOptionSelector, this.addressRadioGroupName, this.selectedAddressClass);
                 }
 
                 $(this.validAddressTextSelector).html(validAddress);
-                //diffAddress.isDifferent(false);
             },
 
             buildValidAddress: function (originalAddress, validAddress) {
@@ -58,12 +61,13 @@ define(
                 result += originalAddress.firstname + " " + originalAddress.lastname + "<br/>";
 
                 // Streets
-                for(var i = 0; i < 3; i++) {
-                    var originalStreet = typeof originalAddress.street[i] === 'undefined'?'':originalAddress.street[i];
-                    var validStreet = typeof validAddress.street[i] === 'undefined'?'':validAddress.street[i];
+                var maxStreets = 3;
+                for (var i = 0; i < maxStreets; i++) {
+                    var originalStreet = typeof originalAddress.street[i] === 'undefined' ? '' : originalAddress.street[i];
+                    var validStreet = typeof validAddress.street[i] === 'undefined' ? '' : validAddress.street[i];
                     var validatedStreet = diffAddress.diffString(originalStreet, validStreet);
                     result += validatedStreet;
-                    result += validatedStreet.length?"<br/>":"";
+                    result += validatedStreet.length ? "<br/>" : "";
                 }
 
                 // City
@@ -76,7 +80,7 @@ define(
                     result += diffAddress.diffString(originalAddress.region, validAddress.region) + " ";
                 }
 
-                // ZIP code
+                // Postal code
                 result += diffAddress.diffString(originalAddress.postcode, validAddress.postcode);
 
                 return result;
@@ -105,7 +109,7 @@ define(
                     result += originalAddress.region + " ";
                 }
 
-                // Zip code
+                // Postal code
                 result += originalAddress.postcode;
 
                 return result;

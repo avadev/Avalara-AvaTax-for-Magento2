@@ -65,12 +65,12 @@ define(
                 return window.checkoutConfig.formKey;
             },
 
-            // Used in ReviewPayment.html to return the tmplate path
+            // Used in ReviewPayment.html to return the template path
             getPaymentTemplate: function () {
                 return this.paymentTemplate;
             },
 
-            // Used in ReviewPayment.html to return the tmplate path
+            // Used in ReviewPayment.htrml to return the template path
             getValidateTemplate: function () {
                 return this.validateTemplate;
             }

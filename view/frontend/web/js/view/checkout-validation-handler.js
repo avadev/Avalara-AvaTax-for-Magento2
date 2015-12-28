@@ -26,8 +26,11 @@ define(
 
             validationResponseHandler: function (response) {
                 diffAddress.isDifferent(false);
-                if (typeof response.extension_attributes !== 'undefined') {
-                    $(this.options.validateAddressContainerSelector + ' *').fadeIn();
+                if ((typeof response.extension_attributes !== 'undefined')
+                    && (typeof response.extension_attributes.valid_address !== 'undefined'
+                    && typeof response.extension_attributes.original_address !== 'undefined')
+                ) {
+                    $(this.options.validateAddressContainerSelector).fadeIn();
                     this.toggleAddressToUse();
                     updateAddress(response.extension_attributes.valid_address);
                     addressModel.originalAddress(response.extension_attributes.original_address);
@@ -36,11 +39,15 @@ define(
                         addressModel.error(response.extension_attributes.error_message)
                     }
                     validationForm.fillValidateForm();
+
+                    // This click event handler is to allow the user to navigate to the first step to change their
+                    // address if they notice an error in their address on the Review & Payments step by clicking
+                    // a link in the instructions above their address
                     $(this.options.validateAddressContainerSelector + ' .instructions a').on('click', function () {
                         stepNavigator.navigateTo('shipping', 'shipping');
                     });
                 } else {
-                    $(this.options.validateAddressContainerSelector + ' *').hide();
+                    $(this.options.validateAddressContainerSelector).hide();
                 }
             },
 
