@@ -187,9 +187,6 @@ $taxCalculationData['simple_product'] = [
             'grand_total' => 20 + $taxAmount,
             'base_grand_total' => 20 + $taxAmount,
         ],
-        'address_data_diff_native_vs_magento' => [
-            'applied_taxes'
-        ],
         'items_data' => [
             'simple1' => [
                 'row_total' => 20,

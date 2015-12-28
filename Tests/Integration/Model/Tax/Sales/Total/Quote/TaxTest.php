@@ -20,7 +20,56 @@ class TaxTest extends \PHPUnit_Framework_TestCase
      */
     protected $setupUtil = null;
 
-    protected $quoteItemsToCompare = [
+    protected $quoteAddressFieldsEnsureMatch = [
+        'subtotal',
+        'base_subtotal',
+        'subtotal_with_discount',
+        'base_subtotal_with_discount',
+        'tax_amount',
+        'base_tax_amount',
+        'shipping_amount',
+        'base_shipping_amount',
+        'shipping_tax_amount',
+        'base_shipping_tax_amount',
+        'discount_amount',
+        'base_discount_amount',
+        'grand_total',
+        'base_grand_total',
+        'shipping_discount_amount',
+        'base_shipping_discount_amount',
+        'subtotal_incl_tax',
+        'base_subtotal_total_incl_tax',
+        'discount_tax_compensation_amount',
+        'base_discount_tax_compensation_amount',
+        'shipping_discount_tax_compensation_amount',
+        'base_shipping_discount_tax_compensation_amnt',
+        'shipping_incl_tax',
+        'base_shipping_incl_tax',
+        'gw_base_price',
+        'gw_price',
+        'gw_items_base_price',
+        'gw_items_price',
+        'gw_card_base_price',
+        'gw_card_price',
+        'gw_base_tax_amount',
+        'gw_tax_amount',
+        'gw_items_base_tax_amount',
+        'gw_items_tax_amount',
+        'gw_card_base_tax_amount',
+        'gw_card_tax_amount',
+        'gw_base_price_incl_tax',
+        'gw_price_incl_tax',
+        'gw_items_base_price_incl_tax',
+        'gw_items_price_incl_tax',
+        'gw_card_base_price_incl_tax',
+        'gw_card_price_incl_tax',
+    ];
+
+    protected $quoteAddressFieldsEnsureDiff = [
+        'applied_taxes',
+    ];
+
+    protected $quoteItemFieldsEnsureMatch = [
         'qty',
         'price',
         'base_price',
@@ -382,11 +431,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         \Magento\Quote\Model\Quote\Address $avaTaxQuoteAddress,
         $expectedResults
     ) {
-        $addressData = $expectedResults['address_data'];
-        $addressDataDiff = isset($expectedResults['address_data_diff_native_vs_magento'])
-            ? $expectedResults['address_data_diff_native_vs_magento']
-            : [];
-        $this->compareQuoteAddresses($nativeQuoteAddress, $avaTaxQuoteAddress, $addressData, $addressDataDiff);
+        $this->compareQuoteAddresses($nativeQuoteAddress, $avaTaxQuoteAddress);
 
         $avaTaxItemsBySku = [];
         foreach ($avaTaxQuoteAddress->getAllItems() as $item) {
@@ -433,30 +478,27 @@ class TaxTest extends \PHPUnit_Framework_TestCase
      *
      * @param \Magento\Quote\Model\Quote\Address $nativeQuoteAddress
      * @param \Magento\Quote\Model\Quote\Address $avaTaxQuoteAddress
-     * @param array $expectedAddressData
-     * @param array $expectedAddressDataDiff
      * @return $this
      */
-    protected function compareQuoteAddresses($nativeQuoteAddress, $avaTaxQuoteAddress, $expectedAddressData, $expectedAddressDataDiff)
+    protected function compareQuoteAddresses($nativeQuoteAddress, $avaTaxQuoteAddress)
     {
-        foreach ($expectedAddressData as $key => $value) {
+        foreach ($this->quoteAddressFieldsEnsureMatch as $value) {
             try {
                 $this->assertEquals(
-                    $nativeQuoteAddress->getData($key),
-                    $avaTaxQuoteAddress->getData($key),
-                    'native/AvaTax calcalation does not match for quote field: ' . $key
+                    $nativeQuoteAddress->getData($value),
+                    $avaTaxQuoteAddress->getData($value),
+                    'native/AvaTax calcalation does not match for quote address field: ' . $value
                 );
             } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
                 $this->logError($e->getMessage());
             }
         }
-
-        foreach ($expectedAddressDataDiff as $value) {
+        foreach ($this->quoteAddressFieldsEnsureDiff as $value) {
             try {
                 $this->assertNotEquals(
                     $nativeQuoteAddress->getData($value),
                     $avaTaxQuoteAddress->getData($value),
-                    'native/AvaTax calcalation matches (but shouldn\'t be) for quote field: ' . $value
+                    'native/AvaTax calcalation matches (but shouldn\'t be) for quote address field: ' . $value
                 );
             } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
                 $this->logError($e->getMessage());
@@ -477,7 +519,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         \Magento\Quote\Model\Quote\Item\AbstractItem $nativeItem,
         \Magento\Quote\Model\Quote\Item\AbstractItem $avaTaxItem
     ) {
-        foreach ($this->quoteItemsToCompare as $value) {
+        foreach ($this->quoteItemFieldsEnsureMatch as $value) {
             try {
                 $this->assertEquals(
                     $nativeItem->getData($value),

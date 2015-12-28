@@ -44,9 +44,6 @@ $taxCalculationData['currency_conversion_rounding'] = [
             'grand_total' => 19.8 + 1.19,
             'base_grand_total' => 9.9 + 0.59,
         ],
-        'address_data_diff_native_vs_magento' => [
-            'applied_taxes',
-        ],
         'items_data' => [
             'simple1' => [
                 'row_total' => 19.8,
