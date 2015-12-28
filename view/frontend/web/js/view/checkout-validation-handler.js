@@ -3,9 +3,10 @@ define(
         'jquery',
         'Magento_Checkout/js/model/step-navigator',
         'ClassyLlama_AvaTax/js/action/set-shipping-address',
-        'ClassyLlama_AvaTax/js/view/updateAddress',
-        'ClassyLlama_AvaTax/js/model/addressModel',
-        'ClassyLlama_AvaTax/js/view/validationForm'
+        'ClassyLlama_AvaTax/js/view/update-address',
+        'ClassyLlama_AvaTax/js/model/address-model',
+        'ClassyLlama_AvaTax/js/validation-form',
+        'ClassyLlama_AvaTax/js/diff-address'
     ],
     function (
         $,
@@ -13,7 +14,8 @@ define(
         setShippingAddress,
         updateAddress,
         addressModel,
-        validationForm
+        validationForm,
+        diffAddress
     ) {
         'use strict';
 
@@ -23,6 +25,7 @@ define(
             },
 
             validationResponseHandler: function (response) {
+                diffAddress.isDifferent(false);
                 if (typeof response.extension_attributes !== 'undefined') {
                     $(this.options.validateAddressContainerSelector + ' *').fadeIn();
                     this.toggleAddressToUse();

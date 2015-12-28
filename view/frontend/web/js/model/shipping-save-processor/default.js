@@ -8,7 +8,7 @@ define(
         'Magento_Checkout/js/model/error-processor',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/select-billing-address',
-        'ClassyLlama_AvaTax/js/view/checkoutValidationHandler'
+        'ClassyLlama_AvaTax/js/view/checkout-validation-handler'
     ],
     function (
         quote,

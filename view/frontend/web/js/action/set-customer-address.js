@@ -5,8 +5,8 @@
 /*global define,alert*/
 define(
     [
-        'ClassyLlama_AvaTax/js/model/addressModel',
-        'ClassyLlama_AvaTax/js/model/urlBuilder',
+        'ClassyLlama_AvaTax/js/model/address-model',
+        'ClassyLlama_AvaTax/js/model/url-builder',
         'mage/storage',
         'Magento_Checkout/js/model/error-processor'
     ],

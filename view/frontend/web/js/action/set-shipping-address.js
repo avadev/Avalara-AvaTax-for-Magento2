@@ -10,8 +10,8 @@ define(
         'Magento_Checkout/js/model/error-processor',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/select-billing-address',
-        'ClassyLlama_AvaTax/js/view/updateAddress',
-        'ClassyLlama_AvaTax/js/model/addressModel'
+        'ClassyLlama_AvaTax/js/view/update-address',
+        'ClassyLlama_AvaTax/js/model/address-model'
     ],
     function (
         $,

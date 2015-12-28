@@ -1,8 +1,8 @@
 define(
     [
         'jquery',
-        'ClassyLlama_AvaTax/js/diffAddress',
-        'ClassyLlama_AvaTax/js/model/addressModel'
+        'ClassyLlama_AvaTax/js/diff-address',
+        'ClassyLlama_AvaTax/js/model/address-model'
     ],
     function (
         $,
@@ -34,7 +34,7 @@ define(
                 var originalAddress = this.buildOriginalAddress(addressModel.originalAddress());
                 var validAddress = this.buildValidAddress(addressModel.originalAddress(), addressModel.validAddress());
 
-                if (!diffAddress.isDifferent) {
+                if (!diffAddress.isDifferent()) {
                     $(this.validateAddressContainerSelector + ' *').hide();
                     return;
                 }
@@ -48,6 +48,7 @@ define(
                 }
 
                 $(this.validAddressTextSelector).html(validAddress);
+                //diffAddress.isDifferent(false);
             },
 
             buildValidAddress: function (originalAddress, validAddress) {

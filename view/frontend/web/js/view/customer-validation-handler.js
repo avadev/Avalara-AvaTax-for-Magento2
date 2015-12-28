@@ -1,8 +1,8 @@
 define(
     [
         'jquery',
-        'ClassyLlama_AvaTax/js/model/addressModel',
-        'ClassyLlama_AvaTax/js/view/validationForm'
+        'ClassyLlama_AvaTax/js/model/address-model',
+        'ClassyLlama_AvaTax/js/validation-form'
     ],
     function (
         $,

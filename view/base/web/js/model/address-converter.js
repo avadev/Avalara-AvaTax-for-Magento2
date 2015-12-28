@@ -16,10 +16,12 @@ define(
         return {
             /**
              * Convert address form data to Address object
-             * @param {Object} formData
+             * @param {Object} form
              * @returns {Object}
              */
-            formAddressDataToCustomerAddress: function(formData) {
+            formAddressDataToCustomerAddress: function(form) {
+                var formData = this.serializeForm(form);
+
                 // clone address form data to new object
                 var addressData = $.extend(true, {}, formData),
                     region,
@@ -45,6 +47,24 @@ define(
                 }
 
                 return address(addressData);
+            },
+
+            serializeForm: function (form) {
+                var o = {};
+                var a = form.serializeArray();
+                $.each(a, function() {
+                    var name = this.name.replace(/\[|\]/g, "");
+                    if (o[name] !== undefined) {
+                        if (!o[name].push) {
+                            o[name] = [o[name]];
+                        }
+                        o[name].push(this.value || '');
+                    } else {
+                        o[name] = this.value || '';
+                    }
+                });
+
+                return o;
             }
         };
     }

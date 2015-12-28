@@ -1,11 +1,12 @@
 define([
     'jquery',
     'ko',
-    'ClassyLlama_AvaTax/js/model/addressModel',
+    'ClassyLlama_AvaTax/js/model/address-model',
     'ClassyLlama_AvaTax/js/action/set-customer-address',
     'ClassyLlama_AvaTax/js/model/address-converter',
-    'ClassyLlama_AvaTax/js/view/customerValidationHandler',
-    'ClassyLlama_AvaTax/js/diffAddress',
+    'ClassyLlama_AvaTax/js/view/customer-validation-handler',
+    'ClassyLlama_AvaTax/js/diff-address',
+    'ClassyLlama_AvaTax/js/validation-form',
     'Magento_Ui/js/modal/modal',
     // This dependency will commonly already be loaded by Magento_Ui/js/core/app, however the load order is not
     // guaranteed, so we must require this dependency so that the custom Magento templateEngine is set before
@@ -18,7 +19,8 @@ define([
         setCustomerAddress,
         addressConverter,
         customerValidationHandler,
-        diffAddress
+        diffAddress,
+        validationForm
     ){
 
     $.widget('ClassyLlama_AvaTax.addressValidationModal', $.mage.modal, {
@@ -55,6 +57,7 @@ define([
         formSelector: '.form-address-edit',
         validationForm: '#co-validate-form',
         errorInstructionSelector: '.errorMessageContainer .instructions',
+        originalAddressContainer: '.errorMessageContainer .originalAddressText',
         /**
          * Creates modal widget.
          */
@@ -65,16 +68,12 @@ define([
             this.bindTemplateToModal();
         },
 
-        /**
-         * Open modal.
-         * * @return {Element} - current element.
-         */
         openModal: function () {
+            this._super();
             var self = this;
             $(this.validationContainer + " a").on('click', function () {
                 self.closeModal();
             });
-            this._super();
         },
 
         bindTemplateToModal: function () {
@@ -99,17 +98,20 @@ define([
                 var isValid = $(':mage-validation').validation('isValid');
                 if (isValid) {
                     e.preventDefault();
-                    var addressObject = addressConverter.formAddressDataToCustomerAddress(self.serializeObject($(self.formSelector)));
+                    var addressObject = addressConverter.formAddressDataToCustomerAddress($(self.formSelector));
                     var inCountry = $.inArray(addressObject.countryId, self.options.countriesEnabled.split(',')) >= 0;
                     if (inCountry) {
                         addressModel.originalAddress(addressObject);
                         $(self.bindingElement).trigger('processStart');
                         setCustomerAddress().done(function (response) {
-                            if (addressModel.error() != null) {
-                                $(this.errorInstructionSelector).val($(this.errorInstructionSelector).replace('%s', addressModel.error()));
-                            }
                             customerValidationHandler.validationResponseHandler(response);
-                            if ((diffAddress.isDifferent || addressModel.error() != null)) {
+                            if (addressModel.error() != null) {
+                                var errorInstructions = self.options.errorInstructions;
+                                $(self.errorInstructionSelector).html(errorInstructions.replace('%s', addressModel.error()));
+                                $(self.originalAddressContainer).html(validationForm.buildOriginalAddress(addressModel.originalAddress()));
+                                addressModel.error(null);
+                                self.openModal();
+                            } else if (diffAddress.isDifferent()) {
                                 self.openModal();
                             } else {
                                 $(self.formSelector).off();
@@ -152,25 +154,7 @@ define([
             $(this.formSelector + " *:input[name^='country_id']").val(self.addressToUse.country_id);
             $(this.formSelector + " *:input[name^='postcode']").val(self.addressToUse.postcode);
             $(this.formSelector + " *:input[name^='city']").val(self.addressToUse.city);
-        },
-
-        serializeObject: function (form) {
-            var o = {};
-            var a = form.serializeArray();
-            $.each(a, function() {
-                var name = this.name.replace(/\[|\]/g, "");
-                if (o[name] !== undefined) {
-                    if (!o[name].push) {
-                        o[name] = [o[name]];
-                    }
-                    o[name].push(this.value || '');
-                } else {
-                    o[name] = this.value || '';
-                }
-            });
-
-            return o;
-        },
+        }
     });
 
     return $.ClassyLlama_AvaTax.addressValidationModal;

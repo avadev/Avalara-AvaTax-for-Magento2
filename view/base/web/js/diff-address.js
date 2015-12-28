@@ -1,6 +1,6 @@
-define([], function(){
+define(['ko'], function(ko){
     return {
-        isDifferent: false,
+        isDifferent: ko.observable(false),
 
         /**
          * Javascript Diff Algorithm
@@ -105,7 +105,7 @@ define([], function(){
             }
 
             if (JSON.stringify(o) !== JSON.stringify(n)) {
-                this.isDifferent = true;
+                this.isDifferent(true);
             }
 
             return { o: o, n: n };
