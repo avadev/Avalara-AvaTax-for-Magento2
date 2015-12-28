@@ -25,19 +25,29 @@ class SetupUtil
         //@TODO: add config for cross border trade
     ];
 
-    const TAX_RATE_TX = 'tax_rate_tx';
     const TAX_RATE_AUSTIN = 'tax_rate_austin';
     const TAX_RATE_MI = 'tax_rate_mi';
     const TAX_RATE_SHIPPING = 'tax_rate_shipping';
     const TAX_STORE_RATE = 'tax_store_rate';
-    const REGION_TX = '57';
-    const REGION_CA = '12';
     const COUNTRY_US = 'US';
-    const AUSTIN_POST_CODE = '79729';
+
     const REGION_MI = '33';
     const MI_POST_CODE = '48933';
     const MI_CITY = 'Lansing';
     const MI_STREET_1 = '100 N Capitol Ave';
+    const AVATAX_MI_RATE_DESCRIPTION = 'MI STATE TAX';
+    const AVATAX_MI_RATE_JURISCODE = 26;
+
+    const REGION_CA = '12';
+    const SAN_DIEGO_POST_CODE = '92101';
+    const SAN_DIEGO_CITY = 'San Diego';
+    const SAN_DIEGO_STREET_1 = '2920 Zoo Dr';
+    const AVATAX_CA_RATE_DESCRIPTION = 'CA STATE TAX';
+    const AVATAX_CA_RATE_JURISCODE = '06';
+    const AVATAX_CA_COUNTY_RATE_DESCRIPTION = 'CA COUNTY TAX';
+    const AVATAX_CA_COUNTY_RATE_JURISCODE = '037';
+    const AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION = 'CA SPECIAL TAX';
+    const AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_JURISCODE = 'EMBD0';
 
     /**
      * Tax rates
@@ -45,26 +55,6 @@ class SetupUtil
      * @var array
      */
     protected $taxRates = [
-        self::TAX_RATE_TX => [
-            'data' => [
-                'tax_country_id' => self::COUNTRY_US,
-                'tax_region_id' => self::REGION_TX,
-                'tax_postcode' => '*',
-                'code' => self::TAX_RATE_TX,
-                'rate' => '20',
-            ],
-            'id' => null,
-        ],
-        self::TAX_RATE_AUSTIN => [
-            'data' => [
-                'tax_country_id' => self::COUNTRY_US,
-                'tax_region_id' => self::REGION_TX,
-                'tax_postcode' => self::AUSTIN_POST_CODE,
-                'code' => self::TAX_RATE_AUSTIN,
-                'rate' => '5',
-            ],
-            'id' => null,
-        ],
         self::TAX_RATE_SHIPPING => [
             'data' => [
                 'tax_country_id' => self::COUNTRY_US,
@@ -81,7 +71,7 @@ class SetupUtil
                 'tax_region_id' => self::REGION_CA,
                 'tax_postcode' => '*',
                 'code' => self::TAX_STORE_RATE,
-                'rate' => '8.25',
+                'rate' => '8',
             ],
             'id' => null,
         ],
@@ -351,7 +341,6 @@ class SetupUtil
     protected function getDefaultTaxRateIds()
     {
         $taxRateIds = [
-            $this->taxRates[self::TAX_RATE_TX]['id'],
             $this->taxRates[self::TAX_RATE_MI]['id'],
             $this->taxRates[self::TAX_STORE_RATE]['id'],
         ];
