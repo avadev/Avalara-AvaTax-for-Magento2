@@ -155,14 +155,6 @@ class SetupUtil
     protected $customer = null;
 
     /**
-     * Storage for products so that they can be reused by this test
-     * @see \ClassyLlama\AvaTax\Tests\Integration\Model\Tax\Sales\Total\Quote\TaxTest::testNativeVsMagentoTaxCalculation
-     *
-     * @var null
-     */
-    protected $products = [];
-
-    /**
      * Storage for configurable attributes so they can be retrieved after being created
      *
      * @var array
@@ -182,6 +174,11 @@ class SetupUtil
     protected $customerRepository;
 
     /**
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+     */
+    protected $productRepository;
+
+    /**
      * @var \Magento\Customer\Api\AccountManagementInterface
      */
     protected $accountManagement;
@@ -193,6 +190,7 @@ class SetupUtil
     {
         $this->objectManager = $objectManager;
         $this->customerRepository = $this->objectManager->create('Magento\Customer\Api\CustomerRepositoryInterface');
+        $this->productRepository = $this->objectManager->create('Magento\Catalog\Api\ProductRepositoryInterface');
         $this->accountManagement = $this->objectManager->create('Magento\Customer\Api\AccountManagementInterface');
     }
 
@@ -487,13 +485,15 @@ class SetupUtil
      */
     public function createSimpleProduct($sku, $price, $taxClassId, $additionalAttributes = [])
     {
-        if (isset($this->products[$sku])) {
-            return $this->products[$sku];
+        /** @var \Magento\Catalog\Model\Product $product */
+        if ($this->loadProductBySku($sku)) {
+            $product = $this->loadProductBySku($sku);
+        } else {
+            /** @var $product \Magento\Catalog\Model\Product */
+            $product = $this->objectManager->create('Magento\Catalog\Model\Product');
+            $product->isObjectNew(true);
         }
 
-        /** @var \Magento\Catalog\Model\Product $product */
-        $product = $this->objectManager->create('Magento\Catalog\Model\Product');
-        $product->isObjectNew(true);
         $product->setTypeId('simple')
             ->setAttributeSetId(4)
             ->setWebsiteIds([1])
@@ -539,10 +539,6 @@ class SetupUtil
      */
     protected function createConfigurableProduct($sku, $price, $taxClassId, $itemData)
     {
-        if (isset($this->products[$sku])) {
-            return $this->products[$sku];
-        }
-
         $options = $itemData['options'];
 
         $attribute = $this->createConfigurableAttribute(self::CONFIGURABLE_ATTRIBUTE_NAME, $options);
@@ -573,8 +569,13 @@ class SetupUtil
             $associatedProductIds[] = $this->createSimpleProduct($childSku, $price, $taxClassId, $additionalAttributes)->getId();
         }
 
-        /** @var $product \Magento\Catalog\Model\Product */
-        $product = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create('Magento\Catalog\Model\Product');
+        if ($this->loadProductBySku($sku)) {
+            $product = $this->loadProductBySku($sku);
+        } else {
+            /** @var $product \Magento\Catalog\Model\Product */
+            $product = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create('Magento\Catalog\Model\Product');
+        }
+
         $product->setTypeId(\Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE)
             ->setAttributeSetId(4)
             ->setWebsiteIds([1])
@@ -700,10 +701,6 @@ class SetupUtil
      */
     protected function createBundledProduct($sku, $price, $taxClassId, $itemData)
     {
-        if (isset($this->products[$sku])) {
-            return $this->products[$sku];
-        }
-
         $objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
 
         $children = [];
@@ -741,8 +738,13 @@ class SetupUtil
 
         $priceType = $itemData['price_type'];
 
-        /** @var $product \Magento\Catalog\Model\Product */
-        $product = $objectManager->create('Magento\Catalog\Model\Product');
+        if ($this->loadProductBySku($sku)) {
+            $product = $this->loadProductBySku($sku);
+        } else {
+            /** @var $product \Magento\Catalog\Model\Product */
+            $product = $objectManager->create('Magento\Catalog\Model\Product');
+        }
+
         $product->setTypeId(\Magento\Catalog\Model\Product\Type::TYPE_BUNDLE)
             ->setAttributeSetId(4)
             ->setWebsiteIds([1])
@@ -767,6 +769,21 @@ class SetupUtil
         $this->products[$sku] = $product;
 
         return $product;
+    }
+
+    /**
+     * Attempt to load product by SKU
+     *
+     * @param string $sku
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     */
+    protected function loadProductBySku($sku)
+    {
+        try {
+            return $this->productRepository->get($sku);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return false;
+        }
     }
 
     /**

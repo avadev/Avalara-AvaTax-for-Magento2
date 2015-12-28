@@ -102,9 +102,8 @@ $taxCalculationData['bundled_product_dynamic_pricing'] = [
         ],
     ],
     'expected_results' => [
-        // TODO: This won't work as bundled products are triggering some sort of error when \ClassyLlama\AvaTax\Tests\Integration\Model\Tax\Sales\Total\Quote\TaxTest::testNativeVsMagentoTaxCalculation is run
         // There is an issue comparing with bundled products, so disabling comparison with native Magento
-        'compare_with_native_tax_calculation' => true,
+        'compare_with_native_tax_calculation' => false,
         'address_data' => [
             'subtotal' => 2280.0,
             'base_subtotal' => 1140.0,
