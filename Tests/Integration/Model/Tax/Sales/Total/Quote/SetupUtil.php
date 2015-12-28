@@ -25,29 +25,36 @@ class SetupUtil
         //@TODO: add config for cross border trade
     ];
 
-    const TAX_RATE_AUSTIN = 'tax_rate_austin';
     const TAX_RATE_MI = 'tax_rate_mi';
     const TAX_RATE_SHIPPING = 'tax_rate_shipping';
     const TAX_STORE_RATE = 'tax_store_rate';
     const COUNTRY_US = 'US';
 
+    /**#@+
+     * Values for default address and taxing jurisdiction (6% flat state tax)
+     */
     const REGION_MI = '33';
     const MI_POST_CODE = '48933';
     const MI_CITY = 'Lansing';
-    const MI_STREET_1 = '100 N Capitol Ave';
+    const MI_STREET_1 = '100 N Capitol Ave'; // Michigan state capitol
     const AVATAX_MI_RATE_DESCRIPTION = 'MI STATE TAX';
     const AVATAX_MI_RATE_JURISCODE = 26;
+    /**#@-*/
 
+    /**#@+
+     * Values for optional address and taxing jurisdiction (8% combined tax)
+     */
     const REGION_CA = '12';
     const SAN_DIEGO_POST_CODE = '92101';
     const SAN_DIEGO_CITY = 'San Diego';
-    const SAN_DIEGO_STREET_1 = '2920 Zoo Dr';
+    const SAN_DIEGO_STREET_1 = '2920 Zoo Dr'; // San Diego Zoo
     const AVATAX_CA_RATE_DESCRIPTION = 'CA STATE TAX';
     const AVATAX_CA_RATE_JURISCODE = '06';
     const AVATAX_CA_COUNTY_RATE_DESCRIPTION = 'CA COUNTY TAX';
     const AVATAX_CA_COUNTY_RATE_JURISCODE = '037';
     const AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION = 'CA SPECIAL TAX';
     const AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_JURISCODE = 'EMBD0';
+    /**#@-*/
 
     /**
      * Tax rates

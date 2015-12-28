@@ -20,6 +20,11 @@ class TaxTest extends \PHPUnit_Framework_TestCase
      */
     protected $setupUtil = null;
 
+    /**
+     * The quote_address fields to ensure match when comparing Magento vs AvaTax tax calculation
+     *
+     * @var array
+     */
     protected $quoteAddressFieldsEnsureMatch = [
         'subtotal',
         'base_subtotal',
@@ -65,10 +70,23 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         'gw_card_price_incl_tax',
     ];
 
+    /**
+     * The quote_address fields to ensure *don't* match when comparing Magento vs AvaTax tax calculation
+     *
+     * The reason this is important as we need something to test to ensure that we're not accidentally comparing the
+     * exact same results, as we don't want false positives.
+     *
+     * @var array
+     */
     protected $quoteAddressFieldsEnsureDiff = [
         'applied_taxes',
     ];
 
+    /**
+     * The quote_item fields to ensure match when comparing Magento vs AvaTax tax calculation
+     *
+     * @var array
+     */
     protected $quoteItemFieldsEnsureMatch = [
         'qty',
         'price',
@@ -487,7 +505,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals(
                     $nativeQuoteAddress->getData($value),
                     $avaTaxQuoteAddress->getData($value),
-                    'native/AvaTax calcalation does not match for quote address field: ' . $value
+                    'native/AvaTax calculation does not match for quote address field: ' . $value
                 );
             } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
                 $this->logError($e->getMessage());
@@ -498,7 +516,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
                 $this->assertNotEquals(
                     $nativeQuoteAddress->getData($value),
                     $avaTaxQuoteAddress->getData($value),
-                    'native/AvaTax calcalation matches (but shouldn\'t be) for quote address field: ' . $value
+                    'native/AvaTax calculation matches (but shouldn\'t be) for quote address field: ' . $value
                 );
             } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
                 $this->logError($e->getMessage());
@@ -524,7 +542,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals(
                     $nativeItem->getData($value),
                     $avaTaxItem->getData($value),
-                    'native/AvaTax calcalation does not match for quote item field: ' . $value
+                    'native/AvaTax calculation does not match for quote item field: ' . $value
                 );
             } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
                 $this->logError($this->getActualSkuForQuoteItem($nativeItem) . ' ' . $e->getMessage());

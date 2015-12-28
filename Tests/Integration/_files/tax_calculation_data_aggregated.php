@@ -19,6 +19,12 @@ require_once __DIR__ . '/scenarios/applied_taxes_multiple_rates.php';
 require_once __DIR__ . '/scenarios/bundled_product_dynamic_pricing.php';
 require_once __DIR__ . '/scenarios/bundled_product_fixed_pricing.php';
 
-// TODO: WIP
-//require_once __DIR__ . '/scenarios/comprensive_test.php';
-//require_once __DIR__ . '/scenarios/bundled_products.php';
+/**
+ * TODO: Add tests for these scenarios:
+ *
+ * - Gift wrapping (quote, printed card, items)
+ * - Product tax classes that make a product tax-exempt
+ * - Customer tax classes that make a quote tax-exempt
+ * - Virtual product with no shipping address
+ *
+ */
