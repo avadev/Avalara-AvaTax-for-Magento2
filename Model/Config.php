@@ -521,7 +521,7 @@ class Config
      * @param null $store
      * @return string
      */
-    public function getSkuShippingAdjustmentPositive($store = null)
+    public function getSkuAdjustmentPositive($store = null)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_ADJUSTMENT_POSITIVE,
@@ -536,7 +536,7 @@ class Config
      * @param null $store
      * @return string
      */
-    public function getSkuShippingAdjustmentNegative($store = null)
+    public function getSkuAdjustmentNegative($store = null)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_ADJUSTMENT_NEGATIVE,

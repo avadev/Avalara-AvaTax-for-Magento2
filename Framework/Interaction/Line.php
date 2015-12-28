@@ -65,6 +65,16 @@ class Line
     const GIFT_WRAP_CARD_LINE_DESCRIPTION = 'Gift Wrap Printed Card Amount';
 
     /**
+     * Description for Adjustment refund line
+     */
+    const ADJUSTMENT_POSITIVE_LINE_DESCRIPTION = 'Adjustment refund';
+
+    /**
+     * Description for Adjustment fee line
+     */
+    const ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION = 'Adjustment fee';
+
+    /**
      * A list of valid fields for the data array and meta data about their types to use in validation
      * based on the API documentation.
      * Validation based on API documentation found here:
@@ -146,7 +156,7 @@ class Line
 
         return [
             'store_id' => $item->getStoreId(),
-            'no' => $item->getEntityId(),
+            'no' => $this->getLineNumber(),
             'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
@@ -161,7 +171,7 @@ class Line
         ];
     }
 
-    protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $item, $credit)
+    protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $item)
     {
         if (!$this->isProductCalculated($item->getOrderItem())) {
             return false;
@@ -171,17 +181,16 @@ class Line
         // from taxable amount
         $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
 
+        // Credit memo amounts need to be sent to AvaTax as negative numbers
+        $amount *= -1;
+
         if ($item->getQty() == 0 || $amount == 0) {
             return false;
         }
 
-        if ($credit) {
-            $amount *= -1;
-        }
-
         return [
             'store_id' => $item->getStoreId(),
-            'no' => $item->getEntityId(),
+            'no' => $this->getLineNumber(),
             'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
 //            'tax_code' => null,
 //            'customer_usage_type' => null,
@@ -247,7 +256,7 @@ class Line
      * @param $data
      * @return \AvaTax\Line|null|bool
      */
-    public function getLine($data, $credit = false)
+    public function getLine($data)
     {
         switch (true) {
             case ($data instanceof \Magento\Tax\Api\Data\QuoteDetailsItemInterface):
@@ -257,7 +266,7 @@ class Line
                 $data = $this->convertInvoiceItemToData($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
-                $data = $this->convertCreditMemoItemToData($data, $credit);
+                $data = $this->convertCreditMemoItemToData($data);
                 break;
             case (!is_array($data)):
                 return false;
@@ -277,7 +286,7 @@ class Line
     }
 
     /**
-     * Accepts a an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
@@ -295,7 +304,8 @@ class Line
             $shippingAmount *= -1;
         }
 
-        $itemCode = $this->config->getSkuShipping();
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuShipping($storeId);
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -316,7 +326,7 @@ class Line
     }
 
     /**
-     * Accepts a an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
@@ -333,7 +343,8 @@ class Line
             $giftWrapOrderAmount *= -1;
         }
 
-        $itemCode = $this->config->getSkuGiftWrapOrder();
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuGiftWrapOrder($storeId);
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -344,6 +355,7 @@ class Line
             'discounted' => false,
         ];
 
+
         $data = $this->validation->validateData($data, $this->validDataFields);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
@@ -353,7 +365,7 @@ class Line
     }
 
     /**
-     * Accepts a an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
@@ -373,7 +385,8 @@ class Line
             $giftWrapItemAmount *= -1;
         }
 
-        $itemCode = $this->config->getSkuShippingGiftWrapItem();
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuShippingGiftWrapItem($storeId);
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -393,7 +406,7 @@ class Line
     }
 
     /**
-     * Accepts a an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \AvaTax\Line|bool
@@ -409,7 +422,8 @@ class Line
             $giftWrapCardAmount *= -1;
         }
 
-        $itemCode = $this->config->getSkuShippingGiftWrapCard();
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuShippingGiftWrapCard($storeId);
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -428,6 +442,78 @@ class Line
         return $line;
     }
 
+    /**
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     *
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
+     * @return \AvaTax\Line|bool
+     */
+    public function getPositiveAdjustmentLine($data) {
+        $amount = $data->getBaseAdjustmentPositive();
+
+        if ($amount == 0) {
+            return false;
+        }
+
+        // Credit memo amounts need to be sent to AvaTax as negative numbers
+        $amount *= -1;
+
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuAdjustmentPositive($storeId);
+        $data = [
+            'no' => $this->getLineNumber(),
+            'item_code' => $itemCode,
+            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'description' => self::ADJUSTMENT_POSITIVE_LINE_DESCRIPTION,
+            'qty' => 1,
+            'amount' => $amount,
+            'discounted' => false,
+            // Since taxes will already be included in this amount, set this flag to true
+            'tax_included' => true
+        ];
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        $this->populateLine($data, $line);
+        return $line;
+    }
+
+    /**
+     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     *
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
+     * @return \AvaTax\Line|bool
+     */
+    public function getNegativeAdjustmentLine($data) {
+        $amount = $data->getBaseAdjustmentNegative();
+
+        if ($amount == 0) {
+            return false;
+        }
+
+        $storeId = $data->getStoreId();
+        $itemCode = $this->config->getSkuAdjustmentNegative($storeId);
+        $data = [
+            'no' => $this->getLineNumber(),
+            'item_code' => $itemCode,
+            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'description' => self::ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION,
+            'qty' => 1,
+            'amount' => $amount,
+            'discounted' => false,
+            // Since taxes will already be included in this amount, set this flag to true
+            'tax_included' => true
+        ];
+
+        $data = $this->validation->validateData($data, $this->validDataFields);
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        $this->populateLine($data, $line);
+        return $line;
+    }
     /**
      * @param array $data
      * @param \AvaTax\Line $line

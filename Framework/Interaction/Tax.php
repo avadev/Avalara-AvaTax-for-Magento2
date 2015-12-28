@@ -498,8 +498,7 @@ class Tax
      * Creates and returns a populated getTaxRequest for a invoice
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
-     * @return null|GetTaxRequest
-     * @throws LocalizedException
+     * @return GetTaxRequest
      */
     public function getGetTaxRequestForSalesObject($object) {
         /** @var \Magento\Sales\Model\Order $order */
@@ -508,19 +507,21 @@ class Tax
         $lines = [];
         $items = $object->getItems();
 
-        $credit = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
 
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($items as $item) {
-            $line = $this->interactionLine->getLine($item, $credit);
+            $line = $this->interactionLine->getLine($item);
             if ($line) {
                 $lines[] = $line;
             }
         }
 
-        $shippingLine = $this->interactionLine->getShippingLine($object, $credit);
-        if ($lines) {
-            $lines[] = $shippingLine;
+        $objectIsCreditMemo = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
+
+        $credit = $objectIsCreditMemo;
+        $line = $this->interactionLine->getShippingLine($object, $credit);
+        if ($line) {
+            $lines[] = $line;
         }
         $line = $this->interactionLine->getGiftWrapItemsLine($object, $credit);
         if ($line) {
@@ -535,13 +536,19 @@ class Tax
             $lines[] = $line;
         }
 
-        try {
-            $shippingAddress = $order->getShippingAddress();
-            $address = $this->address->getAddress($shippingAddress);
-        } catch (LocalizedException $e) {
-            // TODO: Log this exception
-            return null;
+        if ($objectIsCreditMemo) {
+            $line = $this->interactionLine->getPositiveAdjustmentLine($object);
+            if ($line) {
+                $lines[] = $line;
+            }
+            $line = $this->interactionLine->getNegativeAdjustmentLine($object);
+            if ($line) {
+                $lines[] = $line;
+            }
         }
+
+        $shippingAddress = $order->getShippingAddress();
+        $address = $this->address->getAddress($shippingAddress);
 
         $store = $object->getStore();
         $currentDate = $this->getFormattedDate($store);
