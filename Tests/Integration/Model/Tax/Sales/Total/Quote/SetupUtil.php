@@ -982,13 +982,14 @@ class SetupUtil
             $options = $attribute->getOptions();
             array_shift($options); //remove the first option which is empty
 
-            /** @var DataObject $requestInfo */
             $requestInfo = new \Magento\Framework\DataObject;
 
             if (!empty($options)) {
                 $option = $options[0];
-                $requestData = [];
-                /** @var ConfigurableItemOptionValueInterface $option */
+                $requestData = [
+                    'qty' => $qty
+                ];
+                /** @var \Magento\ConfigurableProduct\Api\Data\ConfigurableItemOptionValueInterface $option */
                 $requestData['super_attribute'][$attribute->getId()] = $option->getValue();
                 $requestInfo->addData($requestData);
             }
