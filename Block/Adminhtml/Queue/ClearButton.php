@@ -5,7 +5,7 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\Queue;
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
- * Class BackButton
+ * Class ClearButton
  */
 class ClearButton implements ButtonProviderInterface
 {

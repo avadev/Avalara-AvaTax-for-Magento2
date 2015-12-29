@@ -8,6 +8,7 @@
     </type>
     <type name="Magento\Sales\Model\Order\Invoice">
         <plugin name="avatax_sales_order_invoice" type="ClassyLlama\AvaTax\Plugin\SalesOrderInvoice" />
+    </type>
     <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
         <plugin name="avatax_tax_model_sales_total_quote_subtotal" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Subtotal" />
     </type>
@@ -16,6 +17,7 @@
     <!--</type>-->
     <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
         <plugin name="avatax_sales_api_creditmemo_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiCreditmemoRepositoryInterface" />
+    </type>
     <type name="Magento\Tax\Model\Sales\Total\Quote\Shipping">
         <plugin name="avatax_tax_model_sales_total_quote_shipping" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Shipping" />
     </type>

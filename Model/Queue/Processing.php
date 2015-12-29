@@ -86,6 +86,19 @@ class Processing
         if ($queue->getQueueStatus() == Queue::QUEUE_STATUS_COMPLETE)
         {
             // We should not be attempting to process queue records that have already been marked as complete
+
+            // log warning
+            $this->avaTaxLogger->warning(
+                'Processing was attempted on a queue record that has already been processed and marked as completed.',
+                [ /* context */
+                    'queue_id' => $queue->getId(),
+                    'entity_type_code' => $queue->getEntityTypeCode(),
+                    'increment_id' => $queue->getIncrementId(),
+                    'queue_status' => $queue->getQueueStatus(),
+                    'updated_at' => $queue->getUpdatedAt()
+                ]
+            );
+
             throw new \Exception('This record has already been processed, and the queue record marked as complete');
         }
 

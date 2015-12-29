@@ -3,6 +3,7 @@
     <update handle="styles"/>
     <body>
         <referenceContainer name="content">
+            <block class="ClassyLlama\AvaTax\Block\Adminhtml\Queue\Summary" name="avatax_queue_summary" template="queue/summary.phtml" />
             <uiComponent name="avatax_queue_listing"/>
         </referenceContainer>
     </body>
