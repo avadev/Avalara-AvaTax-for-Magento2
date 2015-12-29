@@ -135,6 +135,7 @@ class Get
                 $avataxTaxAmount = abs($getTaxResult->getTotalTax());
                 $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
 
+                /** @var $response \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface */
                 $response = $this->getTaxResponseFactory->create();
                 $response->setIsUnbalanced($unbalanced)
                     ->setBaseAvataxTaxAmount($avataxTaxAmount);

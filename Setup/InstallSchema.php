@@ -5,12 +5,27 @@ namespace ClassyLlama\AvaTax\Setup;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
+use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 /**
  * @codeCoverageIgnore
  */
 class InstallSchema implements InstallSchemaInterface
 {
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @param AvaTaxLogger $logger
+     */
+    public function __construct(
+        AvaTaxLogger $logger
+    ) {
+        $this->logger = $logger;
+    }
+
     /**
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
@@ -19,6 +34,9 @@ class InstallSchema implements InstallSchemaInterface
     {
         $installer = $setup;
         $installer->startSetup();
+
+        // Logging
+        $this->logger->info('ClassyLlama_AvaTax Schema Installation');
 
         /**
          * Create table 'avatax_log'

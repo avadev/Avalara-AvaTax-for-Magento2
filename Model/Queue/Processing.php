@@ -292,8 +292,9 @@ class Processing
     protected function updateAdditionalEntityAttributes($entity, \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse)
     {
         // TODO: update invoice with additional fields
-        $processSalesResponse->getIsUnbalanced();
-        $processSalesResponse->getBaseAvataxTaxAmount();
+        $entity->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
+        $entity->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
+        $entity->save();
     }
 
     /**

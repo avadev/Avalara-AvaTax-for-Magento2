@@ -118,7 +118,7 @@ class Task
         foreach ($queueCollection as $queue) {
             /** @var $queue Queue */
 
-            // TODO: Reset queue
+            // Reset queue
             $queue->setQueueStatus(Queue::QUEUE_STATUS_PENDING);
             $queue->save();
             $this->resetCount++;

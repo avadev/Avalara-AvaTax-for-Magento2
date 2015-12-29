@@ -33,14 +33,14 @@ interface GetTaxResponseInterface
     /**
      * Get tax amount that AvaTax calculated for this response
      *
-     * @return void
+     * @return float
      */
     public function getBaseAvataxTaxAmount();
 
     /**
      * Set tax amount that AvaTax calculated for this response
      *
-     * @param bool $amount
+     * @param float $amount
      * @return $this
      */
     public function setBaseAvataxTaxAmount($amount);
