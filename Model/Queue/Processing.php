@@ -6,6 +6,7 @@ use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get;
 use Magento\Framework\Stdlib\DateTime;
+use ClassyLlama\AvaTax\Model\Config;
 
 /**
  * Queue Processing
@@ -16,6 +17,11 @@ class Processing
      * @var AvaTaxLogger
      */
     protected $avaTaxLogger;
+
+    /**
+     * @var Config
+     */
+    protected $avaTaxConfig;
 
     /**
      * @var Get
@@ -54,6 +60,7 @@ class Processing
 
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
+        Config $avaTaxConfig,
         Get $interactionGetTax,
         Get\ResponseFactory $getTaxResponseFactory,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
@@ -64,6 +71,7 @@ class Processing
         \Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->avaTaxConfig = $avaTaxConfig;
         $this->interactionGetTax = $interactionGetTax;
         $this->getTaxResponseFactory = $getTaxResponseFactory;
         $this->dateTime = $dateTime;
@@ -82,6 +90,31 @@ class Processing
      */
     public function execute(Queue $queue)
     {
+        // Initialize the queue processing
+        // Check for valid queue status that allows processing
+        // Update queue status and attempts on this record
+        $this->initializeQueueProcessing($queue);
+
+        // Get the credit memo or invoice entity
+        $entity = $this->getProcessingEntity($queue);
+
+        // Process entity with AvaTax
+        $processSalesResponse = $this->processWithAvaTax($queue, $entity);
+
+        // update invoice with additional fields
+        $this->updateAdditionalEntityAttributes($entity, $processSalesResponse);
+
+        // Update the queue record status
+        // and add comment to order
+        $this->completeQueueProcessing($queue, $entity, $processSalesResponse);
+    }
+
+    /**
+     * @param Queue $queue
+     * @throws \Exception
+     */
+    protected function initializeQueueProcessing(Queue $queue)
+    {
         // validity check
         if ($queue->getQueueStatus() == Queue::QUEUE_STATUS_COMPLETE)
         {
@@ -99,7 +132,7 @@ class Processing
                 ]
             );
 
-            throw new \Exception('This record has already been processed, and the queue record marked as complete');
+            throw new \Exception('The queue record has already been processed, and the queue record marked as complete');
         }
 
         // update queue record with new processing status
@@ -108,9 +141,9 @@ class Processing
         // update queue incrementing attempts
         $queue->setAttempts($queue->getAttempts()+1);
 
-        /* @var $resource \ClassyLlama\AvaTax\Model\ResourceModel\Queue */
-        $resource = $queue->getResource();
-        $changedResult = $resource->changeQueueStatusWithLocking($queue);
+        /* @var $queueResource \ClassyLlama\AvaTax\Model\ResourceModel\Queue */
+        $queueResource = $queue->getResource();
+        $changedResult = $queueResource->changeQueueStatusWithLocking($queue);
 
         if (!$changedResult) {
             // Something else has modified the queue record, skip processing
@@ -134,113 +167,12 @@ class Processing
 
             throw new \Exception('Something else has modified the queue record, skip processing');
         }
-
-        $entity = $this->getProcessingEntity($queue);
-
-        // process entity with AvaTax
-        /* @var $processSalesResponse \ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response */
-        $processSalesResponse = $this->getTaxResponseFactory->create();
-        try {
-            $processSalesResponse = $this->interactionGetTax->processSalesObject($entity);
-
-            $message = ucfirst($queue->getEntityTypeCode()) . ' #' . $entity->getIncrementId() . ' was submitted to AvaTax';
-
-            if ($processSalesResponse->getIsUnbalanced()) {
-                $queue->setMessage(
-                    'Unbalanced Response - Collected: ' . $entity->getBaseTaxAmount() . ', AvaTax Actual: ' . $processSalesResponse->getBaseAvataxTaxAmount() . "\n" .
-                    $queue->getMessage()
-                );
-
-                // add comment about unbalanced amount
-                $message .= '<br/>' .
-                    'When submitting the ' . $queue->getEntityTypeCode() . ' to AvaTax the amount calculated for tax differed from what was recorded in Magento.<br/>' .
-                    'There was a difference of ' . ($entity->getBaseTaxAmount() - $processSalesResponse->getBaseAvataxTaxAmount()) . '<br/>' .
-                    'Magento listed a tax amount of ' . $entity->getBaseTaxAmount() . '<br/>' .
-                    'AvaTax calculated the tax to be ' . $processSalesResponse->getBaseAvataxTaxAmount() . '<br/>';
-            }
-
-            // TODO: update invoice with additional fields
-            $processSalesResponse->getIsUnbalanced();
-            $processSalesResponse->getBaseAvataxTaxAmount();
-
-            // Update the queue record status
-            $queue->setQueueStatus(Queue::QUEUE_STATUS_COMPLETE);
-            $queue->save();
-
-            // Add comment to order
-            $this->addOrderComment($entity->getOrderId(), $message);
-        } catch (Get\Exception $e) {
-            // A problem happened while processing the sales object but we at least anticipated it's possibility
-
-            $message = 'An error occurred when attempting ' .
-                'to send ' . ucfirst($queue->getEntityTypeCode()) . ' #'. $entity->getIncrementId() . ' to AvaTax.';
-
-            // TODO: Check to see if this is the last retry, and if so add an additional comment to the message
-
-            // Update the queue record
-            $queue->setMessage($message . "\n" . $queue->getMessage());
-            $queue->setQueueStatus(Queue::QUEUE_STATUS_PENDING);
-            $queue->save();
-
-            // Add comment to order
-            $this->addOrderComment($entity->getOrderId(), $message);
-
-            // Log the error
-            $this->avaTaxLogger->error(
-                $message,
-                [ /* context */
-                    'queue_id' => $queue->getId(),
-                    'entity_type_code' => $queue->getEntityTypeCode(),
-                    'increment_id' => $queue->getIncrementId(),
-                    'exception' => sprintf(
-                        'Exception message: %s%sTrace: %s',
-                        $e->getMessage(),
-                        "\n",
-                        $e->getTraceAsString()
-                    ),
-                ]
-            );
-
-            throw new \Exception($message, null, $e);
-        } catch (\Exception $e) {
-
-            $message = 'An unexpected exception occurred when attempting ' .
-                'to send ' . ucfirst($queue->getEntityTypeCode()) . ' #'. $entity->getIncrementId() . ' to AvaTax.';
-
-            // TODO: Check to see if this is the last retry, and if so add an additional comment to the message
-
-            // Update the queue record
-            $queue->setMessage($message . "\n" . $queue->getMessage());
-            $queue->setQueueStatus(Queue::QUEUE_STATUS_PENDING);
-            $queue->save();
-
-            // Add comment to order
-            $this->addOrderComment($entity->getOrderId(), $message);
-
-            // Log the error
-            $this->avaTaxLogger->error(
-                $message,
-                [ /* context */
-                    'queue_id' => $queue->getId(),
-                    'entity_type_code' => $queue->getEntityTypeCode(),
-                    'increment_id' => $queue->getIncrementId(),
-                    'exception' => sprintf(
-                        'Exception message: %s%sTrace: %s',
-                        $e->getMessage(),
-                        "\n",
-                        $e->getTraceAsString()
-                    ),
-                ]
-            );
-
-            throw new \Exception($message, null, $e);
-        }
     }
 
     /**
      * Process invoice or credit memo
-     * TODO: When failing a queue records we need to have some way to notify someone of the failure
      *
+     * @param Queue $queue
      * @return \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface
      * @throws \Exception
      */
@@ -255,14 +187,18 @@ class Processing
                 if ($invoice->getEntityId()) {
                     return $invoice;
                 } else {
-                    throw new \Exception('Invoice not found: (EntityId: ' . $queue->getEntityId() . ', IncrementId: ' . $queue->getIncrementId() . ')');
+                    $message = 'Invoice not found: (EntityId: ' . $queue->getEntityId() . ', IncrementId: ' . $queue->getIncrementId() . ')';
+
+                    // Update the queue record
+                    $this->failQueueProcessing($queue, $message);
+
+                    throw new \Exception($message);
                 }
             } catch (\Exception $e) {
+                $message = 'ERROR getProcessingEntity() invoiceRepository->get(): ' . $e->getMessage() . "\n" . $queue->getMessage();
 
                 // Update the queue record
-                $queue->setMessage('ERROR getProcessingEntity(): ' . $e->getMessage() . "\n" . $queue->getMessage());
-                $queue->setQueueStatus(Queue::QUEUE_STATUS_FAILED);
-                $queue->save();
+                $this->failQueueProcessing($queue, $message);
 
                 throw $e;
             }
@@ -275,26 +211,167 @@ class Processing
                 if ($creditmemo->getEntityId()) {
                     return $creditmemo;
                 } else {
-                    throw new \Exception('Credit Memo not found: (EntityId: ' . $queue->getEntityId() . ', IncrementId: ' . $queue->getIncrementId() . ')');
+                    $message = 'Credit Memo not found: (EntityId: ' . $queue->getEntityId() . ', IncrementId: ' . $queue->getIncrementId() . ')';
+
+                    // Update the queue record
+                    $this->failQueueProcessing($queue, $message);
+
+                    throw new \Exception($message);
                 }
             } catch (\Exception $e) {
+                $message = 'ERROR getProcessingEntity() creditmemoRepository->get(): ' . $e->getMessage() . "\n" . $queue->getMessage();
 
                 // Update the queue record
-                $queue->setMessage('ERROR getProcessingEntity(): ' . $e->getMessage() . "\n" . $queue->getMessage());
-                $queue->setQueueStatus(Queue::QUEUE_STATUS_FAILED);
-                $queue->save();
+                $this->failQueueProcessing($queue, $message);
 
                 throw $e;
             }
         } else {
             $message = 'Unknown Entity Type Code for processing (' . $queue->getEntityTypeCode() . ')';
+
             // Update the queue record
-            $queue->setMessage($message . "\n" . $queue->getMessage());
-            $queue->setQueueStatus(Queue::QUEUE_STATUS_FAILED);
-            $queue->save();
+            $this->failQueueProcessing($queue, $message);
 
             throw new \Exception();
         }
+    }
+
+    /**
+     * @param Queue $queue
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
+     * @return \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface
+     * @throws \Exception
+     */
+    protected function processWithAvaTax(Queue $queue, $entity)
+    {
+        try {
+            $processSalesResponse = $this->interactionGetTax->processSalesObject($entity);
+
+        } catch (\Exception $e) {
+
+            $message = '';
+            if ($e instanceof Get\Exception)
+            {
+                $message .= 'An error occurred when attempting ' .
+                    'to send ' . ucfirst($queue->getEntityTypeCode()) . ' #'. $entity->getIncrementId() . ' to AvaTax.';
+            } else {
+                $message .= 'An unexpected exception occurred when attempting ' .
+                    'to send ' . ucfirst($queue->getEntityTypeCode()) . ' #'. $entity->getIncrementId() . ' to AvaTax.';
+            }
+
+            // Log the error
+            $this->avaTaxLogger->error(
+                $message,
+                [ /* context */
+                    'queue_id' => $queue->getId(),
+                    'entity_type_code' => $queue->getEntityTypeCode(),
+                    'increment_id' => $queue->getIncrementId(),
+                    'exception' => sprintf(
+                        'Exception message: %s%sTrace: %s',
+                        $e->getMessage(),
+                        "\n",
+                        $e->getTraceAsString()
+                    ),
+                ]
+            );
+
+            // Update the queue record
+            // and add comment to order
+            $this->resetQueueingForProcessing($queue, $message, $entity);
+
+            throw new \Exception($message, null, $e);
+        }
+
+        return $processSalesResponse;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
+     * @param \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse
+     */
+    protected function updateAdditionalEntityAttributes($entity, \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse)
+    {
+        // TODO: update invoice with additional fields
+        $processSalesResponse->getIsUnbalanced();
+        $processSalesResponse->getBaseAvataxTaxAmount();
+    }
+
+    /**
+     * TODO: When failing a queue records we need to have some way to notify someone of the failure (like an email?)
+     *
+     * @param Queue $queue
+     * @param string $message
+     */
+    protected function failQueueProcessing(Queue $queue, $message)
+    {
+        $queue->setMessage($message . "\n" . $queue->getMessage());
+        $queue->setQueueStatus(Queue::QUEUE_STATUS_FAILED);
+        $queue->save();
+    }
+
+    /**
+     * @param Queue $queue
+     * @param string $message
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
+     */
+    protected function resetQueueingForProcessing(Queue $queue, $message, $entity)
+    {
+        // Check retry attempts and determine if we need to fail processing
+        // Add a comment to the order indicating what has been done
+        if ($this->avaTaxConfig->getQueueMaxRetryAttempts() >= $queue->getAttempts())
+        {
+            $message .= ' The processing has failed due to reaching the maximum number of attempts to retry. ' .
+                'Any corrective measures will need to be initiated manually';
+
+            // fail processing later by setting queue status to pending
+            $this->failQueueProcessing($queue, $message);
+
+            // Add comment to order
+            $this->addOrderComment($entity->getOrderId(), $message);
+        } else {
+            $message .= ' The processing is set to automatically retry on the next processing attempt.';
+
+            // retry processing later by setting queue status to pending
+            $queue->setMessage($message . "\n" . $queue->getMessage());
+            $queue->setQueueStatus(Queue::QUEUE_STATUS_PENDING);
+            $queue->save();
+
+            // Add comment to order
+            $this->addOrderComment($entity->getOrderId(), $message);
+        }
+    }
+
+    /**
+     * @param Queue $queue
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
+     * @param \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse
+     */
+    protected function completeQueueProcessing(
+        Queue $queue,
+        $entity,
+        \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse
+    ) {
+        $message = ucfirst($queue->getEntityTypeCode()) . ' #' . $entity->getIncrementId() . ' was submitted to AvaTax';
+
+        if ($processSalesResponse->getIsUnbalanced()) {
+            $queue->setMessage(
+                'Unbalanced Response - Collected: ' . $entity->getBaseTaxAmount() . ', AvaTax Actual: ' . $processSalesResponse->getBaseAvataxTaxAmount() . "\n" .
+                $queue->getMessage()
+            );
+
+            // add comment about unbalanced amount
+            $message .= '<br/>' .
+                'When submitting the ' . $queue->getEntityTypeCode() . ' to AvaTax the amount calculated for tax differed from what was recorded in Magento.<br/>' .
+                'There was a difference of ' . ($entity->getBaseTaxAmount() - $processSalesResponse->getBaseAvataxTaxAmount()) . '<br/>' .
+                'Magento listed a tax amount of ' . $entity->getBaseTaxAmount() . '<br/>' .
+                'AvaTax calculated the tax to be ' . $processSalesResponse->getBaseAvataxTaxAmount() . '<br/>';
+        }
+
+        $queue->setQueueStatus(Queue::QUEUE_STATUS_COMPLETE);
+        $queue->save();
+
+        // Add comment to order
+        $this->addOrderComment($entity->getOrderId(), $message);
     }
 
     /**

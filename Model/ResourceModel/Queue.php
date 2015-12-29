@@ -10,6 +10,7 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 class Queue extends AbstractDb
 {
     const QUEUE_STATUS_FIELD_NAME = 'queue_status';
+    const UPDATED_AT_FIELD_NAME = 'updated_at';
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime
@@ -61,7 +62,7 @@ class Queue extends AbstractDb
     }
 
     /**
-     * Update the status of a queue record
+     * Update the status of a queue record and check to confirm the exclusive change
      *
      * @param \Magento\Framework\Model\AbstractModel $object
      * @return bool
@@ -73,6 +74,7 @@ class Queue extends AbstractDb
         $data = $this->prepareDataForUpdate($object);
 
         $originalQueueStatus = $object->getOrigData(self::QUEUE_STATUS_FIELD_NAME);
+        $originalUpdatedAt = $object->getOrigData(self::UPDATED_AT_FIELD_NAME);
 
         // A conditional update does a read lock on update so we use the condition on the old
         // queue status here to guarantee that nothing else has modified the status for processing
@@ -83,6 +85,9 @@ class Queue extends AbstractDb
 
         // only update the record if it is still pending
         $condition[] = $this->getConnection()->quoteInto(self::QUEUE_STATUS_FIELD_NAME . '=?', $originalQueueStatus);
+
+        // only update the record if nothing else has updated it
+        $condition[] = $this->getConnection()->quoteInto(self::UPDATED_AT_FIELD_NAME . '=?', $originalUpdatedAt);
 
         // update the record and get the number of affected records
         $affectedRowCount = $this->getConnection()->update($this->getMainTable(), $data, $condition);

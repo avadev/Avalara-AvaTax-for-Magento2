@@ -55,7 +55,7 @@ class DbHandler extends AbstractHandler
      */
     protected function addExtraProcessors(array $processors) {
         // Add additional processors for extra detail
-        if ($this->avaTaxConfig->logDbDetail() == LogDetail::EXTRA) {
+        if ($this->avaTaxConfig->getLogDbDetail() == LogDetail::EXTRA) {
             $this->processors = $processors;
         }
     }
@@ -71,7 +71,7 @@ class DbHandler extends AbstractHandler
      */
     public function isHandling(array $record)
     {
-        return $this->avaTaxConfig->isModuleEnabled() && $record['level'] >= $this->avaTaxConfig->logDbLevel();
+        return $this->avaTaxConfig->isModuleEnabled() && $record['level'] >= $this->avaTaxConfig->getLogDbLevel();
     }
 
     /**
@@ -116,14 +116,14 @@ class DbHandler extends AbstractHandler
             $log->setData('source', $record['extra']['class'] . " [line:" . $record['extra']['line'] . "]");
         }
 
-        if ($this->avaTaxConfig->logDbDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
+        if ($this->avaTaxConfig->getLogDbDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
             $log->setData('request', $this->getRequest($record));
             $log->setData('result', $this->getResult($record));
-        } elseif ($this->avaTaxConfig->logDbDetail() == LogDetail::NORMAL) {
+        } elseif ($this->avaTaxConfig->getLogDbDetail() == LogDetail::NORMAL) {
             $log->setData('request', $this->getRequest($record));
             $log->setData('result', $this->getResult($record));
             $log->setData('additional', $this->getContextVarExport($record));
-        } elseif ($this->avaTaxConfig->logDbDetail() == LogDetail::EXTRA) {
+        } elseif ($this->avaTaxConfig->getLogDbDetail() == LogDetail::EXTRA) {
             $log->setData('request', $this->getRequest($record));
             $log->setData('result', $this->getResult($record));
             $log->setData('additional',

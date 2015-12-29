@@ -26,9 +26,9 @@ use Magento\Framework\Data\Collection\AbstractDb;
  * @method Queue setStoreId() setStoreId(int $storeId)
  * @method Queue setEntityTypeId() setEntityTypeId(int $entityTypeId)
  * @method Queue setEntityId() setEntityId(int $entityId)
- * @method Queue setQueueStatus() setQueueStatus(int $queueStatus)
+ * @method Queue setQueueStatus() setQueueStatus(string $queueStatus)
  * @method Queue setAttempts() setAttempts(int $attempts)
- * @method Queue setMessage() setMessage(int $message)
+ * @method Queue setMessage() setMessage(string $message)
  * @method ResourceModel\Queue\Collection getCollection()
  */
 class Queue extends AbstractModel

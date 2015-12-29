@@ -74,6 +74,8 @@ class Config
     const XML_PATH_AVATAX_LOG_FILE_LEVEL = 'tax/avatax/logging_file_level';
 
     const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
+
+    const XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS = 'tax/avatax/queue_max_retry_attempts';
     /**#@-*/
 
     /**#@+
@@ -682,7 +684,7 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logDbLevel($store = null)
+    public function getLogDbLevel($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_DB_LEVEL,
@@ -697,7 +699,7 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logDbDetail($store = null)
+    public function getLogDbDetail($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_DB_DETAIL,
@@ -712,7 +714,7 @@ class Config
      * @param null $store
      * @return bool
      */
-    public function logFileEnabled($store = null)
+    public function getLogFileEnabled($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_ENABLED,
@@ -727,7 +729,7 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logFileMode($store = null)
+    public function getLogFileMode($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_MODE,
@@ -742,7 +744,7 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logFileLevel($store = null)
+    public function getLogFileLevel($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_LEVEL,
@@ -757,10 +759,25 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logFileDetail($store = null)
+    public function getLogFileDetail($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured queue max retry attempts
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getQueueMaxRetryAttempts($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
