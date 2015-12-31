@@ -67,6 +67,43 @@ class SalesApiCreditmemoRepositoryInterface
 
 
     /**
+     * Save gift message
+     *
+     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $subject
+     * @param callable $proceed
+     * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     * @return \Magento\Sales\Api\Data\CreditmemoInterface
+     */
+    public function aroundSave(
+        \Magento\Sales\Api\CreditmemoRepositoryInterface $subject,
+        \Closure $proceed,
+        \Magento\Sales\Model\Order\Creditmemo $creditmemo
+    ) {
+        /* @var \Magento\Sales\Api\Data\CreditmemoExtension $extensionAttributes */
+        $extensionAttributes = $creditmemo->getExtensionAttributes();
+        if ($extensionAttributes != null && (
+                $extensionAttributes->getAvataxIsUnbalanced() != null ||
+                $extensionAttributes->getBaseAvataxTaxAmount() != null
+            )
+        ) {
+            $creditmemo->setAvataxIsUnbalanced($extensionAttributes->getAvataxIsUnbalanced());
+            $creditmemo->setBaseAvataxTaxAmount($extensionAttributes->getBaseAvataxTaxAmount());
+        }
+
+        /** @var \Magento\Sales\Api\Data\CreditmemoInterface $resultCreditmemo */
+        $resultCreditmemo = $proceed($creditmemo);
+        //$resultCreditmemo = $this->saveAvataxIsUnbalanced($resultCreditmemo);
+        //$resultCreditmemo = $this->saveOrderItemGiftMessage($resultCreditmemo);
+
+        return $resultCreditmemo;
+    }
+
+
+
+
+
+
+    /**
      * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $subject
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $result
      * @return \Magento\Sales\Api\Data\CreditmemoInterface
@@ -78,20 +115,27 @@ class SalesApiCreditmemoRepositoryInterface
         // Queue the invoice to be sent to AvaTax
         if ($this->avaTaxConfig->isModuleEnabled() && $this->queueSubmitEnabled()) {
 
-            //$entityTypeCode = $result->getEntityType();
-            $entityType = $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_CREDITMEMO);
+            // TODO: Confirm new credit memos are going to still get queue records
+            // This isObjectNew() check is inteneded to avoid creating queue records
+            // when a credit memo is saved during processing to avatax when we add
+            // the response fields back to the credit memo.
+            if ($result->isObjectNew())
+            {
+                //$entityTypeCode = $result->getEntityType();
+                $entityType = $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_CREDITMEMO);
 
-            /** @var Queue $queue */
-            $queue = $this->queueFactory->create();
+                /** @var Queue $queue */
+                $queue = $this->queueFactory->create();
 
-            $queue->setData('store_id', $result->getStoreId());
-            $queue->setData('entity_type_id', $entityType->getEntityTypeId());
-            $queue->setData('entity_type_code', Queue::ENTITY_TYPE_CODE_CREDITMEMO);
-            $queue->setData('entity_id', $result->getEntityId());
-            $queue->setData('increment_id', $result->getIncrementId());
-            $queue->setData('queue_status', \ClassyLlama\AvaTax\Model\Queue::QUEUE_STATUS_PENDING);
-            $queue->setData('attempts', 0);
-            $queue->save();
+                $queue->setData('store_id', $result->getStoreId());
+                $queue->setData('entity_type_id', $entityType->getEntityTypeId());
+                $queue->setData('entity_type_code', Queue::ENTITY_TYPE_CODE_CREDITMEMO);
+                $queue->setData('entity_id', $result->getEntityId());
+                $queue->setData('increment_id', $result->getIncrementId());
+                $queue->setData('queue_status', \ClassyLlama\AvaTax\Model\Queue::QUEUE_STATUS_PENDING);
+                $queue->setData('attempts', 0);
+                $queue->save();
+            }
         }
 
         return $result;

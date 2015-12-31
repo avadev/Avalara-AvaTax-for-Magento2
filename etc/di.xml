@@ -12,9 +12,9 @@
     <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
         <plugin name="avatax_tax_model_sales_total_quote_subtotal" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Subtotal" />
     </type>
-    <!--<type name="Magento\Sales\Api\InvoiceRepositoryInterface">-->
-        <!--<plugin name="avatax_sales_api_invoice_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiInvoiceRepositoryInterface" />-->
-    <!--</type>-->
+    <type name="Magento\Sales\Api\InvoiceRepositoryInterface">
+        <plugin name="avatax_sales_api_invoice_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiInvoiceRepositoryInterface" />
+    </type>
     <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
         <plugin name="avatax_sales_api_creditmemo_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiCreditmemoRepositoryInterface" />
     </type>

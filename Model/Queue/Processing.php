@@ -58,6 +58,16 @@ class Processing
      */
     protected $orderStatusHistoryFactory;
 
+    /**
+     * @var \Magento\Sales\Api\Data\InvoiceExtensionFactory
+     */
+    protected $invoiceExtensionFactory;
+
+    /**
+     * @var \Magento\Sales\Api\Data\CreditmemoExtensionFactory
+     */
+    protected $creditmemoExtensionFactory;
+
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
         Config $avaTaxConfig,
@@ -68,7 +78,9 @@ class Processing
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Sales\Api\OrderManagementInterface $orderManagement,
-        \Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory
+        \Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory,
+        \Magento\Sales\Api\Data\InvoiceExtensionFactory $invoiceExtensionFactory,
+        \Magento\Sales\Api\Data\CreditmemoExtensionFactory $creditmemoExtensionFactory
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
@@ -80,6 +92,8 @@ class Processing
         $this->orderRepository = $orderRepository;
         $this->orderManagement = $orderManagement;
         $this->orderStatusHistoryFactory = $orderStatusHistoryFactory;
+        $this->invoiceExtensionFactory = $invoiceExtensionFactory;
+        $this->creditmemoExtensionFactory = $creditmemoExtensionFactory;
     }
 
     /**
@@ -292,9 +306,56 @@ class Processing
     protected function updateAdditionalEntityAttributes($entity, \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse)
     {
         // TODO: update invoice with additional fields
-        $entity->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
-        $entity->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
-        $entity->save();
+        $entityExtension = $entity->getExtensionAttributes();
+        if ($entityExtension == null) {
+            $entityExtension = $this->getEntityExtensionInterface($entity);
+        }
+
+        $entityExtension->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
+        $entityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
+        $entity->setExtensionAttributes($entityExtension);
+        $entityRepository = $this->getEntityRepository($entity);
+        $entityRepository->save($entity);
+
+        //$entity->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
+        //$entity->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
+        //$entity->save();
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
+     * @return \Magento\Sales\Api\Data\InvoiceExtension|\Magento\Sales\Api\Data\CreditmemoExtension
+     * @throws \Exception
+     */
+    protected function getEntityExtensionInterface($entity)
+    {
+        if ($entity instanceof \Magento\Sales\Api\Data\InvoiceInterface)
+        {
+            return $this->invoiceExtensionFactory->create();
+        } elseif ($entity instanceof \Magento\Sales\Api\Data\CreditmemoInterface) {
+            return $this->creditmemoExtensionFactory->create();
+        } else {
+            $message = 'Did not receive a valid entity instance to determine the extension to return';
+            throw new \Exception($message);
+        }
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
+     * @return \Magento\Sales\Api\InvoiceRepositoryInterface|\Magento\Sales\Api\CreditmemoRepositoryInterface
+     * @throws \Exception
+     */
+    protected function getEntityRepository($entity)
+    {
+        if ($entity instanceof \Magento\Sales\Api\Data\InvoiceInterface)
+        {
+            return $this->invoiceRepository;
+        } elseif ($entity instanceof \Magento\Sales\Api\Data\CreditmemoInterface) {
+            return $this->creditmemoRepository;
+        } else {
+            $message = 'Did not receive a valid entity instance to determine the repository type to return';
+            throw new \Exception($message);
+        }
     }
 
     /**
