@@ -68,6 +68,26 @@ class Processing
      */
     protected $creditmemoExtensionFactory;
 
+    /**
+     * @var \ClassyLlama\AvaTax\Api\Data\InvoiceInterfaceFactory
+     */
+    protected $avaTaxInvoiceFactory;
+
+    /**
+     * @var \ClassyLlama\AvaTax\Api\Data\CreditmemoInterfaceFactory
+     */
+    protected $avaTaxCreditmemoFactory;
+
+    /**
+     * @var \Magento\Eav\Model\Config
+     */
+    protected $eavConfig;
+
+    /**
+     * @var \ClassyLlama\AvaTax\Model\CreditmemoRepository
+     */
+    protected $avaTaxCreditmemoRepository;
+
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
         Config $avaTaxConfig,
@@ -80,7 +100,11 @@ class Processing
         \Magento\Sales\Api\OrderManagementInterface $orderManagement,
         \Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory,
         \Magento\Sales\Api\Data\InvoiceExtensionFactory $invoiceExtensionFactory,
-        \Magento\Sales\Api\Data\CreditmemoExtensionFactory $creditmemoExtensionFactory
+        \Magento\Sales\Api\Data\CreditmemoExtensionFactory $creditmemoExtensionFactory,
+        \ClassyLlama\AvaTax\Api\Data\InvoiceInterfaceFactory $avaTaxInvoiceFactory,
+        \ClassyLlama\AvaTax\Api\Data\CreditmemoInterfaceFactory $avaTaxCreditmemoFactory,
+        \Magento\Eav\Model\Config $eavConfig,
+        \ClassyLlama\AvaTax\Model\CreditmemoRepository $avaTaxCreditmemoRepository
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
@@ -94,6 +118,10 @@ class Processing
         $this->orderStatusHistoryFactory = $orderStatusHistoryFactory;
         $this->invoiceExtensionFactory = $invoiceExtensionFactory;
         $this->creditmemoExtensionFactory = $creditmemoExtensionFactory;
+        $this->avaTaxInvoiceFactory = $avaTaxInvoiceFactory;
+        $this->avaTaxCreditmemoFactory = $avaTaxCreditmemoFactory;
+        $this->eavConfig = $eavConfig;
+        $this->avaTaxCreditmemoRepository = $avaTaxCreditmemoRepository;
     }
 
     /**
@@ -305,21 +333,70 @@ class Processing
      */
     protected function updateAdditionalEntityAttributes($entity, \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse)
     {
-        // TODO: update invoice with additional fields
         $entityExtension = $entity->getExtensionAttributes();
-        if ($entityExtension == null) {
+        if ($entityExtension == null)
+        {
             $entityExtension = $this->getEntityExtensionInterface($entity);
         }
 
-        $entityExtension->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
-        $entityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
-        $entity->setExtensionAttributes($entityExtension);
-        $entityRepository = $this->getEntityRepository($entity);
-        $entityRepository->save($entity);
+        // check to see if the AvaTax Extension is already set on this entity
+        if ($entityExtension->getAvataxExtension() == null)
+        {
+            // get the entity type
+            $entityType = $this->getEntityType($entity);
 
-        //$entity->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
-        //$entity->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
-        //$entity->save();
+            // create a new AvaTax Extension object
+            $avaTaxEntityExtension = $this->getAvaTaxEntityExtension($entity);
+
+            // set all the properties
+            $avaTaxEntityExtension->setStoreId($entity->getStoreId());
+            $avaTaxEntityExtension->setEntityTypeId($entityType->getId());
+            $avaTaxEntityExtension->setEntityTypeCode($entityType->getEntityTypeCode());
+            $avaTaxEntityExtension->setEntityId($entity->getEntityId());
+            $avaTaxEntityExtension->setIncrementId($entity->getIncrementId());
+            $avaTaxEntityExtension->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
+            $avaTaxEntityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
+
+            // save the AvaTax Extension to the entityExtension object
+            $entityExtension->setAvataxExtension($avaTaxEntityExtension);
+
+            // save the ExtensionAttributes on the entity object
+            $entity->setExtensionAttributes($entityExtension);
+
+            // get the repository for this entity type
+            $entityRepository = $this->getEntityRepository($entity);
+
+            // save the entity object using the repository
+            $entityRepository->save($entity);
+        } else {
+            $avaTaxEntityExtension = $entityExtension->getAvataxExtension();
+
+            // check to see if any existing value is different from the new value
+            if (
+                $processSalesResponse->getIsUnbalanced() <> $avaTaxEntityExtension->getIsUnbalanced() ||
+                $processSalesResponse->getBaseAvataxTaxAmount() <> $avaTaxEntityExtension->getBaseAvataxTaxAmount()
+            ) {
+                // TODO: note the difference of existing vs new on the order comments
+                $message = '';
+
+                // set all the properties
+                $avaTaxEntityExtension->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
+                $avaTaxEntityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
+
+                // save the AvaTax Extension to the entityExtension object
+                $entityExtension->setAvataxExtension($avaTaxEntityExtension);
+
+                // save the ExtensionAttributes on the entity object
+                $entity->setExtensionAttributes($entityExtension);
+
+                // get the repository for this entity type
+                $entityRepository = $this->getEntityRepository($entity);
+
+                // save the entity object using the repository
+                $entityRepository->save($entity);
+            }
+
+        }
     }
 
     /**
@@ -336,6 +413,43 @@ class Processing
             return $this->creditmemoExtensionFactory->create();
         } else {
             $message = 'Did not receive a valid entity instance to determine the extension to return';
+            throw new \Exception($message);
+        }
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
+     * @return \Magento\Eav\Model\Entity\Type
+     * @throws \Exception
+     */
+    protected function getEntityType($entity)
+    {
+        if ($entity instanceof \Magento\Sales\Api\Data\InvoiceInterface)
+        {
+            return $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_INVOICE);
+        } elseif ($entity instanceof \Magento\Sales\Api\Data\CreditmemoInterface) {
+            return $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_CREDITMEMO);
+        } else {
+            $message = 'Did not receive a valid entity instance to determine the entity type to return';
+            throw new \Exception($message);
+        }
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
+     * @return \ClassyLlama\AvaTax\Api\Data\InvoiceInterface|\ClassyLlama\AvaTax\Api\Data\CreditmemoInterface
+     * @throws \Exception
+     */
+    protected function getAvaTaxEntityExtension($entity)
+    {
+        if ($entity instanceof \Magento\Sales\Api\Data\InvoiceInterface)
+        {
+            return $this->avaTaxInvoiceFactory->create();
+        } elseif ($entity instanceof \Magento\Sales\Api\Data\CreditmemoInterface) {
+            $avaTaxEntityExtension = $this->avaTaxCreditmemoFactory->create();
+            return $avaTaxEntityExtension;
+        } else {
+            $message = 'Did not receive a valid entity instance to determine the AvaTax Extension type to return';
             throw new \Exception($message);
         }
     }

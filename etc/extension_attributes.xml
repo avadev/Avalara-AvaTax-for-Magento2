@@ -10,9 +10,33 @@
     <extension_attributes for="Magento\Sales\Api\Data\InvoiceInterface">
         <attribute code="avatax_is_unbalanced" type="string" />
         <attribute code="base_avatax_tax_amount" type="string" />
+        <attribute code="avatax_extension" type="ClassyLlama\AvaTax\Api\Data\InvoiceInterface">
+            <join reference_table="avatax_invoice" reference_field="entity_id" join_on_field="entity_id">
+                <field>id</field>
+                <field>store_id</field>
+                <field>entity_type_id</field>
+                <field>entity_type_code</field>
+                <field>entity_id</field>
+                <field>increment_id</field>
+                <field>is_unbalanced</field>
+                <field>base_avatax_tax_amount</field>
+            </join>
+        </attribute>
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\CreditmemoInterface">
         <attribute code="avatax_is_unbalanced" type="string" />
         <attribute code="base_avatax_tax_amount" type="string" />
+        <attribute code="avatax_extension" type="ClassyLlama\AvaTax\Api\Data\CreditmemoInterface">
+            <join reference_table="avatax_creditmemo" reference_field="entity_id" join_on_field="entity_id">
+                <field>id</field>
+                <field>store_id</field>
+                <field>entity_type_id</field>
+                <field>entity_type_code</field>
+                <field>entity_id</field>
+                <field>increment_id</field>
+                <field>is_unbalanced</field>
+                <field>base_avatax_tax_amount</field>
+            </join>
+        </attribute>
     </extension_attributes>
 </config>

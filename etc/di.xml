@@ -6,23 +6,31 @@
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Model\ShippingInformationManagementPlugin" />
     </type>
-    <type name="Magento\Sales\Model\Order\Invoice">
-        <plugin name="avatax_sales_order_invoice" type="ClassyLlama\AvaTax\Plugin\SalesOrderInvoice" />
-    </type>
     <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
         <plugin name="avatax_tax_model_sales_total_quote_subtotal" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Subtotal" />
-    </type>
-    <type name="Magento\Sales\Api\InvoiceRepositoryInterface">
-        <plugin name="avatax_sales_api_invoice_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiInvoiceRepositoryInterface" />
-    </type>
-    <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
-        <plugin name="avatax_sales_api_creditmemo_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiCreditmemoRepositoryInterface" />
     </type>
     <type name="Magento\Tax\Model\Sales\Total\Quote\Shipping">
         <plugin name="avatax_tax_model_sales_total_quote_shipping" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Shipping" />
     </type>
+    <!--<type name="Magento\Sales\Model\Order\Invoice">-->
+        <!--<plugin name="avatax_sales_order_invoice" type="ClassyLlama\AvaTax\Plugin\SalesOrderInvoice" />-->
+    <!--</type>-->
+    <!--<type name="Magento\Sales\Api\InvoiceRepositoryInterface">-->
+        <!--<plugin name="avatax_sales_api_invoice_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiInvoiceRepositoryInterface" />-->
+    <!--</type>-->
+    <!--<type name="Magento\Sales\Api\CreditmemoRepositoryInterface">-->
+        <!--<plugin name="avatax_sales_api_creditmemo_repository_interface" type="ClassyLlama\AvaTax\Plugin\SalesApiCreditmemoRepositoryInterface" />-->
+    <!--</type>-->
+    <type name="Magento\Sales\Model\Spi\CreditmemoResourceInterface">
+        <plugin name="avatax_sales_spi_creditmemo_resource" type="ClassyLlama\AvaTax\Plugin\SalesSpiCreditmemoResource" />
+    </type>
+    <type name="Magento\Sales\Model\Spi\InvoiceResourceInterface">
+        <plugin name="avatax_sales_spi_invoice_resource" type="ClassyLlama\AvaTax\Plugin\SalesSpiInvoiceResource" />
+    </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\CreditmemoInterface" type="ClassyLlama\AvaTax\Model\Creditmemo" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\InvoiceInterface" type="ClassyLlama\AvaTax\Model\Invoice" />
     <type name="ClassyLlama\AvaTax\Model\Session">
         <arguments>
             <argument name="storage" xsi:type="object">ClassyLlama\AvaTax\Model\Session\Storage</argument>

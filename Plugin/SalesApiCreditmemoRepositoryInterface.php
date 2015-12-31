@@ -79,16 +79,19 @@ class SalesApiCreditmemoRepositoryInterface
         \Closure $proceed,
         \Magento\Sales\Model\Order\Creditmemo $creditmemo
     ) {
+        // TODO: Instead of wrapping around the Repository, try wrapping the ResourceModel
+        // TODO: Save the avatax_creditmemo from the extensionAttributes to it's own repository
+
         /* @var \Magento\Sales\Api\Data\CreditmemoExtension $extensionAttributes */
-        $extensionAttributes = $creditmemo->getExtensionAttributes();
-        if ($extensionAttributes != null && (
-                $extensionAttributes->getAvataxIsUnbalanced() != null ||
-                $extensionAttributes->getBaseAvataxTaxAmount() != null
-            )
-        ) {
-            $creditmemo->setAvataxIsUnbalanced($extensionAttributes->getAvataxIsUnbalanced());
-            $creditmemo->setBaseAvataxTaxAmount($extensionAttributes->getBaseAvataxTaxAmount());
-        }
+//        $extensionAttributes = $creditmemo->getExtensionAttributes();
+//        if ($extensionAttributes != null && (
+//                $extensionAttributes->getAvataxIsUnbalanced() != null ||
+//                $extensionAttributes->getBaseAvataxTaxAmount() != null
+//            )
+//        ) {
+//            $creditmemo->setAvataxIsUnbalanced($extensionAttributes->getAvataxIsUnbalanced());
+//            $creditmemo->setBaseAvataxTaxAmount($extensionAttributes->getBaseAvataxTaxAmount());
+//        }
 
         /** @var \Magento\Sales\Api\Data\CreditmemoInterface $resultCreditmemo */
         $resultCreditmemo = $proceed($creditmemo);
