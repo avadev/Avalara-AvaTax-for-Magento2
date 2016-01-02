@@ -1022,7 +1022,6 @@ class SetupUtil
             foreach ($optionCollection as $option) {
                 $selectionsCollection = $typeInstance->getSelectionsCollection([$option->getId()], $product);
                 if ($option->isMultiSelection()) {
-                    // TODO: Submit PR to Magento with this line item
                     $selectionsCollection->load();
                     $bundleOptions[$option->getId()] = array_column($selectionsCollection->toArray(), 'selection_id');
                 } else {
