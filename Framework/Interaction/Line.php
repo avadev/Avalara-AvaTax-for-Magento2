@@ -15,6 +15,11 @@ class Line
     protected $config = null;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\TaxClass
+     */
+    protected $taxClassHelper;
+
+    /**
      * @var Validation
      */
     protected $validation = null;
@@ -38,11 +43,6 @@ class Line
      * Description for shipping line
      */
     const SHIPPING_LINE_DESCRIPTION = 'Shipping costs';
-
-    /**
-     * Avatax shipping tax code
-     */
-    const SHIPPING_LINE_TAX_CODE = 'FR020100';
 
     /**
      * An arbitrary ID used to track tax for shipping
@@ -112,33 +112,36 @@ class Line
      * Class constructor
      *
      * @param Config $config
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
      * @param Validation $validation
      * @param LineFactory $lineFactory
      * @param ResourceProduct $resourceProduct
      */
     public function __construct(
         Config $config,
+        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
         Validation $validation,
         LineFactory $lineFactory,
         ResourceProduct $resourceProduct
     ) {
         $this->config = $config;
+        $this->taxClassHelper = $taxClassHelper;
         $this->validation = $validation;
         $this->lineFactory = $lineFactory;
         $this->resourceProduct = $resourceProduct;
     }
 
     /**
-     * Return an array with relevant data from an order item.
+     * Return an array with relevant data from an invoice item
+     *
      * All TODOs in the doc block and the method body apply to all 4 conversion methods
      * TODO: tax_code can either be custom or system.  Custom tax codes can be configured in the AvaTax admin to set up specific tax reductions or exemptions for certain products.  In AvaTax Pro, there are many system tax codes that can be passed depending on the type of item that is being sold.  This really belongs on the product level although we could also put it on the Tax Class level as well.  The M1 module just uses the same value for this as for customer_usage_type which is confusing and incorrect for cases where you may want to pass both on the same item.  We should at least implement this as a text field on either the product, the tax class, or both.  We could possibly implement this as a more configurable option but that really seems like a phase 2 or phase 3 feature. More information: https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes and http://developer.avalara.com/api-docs/designing-your-integration/gettax.
      * TODO: Wishlist Product Attribute for tax_code
      * TODO: Fields to figure out: tax_override
      * TODO: Use Tax Class to get customer_usage_type, once this functionality is implemented
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\InvoiceItemInterface $item
-     * @return array
+     * @return array|bool
      */
     protected function convertInvoiceItemToData(\Magento\Sales\Api\Data\InvoiceItemInterface $item)
     {
@@ -157,8 +160,8 @@ class Line
         return [
             'store_id' => $item->getStoreId(),
             'no' => $this->getLineNumber(),
-            'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
-//            'tax_code' => null,
+            'item_code' => $item->getSku(),
+            'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getOrderItem()->getProduct()),
 //            'customer_usage_type' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
@@ -171,6 +174,12 @@ class Line
         ];
     }
 
+    /**
+     * Return an array with relevant data from an credit memo item
+     *
+     * @param \Magento\Sales\Api\Data\CreditmemoItemInterface $item
+     * @return array|bool
+     */
     protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $item)
     {
         if (!$this->isProductCalculated($item->getOrderItem())) {
@@ -191,8 +200,8 @@ class Line
         return [
             'store_id' => $item->getStoreId(),
             'no' => $this->getLineNumber(),
-            'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
-//            'tax_code' => null,
+            'item_code' => $item->getSku(),
+            'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getOrderItem()->getProduct()),
 //            'customer_usage_type' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
@@ -224,6 +233,7 @@ class Line
 
         $itemCode = $extensionAttributes ? $extensionAttributes->getAvataxItemCode() : '';
         $description = $extensionAttributes ? $extensionAttributes->getAvataxDescription() : '';
+        $taxCode = $extensionAttributes ? $extensionAttributes->getAvataxTaxCode() : null;
 
         // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
         // from taxable amount
@@ -236,7 +246,7 @@ class Line
 //            'store_id' => $item->getStoreId(),
             'no' => $item->getCode(),
             'item_code' => $itemCode,
-//            'tax_code' => null,
+            'tax_code' => $taxCode,
 //            'customer_usage_type' => null,
             'description' => $description,
             'qty' => $item->getQuantity(),
@@ -309,8 +319,7 @@ class Line
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
-            // TODO: Set this value to something appropriate
-//            'tax_code' => self::SHIPPING_LINE_TAX_CLASS,
+            'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForShipping(),
             'description' => self::SHIPPING_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $shippingAmount,
@@ -348,7 +357,7 @@ class Line
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
             'description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapOrderAmount,
@@ -390,7 +399,7 @@ class Line
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
             'description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapItemAmount,
@@ -427,7 +436,7 @@ class Line
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
             'description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $giftWrapCardAmount,
@@ -463,7 +472,7 @@ class Line
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            // Intentionally excluding tax_code key
             'description' => self::ADJUSTMENT_POSITIVE_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $amount,
@@ -498,7 +507,7 @@ class Line
         $data = [
             'no' => $this->getLineNumber(),
             'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
+            // Intentionally excluding tax_code key
             'description' => self::ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION,
             'qty' => 1,
             'amount' => $amount,

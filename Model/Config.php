@@ -667,24 +667,6 @@ class Config
     }
 
     /**
-     * Get gift wrap tax class
-     *
-     * @param null $store
-     * @return \Magento\Tax\Api\Data\TaxClassInterface
-     */
-    public function getWrappingTaxClass($store = null)
-    {
-        $taxClassId = $this->scopeConfig->getValue(
-            \Magento\GiftWrapping\Helper\Data::XML_PATH_TAX_CLASS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-        // TODO: Implement logic like \OnePica_AvaTax_Model_Avatax_Abstract::_getGiftTaxClassCode once AvaTax custom tax codes are implemented
-        //return $this->taxClassRepository->get($taxClassId)->getClassName();
-        return null;
-    }
-
-    /**
      * Return configured log level
      *
      * @param null $store
