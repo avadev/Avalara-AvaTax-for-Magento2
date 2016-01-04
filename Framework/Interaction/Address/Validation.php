@@ -50,7 +50,7 @@ class Validation
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $addressInput
-     * @return array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|null /AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
+     * @return \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|null
      * @throws AddressValidateException
      * @throws LocalizedException
      */

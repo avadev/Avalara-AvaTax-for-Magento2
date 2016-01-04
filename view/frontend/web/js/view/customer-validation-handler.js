@@ -12,8 +12,8 @@ define(
         'use strict';
 
         return {
-            validationContainer: '.validationModal .modal-content > div',
             bindingElement: '.validate-binding',
+            validationContainer: '.validationModal .modal-content .validate-binding',
 
             validationResponseHandler: function (response) {
                 if (typeof response !== 'undefined') {
@@ -24,8 +24,6 @@ define(
                     }
                     validationForm.fillValidateForm();
                     $(this.bindingElement).trigger('processStop');
-                } else {
-                    //$(this.options.validateAddressContainerSelector + ' *').hide();
                 }
             }
         };

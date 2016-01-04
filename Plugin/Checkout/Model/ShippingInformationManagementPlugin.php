@@ -63,7 +63,8 @@ class ShippingInformationManagementPlugin
     protected $config = null;
 
     /**
-     * ShippingInformationManagementPlugin constructor.
+     * ShippingInformationManagementPlugin constructor
+     *
      * @param ValidationInteraction $validationInteraction
      * @param AddressInteraction $addressInteraction
      * @param ShippingInformation $shippingInformation

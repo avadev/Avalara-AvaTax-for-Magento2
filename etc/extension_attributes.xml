@@ -8,7 +8,7 @@
     <extension_attributes for="Magento\Checkout\Api\Data\ShippingInformationInterface">
         <attribute code="should_validate_address" type="boolean" />
     </extension_attributes>
-	<extension_attributes for="Magento\Tax\Api\Data\QuoteDetailsItemInterface">
+    <extension_attributes for="Magento\Tax\Api\Data\QuoteDetailsItemInterface">
         <attribute code="total_quantity" type="float" />
         <attribute code="avatax_item_code" type="string" />
         <attribute code="avatax_description" type="string" />

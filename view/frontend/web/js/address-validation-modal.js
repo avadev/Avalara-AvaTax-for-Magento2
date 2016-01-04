@@ -52,8 +52,8 @@ define([
             ]
         },
         addressToUse: null,
-        validationContainer: '.validationModal .modal-content > div',
         bindingElement: '.validate-binding',
+        validationContainer: '.validationModal .modal-content .validate-binding',
         formSelector: '.form-address-edit',
         validationForm: '#co-validate-form',
         errorInstructionSelector: '.errorMessageContainer .instructions',

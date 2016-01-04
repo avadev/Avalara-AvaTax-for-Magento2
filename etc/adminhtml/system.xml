@@ -307,14 +307,6 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <!--<field id="error_action" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">-->
-                    <!--<label>Error Action</label>-->
-                    <!--<source_model>0</source_model>-->
-                    <!--<comment>What should happen if Magento is unable to retrieve taxes from the AvaTax API</comment>-->
-                    <!--<depends>-->
-                        <!--<field id="enabled">1</field>-->
-                    <!--</depends>-->
-                <!--</field>-->
                 <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="5020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Frontend Error Message</label>
                     <comment>This error message will be displayed to user if there is an error calculating taxes</comment>
