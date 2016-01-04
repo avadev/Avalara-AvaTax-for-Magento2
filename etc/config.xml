@@ -13,7 +13,13 @@
                 <error_action>1</error_action>
                 <error_action_disable_checkout_message_frontend>Unfortunately, we could not calculate tax for your order. Please try again with a different address or contact us to complete your order.</error_action_disable_checkout_message_frontend>
                 <error_action_disable_checkout_message_backend>There was an error getting tax rates from Avalara. Please see the error log for details.</error_action_disable_checkout_message_backend>
-                <logging_db_level>250</logging_db_level>
+                <address_validation_enabled>1</address_validation_enabled>
+                <address_validation_user_has_choice>1</address_validation_user_has_choice>
+                <address_validation_instructions_with_choice><![CDATA[There is a problem with the address that you entered. The removed text is in red and the added text is in green. Please choose which address you would like to use. If neither option is correct, <a>edit your address</a>.]]></address_validation_instructions_with_choice>
+                <address_validation_instructions_without_choice><![CDATA[There is a problem with the address that you entered. The removed text is in red and the added text is in green. If this address is not correct, <a>edit your address</a>.]]></address_validation_instructions_without_choice>
+                <address_validation_error_instructions><![CDATA[We were unable to validate your address: <br/> <p>%s</p> If the address below is correct then you don’t need to do anything. To change your address, <a>click here</a>.]]></address_validation_error_instructions>
+                <address_validation_countries_enabled>CA,US</address_validation_countries_enabled>
+				<logging_db_level>250</logging_db_level>
                 <logging_db_lifetime>60</logging_db_lifetime>
                 <logging_db_detail>1</logging_db_detail>
                 <logging_file_enabled>1</logging_file_enabled>
