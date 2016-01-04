@@ -27,6 +27,7 @@ class Form extends Base\NewClass\Form
                 'name' => 'avatax_code',
                 'label' => __('AvaTax Tax Code'),
                 'note' => __('Optional. AvaTax system Tax Code or custom Tax Code. See <a href="%1" href="_blank">AvaTax documentation</a> for more details.', \ClassyLlama\AvaTax\Model\Config::AVATAX_DOCUMENTATION_TAX_CODE_LINK),
+                'class' => 'validate-length maximum-length-25',
             ]
         );
     }
