@@ -5,11 +5,18 @@
 define([
     'jquery',
     'mageUtils',
-    'Magento_UI/js/form/element/abstract'
+    'Magento_UI/js/form/element/abstract',
+    'Magento_Ui/js/modal/alert',
+    'ClassyLlama_AvaTax/js/action/set-customer-address',
+    'ClassyLlama_AvaTax/js/model/address-model',
+    'ClassyLlama_AvaTax/js/lib/serialize-form'
 ], function (
     $,
     utils,
-    Abstract
+    Abstract,
+    alert,
+    setCustomerAddress,
+    addressModel
 ) {
     'use strict';
 
@@ -23,6 +30,9 @@ define([
 
         addressComponentSelector: '.address-item-edit',
         formSelector: '.address-item-edit-content fieldset',
+        validateButtonSelector: '.validateButton',
+        addressValidationFormSelector: '.validateAddressForm',
+
 
         /**
          * Initializes file component.
@@ -54,27 +64,38 @@ define([
             return this;
         },
 
-        validateAddress: function () {
-            var addressObject = this.serializeForm($(this.addressComponentSelector).closest(this.formSelector));
-            console.log(addressObject);
-        },
-
-        serializeForm: function (form) {
-            var o = {};
-            var a = form.serializeArray();
-            $.each(a, function() {
-                var name = this.name.replace(/\[|\]/g, "");
-                if (o[name] !== undefined) {
-                    if (!o[name].push) {
-                        o[name] = [o[name]];
-                    }
-                    o[name].push(this.value || '');
+        validateAddress: function (data, event) {
+            var settings = {
+                validationEnabled: this.validationEnabled,
+                choice: this.choice,
+                countriesEnabled: this.countriesEnabled,
+                baseUrl: this.baseUrl
+            };
+            var form = $(event.target).closest(this.formSelector);
+            var hasErrors = form.find('.admin__field-error:visible').length;
+            if (!hasErrors) {
+                var addressId = data.parentScope.match(/[0-9 -()+]+$/)[0];
+                var addressObject = $(form).serializeObject()['address'][addressId];
+                var inCountry = $.inArray(addressObject.country_id, settings.countriesEnabled.split(',')) >= 0;
+                if (inCountry) {
+                    addressModel.originalAddress(addressObject);
+                    $(this.validateButtonSelector).trigger('processStart');
+                    setCustomerAddress.validateAddress(settings, form);
                 } else {
-                    o[name] = this.value || '';
+                    $(form).find(this.addressValidationFormSelector).hide();
+                    alert({
+                        title: $.mage.__('Error'),
+                        content: $.mage.__('Address validation is not enabled for the country you selected.')
+                    });
                 }
-            });
-
-            return o;
+            } else {
+                $(form).find(this.addressValidationFormSelector).hide();
+                // TODO: change this error message to something more clear
+                alert({
+                    title: $.mage.__('Error'),
+                    content: $.mage.__('This address does not meet the requirements to be validated.')
+                });
+            }
         }
     });
 });

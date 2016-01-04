@@ -3,7 +3,7 @@
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace ClassyLlama\AvaTax\Component;
+namespace ClassyLlama\AvaTax\Ui\Component\Form\Element;
 
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
@@ -13,12 +13,17 @@ use Magento\Ui\Component\AbstractComponent;
 /**
  * Class ExportButton
  */
-class ValidateButton extends AbstractComponent
+class ValidateAddress extends AbstractComponent
 {
     /**
      * Component name
      */
     const NAME = 'validateButton';
+
+    /**
+     * Validate address path
+     */
+    const VALIDATE_ADDRESS_PATH = 'avatax/address/validation';
 
     /**
      * @var \Magento\Framework\UrlInterface
@@ -73,17 +78,18 @@ class ValidateButton extends AbstractComponent
             $config['options'] = $options;
         }
 
-        $config['validation_enabled'] = $this->config->isAddressValidationEnabled();
+        $config['validationEnabled'] = $this->config->isAddressValidationEnabled();
         $hasChoice = $this->config->allowUserToChooseAddress();
-        $config['has_choice'] = $hasChoice;
+        $config['choice'] = $hasChoice;
         if ($hasChoice) {
             $instructions = $this->config->getAddressValidationInstructionsWithChoice();
         } else {
             $instructions = $this->config->getAddressValidationInstructionsWithOutChoice();
         }
         $config['instructions'] =  $instructions;
-        $config['error_instructions'] =  $this->config->getAddressValidationErrorInstructions();
-        $config['countries_enabled'] = $this->config->getAddressValidationCountriesEnabled();
+        $config['errorInstructions'] =  $this->config->getAddressValidationErrorInstructions();
+        $config['countriesEnabled'] = $this->config->getAddressValidationCountriesEnabled();
+        $config['baseUrl'] = $this->urlBuilder->getUrl(self::VALIDATE_ADDRESS_PATH);
 
         $this->setData('config', $config);
 

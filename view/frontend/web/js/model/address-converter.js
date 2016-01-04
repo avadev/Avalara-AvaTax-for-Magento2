@@ -7,7 +7,8 @@ define(
         'jquery',
         'Magento_Checkout/js/model/new-customer-address',
         'Magento_Customer/js/customer-data',
-        'mage/utils/objects'
+        'mage/utils/objects',
+        'ClassyLlama_AvaTax/js/lib/serialize-form'
     ],
     function($, address, customerData, mageUtils) {
         'use strict';
@@ -20,7 +21,7 @@ define(
              * @returns {Object}
              */
             formAddressDataToCustomerAddress: function(form) {
-                var formData = this.serializeForm(form);
+                var formData = $(form).serializeObject();
 
                 // clone address form data to new object
                 var addressData = $.extend(true, {}, formData),
@@ -47,24 +48,6 @@ define(
                 }
 
                 return address(addressData);
-            },
-
-            serializeForm: function (form) {
-                var o = {};
-                var a = form.serializeArray();
-                $.each(a, function() {
-                    var name = this.name.replace(/\[|\]/g, "");
-                    if (o[name] !== undefined) {
-                        if (!o[name].push) {
-                            o[name] = [o[name]];
-                        }
-                        o[name].push(this.value || '');
-                    } else {
-                        o[name] = this.value || '';
-                    }
-                });
-
-                return o;
             }
         };
     }

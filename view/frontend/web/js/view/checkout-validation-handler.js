@@ -5,8 +5,8 @@ define(
         'ClassyLlama_AvaTax/js/action/set-shipping-address',
         'ClassyLlama_AvaTax/js/view/update-address',
         'ClassyLlama_AvaTax/js/model/address-model',
-        'ClassyLlama_AvaTax/js/validation-form',
-        'ClassyLlama_AvaTax/js/diff-address'
+        'ClassyLlama_AvaTax/js/view/address-validation-form',
+        'ClassyLlama_AvaTax/js/view/diff-address'
     ],
     function (
         $,
@@ -14,7 +14,7 @@ define(
         setShippingAddress,
         updateAddress,
         addressModel,
-        validationForm,
+        addressValidationForm,
         diffAddress
     ) {
         'use strict';
@@ -35,7 +35,7 @@ define(
                     if (typeof response.extension_attributes.error_message !== 'undefined') {
                         addressModel.error(response.extension_attributes.error_message)
                     }
-                    validationForm.fillValidateForm();
+                    addressValidationForm.fillValidateForm(this.options.validateAddressContainerSelector);
                     $(this.options.validateAddressContainerSelector + ' .instructions a').on('click', function () {
                         stepNavigator.navigateTo('shipping', 'shipping');
                     });
@@ -43,7 +43,6 @@ define(
                     $(this.options.validateAddressContainerSelector + ' *').hide();
                 }
             },
-
 
             toggleAddressToUse: function () {
                 $('input[name=addressToUse]:radio').on('change', function() {

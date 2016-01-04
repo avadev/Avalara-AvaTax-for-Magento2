@@ -106,6 +106,8 @@ define(['ko'], function(ko){
 
             if (JSON.stringify(o) !== JSON.stringify(n)) {
                 this.isDifferent(true);
+            } else {
+                this.isDifferent(false);
             }
 
             return { o: o, n: n };

@@ -2,19 +2,20 @@ define(
     [
         'jquery',
         'ClassyLlama_AvaTax/js/model/address-model',
-        'ClassyLlama_AvaTax/js/validation-form'
+        'ClassyLlama_AvaTax/js/view/address-validation-form'
     ],
     function (
         $,
         addressModel,
-        validationForm
+        addressValidationForm
     ) {
         'use strict';
 
         return {
-            bindingElement: '.validate-binding',
             validationContainer: '.validationModal .modal-content .validate-binding',
+            bindingElement: '.validationModal',
 
+            // TODO: maybe remove this function? It seems a bit too much to have this whole file for a single function
             validationResponseHandler: function (response) {
                 if (typeof response !== 'undefined') {
                     if (typeof response === 'string') {
@@ -22,7 +23,7 @@ define(
                     } else {
                         addressModel.validAddress(response);
                     }
-                    validationForm.fillValidateForm();
+                    addressValidationForm.fillValidateForm(this.validationContainer);
                     $(this.bindingElement).trigger('processStop');
                 }
             }

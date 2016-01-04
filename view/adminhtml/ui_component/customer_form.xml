@@ -5,10 +5,17 @@
             This is a container instead of a field because of the way magento validates fields in the Magento_Ui module.
             You can see the details on this issue on github: https://github.com/magento/magento2/issues/1724
         -->
-        <container name="validateButton" class="ClassyLlama\AvaTax\Component\ValidateButton">
+        <container name="validateButton" class="ClassyLlama\AvaTax\Ui\Component\Form\Element\ValidateAddress">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/form/element/button</item>
+                </item>
+            </argument>
+        </container>
+        <container name="baseValidateAddress" class="ClassyLlama\AvaTax\Ui\Component\Form\Element\ValidateAddress">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/form/element/validationForm</item>
                 </item>
             </argument>
         </container>
