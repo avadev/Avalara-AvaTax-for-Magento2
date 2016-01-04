@@ -89,7 +89,6 @@ class Line
         'destination_address' => ['type' => 'object', 'class' => '\AvaTax\Address'],
         'item_code' => ['type' => 'string', 'length' => 50],
         'tax_code' => ['type' => 'string', 'length' => 25],
-        'customer_usage_type' => ['type' => 'string', 'length' => 25],
         'exemption_no' => ['type' => 'string', 'length' => 25],
         'description' => ['type' => 'string', 'length' => 255],
         'qty' => ['type' => 'float'],
@@ -138,7 +137,6 @@ class Line
      * TODO: tax_code can either be custom or system.  Custom tax codes can be configured in the AvaTax admin to set up specific tax reductions or exemptions for certain products.  In AvaTax Pro, there are many system tax codes that can be passed depending on the type of item that is being sold.  This really belongs on the product level although we could also put it on the Tax Class level as well.  The M1 module just uses the same value for this as for customer_usage_type which is confusing and incorrect for cases where you may want to pass both on the same item.  We should at least implement this as a text field on either the product, the tax class, or both.  We could possibly implement this as a more configurable option but that really seems like a phase 2 or phase 3 feature. More information: https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes and http://developer.avalara.com/api-docs/designing-your-integration/gettax.
      * TODO: Wishlist Product Attribute for tax_code
      * TODO: Fields to figure out: tax_override
-     * TODO: Use Tax Class to get customer_usage_type, once this functionality is implemented
      *
      * @param \Magento\Sales\Api\Data\InvoiceItemInterface $item
      * @return array|bool
@@ -162,7 +160,6 @@ class Line
             'no' => $this->getLineNumber(),
             'item_code' => $item->getSku(),
             'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getOrderItem()->getProduct()),
-//            'customer_usage_type' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
             'amount' => $amount,
@@ -202,7 +199,6 @@ class Line
             'no' => $this->getLineNumber(),
             'item_code' => $item->getSku(),
             'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getOrderItem()->getProduct()),
-//            'customer_usage_type' => null,
             'description' => $item->getName(),
             'qty' => $item->getQty(),
             'amount' => $amount,
@@ -247,7 +243,6 @@ class Line
             'no' => $item->getCode(),
             'item_code' => $itemCode,
             'tax_code' => $taxCode,
-//            'customer_usage_type' => null,
             'description' => $description,
             'qty' => $item->getQuantity(),
             'amount' => $amount,
@@ -543,9 +538,6 @@ class Line
         }
         if (isset($data['tax_code'])) {
             $line->setTaxCode($data['tax_code']);
-        }
-        if (isset($data['customer_usage_type'])) {
-            $line->setCustomerUsageType($data['customer_usage_type']);
         }
         if (isset($data['exemption_no'])) {
             $line->setExemptionNo($data['exemption_no']);
