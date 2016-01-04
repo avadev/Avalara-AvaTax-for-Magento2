@@ -32,6 +32,11 @@ class Tax
     protected $config = null;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\TaxClass
+     */
+    protected $taxClassHelper;
+
+    /**
      * @var Validation
      */
     protected $validation = null;
@@ -167,6 +172,7 @@ class Tax
      *
      * @param Address $address
      * @param Config $config
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
      * @param Validation $validation
      * @param TaxServiceSoapFactory $taxServiceSoapFactory
      * @param GetTaxRequestFactory $getTaxRequestFactory
@@ -182,6 +188,7 @@ class Tax
     public function __construct(
         Address $address,
         Config $config,
+        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
         Validation $validation,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
@@ -196,6 +203,7 @@ class Tax
     ) {
         $this->address = $address;
         $this->config = $config;
+        $this->taxClassHelper = $taxClassHelper;
         $this->validation = $validation;
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
@@ -447,7 +455,7 @@ class Tax
             'commit' => false,
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'customer_code' => $this->getCustomerCode($quote),
-//            'customer_usage_type' => null,//$taxClass->,
+            'customer_usage_type' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer()),
             'destination_address' => $address,
             'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'doc_date' => $docDate,
@@ -570,12 +578,13 @@ class Tax
             $docType = DocumentType::$ReturnInvoice;
         }
 
+        $customer = $this->getCustomer($object->getOrder()->getCustomerId());
         $data = [
             'store_id' => $store->getId(),
             'commit' => false,
             'currency_code' => $order->getOrderCurrencyCode(),
             'customer_code' => $this->getCustomerCode($order),
-//            'customer_usage_type' => null,//$taxClass->,
+            'customer_usage_type' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
             'destination_address' => $address,
             'doc_code' => $object->getIncrementId(),
             'doc_date' => $docDate,
@@ -607,9 +616,19 @@ class Tax
         return $getTaxRequest;
     }
 
-    protected function convertInvoiceToData(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
+    /**
+     * Load customer by id
+     *
+     * @param $customerId
+     * @return \Magento\Customer\Api\Data\CustomerInterface|null
+     */
+    protected function getCustomer($customerId)
     {
-        return false;
+        try {
+            return $this->customerRepository->getById($customerId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return null;
+        }
     }
 
     /**

@@ -33,17 +33,25 @@ class TaxClass
     protected $taxClassRepository;
 
     /**
+     * @var \Magento\Customer\Api\GroupRepositoryInterface
+     */
+    protected $customerGroupRepository;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
+     * @param \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
+        \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
+        \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->taxClassRepository = $taxClassRepository;
+        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     /**
@@ -94,6 +102,24 @@ class TaxClass
             ScopeInterface::SCOPE_STORE,
             $store
         );
+        return $this->getAvaTaxTaxCode($taxClassId);
+    }
+
+    /**
+     * Get AvaTax Customer Usage Type for customer
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @return null|string
+     */
+    public function getAvataxTaxCodeForCustomer(\Magento\Customer\Api\Data\CustomerInterface $customer)
+    {
+        $customerGroupId = $customer->getGroupId();
+        try {
+            $customerGroup = $this->customerGroupRepository->getById($customerGroupId);
+            $taxClassId = $customerGroup->getTaxClassId();
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return null;
+        }
         return $this->getAvaTaxTaxCode($taxClassId);
     }
 }
