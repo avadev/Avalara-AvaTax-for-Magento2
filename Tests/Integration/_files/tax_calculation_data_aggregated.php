@@ -14,6 +14,7 @@ require_once __DIR__ . '/scenarios/applied_taxes_one_rate.php';
 require_once __DIR__ . '/scenarios/applied_taxes_multiple_rates.php';
 require_once __DIR__ . '/scenarios/bundled_product_dynamic_pricing.php';
 require_once __DIR__ . '/scenarios/bundled_product_fixed_pricing.php';
+require_once __DIR__ . '/scenarios/product_tax_classes.php';
 
 /**
  * TODO: Add tests for these scenarios:

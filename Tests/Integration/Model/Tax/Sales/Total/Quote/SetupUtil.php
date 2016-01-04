@@ -96,16 +96,33 @@ class SetupUtil
 
     const PRODUCT_TAX_CLASS_1 = 'product_tax_class_1';
     const PRODUCT_TAX_CLASS_2 = 'product_tax_class_2';
+    const PRODUCT_TAX_CLASS_3_DIGITAL_GOODS = 'product_tax_class_3_digital_goods';
     const SHIPPING_TAX_CLASS = 'shipping_tax_class';
 
     /**
-     * List of product tax class that will be created
+     * List of product tax class that will be created.
+     *
+     * The ID of the created tax classes will be stored as the values for each of the keys
      *
      * @var array
      */
     protected $productTaxClasses = [
         self::PRODUCT_TAX_CLASS_1 => null,
         self::PRODUCT_TAX_CLASS_2 => null,
+        // This tax class is for digital goods
+        self::PRODUCT_TAX_CLASS_3_DIGITAL_GOODS => null,
+        self::SHIPPING_TAX_CLASS => null,
+    ];
+
+    /**
+     * Information to use when creating tax classes listed above
+     *
+     * @var array
+     */
+    protected $productTaxClassesCreationData = [
+        self::PRODUCT_TAX_CLASS_1 => ['avatax_code' => ''],
+        self::PRODUCT_TAX_CLASS_2 => ['avatax_code' => ''],
+        self::PRODUCT_TAX_CLASS_3_DIGITAL_GOODS => ['avatax_code' => 'D0000000'],
         self::SHIPPING_TAX_CLASS => null,
     ];
 
@@ -227,7 +244,12 @@ class SetupUtil
     protected function createProductTaxClass()
     {
         foreach (array_keys($this->productTaxClasses) as $className) {
+            $extraData = [];
+            if (isset($this->productTaxClassesCreationData[$className])) {
+                $extraData = $this->productTaxClassesCreationData[$className];
+            }
             $this->productTaxClasses[$className] = $this->objectManager->create('Magento\Tax\Model\ClassModel')
+                ->setData($extraData)
                 ->setClassName($className)
                 ->setClassType(\Magento\Tax\Model\ClassModel::TAX_CLASS_TYPE_PRODUCT)
                 ->save()
