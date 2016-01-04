@@ -52,11 +52,11 @@ define([
             ]
         },
         addressToUse: null,
-        validationContainer: '.validationModal .modal-content .validate-binding',
+        validationContainer: '.validationModal .modal-content > div',
         formSelector: '.form-address-edit',
         validationForm: '#co-validate-form',
-        errorInstructionSelector: '.error-message-container .instructions',
-        originalAddressContainer: '.error-message-container .original-address-text',
+        errorInstructionSelector: '.errorMessageContainer .instructions',
+        originalAddressContainer: '.errorCessageContainer .originalAddressText',
         /**
          * Creates modal widget.
          */

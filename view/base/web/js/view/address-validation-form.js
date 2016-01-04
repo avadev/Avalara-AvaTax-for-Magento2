@@ -19,13 +19,14 @@ define(
 
         return {
             validateAddressContainerSelector: '#validate_address',
-            originalAddressTextSelector: ".original-address-text",
-            validAddressTextSelector: ".valid-address-text",
-            errorMessageContainerSelector: '.error-message-container',
-            errorMessageTextSelector: '.error-message-text',
-            addressOptionSelector: '.address-option',
+            originalAddressTextSelector: ".originalAddressText",
+            validAddressTextSelector: ".validAddressText",
+            errorMessageContainerSelector: '.errorMessageContainer',
+            errorMessageTextSelector: '.errorMessageText',
+            addressOptionSelector: '.addressOption',
             addressRadioGroupName: 'addressToUse',
             selectedAddressClass: 'selected',
+            bindingElement: '.validateBinding',
 
             bindTemplate: function (containerSelector, config) {
                 var template = $("<div class='" + this.bindingElement.replace('.', '') + "' data-bind=\"template: { name: 'ClassyLlama_AvaTax/baseValidateAddress', data: data }\"/>");

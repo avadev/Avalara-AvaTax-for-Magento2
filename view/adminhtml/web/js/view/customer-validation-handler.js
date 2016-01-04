@@ -55,6 +55,7 @@ define(
                     addressModel.selectedAddress(addressModel.originalAddress());
                 }
                 addressValidationForm.updateFormFields(form);
+                // TODO: change address in left tab
             }
         };
     }

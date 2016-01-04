@@ -12,7 +12,7 @@ define(
         'use strict';
 
         return {
-            validationContainer: '.validationModal .modal-content .validate-binding',
+            validationContainer: '.validationModal .modal-content .validateBinding',
             bindingElement: '.validationModal',
 
             // TODO: maybe remove this function? It seems a bit too much to have this whole file for a single function

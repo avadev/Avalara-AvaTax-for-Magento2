@@ -79,6 +79,7 @@ define([
                 var inCountry = $.inArray(addressObject.country_id, settings.countriesEnabled.split(',')) >= 0;
                 if (inCountry) {
                     addressModel.originalAddress(addressObject);
+                    // TODO: Show 'Validating Address' spinner next to button instead of page
                     $(this.validateButtonSelector).trigger('processStart');
                     setCustomerAddress.validateAddress(settings, form);
                 } else {

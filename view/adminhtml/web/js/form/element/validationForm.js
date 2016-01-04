@@ -40,6 +40,8 @@ define([
             this._super()
                 .initFormId();
 
+            // TODO: Add binding to <a> in instructions to focus on street input when clicked
+
             return this;
         },
 
