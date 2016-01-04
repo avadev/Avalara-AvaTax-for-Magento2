@@ -55,8 +55,8 @@ define([
         validationContainer: '.validationModal .modal-content .validate-binding',
         formSelector: '.form-address-edit',
         validationForm: '#co-validate-form',
-        errorInstructionSelector: '.errorMessageContainer .instructions',
-        originalAddressContainer: '.errorMessageContainer .originalAddressText',
+        errorInstructionSelector: '.error-message-container .instructions',
+        originalAddressContainer: '.error-message-container .original-address-text',
         /**
          * Creates modal widget.
          */

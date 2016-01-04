@@ -36,11 +36,15 @@ define(
                         addressModel.error(response.extension_attributes.error_message)
                     }
                     addressValidationForm.fillValidateForm(this.options.validateAddressContainerSelector);
+
+                    // This click event handler is to allow the user to navigate to the first step to change their
+                    // address if they notice an error in their address on the Review & Payments step by clicking
+                    // a link in the instructions above their address
                     $(this.options.validateAddressContainerSelector + ' .instructions a').on('click', function () {
                         stepNavigator.navigateTo('shipping', 'shipping');
                     });
                 } else {
-                    $(this.options.validateAddressContainerSelector + ' *').hide();
+                    $(this.options.validateAddressContainerSelector).hide();
                 }
             },
 
