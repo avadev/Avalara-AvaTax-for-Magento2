@@ -14,6 +14,9 @@ use Magento\Store\Model\Store;
 use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 
+/**
+ * AvaTax Config model
+ */
 class Config
 {
     /**#@+
@@ -141,6 +144,9 @@ class Config
 
     const API_PROFILE_NAME_PROD = 'Production';
     /**#@-*/
+
+    const AVATAX_DOCUMENTATION_TAX_CODE_LINK
+        = 'https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes/Tax_Codes_-_Frequently_Asked_Questions';
 
     /**
      * Magento version prefix

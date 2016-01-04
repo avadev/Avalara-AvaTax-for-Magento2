@@ -235,6 +235,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getConnection()->createTable($table);
         }
 
+        if (version_compare($context->getVersion(), '0.1.4', '<')) {
+            // Logging
+            $this->logger->info('ClassyLlama_AvaTax Schema Upgrade to 0.1.4');
+
+            /**
+             * Add "avatax_code" column to tax_class table
+             */
+            $setup->getConnection()
+                ->addColumn(
+                    $setup->getTable('tax_class'),
+                    'avatax_code',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => 255,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'AvaTax Code'
+                    ]
+                );
+        }
+
         $setup->endSetup();
     }
 }
