@@ -127,15 +127,33 @@ class SetupUtil
     ];
 
     const CUSTOMER_TAX_CLASS_1 = 'customer_tax_class_1';
+    const CUSTOMER_TAX_CLASS_2_NON_PROFIT = 'customer_tax_class_2_non_profit';
     const CUSTOMER_PASSWORD = 'password';
 
     /**
      * List of customer tax class to be created
      *
+     * The ID of the created tax classes will be stored as the values for each of the keys
+     *
      * @var array
      */
     protected $customerTaxClasses = [
         self::CUSTOMER_TAX_CLASS_1 => null,
+        self::CUSTOMER_TAX_CLASS_2_NON_PROFIT => null,
+    ];
+
+    /**
+     * Information to use when creating tax classes listed above
+     *
+     * @var array
+     */
+    protected $customerTaxClassesCreationData = [
+        self::CUSTOMER_TAX_CLASS_1 => ['avatax_code' => ''],
+        /**
+         * "E" is the code for a Charitable Organization.
+         * @see \ClassyLlama\AvaTax\Model\Config\Source\AvaTaxCustomerUsageType::toOptionArray
+         */
+        self::CUSTOMER_TAX_CLASS_2_NON_PROFIT => ['avatax_code' => 'E'],
     ];
 
     /**
@@ -226,7 +244,12 @@ class SetupUtil
     protected function createCustomerTaxClass()
     {
         foreach (array_keys($this->customerTaxClasses) as $className) {
+            $extraData = [];
+            if (isset($this->customerTaxClassesCreationData[$className])) {
+                $extraData = $this->customerTaxClassesCreationData[$className];
+            }
             $this->customerTaxClasses[$className] = $this->objectManager->create('Magento\Tax\Model\ClassModel')
+                ->setData($extraData)
                 ->setClassName($className)
                 ->setClassType(\Magento\Tax\Model\ClassModel::TAX_CLASS_TYPE_CUSTOMER)
                 ->save()
@@ -836,15 +859,19 @@ class SetupUtil
     /**
      * Create a customer
      *
+     * @param array $customerData
      * @return \Magento\Customer\Api\Data\CustomerInterface
      */
-    protected function createCustomer()
+    protected function createCustomer(array $customerData)
     {
         if ($this->customer) {
             return $this->customer;
         }
 
-        $customerGroupId = $this->createCustomerGroup($this->customerTaxClasses[self::CUSTOMER_TAX_CLASS_1]);
+        $taxClassName = isset($customerData['tax_class_name'])
+            ? $customerData['tax_class_name']
+            : self::CUSTOMER_TAX_CLASS_1;
+        $customerGroupId = $this->createCustomerGroup($this->customerTaxClasses[$taxClassName]);
         /** @var \Magento\Customer\Model\Customer $customer */
         $customer = $this->objectManager->create('Magento\Customer\Model\Customer');
         $customer->isObjectNew(true);
@@ -1109,7 +1136,8 @@ class SetupUtil
      */
     public function setupQuote($quoteData)
     {
-        $customer = $this->createCustomer();
+        $customerData = isset($quoteData['customer_data']) ? $quoteData['customer_data'] : [];
+        $customer = $this->createCustomer($customerData);
 
         $quote = $this->createQuote($quoteData, $customer);
 
