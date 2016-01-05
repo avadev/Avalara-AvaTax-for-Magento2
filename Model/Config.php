@@ -75,6 +75,8 @@ class Config
 
     const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
 
+    const XML_PATH_AVATAX_QUEUE_SUBMISSION_ENABLED = 'tax/avatax/queue_submission_enabled';
+
     const XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS = 'tax/avatax/queue_max_retry_attempts';
     /**#@-*/
 
@@ -763,6 +765,21 @@ class Config
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured queue max retry attempts
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getQueueSubmissionEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_QUEUE_SUBMISSION_ENABLED,
             ScopeInterface::SCOPE_STORE,
             $store
         );

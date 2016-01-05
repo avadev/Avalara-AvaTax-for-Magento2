@@ -7,13 +7,16 @@ use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\UrlInterface;
 
+use ClassyLlama\AvaTax\Model\Queue;
+
 /**
  * Class ProductActions
  */
 class QueueActions extends Column
 {
     /** Url path */
-    const QUEUE_URL_PATH_VIEW = 'avatax/queue/view';
+    const INVOICE_URL_PATH_VIEW = 'sales/invoice/view';
+    const CREDITMEMO_URL_PATH_VIEW = 'sales/creditmemo/view';
 
     /**
      * @var UrlInterface
@@ -48,11 +51,23 @@ class QueueActions extends Column
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                $item[$this->getData('name')]['view'] = [
+                if ($item['entity_type_code'] == Queue::ENTITY_TYPE_CODE_INVOICE)
+                {
+                    $item[$this->getData('name')]['view'] = [
 
-                    'href' => $this->urlBuilder->getUrl(self::QUEUE_URL_PATH_VIEW, ['id' => $item['queue_id']]),
-                    'label' => __('View')
-                ];
+                        'href' => $this->urlBuilder->getUrl(self::INVOICE_URL_PATH_VIEW, ['invoice_id' => $item['entity_id']]),
+                        'label' => __('View Invoice')
+                    ];
+                } elseif ($item['entity_type_code'] == Queue::ENTITY_TYPE_CODE_CREDITMEMO)
+                {
+                    $item[$this->getData('name')]['view'] = [
+
+                        'href' => $this->urlBuilder->getUrl(self::CREDITMEMO_URL_PATH_VIEW, ['creditmemo_id' => $item['entity_id']]),
+                        'label' => __('View Credit Memo')
+                    ];
+                } else {
+
+                }
             }
         }
 

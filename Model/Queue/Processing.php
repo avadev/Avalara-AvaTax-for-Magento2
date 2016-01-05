@@ -384,8 +384,17 @@ class Processing
                 $processSalesResponse->getIsUnbalanced() <> $avaTaxEntityExtension->getIsUnbalanced() ||
                 $processSalesResponse->getBaseAvataxTaxAmount() <> $avaTaxEntityExtension->getBaseAvataxTaxAmount()
             ) {
-                // TODO: note the difference of existing vs new on the order comments
-                $message = '';
+                // Log the warning
+                $this->avaTaxLogger->warning(
+                    'When processing an entity in the queue there was an existing AvaTaxExtension and new values ' .
+                    'were different than the old ones. The old values were overwritten.',
+                    [ /* context */
+                        'old_is_unbalanced' => $avaTaxEntityExtension->getIsUnbalanced(),
+                        'new_is_unbalanced' => $processSalesResponse->getIsUnbalanced(),
+                        'old_base_avatax_tax_amount' => $avaTaxEntityExtension->getBaseAvataxTaxAmount(),
+                        'new_base_avatax_tax_amount' => $processSalesResponse->getBaseAvataxTaxAmount(),
+                    ]
+                );
 
                 // set all the properties
                 $avaTaxEntityExtension->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
@@ -566,7 +575,7 @@ class Processing
         /* @var $order \Magento\Sales\Api\Data\OrderInterface */
         $order = $this->orderRepository->get($orderId);
 
-        // TODO: remove extra debugging date time in comment
+        // TODO: remove extra debugging date time in comment as I was seeing all comments with the newest comment's date
         $message .= "<br/>" . $this->dateTime->gmtDate() . " GMT";
 
         // create comment
