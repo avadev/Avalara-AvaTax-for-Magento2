@@ -58,7 +58,7 @@ define([
                 return this;
             }
 
-            namespace   = this.name.split('.');
+            namespace = this.name.split('.');
             this.formId = namespace[0];
 
             return this;
@@ -74,6 +74,7 @@ define([
             var form = $(event.target).closest(this.formSelector);
             var hasErrors = form.find('.admin__field-error:visible').length;
             if (!hasErrors) {
+                // Match numbers
                 var addressId = data.parentScope.match(/[0-9 -()+]+$/)[0];
                 var addressObject = $(form).serializeObject()['address'][addressId];
                 var inCountry = $.inArray(addressObject.country_id, settings.countriesEnabled.split(',')) >= 0;
@@ -94,7 +95,7 @@ define([
                 // TODO: change this error message to something more clear
                 alert({
                     title: $.mage.__('Error'),
-                    content: $.mage.__('This address does not meet the requirements to be validated.')
+                    content: $.mage.__('Please fix the form validation errors above and try again.')
                 });
             }
         }

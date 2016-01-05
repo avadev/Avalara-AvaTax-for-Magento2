@@ -16,20 +16,20 @@ define(
         'use strict';
 
         return {
-            validationContainer: '.validateAddressForm',
+            validationContainerSelector: '.validateAddressForm',
             validateButtonSelector: '.validateButton',
             validationRadioGroupName: 'addressToUse',
 
             validationResponseHandler: function (response, settings, form) {
                 var self = this;
-                $(form).find('.validateAddressForm').show();
+                $(form).find(this.validationContainerSelector).show();
                 if (typeof response !== 'undefined') {
                     if (typeof response === 'string') {
                         addressModel.error(response);
                     } else {
                         addressModel.validAddress(response);
                     }
-                    addressValidationForm.fillValidateForm($(form).find(this.validationContainer));
+                    addressValidationForm.fillValidateForm($(form).find(this.validationContainerSelector));
                     if (!diffAddress.isDifferent()) {
                         alert({
                             title: $.mage.__('Success'),
@@ -42,8 +42,6 @@ define(
                         });
                     }
 
-                } else {
-                    //$(this.options.validateAddressContainerSelector + ' *').hide();
                 }
                 $(this.validateButtonSelector).trigger('processStop');
             },

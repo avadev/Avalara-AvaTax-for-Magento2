@@ -36,8 +36,11 @@ class ValidateAddress extends AbstractComponent
     protected $config = null;
 
     /**
+     * ValidateAddress constructor
+     *
      * @param ContextInterface $context
      * @param UrlInterface $urlBuilder
+     * @param Config $config
      * @param array $components
      * @param array $data
      */

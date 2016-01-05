@@ -39,7 +39,8 @@ class Validation extends Action
     protected $resultJsonFactory = null;
 
     /**
-     * Validation constructor.
+     * Validation constructor
+     *
      * @param ValidationInteraction $validationInteraction
      * @param ValidAddressManagement $validAddressManagement
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
@@ -68,7 +69,7 @@ class Validation extends Action
      */
     public function execute()
     {
-        $customerAddressData = $_POST['address'];
+        $customerAddressData = $this->getRequest()->getParams()['address'];
 
         $customerAddressDataWithRegion = [];
         $customerAddressDataWithRegion['region']['region'] = $customerAddressData['region'];

@@ -57,7 +57,7 @@ define([
                 return this;
             }
 
-            namespace   = this.name.split('.');
+            namespace = this.name.split('.');
             this.formId = namespace[0];
 
             return this;
