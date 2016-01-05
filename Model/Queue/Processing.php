@@ -236,13 +236,21 @@ class Processing
 
                     throw new \Exception($message);
                 }
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                $message = 'Queue ID: ' . $queue->getId() . ' - Invoice not found: (EntityId: ' . $queue->getEntityId() . ', IncrementId: ' . $queue->getIncrementId() . ')';
+
+                // Update the queue record
+                $this->failQueueProcessing($queue, $message);
+                $phrase = new \Magento\Framework\Phrase($message);
+
+                throw new \Magento\Framework\Exception\NoSuchEntityException($phrase, $e);
             } catch (\Exception $e) {
-                $message = 'ERROR getProcessingEntity() invoiceRepository->get(): ' . $e->getMessage() . "\n" . $queue->getMessage();
+                $message = 'Unexpected Exception getProcessingEntity() invoiceRepository->get(): ' . $e->getMessage() . "\n" . $queue->getMessage();
 
                 // Update the queue record
                 $this->failQueueProcessing($queue, $message);
 
-                throw $e;
+                throw new \Exception($message);
             }
         } elseif ($queue->getEntityTypeCode() === Queue::ENTITY_TYPE_CODE_CREDITMEMO) {
 
@@ -446,8 +454,7 @@ class Processing
         {
             return $this->avaTaxInvoiceFactory->create();
         } elseif ($entity instanceof \Magento\Sales\Api\Data\CreditmemoInterface) {
-            $avaTaxEntityExtension = $this->avaTaxCreditmemoFactory->create();
-            return $avaTaxEntityExtension;
+            return $this->avaTaxCreditmemoFactory->create();
         } else {
             $message = 'Did not receive a valid entity instance to determine the AvaTax Extension type to return';
             throw new \Exception($message);

@@ -50,14 +50,14 @@ class Process extends Queue
         try {
             $this->queueTask->processPendingQueue();
             $message = __('The queue was successfully processed. ') .
-                __('%1 queued records were processed.', $this->queueTask->processCount);
+                __('%1 queued records were processed. ', $this->queueTask->processCount);
 
             $this->messageManager->addSuccess($message);
 
             if ($this->queueTask->errorCount > 0)
             {
                 $errorMessage = __('Some queue records received errors while processing. ') .
-                    __('%1 queued records had errors.', $this->queueTask->errorCount);
+                    __('%1 queued records had errors. ', $this->queueTask->errorCount);
 
                 // Include the error messages from the queue task
                 foreach ($this->queueTask->errorMessages as $queueErrorMessage)
@@ -74,7 +74,7 @@ class Process extends Queue
 
             if ($this->queueTask->resetCount > 0) {
                 $errorMessage = __('Some queue records appeared to have been abandoned while processing. ') .
-                    __('%1 queued records were reset to pending so they can be retried.', $this->queueTask->resetCount);
+                    __('%1 queued records were reset to pending so they can be retried. ', $this->queueTask->resetCount);
 
                 // Display error message on the page
                 $this->messageManager->addErrorMessage($errorMessage);
@@ -83,15 +83,15 @@ class Process extends Queue
         } catch (\Exception $e) {
 
             // Build error message
-            $message = __('An error occurred while processing the queue.');
+            $message = __('An error occurred while processing the queue. ');
             $partialSuccess = '';
             if ($this->queueTask->processCount > 0)
             {
-                $partialSuccess = ' '  . __('%1 queued records were processed.', $this->queueTask->processCount);
+                $partialSuccess = ' '  . __('%1 queued records were processed. ', $this->queueTask->processCount);
             }
 
             // Display error message on the page
-            $this->messageManager->addErrorMessage($message . $partialSuccess . ' Error Message: ' . $e->getMessage());
+            $this->messageManager->addErrorMessage($message . $partialSuccess . 'Error Message: ' . $e->getMessage());
 
             // Log the exception
             $this->avaTaxLogger->error(
