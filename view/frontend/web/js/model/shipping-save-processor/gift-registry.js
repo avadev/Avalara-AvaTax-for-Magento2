@@ -22,6 +22,7 @@ define(
         checkoutValidationHandler
     ) {
         'use strict';
+
         return {
             saveShippingInformation: function() {
                 var shippingAddress = {},
@@ -47,7 +48,7 @@ define(
                     function (response) {
                         paymentService.setPaymentMethods(methodConverter(response.payment_methods));
                         quote.setTotals(response.totals);
-                        // Begin Edit - Nathan Toombs <nathan.toombs@classyllama.com>
+                        // Begin Edit
                         checkoutValidationHandler.validationResponseHandler(response);
                         // End Edit
                         fullScreenLoader.stopLoader();

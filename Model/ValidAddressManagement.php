@@ -13,7 +13,6 @@ use Magento\Customer\Api\Data\AddressInterface;
 
 /**
  * Class ValidAddressManagement
- * @package ClassyLlama\AvaTax\Model\AvaTax
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ValidAddressManagement implements ValidAddressManagementInterface

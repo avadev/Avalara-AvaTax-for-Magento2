@@ -19,7 +19,7 @@
                 <address_validation_instructions_without_choice><![CDATA[There is a problem with the address that you entered. The removed text is in red and the added text is in green. If this address is not correct, <a>edit your address</a>.]]></address_validation_instructions_without_choice>
                 <address_validation_error_instructions><![CDATA[We were unable to validate your address: <br/> <p>%s</p> If the address below is correct then you don’t need to do anything. To change your address, <a>click here</a>.]]></address_validation_error_instructions>
                 <address_validation_countries_enabled>CA,US</address_validation_countries_enabled>
-				<logging_db_level>250</logging_db_level>
+                <logging_db_level>250</logging_db_level>
                 <logging_db_lifetime>60</logging_db_lifetime>
                 <logging_db_detail>1</logging_db_detail>
                 <logging_file_enabled>1</logging_file_enabled>

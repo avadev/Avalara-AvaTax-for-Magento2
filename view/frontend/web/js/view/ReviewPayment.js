@@ -29,7 +29,8 @@ define(
             defaults: {
                 template: 'ClassyLlama_AvaTax/reviewPayment',
                 paymentTemplate: 'Magento_Checkout/payment',
-                validateTemplate: 'ClassyLlama_AvaTax/checkoutValidate',
+                checkoutValidateAddressTemplate: 'ClassyLlama_AvaTax/checkoutValidateAddress',
+                baseValidateAddressTemplate: 'ClassyLlama_AvaTax/baseValidateAddress',
                 activeMethod: ''
             },
             isVisible: ko.observable(quote.isVirtual()),
@@ -65,14 +66,25 @@ define(
                 return window.checkoutConfig.formKey;
             },
 
-            // Used in ReviewPayment.html to return the template path
+            /**
+             * Used in ReviewPayment.html to return the template path
+             */
             getPaymentTemplate: function () {
                 return this.paymentTemplate;
             },
 
-            // Used in ReviewPayment.htrml to return the template path
-            getValidateTemplate: function () {
-                return this.validateTemplate;
+            /**
+             * Used in ReviewPayment.html to return the template path
+             */
+            getCheckoutValidateAddressTemplate: function () {
+                return this.checkoutValidateAddressTemplate;
+            },
+
+            /**
+             * Used in checkoutValidateAddress.html to return the template path
+             */
+            getBaseValidateAddressTemplate: function () {
+                return this.baseValidateAddressTemplate;
             }
         });
     }

@@ -7,14 +7,12 @@ define(
     [
         'ClassyLlama_AvaTax/js/model/address-model',
         'ClassyLlama_AvaTax/js/model/url-builder',
-        'mage/storage',
-        'Magento_Checkout/js/model/error-processor'
+        'mage/storage'
     ],
     function (
         addressModel,
         urlBuilder,
-        storage,
-        errorProcessor
+        storage
     ) {
         'use strict';
         return function () {

@@ -75,7 +75,7 @@ class Config
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS = "tax/avatax/address_validation_error_instructions";
 
-	const XML_PATH_AVATAX_LOG_DB_LEVEL = 'tax/avatax/logging_db_level';
+    const XML_PATH_AVATAX_LOG_DB_LEVEL = 'tax/avatax/logging_db_level';
 
     const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
 
@@ -730,7 +730,7 @@ class Config
     public function getAddressValidationInstructionsWithChoice($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE ,
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -746,7 +746,7 @@ class Config
     public function getAddressValidationInstructionsWithoutChoice($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE ,
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -762,7 +762,7 @@ class Config
     public function getAddressValidationErrorInstructions($store = null)
     {
         return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS ,
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -778,7 +778,7 @@ class Config
     public function getAddressValidationCountriesEnabled($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED ,
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED,
             ScopeInterface::SCOPE_STORE,
             $store
         );

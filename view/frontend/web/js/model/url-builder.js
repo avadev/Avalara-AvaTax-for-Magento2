@@ -9,7 +9,7 @@ define(
     function($) {
         return {
             method: "rest",
-            storeCode: window.storeCode,
+            storeCode: window.avaTaxStoreCode,
             version: 'V1',
             serviceUrl: ':method/:storeCode/:version',
 

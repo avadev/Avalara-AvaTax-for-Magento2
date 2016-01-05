@@ -1,31 +1,30 @@
 @color-inserted: #93EE9E;
 @color-deleted: #ffc1c3;
 
-.addressBox() {
-    outline: @border-width__base solid @border-color__base;
-    background: @panel__background-color;
-}
-
-.checkout-container #validate_address,
-.validateBinding {
+.validateAddressForm {
+    display: none;
     .form.validate {
         display: flex;
         flex-wrap: wrap;
         .addressOption {
             padding: 10px;
-            margin-top: 20px;
+            margin: 20px 0 0 0;
             cursor: pointer;
-            flex: 1 0 auto;
+            flex:1 0 auto;
             .optionTitle {
-                font-weight: @font-weight__bold;
-                font-size: @font-size__base;
+                font-weight: bold;
+                font-size: 14px;
                 margin-bottom: 5px;
             }
             .optionAddress {
                 display: flex;
-                div {
+                input {
+                    outline: none;
                     cursor: pointer;
-                    width: 20px;
+                    width: 30px;
+                    &:focus {
+                        box-shadow: none;
+                    }
                 }
                 label {
                     width: 100%;
@@ -33,14 +32,16 @@
                 }
             }
             &.selected {
-                .addressBox;
+                outline: 1px solid @color-gray80;
+                background: @color-white-smoke;
             }
         }
     }
     .validatedAddress {
         margin-top: 10px;
         padding: 10px;
-        .addressBox;
+        outline: 1px solid @color-gray80;
+        background: @color-white-smoke;
     }
     ins {
         text-decoration: none;
@@ -50,15 +51,17 @@
         text-decoration: none;
         background-color: @color-deleted;
     }
-    .errorMessage-Container {
+    .errorMessageContainer {
         .instructions p,
         .originalAddressText {
             margin-top: 10px;
             padding: 10px;
-            .addressBox;
+            outline: 1px solid @color-gray80;
+            background: @color-white-smoke;
         }
     }
     .instructions a {
         cursor: pointer;
     }
 }
+

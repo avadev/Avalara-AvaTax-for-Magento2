@@ -264,6 +264,15 @@ class Address
     }
 
     /**
+     * Copies a quote address to a customer address
+     *
+     * Ths function serves to create a customer address from a quote address because when a user is logged in and they
+     * go to checkout, if they select an existing customer address the checkout module will retrieve that customer
+     * address to set as the quote address. Rather that update the quote address every time at checkout, this module
+     * will update the customer address (if the user selects the valid address) so that customer address only needs
+     * to be validated once. To do this, the quote address must be converted to a customer address so the validated
+     * address can be saved to the quote address.
+     *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param QuoteAddressInterface $quoteAddress
      * @param CustomerAddressInterface $customerAddress

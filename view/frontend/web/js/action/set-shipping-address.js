@@ -9,7 +9,6 @@ define(
         'Magento_Checkout/js/model/payment/method-converter',
         'Magento_Checkout/js/model/error-processor',
         'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/action/select-billing-address',
         'ClassyLlama_AvaTax/js/view/update-address',
         'ClassyLlama_AvaTax/js/model/address-model'
     ],
@@ -23,7 +22,6 @@ define(
         methodConverter,
         errorProcessor,
         fullScreenLoader,
-        selectBillingAddressAction,
         updateAddress,
         addressModel
     ) {

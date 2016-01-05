@@ -49,7 +49,7 @@ define(
                     function (response) {
                         quote.setTotals(response.totals);
                         paymentService.setPaymentMethods(methodConverter(response.payment_methods));
-                        // Begin Edit - Nathan Toombs <nathan.toombs@classyllama.com>
+                        // Begin Edit
                         checkoutValidationHandler.validationResponseHandler(response);
                         // End Edit
                         fullScreenLoader.stopLoader();
