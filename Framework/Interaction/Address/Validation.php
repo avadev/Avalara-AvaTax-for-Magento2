@@ -5,6 +5,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Address;
 use AvaTax\SeverityLevel;
 use AvaTax\TextCase;
 use AvaTax\ValidateRequestFactory;
+use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\AddressService;
 use ClassyLlama\AvaTax\Model\Session;
@@ -59,6 +60,7 @@ class Validation
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
      * @return array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
+     * @throws AddressValidateException
      * @throws LocalizedException
      */
     public function validateAddress($addressInput)
@@ -87,13 +89,16 @@ class Validation
                 // TODO: Return null if address could not be converted to original type
                 switch (true) {
                     case ($addressInput instanceof \Magento\Customer\Api\Data\AddressInterface):
-                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToCustomerAddress($validAddress);
+                        $validAddress = $this->interactionAddress
+                            ->convertAvaTaxValidAddressToCustomerAddress($validAddress, $addressInput);
                         break;
                     case ($addressInput instanceof \Magento\Quote\Api\Data\AddressInterface):
-                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToOrderAddress($validAddress);
+                        $validAddress = $this->interactionAddress
+                            ->convertAvaTaxValidAddressToQuoteAddress($validAddress, $addressInput);
                         break;
                     case ($addressInput instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
-                        $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToOrderAddress($validAddress);
+                        $validAddress = $this->interactionAddress
+                            ->convertAvaTaxValidAddressToOrderAddress($validAddress, $addressInput);
                         break;
                     case (is_array($addressInput)):
                         $validAddress = $this->interactionAddress->convertAvaTaxValidAddressToArray($validAddress);
@@ -102,7 +107,7 @@ class Validation
 
                 return $validAddress;
             } else {
-                return null;
+                throw new AddressValidateException(new Phrase($validateResult->getMessages()[0]->getSummary()));
             }
         } catch (\SoapFault $exception) {
             throw new LocalizedException(new Phrase($exception->getMessage()));

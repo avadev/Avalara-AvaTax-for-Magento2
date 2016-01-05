@@ -2,7 +2,7 @@
 
 namespace ClassyLlama\AvaTax\Controller\Tax;
 
-use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
+use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy as InteractionGet;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller;

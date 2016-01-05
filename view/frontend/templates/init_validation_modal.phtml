@@ -1,0 +1,16 @@
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "addressValidationModal": {
+                "validationEnabled": <?= $this->isValidationEnabled() ?>,
+                "hasChoice": <?= $this->getChoice() ?>,
+                "instructions": "<?= $this->getInstructions() ?>",
+                "errorInstructions": "<?= $this->getErrorInstructions() ?>",
+                "countriesEnabled": "<?= $this->getCountriesEnabled() ?>"
+            }
+        }
+    }
+</script>
+<script type="text/javascript">
+    window.storeCode = "<?= $this->getStoreCode() ?>";
+</script>

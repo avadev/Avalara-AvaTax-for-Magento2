@@ -164,6 +164,11 @@ class Tax
     const RATE_MULTIPLIER = 100;
 
     /**
+     * Default currency exchange rate
+     */
+    const DEFAULT_EXCHANGE_RATE = 1;
+
+    /**
      * Class constructor
      *
      * @param Address $address
@@ -289,6 +294,10 @@ class Tax
      */
     protected function getExchangeRate($scope, $baseCurrencyCode, $convertCurrencyCode)
     {
+        if (!$baseCurrencyCode || !$convertCurrencyCode) {
+            return self::DEFAULT_EXCHANGE_RATE;
+        }
+
         /** @var \Magento\Directory\Model\Currency $currency */
         $currency = $this->priceCurrency->getCurrency($scope, $baseCurrencyCode);
 
