@@ -103,6 +103,18 @@ class ShippingInformationManagementPlugin
         $cartId,
         ShippingInformationInterface $addressInformation
     ) {
+        // Only validate address if module is enabled
+        $quote = $this->quoteRepository->getActive($cartId);
+        $storeId = $quote->getStoreId();
+        if (!$this->config->isModuleEnabled($storeId)) {
+            return $proceed($cartId, $addressInformation);
+        }
+
+        // Only validate address if address validation is enabled
+        if (!$this->config->isAddressValidationEnabled($storeId)) {
+            return $proceed($cartId, $addressInformation);
+        }
+
         $shippingAddress = $addressInformation->getShippingAddress();
 
         $shippingInformationExtension = $addressInformation->getExtensionAttributes();
