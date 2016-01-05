@@ -4,7 +4,6 @@ namespace ClassyLlama\AvaTax\Model;
 
 use AvaTax\ATConfigFactory;
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
-use Magento\Framework\AppInterface as MageAppInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Phrase;
@@ -12,6 +11,8 @@ use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Store\Model\Information;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
+use Magento\Framework\App\State;
+use Magento\Tax\Api\TaxClassRepositoryInterface;
 
 class Config
 {
@@ -61,6 +62,30 @@ class Config
     const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_FRONTEND = 'tax/avatax/error_action_disable_checkout_message_frontend';
 
     const XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND = 'tax/avatax/error_action_disable_checkout_message_backend';
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED = "tax/avatax/address_validation_enabled";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_USER_HAS_CHOICE = "tax/avatax/address_validation_user_has_choice";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED = "tax/avatax/address_validation_countries_enabled";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE = "tax/avatax/address_validation_instructions_with_choice";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE = "tax/avatax/address_validation_instructions_without_choice";
+
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS = "tax/avatax/address_validation_error_instructions";
+
+    const XML_PATH_AVATAX_LOG_DB_LEVEL = 'tax/avatax/logging_db_level';
+
+    const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
+
+    const XML_PATH_AVATAX_LOG_FILE_ENABLED = 'tax/avatax/logging_file_enabled';
+
+    const XML_PATH_AVATAX_LOG_FILE_MODE = 'tax/avatax/logging_file_mode';
+
+    const XML_PATH_AVATAX_LOG_FILE_LEVEL = 'tax/avatax/logging_file_level';
+
+    const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
     /**#@-*/
 
     /**#@+
@@ -89,6 +114,21 @@ class Config
      * Customer Code Format for "name_id" option
      */
     const CUSTOMER_FORMAT_NAME_ID = '%s (%s)';
+
+    /**
+     * If user is guest, ID to use for "name_id" option
+     */
+    const CUSTOMER_GUEST_ID = 'Guest';
+
+    /**
+     * Value to send as "customer_code" if "email" is selected and quote doesn't have email
+     */
+    const CUSTOMER_MISSING_EMAIL = 'No email';
+
+    /**
+     * Value to send as "customer_code" if "name_id" is selected and quote doesn't have name
+     */
+    const CUSTOMER_MISSING_NAME = 'No name';
 
     /**#@+
      * Error Action Options
@@ -133,23 +173,31 @@ class Config
     protected $appState;
 
     /**
+     * @var TaxClassRepositoryInterface
+     */
+    protected $taxClassRepository = null;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $magentoProductMetadata
      * @param ATConfigFactory $avaTaxConfigFactory
-     * @param \Magento\Framework\App\State $appState
+     * @param State $appState
+     * @param TaxClassRepositoryInterface $taxClassRepository
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
-        \Magento\Framework\App\State $appState
+        State $appState,
+        TaxClassRepositoryInterface $taxClassRepository
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
+        $this->taxClassRepository = $taxClassRepository;
         $this->createAvaTaxProfile();
     }
 
@@ -473,7 +521,7 @@ class Config
      * @param null $store
      * @return string
      */
-    public function getSkuShippingAdjustmentPositive($store = null)
+    public function getSkuAdjustmentPositive($store = null)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_ADJUSTMENT_POSITIVE,
@@ -488,7 +536,7 @@ class Config
      * @param null $store
      * @return string
      */
-    public function getSkuShippingAdjustmentNegative($store = null)
+    public function getSkuAdjustmentNegative($store = null)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_ADJUSTMENT_NEGATIVE,
@@ -579,16 +627,16 @@ class Config
      * Return "disable checkout" error message based on the current area context
      *
      * @param null $store
-     * @return string
+     * @return \Magento\Framework\Phrase
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getErrorActionDisableCheckoutMessage($store = null)
     {
         // TODO: Ensure that this method of checking area actually works
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
-            return $this->getErrorActionDisableCheckoutMessageBackend($store);
+            return __($this->getErrorActionDisableCheckoutMessageBackend($store));
         } else {
-            return $this->getErrorActionDisableCheckoutMessageFrontend($store);
+            return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
         }
     }
 
@@ -617,6 +665,210 @@ class Config
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get gift wrap tax class
+     *
+     * @param null $store
+     * @return \Magento\Tax\Api\Data\TaxClassInterface
+     */
+    public function getWrappingTaxClass($store = null)
+    {
+        $taxClassId = $this->scopeConfig->getValue(
+            \Magento\GiftWrapping\Helper\Data::XML_PATH_TAX_CLASS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+        // TODO: Implement logic like \OnePica_AvaTax_Model_Avatax_Abstract::_getGiftTaxClassCode once AvaTax custom tax codes are implemented
+        //return $this->taxClassRepository->get($taxClassId)->getClassName();
+        return null;
+    }
+
+    /**
+     * Return if address validation is enabled
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return mixed
+     */
+    public function isAddressValidationEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Returns if user is allowed to choose between the original address and the validated address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return mixed
+     */
+    public function allowUserToChooseAddress($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_USER_HAS_CHOICE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Instructions for the user if they have a choice between the original address and validated address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return string
+     */
+    public function getAddressValidationInstructionsWithChoice($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Instructions for the user if they do not have a choice between the original address and the validated address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return string
+     */
+    public function getAddressValidationInstructionsWithoutChoice($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Instructions for the user if there was an error in validating their address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return string
+     */
+    public function getAddressValidationErrorInstructions($store = null)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Returns which countries were enabled to validate the users address
+     *
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param null $store
+     * @return mixed
+     */
+    public function getAddressValidationCountriesEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log level
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logDbLevel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_LEVEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log detail
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logDbDetail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return if file logging is enabled
+     *
+     * @param null $store
+     * @return bool
+     */
+    public function logFileEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log mode
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileMode($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log level
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileLevel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_LEVEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log detail
+     *
+     * @param null $store
+     * @return int
+     */
+    public function logFileDetail($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );

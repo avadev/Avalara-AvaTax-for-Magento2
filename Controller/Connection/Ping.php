@@ -24,16 +24,17 @@ class Ping extends Action\Action
             echo 'Ping ResultCode is: ' . $pingResult->getResultCode() . "\n";
             if ($pingResult->getResultCode() != SeverityLevel::$Success)
             {
-                foreach ($pingResult->Messages() as $messages)
+                /** @var $messages \AvaTax\Message */
+                foreach ($pingResult->getMessages() as $messages)
                 {
-                    echo $messages->Name() . ": " . $messages->Summary() . "\n";
+                    echo $messages->getName() . ": " . $messages->getSummary() . "\n";
                 }
             } else
             {
                 echo 'Ping Version is: ' . $pingResult->getVersion() . "\n";
                 echo 'TransactionID is: ' . $pingResult->getTransactionId() . "\n\n";
             }
-        } catch (SoapFault $exception)
+        } catch (\SoapFault $exception)
         {
             $messages = "Exception: ";
             if ($exception)

@@ -2,7 +2,7 @@
 
 namespace ClassyLlama\AvaTax\Controller\Tax;
 
-use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
+use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy as InteractionGet;
 use AvaTax\GetTaxResult;
 use Magento\Framework\App\Action;
 use Magento\Framework\App\Action\Context;
@@ -51,25 +51,25 @@ class Get extends Action\Action
         $contents = '';
 
         $data = $this->orderRepository->get(1);
-        $success = $this->interactionGetTax->getTax($data);
+        $success = $this->interactionGetTax->getTaxDetailsForQuote($data);
         if ($success) {
             $contents .= $this->dumpTaxData($success) . "\n\n";
         }
 
         $data = $this->orderRepository->get(2);
-        $success = $this->interactionGetTax->getTax($data);
+        $success = $this->interactionGetTax->getTaxDetailsForQuote($data);
         if ($success) {
             $contents .= $this->dumpTaxData($success) . "\n\n";
         }
 
         $data = $this->quoteRepository->get(1);
-        $success = $this->interactionGetTax->getTax($data);
+        $success = $this->interactionGetTax->getTaxDetailsForQuote($data);
         if ($success) {
             $contents .= $this->dumpTaxData($success) . "\n\n";
         }
 
         $data = $this->quoteRepository->get(2);
-        $success = $this->interactionGetTax->getTax($data);
+        $success = $this->interactionGetTax->getTaxDetailsForQuote($data);
         if ($success) {
             $contents .= $this->dumpTaxData($success) . "\n\n";
         }
@@ -93,7 +93,7 @@ class Get extends Action\Action
             $response .= "TotalAmount: " . $getTaxResult->getTotalAmount() . "\n";
             $response .= "TotalTax: " . $getTaxResult->getTotalTax() . "\n";
 //Line Level Results (from TaxLines array class)
-            /** @var $currentTaxLine TaxLine */
+            /** @var $currentTaxLine \AvaTax\TaxLine */
             foreach ($getTaxResult->getTaxLines() as $currentTaxLine) {
                 $response .= "     Line: " . $currentTaxLine->getNo() . " Tax: " . $currentTaxLine->getTax() . " TaxCode: " . $currentTaxLine->getTaxCode() . "\n";
 //Line Level Results
@@ -104,7 +104,7 @@ class Get extends Action\Action
             }
 //If NOT success - display error messages to console
         } else {
-            /** @var $message Message */
+            /** @var $message \AvaTax\Message */
             foreach ($getTaxResult->getMessages() as $message) {
                 $response .= $message->getName() . ": " . $message->getSummary() . "\n";
             }

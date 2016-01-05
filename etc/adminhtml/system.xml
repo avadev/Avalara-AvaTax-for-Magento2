@@ -15,6 +15,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <!-- TODO: Consider using the term "test" for non production/live environments instead of "development". -->
                 <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
@@ -71,6 +72,66 @@
                         <field id="enabled">1</field>
                         <field id="live_mode">0</field>
                     </depends>
+                </field>
+                <field id="logging_settings_header" translate="label" type="label" sortOrder="1500" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Logging Settings</strong>]]></label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="logging_db_level" translate="label" type="select" sortOrder="1510" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Level</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Notice or Warning recommended for production use</comment>
+                </field>
+                <field id="logging_db_detail" translate="label" type="select" sortOrder="1520" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Detail</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Minimal recommended for production use</comment>
+                </field>
+                <field id="logging_db_lifetime" translate="label" type="text" sortOrder="1530" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Record Lifetime, Days</label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="logging_file_enabled" translate="label" type="select" sortOrder="1540" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Logging To File</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Archiving of log files is affected by System -> Admin Actions Log Archiving</comment>
+                </field>
+                <field id="logging_file_mode" translate="label" type="select" sortOrder="1550" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Mode</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
+                    <depends>
+                        <field id="logging_file_enabled">1</field>
+                    </depends>
+                    <comment>Log files are located in the magento var/log/ directory</comment>
+                </field>
+                <field id="logging_file_level" translate="label" type="select" sortOrder="1560" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Level</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
+                    <depends>
+                        <field id="logging_file_enabled">1</field>
+                    </depends>
+                    <comment>Info or Notice recommended for production use</comment>
+                </field>
+                <field id="logging_file_detail" translate="label" type="select" sortOrder="1570" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Detail</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Normal recommended for production use</comment>
                 </field>
                 <field id="data_mapping_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Data Mapping</strong>]]></label>
@@ -181,21 +242,72 @@
                         <field id="use_business_identification_number">1</field>
                     </depends>
                 </field>
-                <field id="error_handling_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="address_validation_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Address Validation Settings</strong>]]></label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_enabled" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Address Validation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>tax/avatax/address_validation_enabled</config_path>
+                    <comment>Enable validation of shipping address using the AvaTax Address Validation API</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_user_has_choice" translate="label comment" type="select" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow user to choose original (invalid) address</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Set this to "Yes" to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to "No", user will be required to use validated address or update their original address.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_countries_enabled" translate="label comment" type="multiselect" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled Countries</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\AddressValidationCountries</source_model>
+                    <comment>Select which countries to enable for address validation. AvaTax Address Validation currently only supports United States and Canada.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Address Validation Instructions With Choice</label>
+                    <comment>This text will be displayed to the user in the "Verify Your Address" step of the checkout process when the "Allow user to choose original (invalid) address" option above is set to "Yes"</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                        <field id="address_validation_user_has_choice">1</field>
+                    </depends>
+                </field>
+                <field id="address_validation_instructions_without_choice" translate="label comment" type="textarea" sortOrder="4050" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Address Validation Instructions Without Choice</label>
+                    <comment>This text will be displayed to the user in the "Verify Your Address" step of the checkout process when the "Allow user to choose original (invalid) address" option above is set to "No"</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                        <field id="address_validation_user_has_choice">0</field>
+                    </depends>
+                </field>
+                <field id="address_validation_error_instructions" translate="label comment" type="textarea" sortOrder="4060" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Address Validation Error Instructions</label>
+                    <comment>This text will be displayed to the user in the "Verify Your Address" step of the checkout process when there is an error in the validation process</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation">1</field>
+                    </depends>
+                </field>
+                <field id="error_handling_header" translate="label" type="label" sortOrder="5000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Error Handling Settings</strong>]]></label>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="error_action" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Error Action</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
-                    <comment>What should happen if Magento is unable to retrieve taxes from the AvaTax API</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="5020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Frontend Error Message</label>
                     <comment>This error message will be displayed to user if there is an error calculating taxes</comment>
                     <depends>
@@ -203,7 +315,7 @@
                         <field id="error_action">1</field>
                     </depends>
                 </field>
-                <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="5030" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Backend Error Message</label>
                     <comment>This error message will be displayed to backend user if there is an error calculating taxes</comment>
                     <depends>
