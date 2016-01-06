@@ -56,6 +56,23 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $extensionFactory;
 
     /**
+     * @var \Magento\Framework\Message\ManagerInterface
+     */
+    protected $messageManager;
+
+    /**
+     * Core registry
+     *
+     * @var \Magento\Framework\Registry
+     */
+    protected $coreRegistry;
+
+    /**
+     * Registry key to track whether AvaTax GetTaxRequest was successful
+     */
+    const AVATAX_GET_TAX_REQUEST_ERROR = 'avatax_get_tax_request_error';
+
+    /**
      * Class constructor
      *
      * @param \Magento\Tax\Model\Config $taxConfig
@@ -71,6 +88,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param Config $config
      * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @param \Magento\Framework\Registry $coreRegistry
      */
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
@@ -85,13 +104,17 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         TaxCalculation $taxCalculation,
         Config $config,
         \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
-        \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
+        \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Framework\Registry $coreRegistry
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->taxCalculation = $taxCalculation;
         $this->config = $config;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->extensionFactory = $extensionFactory;
+        $this->messageManager = $messageManager;
+        $this->coreRegistry = $coreRegistry;
         parent::__construct(
             $taxConfig,
             $taxCalculationService,
@@ -149,18 +172,18 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         if (!$taxDetailsList) {
             switch ($this->config->getErrorAction($quote->getStoreId())) {
                 case Config::ERROR_ACTION_DISABLE_CHECKOUT:
-                    $errorMessage = $this->config->getErrorActionDisableCheckoutMessage($quote->getStoreId());
-                    // TODO: This exception gets caught by the last try/catch block in \Magento\Checkout\Model\ShippingInformationManagement::saveAddressInformation, so getting our custom exception message to display to user will take a different approach
-                    throw new RemoteServiceUnavailableException($errorMessage);
-                    break;
-                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
+                    $this->coreRegistry->register(self::AVATAX_GET_TAX_REQUEST_ERROR, true, true);
                     return parent::collect($quote, $shippingAssignment, $total);
                     break;
-                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX:
+                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
                 default:
-                    // TODO: Get this fully working, as prices "including taxes" are still showing in checkout, and "Subtotal" is displaying $0. Reference how M1 does this.
-                    $this->clearValues($total);
-                    return null;
+                    /**
+                     * Note: while this should return Magento's tax calculation, the tax calculation may be slightly
+                     * off, as these two collect methods will not have run:
+                     * @see \Magento\Tax\Model\Sales\Total\Quote\Shipping::collect()
+                     * @see \Magento\Tax\Model\Sales\Total\Quote\Subtotal::collect()
+                     */
+                    return parent::collect($quote, $shippingAssignment, $total);
                     break;
             }
         } else {
