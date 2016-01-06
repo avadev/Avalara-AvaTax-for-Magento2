@@ -32,92 +32,61 @@ class UpgradeSchema implements UpgradeSchemaInterface
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
-
         if (version_compare($context->getVersion(), '0.1.3', '<')) {
 
-            // Logging
             $this->logger->info('ClassyLlama_AvaTax Schema Upgrade to 0.1.3');
 
-            // TODO: Add unique constraint to the entity_id column of the avatax_creditmemo and avatax_invoice tables
+            // Add column to invoice and credit memo tables for avatax responses
+            $setup->getConnection()->addColumn(
+                $setup->getTable('sales_invoice'),
+                'avatax_is_unbalanced',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                    'length' => 1,
+                    'nullable' => true,
+                    'default' => null,
+                    'unsigned' => true,
+                    'comment' => 'Is Unbalanced In Relation To AvaTax Calculated Tax Amount'
+                ]
+            );
+            $setup->getConnection()->addColumn(
+                $setup->getTable('sales_creditmemo'),
+                'avatax_is_unbalanced',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                    'length' => 1,
+                    'nullable' => true,
+                    'default' => null,
+                    'unsigned' => true,
+                    'comment' => 'Is Unbalanced In Relation To AvaTax Calculated Tax Amount'
+                ]
+            );
 
-            /**
-             * Create table 'avatax_creditmemo'
-             */
-            $table = $setup->getConnection()
-                ->newTable(
-                    $setup->getTable('avatax_invoice')
-                )
-                ->addColumn(
-                    'id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    [
-                        'nullable' => false,
-                        'identity' => true,
-                        'primary' => true
-                    ],
-                    'AvaTax Credit Memo ID'
-                )
-                ->addColumn(
-                    'entity_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['nullable' => false],
-                    'Entity ID'
-                )
-                ->addColumn(
-                    'is_unbalanced',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-                    null,
-                    ['unsigned' => true],
-                    'Is Unbalanced In Relation To AvaTax Calculated Tax Amount Response'
-                )
-                ->addColumn(
-                    'base_avatax_tax_amount',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
-                    '12,4',
-                    [],
-                    'Base AvaTax Calculated Tax Amount'
-                );
-            $setup->getConnection()->createTable($table);
+            $setup->getConnection()->addColumn(
+                $setup->getTable('sales_invoice'),
+                'base_avatax_tax_amount',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                    'length' => '12,4',
+                    'nullable' => true,
+                    'default' => null,
+                    'unsigned' => false,
+                    'comment' => 'Base AvaTax Calculated Tax Amount'
+                ]
+            );
 
-            $table = $setup->getConnection()
-                ->newTable(
-                    $setup->getTable('avatax_creditmemo')
-                )
-                ->addColumn(
-                    'id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    [
-                        'nullable' => false,
-                        'identity' => true,
-                        'primary' => true
-                    ],
-                    'AvaTax Credit Memo ID'
-                )
-                ->addColumn(
-                    'entity_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['nullable' => false],
-                    'Entity ID'
-                )
-                ->addColumn(
-                    'is_unbalanced',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-                    null,
-                    ['unsigned' => true],
-                    'Is Unbalanced In Relation To AvaTax Calculated Tax Amount Response'
-                )
-                ->addColumn(
-                    'base_avatax_tax_amount',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
-                    '12,4',
-                    [],
-                    'Base AvaTax Calculated Tax Amount'
-                );
-            $setup->getConnection()->createTable($table);
+            $setup->getConnection()->addColumn(
+                $setup->getTable('sales_creditmemo'),
+                'base_avatax_tax_amount',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                    'length' => '12,4',
+                    'nullable' => true,
+                    'default' => null,
+                    'unsigned' => false,
+                    'comment' => 'Base AvaTax Calculated Tax Amount'
+                ]
+            );
         }
 
         $setup->endSetup();

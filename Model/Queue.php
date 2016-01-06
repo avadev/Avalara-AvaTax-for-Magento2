@@ -7,6 +7,7 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Data\Collection\AbstractDb;
+use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 /**
  * Queue
@@ -25,7 +26,9 @@ use Magento\Framework\Data\Collection\AbstractDb;
  * @method Queue setUpdatedAt() setUpdatedAt(string $updateDateTime)
  * @method Queue setStoreId() setStoreId(int $storeId)
  * @method Queue setEntityTypeId() setEntityTypeId(int $entityTypeId)
+ * @method Queue setEntityTypeCode() setEntityTypeCode(string $entityTypeCode)
  * @method Queue setEntityId() setEntityId(int $entityId)
+ * @method Queue setIncrementId() setIncrementId(string $incrementId)
  * @method Queue setQueueStatus() setQueueStatus(string $queueStatus)
  * @method Queue setAttempts() setAttempts(int $attempts)
  * @method Queue setMessage() setMessage(string $message)
@@ -43,9 +46,19 @@ class Queue extends AbstractModel
     const QUEUE_STATUS_FAILED = 'failed';
 
     /**
+     * @var AvaTaxLogger
+     */
+    protected $avaTaxLogger;
+
+    /**
      * @var Queue
      */
     protected $processing;
+
+    /**
+     * @var \Magento\Eav\Model\Config
+     */
+    protected $eavConfig;
 
     /**
      * Queue constructor.
@@ -59,12 +72,16 @@ class Queue extends AbstractModel
     public function __construct(
         Context $context,
         Registry $registry,
+        AvaTaxLogger $avaTaxLogger,
         Queue\Processing $processing,
+        \Magento\Eav\Model\Config $eavConfig,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
+        $this->avaTaxLogger = $avaTaxLogger;
         $this->processing = $processing;
+        $this->eavConfig = $eavConfig;
         parent::__construct(
             $context,
             $registry,
@@ -90,5 +107,42 @@ class Queue extends AbstractModel
     public function process()
     {
         $this->processing->execute($this);
+    }
+
+    /**
+     * @param int $storeId
+     * @param string $entityTypeCode
+     * @param int $entityId
+     * @param string $incrementId
+     * @param string $queueStatus
+     * @throws \Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function build($storeId, $entityTypeCode, $entityId, $incrementId, $queueStatus)
+    {
+        // validating $entityTypeCode
+        if (!in_array($entityTypeCode, [self::ENTITY_TYPE_CODE_INVOICE, self::ENTITY_TYPE_CODE_CREDITMEMO])) {
+            $message = 'When building a queue record an invalid entity_type_code was provided';
+
+            $this->avaTaxLogger->error(
+                $message,
+                [ /* context */
+                    'invalid_entity_type_code' => $entityTypeCode,
+                ]
+            );
+
+            throw new \Exception($message);
+        }
+
+        // Get Entity Type Details
+        $entityType = $this->eavConfig->getEntityType($entityTypeCode);
+
+        $this->setStoreId($storeId);
+        $this->setEntityTypeId($entityType->getEntityTypeId());
+        $this->setEntityTypeCode($entityTypeCode);
+        $this->setEntityId($entityId);
+        $this->setIncrementId($incrementId);
+        $this->setQueueStatus($queueStatus);
+        $this->setAttempts(0);
     }
 }
