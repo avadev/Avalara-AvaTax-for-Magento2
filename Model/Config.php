@@ -178,6 +178,13 @@ class Config
     protected $taxClassRepository = null;
 
     /**
+     * Url Builder
+     *
+     * @var \Magento\Framework\UrlInterface
+     */
+    protected $urlBuilder;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
@@ -185,13 +192,15 @@ class Config
      * @param ATConfigFactory $avaTaxConfigFactory
      * @param State $appState
      * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param \Magento\Framework\UrlInterface $urlBuilder
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
         State $appState,
-        TaxClassRepositoryInterface $taxClassRepository
+        TaxClassRepositoryInterface $taxClassRepository,
+        \Magento\Framework\UrlInterface $urlBuilder
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->magentoProductMetadata = $magentoProductMetadata;
@@ -199,6 +208,7 @@ class Config
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->createAvaTaxProfile();
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -634,7 +644,10 @@ class Config
     {
         // TODO: Ensure that this method of checking area actually works
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
-            return __($this->getErrorActionDisableCheckoutMessageBackend($store));
+            return __(
+                $this->getErrorActionDisableCheckoutMessageBackend($store),
+                $this->urlBuilder->getUrl('avatax/log')
+            );
         } else {
             return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
         }
