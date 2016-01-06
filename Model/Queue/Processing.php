@@ -357,11 +357,7 @@ class Processing
             $avaTaxEntityExtension = $this->getAvaTaxEntityExtension($entity);
 
             // set all the properties
-            $avaTaxEntityExtension->setStoreId($entity->getStoreId());
-            $avaTaxEntityExtension->setEntityTypeId($entityType->getId());
-            $avaTaxEntityExtension->setEntityTypeCode($entityType->getEntityTypeCode());
             $avaTaxEntityExtension->setEntityId($entity->getEntityId());
-            $avaTaxEntityExtension->setIncrementId($entity->getIncrementId());
             $avaTaxEntityExtension->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
             $avaTaxEntityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
 

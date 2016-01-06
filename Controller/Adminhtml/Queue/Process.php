@@ -50,18 +50,16 @@ class Process extends Queue
         try {
             $this->queueTask->processPendingQueue();
             $message = __('The queue was successfully processed. ') .
-                __('%1 queued records were processed. ', $this->queueTask->processCount);
+                __('%1 queued records were processed. ', $this->queueTask->getProcessCount());
 
             $this->messageManager->addSuccess($message);
 
-            if ($this->queueTask->errorCount > 0)
-            {
+            if ($this->queueTask->getErrorCount() > 0) {
                 $errorMessage = __('Some queue records received errors while processing. ') .
-                    __('%1 queued records had errors. ', $this->queueTask->errorCount);
+                    __('%1 queued records had errors. ', $this->queueTask->getErrorCount());
 
                 // Include the error messages from the queue task
-                foreach ($this->queueTask->errorMessages as $queueErrorMessage)
-                {
+                foreach ($this->queueTask->getErrorMessages() as $queueErrorMessage) {
                     $errorMessage .= $queueErrorMessage;
                 }
 
@@ -72,9 +70,9 @@ class Process extends Queue
             // Check for any queue records that appear to have been hung and reset them
             $this->queueTask->resetHungQueuedRecords();
 
-            if ($this->queueTask->resetCount > 0) {
+            if ($this->queueTask->getResetCount() > 0) {
                 $errorMessage = __('Some queue records appeared to have been abandoned while processing. ') .
-                    __('%1 queued records were reset to pending so they can be retried. ', $this->queueTask->resetCount);
+                    __('%1 queued records were reset to pending so they can be retried. ', $this->queueTask->getResetCount());
 
                 // Display error message on the page
                 $this->messageManager->addErrorMessage($errorMessage);
@@ -85,9 +83,8 @@ class Process extends Queue
             // Build error message
             $message = __('An error occurred while processing the queue. ');
             $partialSuccess = '';
-            if ($this->queueTask->processCount > 0)
-            {
-                $partialSuccess = ' '  . __('%1 queued records were processed. ', $this->queueTask->processCount);
+            if ($this->queueTask->getProcessCount() > 0) {
+                $partialSuccess = ' '  . __('%1 queued records were processed. ', $this->queueTask->getProcessCount());
             }
 
             // Display error message on the page
@@ -103,7 +100,7 @@ class Process extends Queue
                             "\n",
                             $e->getTraceAsString()
                         ),
-                    'process_count' => var_export($this->queueTask->processCount, true),
+                    'process_count' => var_export($this->queueTask->getProcessCount(), true),
                 ]
             );
         }

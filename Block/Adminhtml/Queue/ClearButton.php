@@ -42,9 +42,6 @@ class ClearButton implements ButtonProviderInterface
         return [
             'label' => __('Clear Queue Now'),
             'on_click' => "confirmSetLocation('{$message}', '{$this->getButtonUrl()}')"
-//            'on_click' => 'deleteConfirm(\'' . $message . '\', \'' . $this->getButtonUrl() . '\')',
-//            'on_click' => 'location.reload();',
-//            'on_click' => sprintf("location.href = '%s';", $this->getButtonUrl())
         ];
     }
 
@@ -55,6 +52,6 @@ class ClearButton implements ButtonProviderInterface
      */
     protected function getButtonUrl()
     {
-        return $this->urlBuilder->getUrl('*/*/clear', []);
+        return $this->urlBuilder->getUrl('*/*/clear');
     }
 }

@@ -35,57 +35,6 @@ class Invoice extends \Magento\Framework\Model\AbstractModel implements \ClassyL
     /**
      * @return int
      */
-    public function getStoreId()
-    {
-        return $this->getData(self::STORE_ID);
-    }
-
-    /**
-     * @param int $storeId
-     * @return Creditmemo
-     */
-    public function setStoreId($storeId)
-    {
-        return $this->setData(self::STORE_ID, $storeId);
-    }
-
-    /**
-     * @return int
-     */
-    public function getEntityTypeId()
-    {
-        return $this->getData(self::ENTITY_TYPE_ID);
-    }
-
-    /**
-     * @param int $entityTypeId
-     * @return Creditmemo
-     */
-    public function setEntityTypeId($entityTypeId)
-    {
-        return $this->setData(self::ENTITY_TYPE_ID, $entityTypeId);
-    }
-
-    /**
-     * @return string
-     */
-    public function getEntityTypeCode()
-    {
-        return $this->getData(self::ENTITY_TYPE_CODE);
-    }
-
-    /**
-     * @param string $entityTypeCode
-     * @return Creditmemo
-     */
-    public function setEntityTypeCode($entityTypeCode)
-    {
-        return $this->setData(self::ENTITY_TYPE_CODE, $entityTypeCode);
-    }
-
-    /**
-     * @return int
-     */
     public function getEntityId()
     {
         return $this->getData(self::ENTITY_ID);
@@ -98,23 +47,6 @@ class Invoice extends \Magento\Framework\Model\AbstractModel implements \ClassyL
     public function setEntityId($entityId)
     {
         return $this->setData(self::ENTITY_ID, $entityId);
-    }
-
-    /**
-     * @return string
-     */
-    public function getIncrementId()
-    {
-        return $this->getData(self::INCREMENT_ID);
-    }
-
-    /**
-     * @param string $incrementId
-     * @return Creditmemo
-     */
-    public function setIncrementId($incrementId)
-    {
-        return $this->setData(self::INCREMENT_ID, $incrementId);
     }
 
     /**

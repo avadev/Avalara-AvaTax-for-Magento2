@@ -11,6 +11,9 @@ use ClassyLlama\AvaTax\Model\Queue;
  */
 class Summary extends \Magento\Framework\View\Element\Template
 {
+    // Match the date time format in the columns for the queue records
+    const COLUMN_DATE_FORMAT = 'M d, Y h:i:s A';
+
     /**
      * @var CollectionFactory
      */
@@ -54,33 +57,34 @@ class Summary extends \Magento\Framework\View\Element\Template
     public function getQueueCollection()
     {
         // Initialize the queue collection
-        if ($this->summaryData == null)
-        {
+        if ($this->summaryData == null) {
             /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
             $this->queueCollection = $this->queueCollectionFactory->create();
         }
         return $this->queueCollection;
     }
 
+    /**
+     * @return bool|string
+     */
     public function getQueueSummaryLastUpdatedAt()
     {
         $collection = $this->getQueueCollection();
         $lastUpdatedAt = $collection->getQueueSummaryLastProcessed();
 
-        if ($lastUpdatedAt == null)
-        {
+        if ($lastUpdatedAt == null) {
             return '';
         }
 
-        // Match the date time format in the columns for the queue records
-        $dateTimeFormat = 'M d, Y h:i:s A';
-
-        $localTime = date($dateTimeFormat, strtotime($lastUpdatedAt) + $this->dateTime->getGmtOffset());
+        $localTime = date(self::COLUMN_DATE_FORMAT, strtotime($lastUpdatedAt) + $this->dateTime->getGmtOffset());
 
         return $localTime;
     }
 
-    public function getQeueuSummaryCount()
+    /**
+     * @return int
+     */
+    public function getQueueSummaryCount()
     {
         return $this->getQueueCollection()->getQueueSummaryCount(Queue::QUEUE_STATUS_PENDING);
     }

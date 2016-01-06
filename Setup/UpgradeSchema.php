@@ -59,39 +59,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'AvaTax Credit Memo ID'
                 )
                 ->addColumn(
-                    'store_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['nullable' => false],
-                    'Store ID'
-                )
-                ->addColumn(
-                    'entity_type_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['nullable' => false],
-                    'Entity Type ID'
-                )
-                ->addColumn(
-                    'entity_type_code',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    [],
-                    'Entity Type Code'
-                )
-                ->addColumn(
                     'entity_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
                     ['nullable' => false],
                     'Entity ID'
-                )
-                ->addColumn(
-                    'increment_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    [],
-                    'Increment ID'
                 )
                 ->addColumn(
                     'is_unbalanced',
@@ -125,39 +97,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'AvaTax Credit Memo ID'
                 )
                 ->addColumn(
-                    'store_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['nullable' => false],
-                    'Store ID'
-                )
-                ->addColumn(
-                    'entity_type_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['nullable' => false],
-                    'Entity Type ID'
-                )
-                ->addColumn(
-                    'entity_type_code',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    [],
-                    'Entity Type Code'
-                )
-                ->addColumn(
                     'entity_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
                     ['nullable' => false],
                     'Entity ID'
-                )
-                ->addColumn(
-                    'increment_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    [],
-                    'Increment ID'
                 )
                 ->addColumn(
                     'is_unbalanced',

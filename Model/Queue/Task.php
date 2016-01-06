@@ -24,22 +24,22 @@ class Task
     /**
      * @var int
      */
-    public $processCount = 0;
+    protected $processCount = 0;
 
     /**
      * @var int
      */
-    public $errorCount = 0;
+    protected $errorCount = 0;
 
     /**
      * @var array
      */
-    public $errorMessages = [];
+    protected $errorMessages = [];
 
     /**
      * @var int
      */
-    public $resetCount = 0;
+    protected $resetCount = 0;
 
     /**
      * @param CollectionFactory $queueCollectionFactory
@@ -130,5 +130,37 @@ class Task
                 'reset_count' => $this->resetCount
             ]
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrorMessages()
+    {
+        return $this->errorMessages;
+    }
+
+    /**
+     * @return int
+     */
+    public function getProcessCount()
+    {
+        return $this->processCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getErrorCount()
+    {
+        return $this->errorCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getResetCount()
+    {
+        return $this->resetCount;
     }
 }
