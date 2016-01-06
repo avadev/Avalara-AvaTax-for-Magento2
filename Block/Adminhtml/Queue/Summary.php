@@ -5,6 +5,7 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\Queue;
 use ClassyLlama\AvaTax\Model\ResourceModel\Queue\CollectionFactory;
 use ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection;
 use ClassyLlama\AvaTax\Model\Queue;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 /**
  * Class Summary
@@ -12,7 +13,7 @@ use ClassyLlama\AvaTax\Model\Queue;
 class Summary extends \Magento\Framework\View\Element\Template
 {
     // Match the date time format in the columns for the queue records
-    const COLUMN_DATE_FORMAT = 'M d, Y h:i:s A';
+    const GRID_COLUMN_DATE_FORMAT = 'M d, Y h:i:s A';
 
     /**
      * @var CollectionFactory
@@ -20,9 +21,9 @@ class Summary extends \Magento\Framework\View\Element\Template
     protected $queueCollectionFactory;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     * @var TimezoneInterface
      */
-    protected $dateTime;
+    protected $localeDate;
 
     /**
      * @var Collection
@@ -43,11 +44,11 @@ class Summary extends \Magento\Framework\View\Element\Template
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         CollectionFactory $queueCollectionFactory,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        TimezoneInterface $localeDate,
         array $data = []
     ) {
         $this->queueCollectionFactory = $queueCollectionFactory;
-        $this->dateTime = $dateTime;
+        $this->localeDate = $localeDate;
         parent::__construct($context, $data);
     }
 
@@ -76,7 +77,7 @@ class Summary extends \Magento\Framework\View\Element\Template
             return '';
         }
 
-        $localTime = date(self::COLUMN_DATE_FORMAT, strtotime($lastUpdatedAt) + $this->dateTime->getGmtOffset());
+        $localTime = $this->getFormattedDate($lastUpdatedAt);
 
         return $localTime;
     }
@@ -87,5 +88,20 @@ class Summary extends \Magento\Framework\View\Element\Template
     public function getQueueSummaryCount()
     {
         return $this->getQueueCollection()->getQueueSummaryCount(Queue::QUEUE_STATUS_PENDING);
+    }
+
+    /**
+     * Return date in the default timezone, formatted the same was as the dates in the grid columns
+     *
+     * @param null $time
+     * @return string
+     */
+    protected function getFormattedDate($time = null)
+    {
+        $time = $time ?: 'now';
+        $timezone = $this->localeDate->getConfigTimezone();
+        $date = new \DateTime($time, new \DateTimeZone($this->localeDate->getDefaultTimezone()));
+        $date->setTimezone(new \DateTimeZone($timezone));
+        return $date->format(self::GRID_COLUMN_DATE_FORMAT);
     }
 }
