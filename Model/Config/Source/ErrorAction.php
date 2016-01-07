@@ -13,7 +13,6 @@ class ErrorAction implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             ['value' => Config::ERROR_ACTION_DISABLE_CHECKOUT, 'label' => __('Disable checkout & show error message')],
-            ['value' => Config::ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX, 'label' => __('Allow checkout without charging tax (no error message)')],
             ['value' => Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX, 'label' => __('Allow checkout and fall back to native Magento tax calculation (no error message)')],
         ];
     }

@@ -65,7 +65,7 @@ class Config
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED = "tax/avatax/address_validation_enabled";
 
-    const XML_PATH_AVATAX_ADDRESS_VALIDATION_USER_HAS_CHOICE = "tax/avatax/address_validation_user_has_choice";
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD = "tax/avatax/address_validation_method";
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED = "tax/avatax/address_validation_countries_enabled";
 
@@ -135,9 +135,7 @@ class Config
      */
     const ERROR_ACTION_DISABLE_CHECKOUT = 1;
 
-    const ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX = 2;
-
-    const ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX = 3;
+    const ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX = 2;
     /**#@-*/
 
     /**#@+
@@ -637,7 +635,7 @@ class Config
      * Return "disable checkout" error message based on the current area context
      *
      * @param null $store
-     * @return \Magento\Framework\Phrase
+     * @return string
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getErrorActionDisableCheckoutMessage($store = null)
@@ -649,7 +647,7 @@ class Config
                 $this->urlBuilder->getUrl('avatax/log')
             );
         } else {
-            return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
+            return $this->getErrorActionDisableCheckoutMessageFrontend($store);
         }
     }
 

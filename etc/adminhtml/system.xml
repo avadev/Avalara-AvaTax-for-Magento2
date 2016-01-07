@@ -235,7 +235,7 @@
                 </field>
                 <field id="business_identification_number" translate="label comment" type="text" sortOrder="3020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>VAT Number</label>
-                    <config_path>tax/avatax_settings/business_identification_number</config_path>
+                    <config_path>tax/avatax/business_identification_number</config_path>
                     <comment>VAT Number can also be found at GENERAL: General -> Store Information -> VAT Number</comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -303,6 +303,14 @@
                 </field>
                 <field id="error_handling_header" translate="label" type="label" sortOrder="5000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Error Handling Settings</strong>]]></label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="error_action" translate="label comment" type="select" sortOrder="5010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Error Action</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
+                    <comment>What should happen if Magento is unable to retrieve taxes from the AvaTax API</comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
