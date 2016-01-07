@@ -6,6 +6,7 @@ use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address\Validation as ValidationInteraction;
 use ClassyLlama\AvaTax\Framework\Interaction\Address as AddressInteraction;
 use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax;
 use Magento\Checkout\Model\ShippingInformationManagement;
 use Magento\Checkout\Api\Data\ShippingInformationInterface;
 use Magento\Checkout\Model\ShippingInformation;
@@ -14,6 +15,7 @@ use Magento\Checkout\Api\Data\PaymentDetailsExtensionFactory;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\DataObject\Copy;
 use Magento\Customer\Model\Address\Mapper;
+use Magento\Framework\Exception\LocalizedException;
 
 class ShippingInformationManagementPlugin
 {
@@ -63,6 +65,13 @@ class ShippingInformationManagementPlugin
     protected $config = null;
 
     /**
+     * Core registry
+     *
+     * @var \Magento\Framework\Registry
+     */
+    protected $coreRegistry;
+
+    /**
      * ShippingInformationManagementPlugin constructor
      *
      * @param ValidationInteraction $validationInteraction
@@ -74,6 +83,7 @@ class ShippingInformationManagementPlugin
      * @param Copy $objectCopyService
      * @param Mapper $addressMapper
      * @param Config $config
+     * @param \Magento\Framework\Registry $coreRegistry
      */
     public function __construct(
         ValidationInteraction $validationInteraction,
@@ -84,7 +94,8 @@ class ShippingInformationManagementPlugin
         AddressRepositoryInterface $customerAddressRepository,
         Copy $objectCopyService,
         Mapper $addressMapper,
-        Config $config
+        Config $config,
+        \Magento\Framework\Registry $coreRegistry
     ) {
         $this->validationInteraction = $validationInteraction;
         $this->addressInteraction = $addressInteraction;
@@ -95,6 +106,7 @@ class ShippingInformationManagementPlugin
         $this->objectCopyService = $objectCopyService;
         $this->addressMapper = $addressMapper;
         $this->config = $config;
+        $this->coreRegistry = $coreRegistry;
     }
 
     public function aroundSaveAddressInformation(
@@ -165,6 +177,11 @@ class ShippingInformationManagementPlugin
         }
 
         $returnValue = $proceed($cartId, $addressInformation);
+
+        if ($this->coreRegistry->registry(Tax::AVATAX_GET_TAX_REQUEST_ERROR)) {
+            $errorMessage = $this->config->getErrorActionDisableCheckoutMessage($storeId);
+            throw new LocalizedException($errorMessage);
+        }
 
         if (!$shouldValidateAddress) {
             return $returnValue;
