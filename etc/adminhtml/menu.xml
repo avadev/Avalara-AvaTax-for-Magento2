@@ -7,6 +7,8 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
+        <add id="ClassyLlama_AvaTax::avatax_tax_classes_customer" title="Customer Tax Classes" module="ClassyLlama_AvaTax" sortOrder="28" parent="Magento_Tax::sales_tax" action="avatax/tax_classes_customer" resource="ClassyLlama_AvaTax::manage_avatax"/>
+        <add id="ClassyLlama_AvaTax::avatax_tax_classes_product" title="Product Tax Classes" module="ClassyLlama_AvaTax" sortOrder="29" parent="Magento_Tax::sales_tax" action="avatax/tax_classes_product" resource="ClassyLlama_AvaTax::manage_avatax"/>
         <add id="ClassyLlama_AvaTax::avatax_log" title="AvaTax Logs" module="ClassyLlama_AvaTax" sortOrder="30" parent="Magento_Tax::sales_tax" action="avatax/log" resource="ClassyLlama_AvaTax::manage_avatax"/>
         <add id="ClassyLlama_AvaTax::avatax_queue" title="AvaTax Queue" module="ClassyLlama_AvaTax" sortOrder="31" parent="Magento_Tax::sales_tax" action="avatax/queue" resource="ClassyLlama_AvaTax::manage_avatax"/>
     </menu>

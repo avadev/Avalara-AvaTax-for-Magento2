@@ -14,6 +14,9 @@ use Magento\Store\Model\Store;
 use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 
+/**
+ * AvaTax Config model
+ */
 class Config
 {
     /**#@+
@@ -153,6 +156,9 @@ class Config
 
     const API_PROFILE_NAME_PROD = 'Production';
     /**#@-*/
+
+    const AVATAX_DOCUMENTATION_TAX_CODE_LINK
+        = 'https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes/Tax_Codes_-_Frequently_Asked_Questions';
 
     /**
      * Magento version prefix
@@ -683,24 +689,6 @@ class Config
             ScopeInterface::SCOPE_STORE,
             $store
         );
-    }
-
-    /**
-     * Get gift wrap tax class
-     *
-     * @param null $store
-     * @return \Magento\Tax\Api\Data\TaxClassInterface
-     */
-    public function getWrappingTaxClass($store = null)
-    {
-        $taxClassId = $this->scopeConfig->getValue(
-            \Magento\GiftWrapping\Helper\Data::XML_PATH_TAX_CLASS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-        // TODO: Implement logic like \OnePica_AvaTax_Model_Avatax_Abstract::_getGiftTaxClassCode once AvaTax custom tax codes are implemented
-        //return $this->taxClassRepository->get($taxClassId)->getClassName();
-        return null;
     }
 
     /**

@@ -7,4 +7,5 @@
             </argument>
         </arguments>
     </type>
+    <preference for="Magento\Tax\Block\Adminhtml\Rule\Edit\Form" type="ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit\Form" />
 </config>

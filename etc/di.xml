@@ -36,9 +36,23 @@
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
+                <item name="avatax_tax_classes_customer_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Customer\Collection</item>
+                <item name="avatax_tax_classes_product_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Product\Collection</item>
                 <item name="avatax_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
                 <item name="avatax_queue_listing_data_source" xsi:type="string">AvaTaxQueueGridDataProvider</item>
             </argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Customer\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">tax_class</argument>
+            <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Customer</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Product\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">tax_class</argument>
+            <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Product</argument>
         </arguments>
     </type>
     <virtualType name="AvaTaxLogGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">

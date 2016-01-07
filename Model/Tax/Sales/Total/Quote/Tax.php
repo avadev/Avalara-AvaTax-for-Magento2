@@ -68,6 +68,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $coreRegistry;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\TaxClass
+     */
+    protected $taxClassHelper;
+
+    /**
      * Registry key to track whether AvaTax GetTaxRequest was successful
      */
     const AVATAX_GET_TAX_REQUEST_ERROR = 'avatax_get_tax_request_error';
@@ -90,6 +95,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Magento\Framework\Registry $coreRegistry
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
      */
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
@@ -106,7 +112,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
         \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\Registry $coreRegistry
+        \Magento\Framework\Registry $coreRegistry,
+        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->taxCalculation = $taxCalculation;
@@ -115,6 +122,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $this->extensionFactory = $extensionFactory;
         $this->messageManager = $messageManager;
         $this->coreRegistry = $coreRegistry;
+        $this->taxClassHelper = $taxClassHelper;
         parent::__construct(
             $taxConfig,
             $taxCalculationService,
@@ -163,8 +171,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return $this;
         }
 
-        $taxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, false);
-        $baseTaxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, true);
+        $taxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, false);
+        $baseTaxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, true);
 
         // Get array of tax details
         $taxDetailsList = $this->interactionGetTax->getTaxDetailsForQuote($quote, $taxQuoteDetails, $baseTaxQuoteDetails, $shippingAssignment);
@@ -227,9 +235,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param ShippingAssignmentInterface $shippingAssignment
      * @param Address\Total $total
      * @param bool $useBaseCurrency
+     * @param string $storeId
      * @return \Magento\Tax\Api\Data\QuoteDetailsInterface
      */
-    protected function getTaxQuoteDetails($shippingAssignment, $total, $useBaseCurrency)
+    protected function getTaxQuoteDetails($shippingAssignment, $total, $storeId, $useBaseCurrency)
     {
         $address = $shippingAssignment->getShipping()->getAddress();
         //Setup taxable items
@@ -239,7 +248,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         //Add shipping
         $shippingDataObject = $this->getShippingDataObject($shippingAssignment, $total, $useBaseCurrency);
         if ($shippingDataObject != null) {
-            $this->addInfoToQuoteDetailsItemForShipping($shippingDataObject);
+            $this->addInfoToQuoteDetailsItemForShipping($shippingDataObject, $storeId);
             $itemDataObjects[] = $shippingDataObject;
         }
 
@@ -288,7 +297,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             ? $quoteDetailsItem->getExtensionAttributes()
             : $this->extensionFactory->create();
 
+        $taxCode = $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getProduct());
         $extensionAttribute->setAvataxItemCode($item->getSku());
+        $extensionAttribute->setAvataxTaxCode($taxCode);
         $extensionAttribute->setAvataxDescription($item->getName());
         // TODO: Implement logic for Ref1/Ref2
         //$extensionAttribute->setAvataxRef1();
@@ -304,14 +315,18 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject
      * @return $this
      */
-    protected function addInfoToQuoteDetailsItemForShipping(\Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject)
-    {
-        $itemCode = \ClassyLlama\AvaTax\Framework\Interaction\Line::SHIPPING_LINE_TAX_CODE;
+    protected function addInfoToQuoteDetailsItemForShipping(
+        \Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject,
+        $storeId
+    ) {
+        $itemCode = $this->config->getSkuShipping($storeId);
         $itemDescription = \ClassyLlama\AvaTax\Framework\Interaction\Line::SHIPPING_LINE_DESCRIPTION;
+        $taxCode = $this->taxClassHelper->getAvataxTaxCodeForShipping();
 
         $this->addExtensionAttributesToTaxQuoteDetailsItem(
             $shippingDataObject,
             $itemCode,
+            $taxCode,
             $itemDescription
         );
         return $this;
@@ -322,12 +337,14 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $quoteDetailsItem
      * @param $avaTaxItemCode
+     * @param $avaTaxTaxCode
      * @param $avaTaxDescription
      * @return $this
      */
     protected function addExtensionAttributesToTaxQuoteDetailsItem(
         \Magento\Tax\Api\Data\QuoteDetailsItemInterface $quoteDetailsItem,
         $avaTaxItemCode,
+        $avaTaxTaxCode,
         $avaTaxDescription
     ) {
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterface $extensionAttribute */
@@ -336,6 +353,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             : $this->extensionFactory->create();
 
         $extensionAttribute->setAvataxItemCode($avaTaxItemCode);
+        $extensionAttribute->setAvataxTaxCode($avaTaxTaxCode);
         $extensionAttribute->setAvataxDescription($avaTaxDescription);
         $quoteDetailsItem->setExtensionAttributes($extensionAttribute);
         return $this;
@@ -372,9 +390,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             switch ($itemDataObject->getType()) {
                 case Giftwrapping::ITEM_TYPE:
                     $itemCode = $this->config->getSkuShippingGiftWrapItem($storeId);
+                    $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
+                        $taxCode,
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ITEM_LINE_DESCRIPTION
                     );
                     break;
@@ -412,17 +432,21 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             switch ($itemDataObject->getType()) {
                 case Giftwrapping::QUOTE_TYPE:
                     $itemCode = $this->config->getSkuGiftWrapOrder($storeId);
+                    $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
+                        $taxCode,
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ORDER_LINE_DESCRIPTION
                     );
                     break;
                 case Giftwrapping::PRINTED_CARD_TYPE:
                     $itemCode = $this->config->getSkuShippingGiftWrapCard($storeId);
+                    $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
+                        $taxCode,
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ORDER_LINE_DESCRIPTION
                     );
                     break;
