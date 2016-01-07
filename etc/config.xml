@@ -26,6 +26,8 @@
                 <logging_file_mode>1</logging_file_mode>
                 <logging_file_level>200</logging_file_level>
                 <logging_file_detail>2</logging_file_detail>
+                <queue_max_retry_attempts>15</queue_max_retry_attempts>
+                <queue_submission_enabled>1</queue_submission_enabled>
             </avatax>
         </tax>
     </default>

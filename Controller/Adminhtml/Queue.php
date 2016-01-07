@@ -13,7 +13,7 @@ use Magento\Backend\App\Action;
 /**
  * Adminhtml AvaTax log controller
  */
-abstract class Log extends Action
+abstract class Queue extends Action
 {
     /**
      * Check for is allowed

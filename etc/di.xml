@@ -13,8 +13,16 @@
     <type name="Magento\Tax\Model\Sales\Total\Quote\Shipping">
         <plugin name="avatax_tax_model_sales_total_quote_shipping" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Shipping" />
     </type>
-    <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax" />
+    <type name="Magento\Sales\Model\Spi\CreditmemoResourceInterface">
+        <plugin name="avatax_sales_spi_creditmemo_resource" type="ClassyLlama\AvaTax\Plugin\SalesSpiCreditmemoResource" />
+    </type>
+    <type name="Magento\Sales\Model\Spi\InvoiceResourceInterface">
+        <plugin name="avatax_sales_spi_invoice_resource" type="ClassyLlama\AvaTax\Plugin\SalesSpiInvoiceResource" />
+    </type>
+    <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\CreditmemoInterface" type="ClassyLlama\AvaTax\Model\Creditmemo" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\InvoiceInterface" type="ClassyLlama\AvaTax\Model\Invoice" />
     <type name="ClassyLlama\AvaTax\Model\Session">
         <arguments>
             <argument name="storage" xsi:type="object">ClassyLlama\AvaTax\Model\Session\Storage</argument>
@@ -29,6 +37,7 @@
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="avatax_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
+                <item name="avatax_queue_listing_data_source" xsi:type="string">AvaTaxQueueGridDataProvider</item>
             </argument>
         </arguments>
     </type>
@@ -36,6 +45,12 @@
         <arguments>
             <argument name="mainTable" xsi:type="string">avatax_log</argument>
             <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AvaTaxQueueGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">avatax_queue</argument>
+            <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Queue</argument>
         </arguments>
     </virtualType>
     <type name="ClassyLlama\AvaTax\Model\Logger\FileHandler">

@@ -323,6 +323,29 @@
                         <field id="error_action">1</field>
                     </depends>
                 </field>
+                <field id="queue_processing_header" translate="label" type="label" sortOrder="5000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Queue Processing Settings</strong>]]></label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="queue_submission_enabled" translate="label" type="select" sortOrder="5010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Submit Orders to AvaTax</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>This will enable queueing of Invoices and Credit Memos to be submitted to AvaTax on a schedule via a cron job</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="queue_max_retry_attempts" translate="label comment" type="text" sortOrder="5020" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Queue Retry Attempts</label>
+                    <comment>Please enter a number 1 or greater in this field.</comment>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
             </group>
         </section>
     </system>

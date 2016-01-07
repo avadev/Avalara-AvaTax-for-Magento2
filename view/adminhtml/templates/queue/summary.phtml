@@ -1,0 +1,9 @@
+<?php
+
+/** @var \ClassyLlama\AvaTax\Block\Adminhtml\Queue\Summary $block */
+$lastUpdatedAt = $block->getQueueSummaryLastUpdatedAt();
+$count = $block->getQueueSummaryCount();
+?>
+<div class="admin__avatax-queue-summary">
+    <?php echo __('Last Processed at %1 - Queue Records Waiting To Be Processed: %2', $lastUpdatedAt, $count); ?>
+</div>
