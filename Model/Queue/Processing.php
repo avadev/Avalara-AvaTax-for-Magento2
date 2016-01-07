@@ -503,7 +503,7 @@ class Processing
     {
         // Check retry attempts and determine if we need to fail processing
         // Add a comment to the order indicating what has been done
-        if ($this->avaTaxConfig->getQueueMaxRetryAttempts() >= $queue->getAttempts()) {
+        if ($queue->getAttempts() >= $this->avaTaxConfig->getQueueMaxRetryAttempts()) {
             $message .= __(' The processing has failed due to reaching the maximum number of attempts to retry. ' .
                 'Any corrective measures will need to be initiated manually');
 
