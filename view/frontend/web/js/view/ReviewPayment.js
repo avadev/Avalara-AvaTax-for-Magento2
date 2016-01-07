@@ -27,7 +27,7 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'ClassyLlama_AvaTax/reviewPayment',
+                template: 'ClassyLlama_AvaTax/ReviewPayment',
                 paymentTemplate: 'Magento_Checkout/payment',
                 checkoutValidateAddressTemplate: 'ClassyLlama_AvaTax/checkoutValidateAddress',
                 baseValidateAddressTemplate: 'ClassyLlama_AvaTax/baseValidateAddress',
