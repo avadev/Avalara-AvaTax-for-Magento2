@@ -1,4 +1,10 @@
 <?php
+/**
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
+ */
 
 namespace ClassyLlama\AvaTax\Model\Queue;
 
@@ -325,7 +331,7 @@ class Processing
 
         // check to see if the AvataxIsUnbalanced is already set on this entity
         $avataxIsUnbalancedToSave = false;
-        if (!$entityExtension->getAvataxIsUnbalanced()) {
+        if ($entityExtension->getAvataxIsUnbalanced() === null) {
             $entityExtension->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
             $avataxIsUnbalancedToSave = true;
         } else {
@@ -347,7 +353,7 @@ class Processing
 
         // check to see if the BaseAvataxTaxAmount is already set on this entity
         $baseAvataxTaxAmountToSave = false;
-        if (!$entityExtension->getBaseAvataxTaxAmount()) {
+        if ($entityExtension->getBaseAvataxTaxAmount() === null) {
             $entityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
             $baseAvataxTaxAmountToSave = true;
         } else {
@@ -362,7 +368,7 @@ class Processing
                         'new_base_avatax_tax_amount' => $processSalesResponse->getBaseAvataxTaxAmount(),
                     ]
                 );
-                $entityExtension->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
+                $entityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
                 $baseAvataxTaxAmountToSave = true;
             }
         }

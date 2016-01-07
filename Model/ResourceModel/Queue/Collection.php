@@ -1,8 +1,11 @@
 <?php
-
 /**
- * Queue model collection
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
  */
+
 namespace ClassyLlama\AvaTax\Model\ResourceModel\Queue;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;

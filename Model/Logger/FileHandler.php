@@ -1,4 +1,10 @@
 <?php
+/**
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
+ */
 
 namespace ClassyLlama\AvaTax\Model\Logger;
 
@@ -14,8 +20,6 @@ use ClassyLlama\AvaTax\Model\Config\Source\LogFileMode;
 
 /**
  * Monolog Hanlder for writing log entries to a custom file
- *
- * @author Matt Johnson <matt.johnson@classyllama.com>
  */
 class FileHandler extends System
 {

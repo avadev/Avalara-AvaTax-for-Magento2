@@ -1,8 +1,11 @@
 <?php
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
  */
+
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Log;
 
 use ClassyLlama\AvaTax\Controller\Adminhtml\Log;

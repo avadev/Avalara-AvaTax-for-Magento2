@@ -1,4 +1,10 @@
 <?php
+/**
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
+ */
 
 namespace ClassyLlama\AvaTax\Plugin;
 
@@ -86,7 +92,30 @@ class SalesSpiInvoiceResource
             if ($extensionAttributes && $extensionAttributes->getBaseAvataxTaxAmount() !== null) {
                 $entity->setData('base_avatax_tax_amount', $extensionAttributes->getBaseAvataxTaxAmount());
             }
-            if ($extensionAttributes && ($extensionAttributes->getAvataxIsUnbalanced() !== null || $extensionAttributes->getBaseAvataxTaxAmount() !== null)) {
+
+            // Updating a field to trigger a change to the record when avatax_is_unbalanced and base_avatax_tax_amount
+            // are both false or 0 which evaluate the same as null in the isModified check
+            if (
+                $extensionAttributes &&
+                (
+                    // Something was set to one of the fields and it's not the same as any existing data
+                    (
+                        $extensionAttributes->getAvataxIsUnbalanced() !== null &&
+                        (
+                            $entity->getOrigData('avatax_is_unbalanced') === null ||
+                            $extensionAttributes->getAvataxIsUnbalanced() <> $entity->getOrigData('avatax_is_unbalanced')
+
+                        )
+                    ) ||
+                    (
+                        $extensionAttributes->getBaseAvataxTaxAmount() !== null &&
+                        (
+                            $entity->getOrigData('base_avatax_tax_amount') === null ||
+                            $extensionAttributes->getBaseAvataxTaxAmount() <> $entity->getOrigData('base_avatax_tax_amount')
+                        )
+                    )
+                )
+            ) {
                 $entity->setUpdatedAt($this->dateTime->gmtDate());
             }
         }
