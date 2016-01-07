@@ -650,7 +650,6 @@ class Config
      */
     public function getErrorActionDisableCheckoutMessage($store = null)
     {
-        // TODO: Ensure that this method of checking area actually works
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
             return __(
                 $this->getErrorActionDisableCheckoutMessageBackend($store),
