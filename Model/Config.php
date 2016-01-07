@@ -717,7 +717,7 @@ class Config
     public function allowUserToChooseAddress($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_USER_HAS_CHOICE,
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD,
             ScopeInterface::SCOPE_STORE,
             $store
         );
