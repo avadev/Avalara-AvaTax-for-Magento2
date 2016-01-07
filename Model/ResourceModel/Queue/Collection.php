@@ -8,12 +8,24 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel\Queue;
 
+use ClassyLlama\AvaTax\Model\ResourceModel\Queue;
+use Psr\Log\LoggerInterface;
+use Magento\Framework\Data\Collection\EntityFactory;
+use Magento\Framework\Data\Collection\Db\FetchStrategyInterface;
+use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Magento\Framework\Stdlib\DateTime;
 
 class Collection extends AbstractCollection
 {
+    /**#@+
+     * Field Names
+     */
     const SUMMARY_COUNT_FIELD_NAME = 'count';
     const SUMMARY_LAST_UPDATED_AT_FIELD_NAME = 'last_updated_at';
+    /**#@-*/
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime
@@ -30,13 +42,13 @@ class Collection extends AbstractCollection
      * @param \Magento\Framework\Model\ResourceModel\Db\AbstractDb $resource
      */
     public function __construct(
-        \Magento\Framework\Data\Collection\EntityFactory $entityFactory,
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\Data\Collection\Db\FetchStrategyInterface $fetchStrategy,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Magento\Framework\Stdlib\DateTime $dateTime,
-        \Magento\Framework\DB\Adapter\AdapterInterface $connection = null,
-        \Magento\Framework\Model\ResourceModel\Db\AbstractDb $resource = null
+        EntityFactory $entityFactory,
+        LoggerInterface $logger,
+        FetchStrategyInterface $fetchStrategy,
+        ManagerInterface $eventManager,
+        DateTime $dateTime,
+        AdapterInterface $connection = null,
+        AbstractDb $resource = null
     ) {
         $this->dateTime = $dateTime;
         parent::__construct($entityFactory, $logger, $fetchStrategy, $eventManager, $connection, $resource);
@@ -115,7 +127,7 @@ class Collection extends AbstractCollection
         $select->columns([
                 self::SUMMARY_COUNT_FIELD_NAME => $countExpr
             ]);
-        $select->where(\ClassyLlama\AvaTax\Model\ResourceModel\Queue::QUEUE_STATUS_FIELD_NAME . ' = ?', $queueStatus);
+        $select->where(Queue::QUEUE_STATUS_FIELD_NAME . ' = ?', $queueStatus);
 
         return $connection->fetchOne($select);
     }

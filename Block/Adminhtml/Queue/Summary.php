@@ -12,11 +12,13 @@ use ClassyLlama\AvaTax\Model\ResourceModel\Queue\CollectionFactory;
 use ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection;
 use ClassyLlama\AvaTax\Model\Queue;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\View\Element\Template;
 
 /**
  * Class Summary
  */
-class Summary extends \Magento\Framework\View\Element\Template
+class Summary extends Template
 {
     // Match the date time format in the columns for the queue records
     const GRID_COLUMN_DATE_FORMAT = 'M d, Y h:i:s A';
@@ -43,12 +45,13 @@ class Summary extends \Magento\Framework\View\Element\Template
 
     /**
      * Summary constructor.
-     * @param \Magento\Framework\View\Element\Template\Context $context
+     * @param Context $context
      * @param CollectionFactory $queueCollectionFactory
+     * @param TimezoneInterface $localeDate
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
+        Context $context,
         CollectionFactory $queueCollectionFactory,
         TimezoneInterface $localeDate,
         array $data = []

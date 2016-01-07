@@ -48,6 +48,8 @@ class Task
     protected $resetCount = 0;
 
     /**
+     * Task constructor.
+     * @param AvaTaxLogger $avaTaxLogger
      * @param CollectionFactory $queueCollectionFactory
      */
     public function __construct(
@@ -58,9 +60,12 @@ class Task
         $this->queueCollectionFactory = $queueCollectionFactory;
     }
 
+    /**
+     * Entry point for cron job execution
+     */
     public function cronProcessQueue()
     {
-        $this->avaTaxLogger->debug('Initiating queue processing from cron job');
+        $this->avaTaxLogger->debug(__('Initiating queue processing from cron job'));
         $this->processPendingQueue();
         $this->resetHungQueuedRecords();
     }
@@ -70,7 +75,7 @@ class Task
      */
     public function processPendingQueue()
     {
-        $this->avaTaxLogger->debug('Starting queue processing');
+        $this->avaTaxLogger->debug(__('Starting queue processing'));
 
         // Initialize the queue collection
         /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
@@ -78,9 +83,8 @@ class Task
         $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PENDING);
 
         // Process each queued entity
+        /** @var $queue Queue */
         foreach ($queueCollection as $queue) {
-            /** @var $queue Queue */
-
             // Process queue
             try {
                 $queue->process();
@@ -96,7 +100,7 @@ class Task
         }
 
         $this->avaTaxLogger->debug(
-            'Finished queue processing',
+            __('Finished queue processing'),
             [ /* context */
                 'error_count' => $this->errorCount,
                 'process_count' => $this->processCount
@@ -109,7 +113,7 @@ class Task
      */
     public function resetHungQueuedRecords()
     {
-        $this->avaTaxLogger->debug('Resetting hung queue records');
+        $this->avaTaxLogger->debug(__('Resetting hung queue records'));
 
         // Initialize the queue collection
         /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
@@ -121,9 +125,8 @@ class Task
         $queueCollection->addUpdatedAtBeforeFilter(86400);
 
         // Reset each hung queued entity
+        /** @var $queue Queue */
         foreach ($queueCollection as $queue) {
-            /** @var $queue Queue */
-
             // Reset queue
             $queue->setQueueStatus(Queue::QUEUE_STATUS_PENDING);
             $queue->save();
@@ -131,7 +134,7 @@ class Task
         }
 
         $this->avaTaxLogger->debug(
-            'Finished resetting hung queued records',
+            __('Finished resetting hung queued records'),
             [ /* context */
                 'reset_count' => $this->resetCount
             ]

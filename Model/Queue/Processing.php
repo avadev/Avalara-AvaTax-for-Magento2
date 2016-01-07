@@ -8,11 +8,23 @@
 
 namespace ClassyLlama\AvaTax\Model\Queue;
 
-use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
-use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get;
-use Magento\Framework\Stdlib\DateTime;
 use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Model\Queue;
+use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get;
+use ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\CreditmemoRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory;
+use Magento\Sales\Api\Data\InvoiceExtensionFactory;
+use Magento\Sales\Api\Data\CreditmemoExtensionFactory;
+use Magento\Eav\Model\Config as EavConfig;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Queue Processing
@@ -35,63 +47,78 @@ class Processing
     protected $interactionGetTax = null;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     * @var DateTime
      */
     protected $dateTime;
 
     /**
-     * @var \Magento\Sales\Api\InvoiceRepositoryInterface
+     * @var InvoiceRepositoryInterface
      */
     protected $invoiceRepository;
 
     /**
-     * @var \Magento\Sales\Api\InvoiceRepositoryInterface
+     * @var InvoiceRepositoryInterface
      */
     protected $creditmemoRepository;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var OrderRepositoryInterface
      */
     protected $orderRepository;
 
     /**
-     * @var \Magento\Sales\Api\OrderManagementInterface
+     * @var OrderManagementInterface
      */
     protected $orderManagement;
 
     /**
-     * @var \Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory
+     * @var OrderStatusHistoryInterfaceFactory
      */
     protected $orderStatusHistoryFactory;
 
     /**
-     * @var \Magento\Sales\Api\Data\InvoiceExtensionFactory
+     * @var InvoiceExtensionFactory
      */
     protected $invoiceExtensionFactory;
 
     /**
-     * @var \Magento\Sales\Api\Data\CreditmemoExtensionFactory
+     * @var CreditmemoExtensionFactory
      */
     protected $creditmemoExtensionFactory;
 
     /**
-     * @var \Magento\Eav\Model\Config
+     * @var EavConfig
      */
     protected $eavConfig;
 
+    /**
+     * Processing constructor.
+     * @param AvaTaxLogger $avaTaxLogger
+     * @param Config $avaTaxConfig
+     * @param Get $interactionGetTax
+     * @param DateTime $dateTime
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param CreditmemoRepositoryInterface $creditmemoRepository
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderManagementInterface $orderManagement
+     * @param OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory
+     * @param InvoiceExtensionFactory $invoiceExtensionFactory
+     * @param CreditmemoExtensionFactory $creditmemoExtensionFactory
+     * @param EavConfig $eavConfig
+     */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
         Config $avaTaxConfig,
         Get $interactionGetTax,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
-        \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
-        \Magento\Sales\Api\Data\OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory,
-        \Magento\Sales\Api\Data\InvoiceExtensionFactory $invoiceExtensionFactory,
-        \Magento\Sales\Api\Data\CreditmemoExtensionFactory $creditmemoExtensionFactory,
-        \Magento\Eav\Model\Config $eavConfig
+        DateTime $dateTime,
+        InvoiceRepositoryInterface $invoiceRepository,
+        CreditmemoRepositoryInterface $creditmemoRepository,
+        OrderRepositoryInterface $orderRepository,
+        OrderManagementInterface $orderManagement,
+        OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory,
+        InvoiceExtensionFactory $invoiceExtensionFactory,
+        CreditmemoExtensionFactory $creditmemoExtensionFactory,
+        EavConfig $eavConfig
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
@@ -141,13 +168,12 @@ class Processing
     protected function initializeQueueProcessing(Queue $queue)
     {
         // validity check
-        if ($queue->getQueueStatus() == Queue::QUEUE_STATUS_COMPLETE)
-        {
+        if ($queue->getQueueStatus() == Queue::QUEUE_STATUS_COMPLETE) {
             // We should not be attempting to process queue records that have already been marked as complete
 
             // log warning
             $this->avaTaxLogger->warning(
-                'Processing was attempted on a queue record that has already been processed and marked as completed.',
+                __('Processing was attempted on a queue record that has already been processed and marked as completed.'),
                 [ /* context */
                     'queue_id' => $queue->getId(),
                     'entity_type_code' => $queue->getEntityTypeCode(),
@@ -157,7 +183,7 @@ class Processing
                 ]
             );
 
-            throw new \Exception('The queue record has already been processed, and the queue record marked as complete');
+            throw new \Exception(__('The queue record has already been processed, and the queue record marked as complete'));
         }
 
         // update queue record with new processing status
@@ -173,14 +199,14 @@ class Processing
         if (!$changedResult) {
             // Something else has modified the queue record, skip processing
 
-            // This indicates something intercepted the queue record and changed it's status
+            // This indicates something intercepted the queue record and changed its status
             // before we were able to process it, like some other process was also attempting to
-            // process queue records. We prefer not to send duplicates to AvaTax
+            // process queue records. We prefer not to send duplicates to AvaTax.
 
             // log warning
             $this->avaTaxLogger->warning(
-                'The queue status changed while attempting to process it. This could indicate multiple processes' .
-                'attempting to process the same queue record at the same time.',
+                __('The queue status changed while attempting to process it. This could indicate multiple processes' .
+                'attempting to process the same queue record at the same time.'),
                 [ /* context */
                     'queue_id' => $queue->getId(),
                     'entity_type_code' => $queue->getEntityTypeCode(),
@@ -190,7 +216,7 @@ class Processing
                 ]
             );
 
-            throw new \Exception('Something else has modified the queue record, skip processing');
+            throw new \Exception(__('Something else has modified the queue record, skip processing'));
         }
     }
 
@@ -212,23 +238,32 @@ class Processing
                 if ($invoice->getEntityId()) {
                     return $invoice;
                 } else {
-                    $message = 'Invoice not found: (EntityId: ' . $queue->getEntityId() . ', IncrementId: ' . $queue->getIncrementId() . ')';
+                    $message = __('Invoice not found: (EntityId: %1, IncrementId: %2)',
+                        $queue->getEntityId(),
+                        $queue->getIncrementId()
+                    );
 
                     // Update the queue record
                     $this->failQueueProcessing($queue, $message);
 
                     throw new \Exception($message);
                 }
-            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-                $message = 'Queue ID: ' . $queue->getId() . ' - Invoice not found: (EntityId: ' . $queue->getEntityId() . ', IncrementId: ' . $queue->getIncrementId() . ')';
+            } catch (NoSuchEntityException $e) {
+                /* @var $message \Magento\Framework\Phrase */
+                $message = __('Queue ID: %1 - Invoice not found: (EntityId: %2, IncrementId: %3)',
+                    $queue->getId(),
+                    $queue->getEntityId(),
+                    $queue->getIncrementId()
+                );
 
                 // Update the queue record
                 $this->failQueueProcessing($queue, $message);
-                $phrase = new \Magento\Framework\Phrase($message);
 
-                throw new \Magento\Framework\Exception\NoSuchEntityException($phrase, $e);
+                throw new NoSuchEntityException($message, $e);
             } catch (\Exception $e) {
-                $message = 'Unexpected Exception getProcessingEntity() invoiceRepository->get(): ' . $e->getMessage() . "\n" . $queue->getMessage();
+                $message = __('Unexpected Exception getProcessingEntity() invoiceRepository->get(): ') . "\n" .
+                    $e->getMessage() . "\n" .
+                    $queue->getMessage();
 
                 // Update the queue record
                 $this->failQueueProcessing($queue, $message);
@@ -244,7 +279,10 @@ class Processing
                 if ($creditmemo->getEntityId()) {
                     return $creditmemo;
                 } else {
-                    $message = 'Credit Memo not found: (EntityId: ' . $queue->getEntityId() . ', IncrementId: ' . $queue->getIncrementId() . ')';
+                    $message = __('Credit Memo not found: (EntityId: %1, IncrementId: %2)',
+                        $queue->getEntityId(),
+                        $queue->getIncrementId()
+                    );
 
                     // Update the queue record
                     $this->failQueueProcessing($queue, $message);
@@ -252,7 +290,9 @@ class Processing
                     throw new \Exception($message);
                 }
             } catch (\Exception $e) {
-                $message = 'ERROR getProcessingEntity() creditmemoRepository->get(): ' . $e->getMessage() . "\n" . $queue->getMessage();
+                $message = __('ERROR getProcessingEntity() creditmemoRepository->get(): ') . "\n" .
+                    $e->getMessage() . "\n" .
+                    $queue->getMessage();
 
                 // Update the queue record
                 $this->failQueueProcessing($queue, $message);
@@ -260,7 +300,7 @@ class Processing
                 throw $e;
             }
         } else {
-            $message = 'Unknown Entity Type Code for processing (' . $queue->getEntityTypeCode() . ')';
+            $message = __('Unknown Entity Type Code for processing (%1)', $queue->getEntityTypeCode());
 
             // Update the queue record
             $this->failQueueProcessing($queue, $message);
@@ -283,13 +323,16 @@ class Processing
         } catch (\Exception $e) {
 
             $message = '';
-            if ($e instanceof Get\Exception)
-            {
-                $message .= 'An error occurred when attempting ' .
-                    'to send ' . ucfirst($queue->getEntityTypeCode()) . ' #'. $entity->getIncrementId() . ' to AvaTax.';
+            if ($e instanceof Get\Exception) {
+                $message .= __('An error occurred when attempting to send %1 #%2 to AvaTax.',
+                    ucfirst($queue->getEntityTypeCode()),
+                    $entity->getIncrementId()
+                );
             } else {
-                $message .= 'An unexpected exception occurred when attempting ' .
-                    'to send ' . ucfirst($queue->getEntityTypeCode()) . ' #'. $entity->getIncrementId() . ' to AvaTax.';
+                $message .= __('An unexpected exception occurred when attempting to send %1 #%2 to AvaTax.',
+                    ucfirst($queue->getEntityTypeCode()),
+                    $entity->getIncrementId()
+                );
             }
 
             // Log the error
@@ -322,8 +365,10 @@ class Processing
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
      * @param \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse
      */
-    protected function updateAdditionalEntityAttributes($entity, \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse)
-    {
+    protected function updateAdditionalEntityAttributes(
+        $entity,
+        GetTaxResponseInterface $processSalesResponse
+    ) {
         $entityExtension = $entity->getExtensionAttributes();
         if ($entityExtension == null) {
             $entityExtension = $this->getEntityExtensionInterface($entity);
@@ -339,8 +384,8 @@ class Processing
             if ($processSalesResponse->getIsUnbalanced() <> $entityExtension->getAvataxIsUnbalanced()) {
                 // Log the warning
                 $this->avaTaxLogger->warning(
-                    'When processing an entity in the queue there was an existing AvataxIsUnbalanced and the new value ' .
-                    'was different than the old one. The old value was overwritten.',
+                    __('When processing an entity in the queue there was an existing AvataxIsUnbalanced and ' .
+                    'the new value was different than the old one. The old value was overwritten.'),
                     [ /* context */
                         'old_is_unbalanced' => $entityExtension->getAvataxIsUnbalanced(),
                         'new_is_unbalanced' => $processSalesResponse->getIsUnbalanced(),
@@ -361,8 +406,8 @@ class Processing
             if ($processSalesResponse->getBaseAvataxTaxAmount() <> $entityExtension->getBaseAvataxTaxAmount()) {
                 // Log the warning
                 $this->avaTaxLogger->warning(
-                    'When processing an entity in the queue there was an existing BaseAvataxTaxAmount and the new value ' .
-                    'was different than the old one. The old value was overwritten.',
+                    __('When processing an entity in the queue there was an existing BaseAvataxTaxAmount and ' .
+                    'the new value was different than the old one. The old value was overwritten.'),
                     [ /* context */
                         'old_base_avatax_tax_amount' => $entityExtension->getBaseAvataxTaxAmount(),
                         'new_base_avatax_tax_amount' => $processSalesResponse->getBaseAvataxTaxAmount(),
@@ -392,13 +437,12 @@ class Processing
      */
     protected function getEntityExtensionInterface($entity)
     {
-        if ($entity instanceof \Magento\Sales\Api\Data\InvoiceInterface)
-        {
+        if ($entity instanceof InvoiceInterface) {
             return $this->invoiceExtensionFactory->create();
-        } elseif ($entity instanceof \Magento\Sales\Api\Data\CreditmemoInterface) {
+        } elseif ($entity instanceof CreditmemoInterface) {
             return $this->creditmemoExtensionFactory->create();
         } else {
-            $message = 'Did not receive a valid entity instance to determine the extension to return';
+            $message = __('Did not receive a valid entity instance to determine the extension to return');
             throw new \Exception($message);
         }
     }
@@ -410,13 +454,12 @@ class Processing
      */
     protected function getEntityType($entity)
     {
-        if ($entity instanceof \Magento\Sales\Api\Data\InvoiceInterface)
-        {
+        if ($entity instanceof InvoiceInterface) {
             return $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_INVOICE);
-        } elseif ($entity instanceof \Magento\Sales\Api\Data\CreditmemoInterface) {
+        } elseif ($entity instanceof CreditmemoInterface) {
             return $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_CREDITMEMO);
         } else {
-            $message = 'Did not receive a valid entity instance to determine the entity type to return';
+            $message = __('Did not receive a valid entity instance to determine the entity type to return');
             throw new \Exception($message);
         }
     }
@@ -428,13 +471,12 @@ class Processing
      */
     protected function getEntityRepository($entity)
     {
-        if ($entity instanceof \Magento\Sales\Api\Data\InvoiceInterface)
-        {
+        if ($entity instanceof InvoiceInterface) {
             return $this->invoiceRepository;
-        } elseif ($entity instanceof \Magento\Sales\Api\Data\CreditmemoInterface) {
+        } elseif ($entity instanceof CreditmemoInterface) {
             return $this->creditmemoRepository;
         } else {
-            $message = 'Did not receive a valid entity instance to determine the repository type to return';
+            $message = __('Did not receive a valid entity instance to determine the repository type to return');
             throw new \Exception($message);
         }
     }
@@ -461,10 +503,9 @@ class Processing
     {
         // Check retry attempts and determine if we need to fail processing
         // Add a comment to the order indicating what has been done
-        if ($this->avaTaxConfig->getQueueMaxRetryAttempts() >= $queue->getAttempts())
-        {
-            $message .= ' The processing has failed due to reaching the maximum number of attempts to retry. ' .
-                'Any corrective measures will need to be initiated manually';
+        if ($this->avaTaxConfig->getQueueMaxRetryAttempts() >= $queue->getAttempts()) {
+            $message .= __(' The processing has failed due to reaching the maximum number of attempts to retry. ' .
+                'Any corrective measures will need to be initiated manually');
 
             // fail processing later by setting queue status to pending
             $this->failQueueProcessing($queue, $message);
@@ -472,7 +513,7 @@ class Processing
             // Add comment to order
             $this->addOrderComment($entity->getOrderId(), $message);
         } else {
-            $message .= ' The processing is set to automatically retry on the next processing attempt.';
+            $message .= __(' The processing is set to automatically retry on the next processing attempt.');
 
             // retry processing later by setting queue status to pending
             $queue->setMessage($message . "\n" . $queue->getMessage());
@@ -492,22 +533,31 @@ class Processing
     protected function completeQueueProcessing(
         Queue $queue,
         $entity,
-        \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse
+        GetTaxResponseInterface $processSalesResponse
     ) {
-        $message = ucfirst($queue->getEntityTypeCode()) . ' #' . $entity->getIncrementId() . ' was submitted to AvaTax';
+        $message = __('%1 #%2 was submitted to AvaTax',
+            ucfirst($queue->getEntityTypeCode()),
+            $entity->getIncrementId()
+        );
 
         if ($processSalesResponse->getIsUnbalanced()) {
             $queue->setMessage(
-                'Unbalanced Response - Collected: ' . $entity->getBaseTaxAmount() . ', AvaTax Actual: ' . $processSalesResponse->getBaseAvataxTaxAmount() . "\n" .
+                __('Unbalanced Response - Collected: %1, AvaTax Actual: %2',
+                    $entity->getBaseTaxAmount(),
+                    $processSalesResponse->getBaseAvataxTaxAmount()
+                ) . "\n" .
                 $queue->getMessage()
             );
 
             // add comment about unbalanced amount
             $message .= '<br/>' .
-                'When submitting the ' . $queue->getEntityTypeCode() . ' to AvaTax the amount calculated for tax differed from what was recorded in Magento.<br/>' .
-                'There was a difference of ' . ($entity->getBaseTaxAmount() - $processSalesResponse->getBaseAvataxTaxAmount()) . '<br/>' .
-                'Magento listed a tax amount of ' . $entity->getBaseTaxAmount() . '<br/>' .
-                'AvaTax calculated the tax to be ' . $processSalesResponse->getBaseAvataxTaxAmount() . '<br/>';
+                __('When submitting the %1 to AvaTax the amount calculated for tax differed from what was' .
+                    ' recorded in Magento.', $queue->getEntityTypeCode()) . '<br/>' .
+                __('There was a difference of %1',
+                    ($entity->getBaseTaxAmount() - $processSalesResponse->getBaseAvataxTaxAmount())
+                ) . '<br/>' .
+                __('Magento listed a tax amount of %1', $entity->getBaseTaxAmount()) . '<br/>' .
+                __('AvaTax calculated the tax to be %1', $processSalesResponse->getBaseAvataxTaxAmount()) . '<br/>';
         }
 
         $queue->setQueueStatus(Queue::QUEUE_STATUS_COMPLETE);

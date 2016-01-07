@@ -9,14 +9,21 @@
 namespace ClassyLlama\AvaTax\Model\ResourceModel;
 
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\Context;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Model\AbstractModel;
 
 /**
  * Queue
  */
 class Queue extends AbstractDb
 {
+    /**#@+
+     * Field Names
+     */
     const QUEUE_STATUS_FIELD_NAME = 'queue_status';
     const UPDATED_AT_FIELD_NAME = 'updated_at';
+    /**#@-*/
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime
@@ -31,8 +38,8 @@ class Queue extends AbstractDb
      * @param string $connectionName
      */
     public function __construct(
-        \Magento\Framework\Model\ResourceModel\Db\Context $context,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        Context $context,
+        DateTime $dateTime,
         $connectionName = null
     ) {
         $this->dateTime = $dateTime;
@@ -55,7 +62,7 @@ class Queue extends AbstractDb
      * @param \Magento\Framework\Model\AbstractModel $object
      * @return \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
-    protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)
+    protected function _beforeSave(AbstractModel $object)
     {
         /* @var $object \ClassyLlama\AvaTax\Model\Queue */
         $date = $this->dateTime->gmtDate();
@@ -73,7 +80,7 @@ class Queue extends AbstractDb
      * @param \Magento\Framework\Model\AbstractModel $object
      * @return bool
      */
-    public function changeQueueStatusWithLocking(\Magento\Framework\Model\AbstractModel $object) {
+    public function changeQueueStatusWithLocking(AbstractModel $object) {
 
         /* @var $object \ClassyLlama\AvaTax\Model\Queue */
         $object->setUpdatedAt($this->dateTime->gmtDate());

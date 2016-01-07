@@ -34,7 +34,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $setup->startSetup();
         if (version_compare($context->getVersion(), '0.1.3', '<')) {
 
-            $this->logger->info('ClassyLlama_AvaTax Schema Upgrade to 0.1.3');
+            $this->logger->info(__('ClassyLlama_AvaTax Schema Upgrade to 0.1.3'));
 
             // Add column to invoice and credit memo tables for avatax responses
             $setup->getConnection()->addColumn(

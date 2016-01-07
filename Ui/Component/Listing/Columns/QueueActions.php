@@ -20,9 +20,12 @@ use ClassyLlama\AvaTax\Model\Queue;
  */
 class QueueActions extends Column
 {
-    /** Url path */
+    /**#@+
+     * Url path
+     */
     const INVOICE_URL_PATH_VIEW = 'sales/invoice/view';
     const CREDITMEMO_URL_PATH_VIEW = 'sales/creditmemo/view';
+    /**#@-*/
 
     /**
      * @var UrlInterface
@@ -57,15 +60,13 @@ class QueueActions extends Column
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
-                if ($item['entity_type_code'] == Queue::ENTITY_TYPE_CODE_INVOICE)
-                {
+                if ($item['entity_type_code'] == Queue::ENTITY_TYPE_CODE_INVOICE) {
                     $item[$this->getData('name')]['view'] = [
 
                         'href' => $this->urlBuilder->getUrl(self::INVOICE_URL_PATH_VIEW, ['invoice_id' => $item['entity_id']]),
                         'label' => __('View Invoice')
                     ];
-                } elseif ($item['entity_type_code'] == Queue::ENTITY_TYPE_CODE_CREDITMEMO)
-                {
+                } elseif ($item['entity_type_code'] == Queue::ENTITY_TYPE_CODE_CREDITMEMO) {
                     $item[$this->getData('name')]['view'] = [
 
                         'href' => $this->urlBuilder->getUrl(self::CREDITMEMO_URL_PATH_VIEW, ['creditmemo_id' => $item['entity_id']]),

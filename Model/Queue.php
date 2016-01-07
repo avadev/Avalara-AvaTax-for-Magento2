@@ -14,6 +14,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Data\Collection\AbstractDb;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use Magento\Eav\Model\Config as EavConfig;
 
 /**
  * Queue
@@ -42,14 +43,22 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
  */
 class Queue extends AbstractModel
 {
+    /**#@+
+     * Entity Type Codes
+     */
     const ENTITY_TYPE_CODE_INVOICE = 'invoice';
     const ENTITY_TYPE_CODE_CREDITMEMO = 'creditmemo';
     const ENTITY_TYPE_CODE_ORDER = 'order';
+    /**#@-*/
 
+    /**#@+
+     * Queue Status Types
+     */
     const QUEUE_STATUS_PENDING = 'pending';
     const QUEUE_STATUS_PROCESSING = 'processing';
     const QUEUE_STATUS_COMPLETE = 'complete';
     const QUEUE_STATUS_FAILED = 'failed';
+    /**#@-*/
 
     /**
      * @var AvaTaxLogger
@@ -70,7 +79,9 @@ class Queue extends AbstractModel
      * Queue constructor.
      * @param Context $context
      * @param Registry $registry
+     * @param AvaTaxLogger $avaTaxLogger
      * @param Queue\Processing $processing
+     * @param \Magento\Eav\Model\Config $eavConfig
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -80,7 +91,7 @@ class Queue extends AbstractModel
         Registry $registry,
         AvaTaxLogger $avaTaxLogger,
         Queue\Processing $processing,
-        \Magento\Eav\Model\Config $eavConfig,
+        EavConfig $eavConfig,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
@@ -128,7 +139,7 @@ class Queue extends AbstractModel
     {
         // validating $entityTypeCode
         if (!in_array($entityTypeCode, [self::ENTITY_TYPE_CODE_INVOICE, self::ENTITY_TYPE_CODE_CREDITMEMO])) {
-            $message = 'When building a queue record an invalid entity_type_code was provided';
+            $message = __('When building a queue record an invalid entity_type_code was provided');
 
             $this->avaTaxLogger->error(
                 $message,

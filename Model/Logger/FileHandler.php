@@ -83,7 +83,9 @@ class FileHandler extends System
      */
     public function isHandling(array $record)
     {
-        return $this->avaTaxConfig->isModuleEnabled() && $this->avaTaxConfig->getLogFileEnabled() && $record['level'] >= $this->avaTaxConfig->getLogFileLevel();
+        return  $this->avaTaxConfig->isModuleEnabled() &&
+                $this->avaTaxConfig->getLogFileEnabled() &&
+                $record['level'] >= $this->avaTaxConfig->getLogFileLevel();
     }
 
     /**

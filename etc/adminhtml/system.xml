@@ -323,7 +323,6 @@
                         <field id="error_action">1</field>
                     </depends>
                 </field>
-
                 <field id="queue_processing_header" translate="label" type="label" sortOrder="5000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Queue Processing Settings</strong>]]></label>
                     <depends>

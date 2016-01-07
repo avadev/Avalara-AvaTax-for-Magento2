@@ -9,8 +9,13 @@
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Log;
 
 use ClassyLlama\AvaTax\Controller\Adminhtml\Log;
+use ClassyLlama\AvaTax\Model\LogFactory;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\Model\View\Result\Page;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Registry;
+use Magento\Support\Model\DataFormatter;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * View log
@@ -39,10 +44,10 @@ class View extends Log
      * @param \Magento\Support\Model\DataFormatter $dataFormatter
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \ClassyLlama\AvaTax\Model\LogFactory $logFactory,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Support\Model\DataFormatter $dataFormatter
+        Context $context,
+        LogFactory $logFactory,
+        Registry $coreRegistry,
+        DataFormatter $dataFormatter
     ) {
         $this->logFactory = $logFactory;
         $this->coreRegistry = $coreRegistry;
@@ -78,7 +83,7 @@ class View extends Log
                 $dateString . ' ' . $this->dataFormatter->getSinceTimeString($dateString)
             );
             return $pageResult;
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $this->messageManager->addError($e);
         } catch (\Exception $e) {
             $this->messageManager->addException($e, __('Unable to read log data to display.'));

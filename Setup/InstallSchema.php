@@ -36,7 +36,7 @@ class InstallSchema implements InstallSchemaInterface
         $installer->startSetup();
 
         // Logging
-        $this->logger->info('ClassyLlama_AvaTax Schema Installation');
+        $this->logger->info(__('ClassyLlama_AvaTax Schema Installation'));
 
         /**
          * Create table 'avatax_log'

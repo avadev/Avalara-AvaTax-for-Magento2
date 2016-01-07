@@ -14,6 +14,8 @@ use ClassyLlama\AvaTax\Model\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Sales\Api\Data\InvoiceExtensionFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Sales\Model\Spi\InvoiceResourceInterface;
+use Magento\Framework\Model\AbstractModel;
 
 class SalesSpiInvoiceResource
 {
@@ -74,9 +76,9 @@ class SalesSpiInvoiceResource
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     public function aroundSave(
-        \Magento\Sales\Model\Spi\InvoiceResourceInterface $subject,
+        InvoiceResourceInterface $subject,
         \Closure $proceed,
-        \Magento\Framework\Model\AbstractModel $entity
+        AbstractModel $entity
     ) {
         // Check to see if this is a newly created entity and store the determination for later evaluation after
         // the entity is saved via plugin closure. After the entity is saved it will not be listed as new any longer.
@@ -140,7 +142,7 @@ class SalesSpiInvoiceResource
                 $queue->save();
 
                 $this->avaTaxLogger->debug(
-                    'Added entity to the queue',
+                    __('Added entity to the queue'),
                     [ /* context */
                         'queue_id' => $queue->getId(),
                         'entity_type_code' => Queue::ENTITY_TYPE_CODE_INVOICE,
@@ -165,9 +167,9 @@ class SalesSpiInvoiceResource
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function aroundLoad(
-        \Magento\Sales\Model\Spi\InvoiceResourceInterface $subject,
+        InvoiceResourceInterface $subject,
         \Closure $proceed,
-        \Magento\Framework\Model\AbstractModel $entity,
+        AbstractModel $entity,
         $value,
         $field = null
     ) {

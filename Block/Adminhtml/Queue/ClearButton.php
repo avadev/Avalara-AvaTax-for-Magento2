@@ -9,6 +9,7 @@
 namespace ClassyLlama\AvaTax\Block\Adminhtml\Queue;
 
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
+use Magento\Backend\Block\Widget\Context;
 
 /**
  * Class ClearButton
@@ -27,7 +28,7 @@ class ClearButton implements ButtonProviderInterface
      *
      * @param \Magento\Backend\Block\Widget\Context $context
      */
-    public function __construct(\Magento\Backend\Block\Widget\Context $context)
+    public function __construct(Context $context)
     {
         $this->urlBuilder = $context->getUrlBuilder();
     }
