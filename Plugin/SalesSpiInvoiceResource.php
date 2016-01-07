@@ -106,7 +106,6 @@ class SalesSpiInvoiceResource
                         (
                             $entity->getOrigData('avatax_is_unbalanced') === null ||
                             $extensionAttributes->getAvataxIsUnbalanced() <> $entity->getOrigData('avatax_is_unbalanced')
-
                         )
                     ) ||
                     (
@@ -159,7 +158,7 @@ class SalesSpiInvoiceResource
      * @param \Magento\Sales\Model\Spi\InvoiceResourceInterface $subject
      * @param \Closure $proceed
      *
-     *        I include both the extended AbstractModel and implemented Interface here for the IDE's benefit
+     *        Include both the extended AbstractModel and implemented Interface here for the IDE's benefit
      * @param \Magento\Framework\Model\AbstractModel|\Magento\Sales\Api\Data\InvoiceInterface $entity
      * @param mixed $value
      * @param string $field field to load by (defaults to model id)

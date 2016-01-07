@@ -106,7 +106,6 @@ class SalesSpiCreditmemoResource
                         (
                             $entity->getOrigData('avatax_is_unbalanced') === null ||
                             $extensionAttributes->getAvataxIsUnbalanced() <> $entity->getOrigData('avatax_is_unbalanced')
-
                         )
                     ) ||
                     (
@@ -159,7 +158,7 @@ class SalesSpiCreditmemoResource
      * @param \Magento\Sales\Model\Spi\CreditmemoResourceInterface $subject
      * @param \Closure $proceed
      *
-     *        I include both the extended AbstractModel and implemented Interface here for the IDE's benefit
+     *        Include both the extended AbstractModel and implemented Interface here for the IDE's benefit
      * @param \Magento\Framework\Model\AbstractModel|\Magento\Sales\Api\Data\CreditmemoInterface $entity
      * @param $value
      * @param null $field
