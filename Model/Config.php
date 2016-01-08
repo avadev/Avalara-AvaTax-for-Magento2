@@ -82,6 +82,8 @@ class Config
 
     const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
 
+    const XML_PATH_AVATAX_LOG_DB_LIFETIME = 'tax/avatax/logging_db_lifetime';
+
     const XML_PATH_AVATAX_LOG_FILE_ENABLED = 'tax/avatax/logging_file_enabled';
 
     const XML_PATH_AVATAX_LOG_FILE_MODE = 'tax/avatax/logging_file_mode';
@@ -815,6 +817,21 @@ class Config
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_DB_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log lifetime
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getLogDbLifetime($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_LIFETIME,
             ScopeInterface::SCOPE_STORE,
             $store
         );

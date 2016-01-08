@@ -6,9 +6,9 @@
  * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
  */
 
-namespace ClassyLlama\AvaTax\Model\ResourceModel\Queue;
+namespace ClassyLlama\AvaTax\Model\ResourceModel\Log;
 
-use ClassyLlama\AvaTax\Model\ResourceModel\Queue;
+use ClassyLlama\AvaTax\Model\ResourceModel\Log;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Data\Collection\EntityFactory;
 use Magento\Framework\Data\Collection\Db\FetchStrategyInterface;
@@ -24,7 +24,6 @@ class Collection extends AbstractCollection
      * Field Names
      */
     const SUMMARY_COUNT_FIELD_NAME = 'count';
-    const SUMMARY_LAST_UPDATED_AT_FIELD_NAME = 'last_updated_at';
     /**#@-*/
 
     /**
@@ -61,19 +60,7 @@ class Collection extends AbstractCollection
      */
     protected function _construct()
     {
-        $this->_init('ClassyLlama\AvaTax\Model\Queue', 'ClassyLlama\AvaTax\Model\ResourceModel\Queue');
-    }
-
-    /**
-     * Filter collection by queue status
-     *
-     * @param string $queueStatus
-     * @return $this
-     */
-    public function addQueueStatusFilter($queueStatus)
-    {
-        $this->addFieldToFilter(Queue::QUEUE_STATUS_FIELD_NAME, $queueStatus);
-        return $this;
+        $this->_init('ClassyLlama\AvaTax\Model\Log', 'ClassyLlama\AvaTax\Model\ResourceModel\Log');
     }
 
     /**
@@ -89,34 +76,16 @@ class Collection extends AbstractCollection
         $datetime->sub($storeInterval);
         $formattedDate = $this->dateTime->formatDate($datetime->getTimestamp());
 
-        $this->addFieldToFilter(Queue::CREATED_AT_FIELD_NAME, ['lt' => $formattedDate]);
+        $this->addFieldToFilter(Log::CREATED_AT_FIELD_NAME, ['lt' => $formattedDate]);
         return $this;
     }
 
     /**
-     * Filter collection by updated at date older than specified seconds before now
+     * Get the log count for all log levels
      *
-     * @param int $secondsBeforeNow
-     * @return $this
+     * @return array
      */
-    public function addUpdatedAtBeforeFilter($secondsBeforeNow)
-    {
-        $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
-        $storeInterval = new \DateInterval('PT' . $secondsBeforeNow . 'S');
-        $datetime->sub($storeInterval);
-        $formattedDate = $this->dateTime->formatDate($datetime->getTimestamp());
-
-        $this->addFieldToFilter(Queue::UPDATED_AT_FIELD_NAME, ['lt' => $formattedDate]);
-        return $this;
-    }
-
-    /**
-     * Get the queue count for a specific queue status
-     *
-     * @param string $queueStatus
-     * @return int
-     */
-    public function getQueueSummaryCount($queueStatus)
+    public function getLevelSummaryCount()
     {
         $select = clone $this->getSelect();
         $connection = $this->getConnection();
@@ -125,30 +94,11 @@ class Collection extends AbstractCollection
 
         $select->reset(\Zend_DB_Select::COLUMNS);
         $select->columns([
-                self::SUMMARY_COUNT_FIELD_NAME => $countExpr
-            ]);
-        $select->where(Queue::QUEUE_STATUS_FIELD_NAME . ' = ?', $queueStatus);
-
-        return $connection->fetchOne($select);
-    }
-
-    /**
-     * Get the last processing time from the queue
-     *
-     * @return string
-     */
-    public function getQueueSummaryLastProcessed()
-    {
-        $select = clone $this->getSelect();
-        $connection = $this->getConnection();
-
-        $updatedAtExpr = new \Zend_Db_Expr('MAX(' . Queue::UPDATED_AT_FIELD_NAME . ')');
-
-        $select->reset(\Zend_DB_Select::COLUMNS);
-        $select->columns([
-            self::SUMMARY_LAST_UPDATED_AT_FIELD_NAME => $updatedAtExpr
+            self::SUMMARY_COUNT_FIELD_NAME => $countExpr,
+            Log::LEVEL_FIELD_NAME => Log::LEVEL_FIELD_NAME
         ]);
+        $select->group(Log::LEVEL_FIELD_NAME);
 
-        return $connection->fetchOne($select);
+        return $connection->fetchAll($select);
     }
 }

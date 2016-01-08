@@ -15,6 +15,13 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
  */
 class Log extends AbstractDb
 {
+    /**#@+
+     * Field Names
+     */
+    const LEVEL_FIELD_NAME = 'level';
+    const CREATED_AT_FIELD_NAME = 'created_at';
+    /**#@-*/
+
     /**
      * Define main table
      *

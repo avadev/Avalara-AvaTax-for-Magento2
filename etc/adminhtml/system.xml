@@ -96,7 +96,10 @@
                     <comment>Minimal recommended for production use</comment>
                 </field>
                 <field id="logging_db_lifetime" translate="label" type="text" sortOrder="1530" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Database Log Record Lifetime, Days</label>
+                    <label>Database Log Record Lifetime</label>
+                    <comment>Required. Days before entries are auto-purged.</comment>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

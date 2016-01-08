@@ -23,6 +23,7 @@ class Queue extends AbstractDb
      */
     const QUEUE_STATUS_FIELD_NAME = 'queue_status';
     const UPDATED_AT_FIELD_NAME = 'updated_at';
+    const CREATED_AT_FIELD_NAME = 'created_at';
     /**#@-*/
 
     /**
