@@ -354,6 +354,24 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <field id="queue_complete_lifetime" translate="label comment" type="text" sortOrder="6030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Complete Queue Lifetime</label>
+                    <comment>Required. Days before entries are auto-purged.</comment>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="queue_submission_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="queue_failed_lifetime" translate="label comment" type="text" sortOrder="6040" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Failed Queue Lifetime</label>
+                    <comment>Required. Days before entries are auto-purged.</comment>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="queue_submission_enabled">1</field>
+                    </depends>
+                </field>
             </group>
         </section>
     </system>

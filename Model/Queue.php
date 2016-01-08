@@ -66,7 +66,7 @@ class Queue extends AbstractModel
     protected $avaTaxLogger;
 
     /**
-     * @var Queue
+     * @var Queue\Processing
      */
     protected $processing;
 
