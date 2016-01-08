@@ -93,6 +93,10 @@ class Config
     const XML_PATH_AVATAX_QUEUE_SUBMISSION_ENABLED = 'tax/avatax/queue_submission_enabled';
 
     const XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS = 'tax/avatax/queue_max_retry_attempts';
+
+    const XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME = 'tax/avatax/queue_complete_lifetime';
+
+    const XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME = 'tax/avatax/queue_failed_lifetime';
     /**#@-*/
 
     /**#@+
@@ -901,6 +905,36 @@ class Config
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured queue complete lifetime
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getQueueCompleteLifetime($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured queue failed lifetime
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getQueueFailedLifetime($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME,
             ScopeInterface::SCOPE_STORE,
             $store
         );

@@ -94,7 +94,7 @@ class Process extends Queue
             }
 
             // Display error message on the page
-            $this->messageManager->addErrorMessage($message . $partialSuccess . 'Error Message: ' . $e->getMessage());
+            $this->messageManager->addErrorMessage($message . $partialSuccess . __('Error Message: ') . $e->getMessage());
 
             // Log the exception
             $this->avaTaxLogger->error(

@@ -12,9 +12,39 @@ use ClassyLlama\AvaTax\Controller\Adminhtml\Queue;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Backend\App\Action\Context;
+use ClassyLlama\AvaTax\Model\Queue\Task;
+use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 class Clear extends Queue
 {
+    /**
+     * @var Task
+     */
+    protected $queueTask;
+
+    /**
+     * @var AvaTaxLogger
+     */
+    protected $avaTaxLogger;
+
+    /**
+     * Process constructor
+     *
+     * @param Context $context
+     * @param Task $queueTask
+     * @param AvaTaxLogger $avaTaxLogger
+     */
+    public function __construct(
+        Context $context,
+        Task $queueTask,
+        AvaTaxLogger $avaTaxLogger
+    ) {
+        $this->queueTask = $queueTask;
+        $this->avaTaxLogger = $avaTaxLogger;
+        parent::__construct($context);
+    }
+
     /**
      * Log page
      *
@@ -22,8 +52,48 @@ class Clear extends Queue
      */
     public function execute()
     {
-        // TODO: Clear queue records that have been completed
-        $this->messageManager->addWarningMessage(__('TODO: You have reached code that has not been finished, and frankly does not do anything at this point. Congratulations!'));
+        // Initiate Queue Processing of pending queued entities
+        try {
+            $this->queueTask->clearQueue();
+
+            if ($this->queueTask->getDeleteCompleteCount() > 0) {
+                $message = __('%1 (completed) queued records were cleared. ',
+                    $this->queueTask->getDeleteCompleteCount()
+                );
+
+                // Display message on the page
+                $this->messageManager->addSuccess($message);
+            }
+
+            if ($this->queueTask->getDeleteFailedCount() > 0) {
+                $message = __('%1 (failed) queued records were cleared. ',
+                    $this->queueTask->getDeleteFailedCount()
+                );
+
+                // Display message on the page
+                $this->messageManager->addSuccess($message);
+            }
+        } catch (\Exception $e) {
+
+            // Build error message
+            $message = __('An error occurred while clearing the queue.');
+
+            // Display error message on the page
+            $this->messageManager->addErrorMessage($message . "\n" . __('Error Message: ') . $e->getMessage());
+
+            // Log the exception
+            $this->avaTaxLogger->error(
+                $message,
+                [ /* context */
+                    'exception' => sprintf(
+                        'Exception message: %s%sTrace: %s',
+                        $e->getMessage(),
+                        "\n",
+                        $e->getTraceAsString()
+                    ),
+                ]
+            );
+        }
 
         // Redirect browser to queue list page
         /** @var Redirect $resultRedirect */

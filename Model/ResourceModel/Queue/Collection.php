@@ -79,13 +79,13 @@ class Collection extends AbstractCollection
     /**
      * Filter collection by created at date older than number of days
      *
-     * @param int $seconds
+     * @param int $secondsBeforeNow
      * @return $this
      */
-    public function addCreatedAtBeforeFilter($seconds)
+    public function addCreatedAtBeforeFilter($secondsBeforeNow)
     {
         $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
-        $storeInterval = new \DateInterval('PT' . $seconds . 'S');
+        $storeInterval = new \DateInterval('PT' . $secondsBeforeNow . 'S');
         $datetime->sub($storeInterval);
         $formattedDate = $this->dateTime->formatDate($datetime->getTimestamp());
 
@@ -96,17 +96,17 @@ class Collection extends AbstractCollection
     /**
      * Filter collection by updated at date older than number of seconds
      *
-     * @param int $seconds
+     * @param int $secondsBeforeNow
      * @return $this
      */
-    public function addUpdatedAtBeforeFilter($seconds)
+    public function addUpdatedAtBeforeFilter($secondsBeforeNow)
     {
         $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
-        $storeInterval = new \DateInterval('PT' . $seconds . 'S');
+        $storeInterval = new \DateInterval('PT' . $secondsBeforeNow . 'S');
         $datetime->sub($storeInterval);
         $formattedDate = $this->dateTime->formatDate($datetime->getTimestamp());
 
-        $this->addFieldToFilter('created_at', ['lt' => $formattedDate]);
+        $this->addFieldToFilter('updated_at', ['lt' => $formattedDate]);
         return $this;
     }
 
