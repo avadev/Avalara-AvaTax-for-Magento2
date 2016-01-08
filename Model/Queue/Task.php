@@ -211,7 +211,7 @@ class Task
     }
 
     /**
-     * Entry point for cron job execution of processing the queue
+     * Entry point for cron job execution of clearing the queue
      */
     public function cronClearQueue()
     {
@@ -219,6 +219,9 @@ class Task
         $this->clearQueue();
     }
 
+    /**
+     * Clear the queue of complete and failed records
+     */
     public function clearQueue()
     {
         $this->avaTaxLogger->debug(__('Starting queue clearing'));
@@ -235,7 +238,12 @@ class Task
         );
     }
 
-    public function clearCompleteQueue()
+    // TODO: Possibly refactor clearCompleteQueue() and clearFailedQueue() into a single method
+
+    /**
+     * Clear the queue of complete records based on config lifetime
+     */
+    protected function clearCompleteQueue()
     {
         // Initialize the queue collection
         /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
@@ -263,7 +271,10 @@ class Task
 
     }
 
-    public function clearFailedQueue()
+    /**
+     * Clear the queue of failed records based on config lifetime
+     */
+    protected function clearFailedQueue()
     {
         // Initialize the queue collection
         /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
