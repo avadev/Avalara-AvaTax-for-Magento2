@@ -20,11 +20,10 @@ use Magento\Framework\Stdlib\DateTime;
 
 class Collection extends AbstractCollection
 {
-    /**#@+
-     * Field Names
+    /**
+     * Summary Count Field Name
      */
     const SUMMARY_COUNT_FIELD_NAME = 'count';
-    /**#@-*/
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime
