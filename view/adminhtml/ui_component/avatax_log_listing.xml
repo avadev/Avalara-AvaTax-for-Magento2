@@ -6,6 +6,9 @@
             <item name="deps" xsi:type="string">avatax_log_listing.avatax_log_listing_data_source</item>
         </item>
         <item name="spinner" xsi:type="string">avatax_log_columns</item>
+        <item name="buttons" xsi:type="array">
+            <item name="clear_logs" xsi:type="string">ClassyLlama\AvaTax\Block\Adminhtml\Log\ClearButton</item>
+        </item>
     </argument>
 
     <dataSource name="avatax_log_listing_data_source">

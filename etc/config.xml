@@ -20,7 +20,7 @@
                 <address_validation_error_instructions><![CDATA[We were unable to validate your address: <br/> <p>%s</p> If the address below is correct then you don’t need to do anything. To change your address, <a>click here</a>.]]></address_validation_error_instructions>
                 <address_validation_countries_enabled>CA,US</address_validation_countries_enabled>
                 <logging_db_level>250</logging_db_level>
-                <logging_db_lifetime>60</logging_db_lifetime>
+                <logging_db_lifetime>180</logging_db_lifetime>
                 <logging_db_detail>1</logging_db_detail>
                 <logging_file_enabled>1</logging_file_enabled>
                 <logging_file_mode>1</logging_file_mode>
@@ -29,7 +29,7 @@
                 <queue_max_retry_attempts>15</queue_max_retry_attempts>
                 <queue_submission_enabled>1</queue_submission_enabled>
                 <queue_complete_lifetime>60</queue_complete_lifetime>
-                <queue_failed_lifetime>60</queue_failed_lifetime>
+                <queue_failed_lifetime>180</queue_failed_lifetime>
             </avatax>
         </tax>
     </default>

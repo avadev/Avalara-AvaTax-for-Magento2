@@ -4,5 +4,11 @@
         <job name="avatax_processqueue" instance="ClassyLlama\AvaTax\Model\Queue\Task" method="cronProcessQueue">
             <schedule>*/5 * * * *</schedule>
         </job>
+        <job name="avatax_clearqueue" instance="ClassyLlama\AvaTax\Model\Queue\Task" method="cronClearQueue">
+            <schedule>2 0 */1 * *</schedule>
+        </job>
+        <job name="avatax_clearlog" instance="ClassyLlama\AvaTax\Model\Log\Task" method="cronClearLogs">
+            <schedule>2 0 */1 * *</schedule>
+        </job>
     </group>
 </config>

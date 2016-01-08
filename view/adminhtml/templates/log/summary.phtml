@@ -1,0 +1,16 @@
+<?php
+
+/** @var \ClassyLlama\AvaTax\Block\Adminhtml\Log\Summary $block */
+$summaryData = $block->getSummaryData();
+?>
+<div class="admin__avatax-log-summary">
+    <span class="avatax-log-summary-title">Summary</span>
+    <div class="avatax-summary-list">
+    <?php foreach ($summaryData as $level): ?>
+        <div class="avatax-log-summary-level">
+            <span class="avatax-log-summary-level-label"><?php echo $level['level']; ?></span>
+            <span class="avatax-log-summary-count"><?php echo $level['count']; ?></span>
+        </div>
+    <?php endforeach; ?>
+    </div>
+</div>
