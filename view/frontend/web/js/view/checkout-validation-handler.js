@@ -5,8 +5,8 @@ define(
         'ClassyLlama_AvaTax/js/action/set-shipping-address',
         'ClassyLlama_AvaTax/js/view/update-address',
         'ClassyLlama_AvaTax/js/model/address-model',
-        'ClassyLlama_AvaTax/js/validation-form',
-        'ClassyLlama_AvaTax/js/diff-address'
+        'ClassyLlama_AvaTax/js/view/address-validation-form',
+        'ClassyLlama_AvaTax/js/view/diff-address'
     ],
     function (
         $,
@@ -14,7 +14,7 @@ define(
         setShippingAddress,
         updateAddress,
         addressModel,
-        validationForm,
+        addressValidationForm,
         diffAddress
     ) {
         'use strict';
@@ -26,11 +26,8 @@ define(
 
             validationResponseHandler: function (response) {
                 diffAddress.isDifferent(false);
-                if ((typeof response.extension_attributes !== 'undefined')
-                    && (typeof response.extension_attributes.valid_address !== 'undefined'
-                    && typeof response.extension_attributes.original_address !== 'undefined')
-                ) {
-                    $(this.options.validateAddressContainerSelector).fadeIn();
+                if (typeof response.extension_attributes !== 'undefined') {
+                    $(this.options.validateAddressContainerSelector + ' *').fadeIn();
                     this.toggleAddressToUse();
                     updateAddress(response.extension_attributes.valid_address);
                     addressModel.originalAddress(response.extension_attributes.original_address);
@@ -38,7 +35,7 @@ define(
                     if (typeof response.extension_attributes.error_message !== 'undefined') {
                         addressModel.error(response.extension_attributes.error_message)
                     }
-                    validationForm.fillValidateForm();
+                    addressValidationForm.fillValidateForm(this.options.validateAddressContainerSelector);
 
                     // This click event handler is to allow the user to navigate to the first step to change their
                     // address if they notice an error in their address on the Review & Payments step by clicking
@@ -50,7 +47,6 @@ define(
                     $(this.options.validateAddressContainerSelector).hide();
                 }
             },
-
 
             toggleAddressToUse: function () {
                 $('input[name=addressToUse]:radio').on('change', function() {

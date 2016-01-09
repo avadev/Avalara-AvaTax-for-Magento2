@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="avatax">
+        <job name="avatax_processqueue" instance="ClassyLlama\AvaTax\Model\Queue\Task" method="cronProcessQueue">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+        <job name="avatax_clearqueue" instance="ClassyLlama\AvaTax\Model\Queue\Task" method="cronClearQueue">
+            <schedule>2 0 */1 * *</schedule>
+        </job>
+        <job name="avatax_clearlog" instance="ClassyLlama\AvaTax\Model\Log\Task" method="cronClearLogs">
+            <schedule>2 0 */1 * *</schedule>
+        </job>
+    </group>
+</config>

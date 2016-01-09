@@ -494,11 +494,12 @@ class TaxTest extends \PHPUnit_Framework_TestCase
      */
     protected function logError($message)
     {
-        file_put_contents(
-            BP . '/var/log/avatax_tests.log',
-            $message . PHP_EOL,
-            FILE_APPEND
-        );
+        throw new \PHPUnit_Framework_ExpectationFailedException('Test failed: ' . $message);
+        //file_put_contents(
+        //    BP . '/var/log/avatax_tests.log',
+        //    $message . PHP_EOL,
+        //    FILE_APPEND
+        //);
     }
 
     /**

@@ -6,6 +6,7 @@ use AvaTax\DetailLevel;
 use AvaTax\DocumentType;
 use AvaTax\GetTaxRequest;
 use AvaTax\GetTaxRequestFactory;
+use AvaTax\TaxOverrideFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
@@ -33,6 +34,11 @@ class Tax
     protected $config = null;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\TaxClass
+     */
+    protected $taxClassHelper;
+
+    /**
      * @var Validation
      */
     protected $validation = null;
@@ -51,6 +57,11 @@ class Tax
      * @var GetTaxRequestFactory
      */
     protected $getTaxRequestFactory = null;
+
+    /**
+     * @var TaxOverrideFactory
+     */
+    protected $taxOverrideFactory = null;
 
     /**
      * @var CustomerRepositoryInterface
@@ -158,6 +169,11 @@ class Tax
     const AVATAX_DOC_CODE_PREFIX = 'quote-';
 
     /**
+     * Reason for AvaTax override for creditmemos to specify tax date
+     */
+    const AVATAX_CREDITMEMO_OVERRIDE_REASON = 'Adjustment for return';
+
+    /**
      * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
      * convert AvaTax rate to Magento's rate
      */
@@ -173,6 +189,7 @@ class Tax
      *
      * @param Address $address
      * @param Config $config
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
      * @param Validation $validation
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param TaxServiceSoapFactory $taxServiceSoapFactory
@@ -189,10 +206,12 @@ class Tax
     public function __construct(
         Address $address,
         Config $config,
+        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
         Validation $validation,
         MetaDataObjectFactory $metaDataObjectFactory,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
+        TaxOverrideFactory $taxOverrideFactory,
         CustomerRepositoryInterface $customerRepository,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
@@ -204,10 +223,12 @@ class Tax
     ) {
         $this->address = $address;
         $this->config = $config;
+        $this->taxClassHelper = $taxClassHelper;
         $this->validation = $validation;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this->validDataFields]);
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
+        $this->taxOverrideFactory = $taxOverrideFactory;
         $this->customerRepository = $customerRepository;
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
@@ -444,7 +465,7 @@ class Tax
             'Commit' => false,
             'CurrencyCode' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($quote),
-//            'CustomerUsageType' => null,//$taxClass->,
+            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer()),
             'DestinationAddress' => $address,
             'DocCode' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'DocDate' => $docDate,
@@ -562,13 +583,31 @@ class Tax
 
         $docDate = $this->getFormattedDate($store, $object->getCreatedAt());
 
+        $taxOverride = null;
         if ($object instanceof \Magento\Sales\Api\Data\InvoiceInterface) {
             $docType = DocumentType::$SalesInvoice;
         } else {
             $docType = DocumentType::$ReturnInvoice;
+
+            $invoice = $object->getInvoice();
+            // If a Creditmemo was generated for an invoice, use the created_at value from the invoice
+            if ($invoice) {
+                $taxCalculationDate = $this->getFormattedDate($store, $invoice->getCreatedAt());;
+            } else {
+                $taxCalculationDate = $this->getFormattedDate($store, $order->getCreatedAt());;
+            }
+
+            // Set the tax date for calculation
+            $taxOverride = $this->taxOverrideFactory->create();
+            $taxOverride->setTaxDate($taxCalculationDate);
+            $taxOverride->setTaxOverrideType(\AvaTax\TaxOverrideType::$TaxDate);
+            $taxOverride->setTaxAmount(0.00);
+            $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
+        $customer = $this->getCustomer($object->getOrder()->getCustomerId());
         $data = [
+<<<<<<< HEAD
             'Commit' => false,
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
@@ -581,6 +620,22 @@ class Tax
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
 //            'PaymentDate' => null,
+=======
+            'store_id' => $store->getId(),
+            'commit' => false,
+            'tax_override' => $taxOverride,
+            'currency_code' => $order->getOrderCurrencyCode(),
+            'customer_code' => $this->getCustomerCode($order),
+            'customer_usage_type' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
+            'destination_address' => $address,
+            'doc_code' => $object->getIncrementId(),
+            'doc_date' => $docDate,
+            'doc_type' => $docType,
+            'exchange_rate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
+            'exchange_rate_eff_date' => $currentDate,
+            'lines' => $lines,
+//            'payment_date' => null,
+>>>>>>> origin/develop
             // TODO: Is this the appropriate value to set?
             'PurchaseOrderNumber' => $object->getIncrementId(),
 //            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
@@ -606,9 +661,19 @@ class Tax
         return $getTaxRequest;
     }
 
-    protected function convertInvoiceToData(\Magento\Sales\Api\Data\InvoiceInterface $invoice)
+    /**
+     * Load customer by id
+     *
+     * @param $customerId
+     * @return \Magento\Customer\Api\Data\CustomerInterface|null
+     */
+    protected function getCustomer($customerId)
     {
-        return false;
+        try {
+            return $this->customerRepository->getById($customerId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return null;
+        }
     }
 
     /**

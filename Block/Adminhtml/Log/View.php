@@ -1,11 +1,21 @@
 <?php
+/**
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
+ */
 
 namespace ClassyLlama\AvaTax\Block\Adminhtml\Log;
+
+use Magento\Backend\Block\Widget\Container;
+use Magento\Backend\Block\Widget\Context;
+use Magento\Framework\Registry;
 
 /**
  * Form widget for viewing log
  */
-class View extends \Magento\Backend\Block\Widget\Container
+class View extends Container
 {
     /**
      * @var \Magento\Framework\Registry
@@ -18,8 +28,8 @@ class View extends \Magento\Backend\Block\Widget\Container
      * @param array $data
      */
     public function __construct(
-        \Magento\Backend\Block\Widget\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
+        Context $context,
+        Registry $coreRegistry,
         array $data = []
     ) {
         $this->coreRegistry = $coreRegistry;
@@ -27,9 +37,9 @@ class View extends \Magento\Backend\Block\Widget\Container
     }
 
     /**
-     * Get current report model
+     * Get log model
      *
-     * @return \Magento\Support\Model\Report
+     * @return \ClassyLlama\AvaTax\Model\Log
      */
     public function getLog()
     {

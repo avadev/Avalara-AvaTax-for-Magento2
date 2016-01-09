@@ -5,7 +5,8 @@ namespace ClassyLlama\AvaTax\Block;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Framework\View\Element\Template\Context;
 
-class CustomerAddress extends \Magento\Framework\View\Element\Template {
+class CustomerAddress extends \Magento\Framework\View\Element\Template
+{
 
     /**
     * @var Config
@@ -27,18 +28,34 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template {
         $this->config = $config;
     }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @return string
+     */
     public function getStoreCode() {
         return $this->_storeManager->getStore()->getCode();
     }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @return mixed
+     */
     public function isValidationEnabled() {
         return $this->config->isAddressValidationEnabled();
     }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @return mixed
+     */
     public function getChoice() {
         return $this->config->allowUserToChooseAddress();
     }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @return string
+     */
     public function getInstructions() {
         if ($this->getChoice()) {
             return addslashes($this->config->getAddressValidationInstructionsWithChoice());
@@ -47,10 +64,18 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template {
         }
     }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @return string
+     */
     public function getErrorInstructions() {
         return addslashes($this->config->getAddressValidationErrorInstructions());
     }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @return mixed
+     */
     public function getCountriesEnabled() {
         return $this->config->getAddressValidationCountriesEnabled();
     }
