@@ -6,6 +6,7 @@ use AvaTax\DetailLevel;
 use AvaTax\DocumentType;
 use AvaTax\GetTaxRequest;
 use AvaTax\GetTaxRequestFactory;
+use AvaTax\TaxOverrideFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
 use ClassyLlama\AvaTax\Helper\Validation;
@@ -50,6 +51,11 @@ class Tax
      * @var GetTaxRequestFactory
      */
     protected $getTaxRequestFactory = null;
+
+    /**
+     * @var TaxOverrideFactory
+     */
+    protected $taxOverrideFactory = null;
 
     /**
      * @var CustomerRepositoryInterface
@@ -157,6 +163,11 @@ class Tax
     const AVATAX_DOC_CODE_PREFIX = 'quote-';
 
     /**
+     * Reason for AvaTax override for creditmemos to specify tax date
+     */
+    const AVATAX_CREDITMEMO_OVERRIDE_REASON = 'Adjustment for return';
+
+    /**
      * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
      * convert AvaTax rate to Magento's rate
      */
@@ -192,6 +203,7 @@ class Tax
         Validation $validation,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
+        TaxOverrideFactory $taxOverrideFactory,
         CustomerRepositoryInterface $customerRepository,
         GroupRepositoryInterface $groupRepository,
         TaxClassRepositoryInterface $taxClassRepository,
@@ -207,6 +219,7 @@ class Tax
         $this->validation = $validation;
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
+        $this->taxOverrideFactory = $taxOverrideFactory;
         $this->customerRepository = $customerRepository;
         $this->groupRepository = $groupRepository;
         $this->taxClassRepository = $taxClassRepository;
@@ -572,16 +585,33 @@ class Tax
 
         $docDate = $this->getFormattedDate($store, $object->getCreatedAt());
 
+        $taxOverride = null;
         if ($object instanceof \Magento\Sales\Api\Data\InvoiceInterface) {
             $docType = DocumentType::$SalesInvoice;
         } else {
             $docType = DocumentType::$ReturnInvoice;
+
+            $invoice = $object->getInvoice();
+            // If a Creditmemo was generated for an invoice, use the created_at value from the invoice
+            if ($invoice) {
+                $taxCalculationDate = $this->getFormattedDate($store, $invoice->getCreatedAt());;
+            } else {
+                $taxCalculationDate = $this->getFormattedDate($store, $order->getCreatedAt());;
+            }
+
+            // Set the tax date for calculation
+            $taxOverride = $this->taxOverrideFactory->create();
+            $taxOverride->setTaxDate($taxCalculationDate);
+            $taxOverride->setTaxOverrideType(\AvaTax\TaxOverrideType::$TaxDate);
+            $taxOverride->setTaxAmount(0.00);
+            $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
         $customer = $this->getCustomer($object->getOrder()->getCustomerId());
         $data = [
             'store_id' => $store->getId(),
             'commit' => false,
+            'tax_override' => $taxOverride,
             'currency_code' => $order->getOrderCurrencyCode(),
             'customer_code' => $this->getCustomerCode($order),
             'customer_usage_type' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
