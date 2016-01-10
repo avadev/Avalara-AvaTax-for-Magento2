@@ -163,7 +163,7 @@ abstract class MetaDataAbstract
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return array
      */
-    public function getValidOptions()
+    public function getOptions()
     {
         return $this->data[self::ATTR_VALID_OPTIONS];
     }
@@ -178,7 +178,7 @@ abstract class MetaDataAbstract
      * @return boolean
      * @throws LocalizedException
      */
-    public function setValidOptions(array $validOptions)
+    public function setOptions(array $validOptions)
     {
         foreach ($validOptions as $validOption) {
             if (getType($validOption) !== $this->data[self::ATTR_TYPE]) {
@@ -236,7 +236,7 @@ abstract class MetaDataAbstract
 
     /**
      * Set children metadata objects of this metadata object
-     * Valid only on array type
+     * Valid only on array and object types
      * Returns true if children are valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -258,6 +258,7 @@ abstract class MetaDataAbstract
     {
         return $this->data[self::ATTR_USE_IN_CACHE_KEY];
     }
+
     /**
      * Set whether to use in cache key of metadata object
      *
@@ -306,12 +307,12 @@ abstract class MetaDataAbstract
     protected function validateOptions($value)
     {
         // Make sure the value is a valid option if options are set
-        if (!empty($this->getValidOptions()) && !in_array($value, $this->getValidOptions())) {
+        if (!empty($this->getOptions()) && !in_array($value, $this->getOptions())) {
             if ($this->getRequired()) {
                 throw new ValidationException(new Phrase(
                     'The value you passed in is not one of the valid options.  Valid Options are: %1',
                     [
-                        print_r($this->getValidOptions(), true)
+                        print_r($this->getOptions(), true)
                     ]
                 ));
             }
@@ -344,5 +345,21 @@ abstract class MetaDataAbstract
         }
 
         return $value;
+    }
+
+    /**
+     * Returns the cacheable portion of the string version of this object
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $data
+     * @return mixed
+     */
+    public function getCacheKey($value)
+    {
+        if ($this->getUseInCacheKey()) {
+            return (string)$value;
+        } else {
+            return '';
+        }
     }
 }

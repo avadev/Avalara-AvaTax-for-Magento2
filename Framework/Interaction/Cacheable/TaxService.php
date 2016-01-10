@@ -4,6 +4,9 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Cacheable;
 
 use AvaTax\GetTaxRequest;
 use AvaTax\GetTaxResult;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
+use ClassyLlama\AvaTax\Framework\Interaction\Tax;
 use ClassyLlama\AvaTax\Model\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
@@ -12,13 +15,6 @@ use Magento\Framework\Phrase;
 
 class TaxService
 {
-    /**
-     * Properties on object to use as cache key
-     *
-     * @var array
-     */
-    protected $cacheFields = [];
-
     /**
      * @var CacheInterface
      */
@@ -30,15 +26,35 @@ class TaxService
     protected $avaTaxLogger = null;
 
     /**
+     * @var Tax
+     */
+    protected $taxInteraction = null;
+
+    /**
+     * @var MetaDataObject
+     */
+    protected $metaDataObject = null;
+
+    /**
+     * @var null
+     */
+    protected $type = null;
+
+    /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      */
     public function __construct(
         CacheInterface $cache,
-        AvaTaxLogger $avaTaxLogger
+        AvaTaxLogger $avaTaxLogger,
+        Tax $taxInteraction,
+        MetaDataObjectFactory $metaDataObjectFactory,
+        $type = null
     ) {
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->taxInteraction = $taxInteraction;
+        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => \ClassyLlama\AvaTax\Framework\Interaction\Tax::$validFields]);
     }
 
     /**
@@ -51,40 +67,7 @@ class TaxService
      */
     public function getTax(GetTaxRequest $getTaxRequest)
     {
-
-        $validDataFields = [
-            'business_identification_no',
-            'commit',
-            // Company Code is not required by the the API, but we are requiring it in this integration
-            'company_code',
-            'currency_code',
-            'customer_code',
-            'customer_usage_type',
-            'destination_address' => ['type' => 'object', 'class' => '\AvaTax\Address', 'required' => true],
-            'detail_level',
-            'discount',
-            'doc_code',
-            'doc_date',
-            'doc_type',
-            'exchange_rate',
-            'exchange_rate_eff_date',
-            'exemption_no',
-            'lines' => [
-                'type' => 'array',
-                'length' => 15000,
-                'subtype' => ['*' => ['type' => 'object', 'class' => '\AvaTax\Line']],
-                'required' => true,
-            ],
-            'location_code',
-            'origin_address' => ['type' => 'object', 'class' => '\AvaTax\Address'],
-            'payment_date',
-            'purchase_order_number',
-            'reference_code',
-            'salesperson_code',
-            'tax_override' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
-        ];
-
-        $cacheKey = $this->getCacheKey($getTaxRequest->getAddress());
+        $cacheKey = $this->getCacheKey($getTaxRequest);
         $getTaxResult = @unserialize($this->cache->load($cacheKey));
 
         if ($getTaxResult instanceof GetTaxResult) {
@@ -92,7 +75,7 @@ class TaxService
             return $getTaxResult;
         }
 
-        $getTaxResult = $this->interactionAddress->getAddressService()->validate($getTaxRequest);
+        $getTaxResult = $this->taxInteraction->getTaxService($this->type)->getTax($getTaxRequest);
         $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from SOAP.', ['result' => $getTaxResult]);
 
         $serializedGetTaxResult = serialize($getTaxResult);
@@ -110,16 +93,20 @@ class TaxService
      */
     protected function getCacheKey($object)
     {
-        $cacheKey = '';
-        foreach ($this->cacheFields as $field) {
-            $methodName = 'get' . $field;
-            if (method_exists($object, $methodName)) {
-                $cacheKey .= call_user_func([$object, $methodName]);
-            } else {
-                throw new LocalizedException(
-                    new Phrase('The method for the passed in field "%1" could not be found.', [$field])
-                );
-            }
-        }
+        return $this->metaDataObject->getCacheKeyFromObject($object);
     }
+
+    /**
+     * Pass all undefined method calls through to Tax Service
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name , array $arguments)
+    {
+        return call_user_func_array([$this->taxInteraction->getTaxService($this->type), $name], $arguments);
+    }
+
 }

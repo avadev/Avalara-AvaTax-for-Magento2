@@ -8,6 +8,13 @@ class MetaDataObject
 {
     const ALL_NAME = '*';
 
+    protected $classMetaDataMap = [
+        '\AvaTax\Address' => ['\ClassyLlama\AvaTax\Framework\Interaction\Address', 'validFields'],
+        '\AvaTax\TaxOverride' => ['\ClassyLlama\AvaTax\Framework\Interaction\Tax', 'validTaxOverrideFields'],
+        '\AvaTax\Tax' => ['\ClassyLlama\AvaTax\Framework\Interaction\Tax', 'validFields'],
+        '\AvaTax\Line' => ['\ClassyLlama\AvaTax\Framework\Interaction\Line', 'validFields'],
+    ];
+
     /**
      * @var MetaDataObjectFactory
      */
@@ -101,6 +108,13 @@ class MetaDataObject
                 $rule = $this->$factoryVariableName->create(
                     ['name' => $name, 'data' => $metaDataRule]
                 );
+                if ($rule instanceof ObjectType && isset($this->classMetaDataMap[$rule->getClass()])) {
+                    $className = $this->classMetaDataMap[$rule->getClass()][0];
+                    $propertyName = $this->classMetaDataMap[$rule->getClass()][1];
+                    $rule->setSubtype($this->metaDataObjectFactory->create(
+                        ['metaDataProperties' => $className::$$propertyName]
+                    ));
+                }
                 $this->metaDataProperties[$rule->getName()] = $rule;
 
                 if ($rule->getRequired()) {
@@ -113,6 +127,7 @@ class MetaDataObject
     /**
      * Validates an array of values according to the initializing rules
      * TODO: Test all this to make sure it actually works as expected
+     * TODO: Consider whether  || empty($data[$key] portion of required condition is necessary
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
@@ -137,7 +152,8 @@ class MetaDataObject
         }
 
         foreach ($this->requiredRules as $requiredRule) {
-            if (!array_key_exists($requiredRule->getName(), $validatedData)) {
+            if (!array_key_exists($requiredRule->getName(), $validatedData) ||
+                empty($validatedData[$requiredRule->getName()])) {
                 throw new ValidationException(new Phrase(
                     '%1 is a required field and was either not passed in or did not pass validation.',
                     [
@@ -147,5 +163,60 @@ class MetaDataObject
             }
         }
         return $validatedData;
+    }
+
+    /**
+     * Returns an hashed cache key representing a combination of all relevant data on the object as defined by metadata
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param array $data
+     * @return string
+     */
+    public function getCacheKey(array $data)
+    {
+        $cacheKey = '';
+
+        /** @var $defaultKeyGenerator MetaDataAbstract */
+        $defaultKeyGenerator = isset($this->metaDataProperties[self::ALL_NAME]) ?
+            $this->metaDataProperties[self::ALL_NAME] :
+            null;
+
+        foreach ($data as $name => $item) {
+            /** @var $keyGenerator MetaDataAbstract */
+            $keyGenerator = isset($this->metaDataProperties[$name]) ? $this->metaDataProperties[$name] : $defaultKeyGenerator;
+            if (!is_null($keyGenerator)) {
+                $cacheKey .= $keyGenerator->getCacheKey($item);
+            }
+        }
+
+        return hash('sha256', $cacheKey);
+    }
+
+    /**
+     * Returns an hashed cache key representing a combination of all relevant data on the object as defined by metadata
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $object
+     * @return string
+     */
+    public function getCacheKeyFromObject($object)
+    {
+        $cacheKey = '';
+
+        foreach ($this->metaDataProperties as $name => $keyGenerator) {
+            /** @var $keyGenerator MetaDataAbstract */
+            $methodName = 'get' . $name;
+            if (method_exists($object, $methodName)) {
+                // TODO: Fix so this method does not (unintentionally) take a parameter that doesn't do anything and issue PR and remove workaround
+                // TODO: Get Anya to create a new tag from master in the repo
+                if ($methodName == 'getTaxIncluded') {
+                    $cacheKey .= $keyGenerator->getCacheKey(call_user_func([$object, $methodName], ''));
+                } else {
+                    $cacheKey .= $keyGenerator->getCacheKey(call_user_func([$object, $methodName]));
+                }
+            }
+        }
+
+        return hash('sha256', $cacheKey);
     }
 }

@@ -26,9 +26,24 @@ class ObjectType extends MetaDataAbstract
      * @param array $validOptions
      * @return boolean
      */
-    public function setValidOptions(array $validOptions)
+    public function setOptions(array $validOptions)
     {
         return false;
+    }
+
+    /**
+     * Set children metadata objects of this metadata object
+     * Valid only on array and object types
+     * Returns true if children are valid for this type and false if not
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param MetaDataObject $subtype
+     * @return bool
+     */
+    public function setSubtype(MetaDataObject $subtype = null)
+    {
+        $this->data[self::ATTR_SUBTYPE] = $subtype;
+        return true;
     }
 
     /**
@@ -70,17 +85,43 @@ class ObjectType extends MetaDataAbstract
 
         $class = $this->getClass();
         if (!is_null($value) && !($value instanceof $class)) {
-            if ($this->getRequired()) {
-                throw new ValidationException(new Phrase(
-                    'The object you passed in is of type %1 and is required to be of type %2.',
-                    [
-                        get_class($value),
-                        $class
-                    ]
-                ));
-            }
+            throw new ValidationException(new Phrase(
+                'The object you passed in is of type %1 and is required to be of type %2.',
+                [
+                    get_class($value),
+                    $class
+                ]
+            ));
         }
 
         return $value;
+    }
+
+    /**
+     * Returns the cacheable portion of the string version of this object
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $data
+     * @return mixed
+     */
+    public function getCacheKey($value)
+    {
+        $cacheKey = '';
+        if (!$this->getUseInCacheKey()) {
+            return $cacheKey;
+        }
+        // If a subtype is defined, call this function for that contents of the array
+        if (!is_null($this->getSubtype())) {
+            $cacheKey = $this->getSubtype()->getCacheKeyFromObject($value);
+        } else {
+            foreach ($value as $item) {
+                if (is_array($item)) {
+                    $cacheKey .= $this->getCacheKey($item);
+                } else {
+                    $cacheKey .= (string) $item;
+                }
+            }
+        }
+        return $cacheKey;
     }
 }

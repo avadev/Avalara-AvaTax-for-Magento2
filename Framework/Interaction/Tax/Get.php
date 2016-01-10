@@ -5,6 +5,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 use AvaTax\GetTaxRequest;
 use AvaTax\GetTaxResult;
 use AvaTax\LineFactory;
+use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\TaxService;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
@@ -55,6 +56,11 @@ class Get
      */
     protected $avaTaxLogger;
 
+    /**
+     * @var TaxService
+     */
+    protected $taxService = null;
+
     /**#@+
      * Keys for non-base and base tax details
      */
@@ -81,7 +87,8 @@ class Get
         // TODO: Figure out why a factory for the interface isn't working:
         //ClassyLlama\AvaTax\Api\Data\GetTaxResponseFactory $getTaxResponseFactory
         Get\ResponseFactory $getTaxResponseFactory,
-        AvaTaxLogger $avaTaxLogger
+        AvaTaxLogger $avaTaxLogger,
+        TaxService $taxService
     ) {
         $this->taxCalculation = $taxCalculation;
         $this->interactionAddress = $interactionAddress;
@@ -90,6 +97,7 @@ class Get
         $this->config = $config;
         $this->getTaxResponseFactory = $getTaxResponseFactory;
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->taxService = $taxService;
     }
 
     /**
@@ -101,7 +109,7 @@ class Get
      */
     public function processSalesObject($object)
     {
-        $taxService = $this->interactionTax->getTaxService();
+        $taxService = $this->taxService;
         try {
             /** @var $getTaxRequest GetTaxRequest */
             $getTaxRequest = $this->interactionTax->getGetTaxRequestForSalesObject($object);
@@ -188,7 +196,7 @@ class Get
         \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
-        $taxService = $this->interactionTax->getTaxService();
+        $taxService = $this->taxService;
 
         // Total quantity of an item can be determined by multiplying parent * child quantity, so it's necessary
         // to calculate total quantities on a list of all items

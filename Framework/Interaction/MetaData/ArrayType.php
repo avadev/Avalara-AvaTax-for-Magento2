@@ -49,14 +49,14 @@ class ArrayType extends MetaDataAbstract
      * @param array $validOptions
      * @return boolean
      */
-    public function setValidOptions(array $validOptions)
+    public function setOptions(array $validOptions)
     {
         return false;
     }
 
     /**
      * Set children metadata objects of this metadata object
-     * Valid only on array type
+     * Valid only on array and object types
      * Returns true if children are valid for this type and false if not
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -85,7 +85,7 @@ class ArrayType extends MetaDataAbstract
             if ($this->getRequired()) {
                 throw new ValidationException(new Phrase(
                     'The value you passed in is not an array. ' .
-                    'If your data can be converted to an array, please do so explicitly before passing in' .
+                    'If your data can be converted to an array, please do so explicitly before passing it in ' .
                     'because automated array conversion will not be attempted since it can have unexpected results.'
                 ));
             }
@@ -111,5 +111,33 @@ class ArrayType extends MetaDataAbstract
         }
 
         return $value;
+    }
+
+    /**
+     * Returns the the string version of this array
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $data
+     * @return mixed
+     */
+    public function getCacheKey($value)
+    {
+        $cacheKey = '';
+        if (!$this->getUseInCacheKey()) {
+            return $cacheKey;
+        }
+        // If a subtype is defined, call this function for that contents of the array
+        if (!is_null($this->getSubtype())) {
+            $cacheKey = $this->getSubtype()->getCacheKey($value);
+        } else {
+            foreach ($value as $item) {
+                if (is_array($item)) {
+                    $cacheKey .= $this->getCacheKey($item);
+                } else {
+                    $cacheKey .= (string) $item;
+                }
+            }
+        }
+        return $cacheKey;
     }
 }

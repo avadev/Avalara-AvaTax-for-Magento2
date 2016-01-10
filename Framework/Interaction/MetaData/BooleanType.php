@@ -24,7 +24,7 @@ class BooleanType extends MetaDataAbstract
      * @param array $validOptions
      * @return boolean
      */
-    public function setValidOptions(array $validOptions)
+    public function setOptions(array $validOptions)
     {
         return false;
     }

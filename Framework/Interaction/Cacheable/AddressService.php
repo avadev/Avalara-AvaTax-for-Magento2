@@ -5,6 +5,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Cacheable;
 use AvaTax\ValidateRequest;
 use AvaTax\ValidateResult;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Model\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
@@ -13,13 +14,6 @@ use Magento\Framework\Phrase;
 
 class AddressService
 {
-    /**
-     * Properties on object to use as cache key
-     *
-     * @var array
-     */
-    protected $cacheFields = ['Line1', 'Line2', 'Line3', 'City', 'Region', 'PostalCode', 'Country'];
-
     /**
      * @var CacheInterface
      */
@@ -35,6 +29,8 @@ class AddressService
      */
     protected $interactionAddress = null;
 
+    protected $type = null;
+
     /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
@@ -43,11 +39,15 @@ class AddressService
     public function __construct(
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
-        Address $interactionAddress
+        Address $interactionAddress,
+        MetaDataObjectFactory $metaDataObjectFactory,
+        $type = null
     ) {
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->interactionAddress = $interactionAddress;
+        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => \ClassyLlama\AvaTax\Framework\Interaction\Address::$validFields]);
+        $this->type = $type;
     }
 
     /**
@@ -69,7 +69,7 @@ class AddressService
             return $validateResult;
         }
 
-        $validateResult = $this->interactionAddress->getAddressService()->validate($validateRequest);
+        $validateResult = $this->interactionAddress->getAddressService($this->type)->validate($validateRequest);
 
         $serializedValidateResult = serialize($validateResult);
         $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
@@ -98,16 +98,19 @@ class AddressService
      */
     protected function getCacheKey($object)
     {
-        $cacheKey = '';
-        foreach ($this->cacheFields as $field) {
-            $methodName = 'get' . $field;
-            if (method_exists($object, $methodName)) {
-                $cacheKey .= call_user_func([$object, $methodName]);
-            } else {
-                throw new LocalizedException(
-                    new Phrase('The method for the passed in field "%1" could not be found.', [$field])
-                );
-            }
-        }
+        return $this->metaDataObject->getCacheKeyFromObject($object);
+    }
+
+    /**
+     * Pass all undefined method calls through to AddressService
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name , array $arguments)
+    {
+        return call_user_func_array([$this->interactionAddress->getAddressService($this->type), $name], $arguments);
     }
 }

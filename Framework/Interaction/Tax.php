@@ -10,7 +10,6 @@ use AvaTax\TaxOverrideFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
-use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\GroupRepositoryInterface;
@@ -37,11 +36,6 @@ class Tax
      * @var \ClassyLlama\AvaTax\Helper\TaxClass
      */
     protected $taxClassHelper;
-
-    /**
-     * @var Validation
-     */
-    protected $validation = null;
 
     /**
      * @var MetaData\MetaDataObject
@@ -116,7 +110,7 @@ class Tax
      *
      * @var array
      */
-    protected $validDataFields = [
+    public static $validFields = [
         'StoreId' => ['type' => 'integer'],
         'BusinessIdentificationNo' => ['type' => 'string', 'length' => 25],
         'Commit' => ['type' => 'boolean'],
@@ -140,8 +134,7 @@ class Tax
             'required' => true,
         ],
         'ExchangeRate' => ['type' => 'double'],
-        'ExchangeRateEffDate' => [
-            'type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'ExchangeRateEffDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
         'ExemptionNo' => ['type' => 'string', 'length' => 25],
         'Lines' => [
             'type' => 'array',
@@ -156,6 +149,17 @@ class Tax
         'ReferenceCode' => ['type' => 'string', 'length' => 50],
         'SalespersonCode' => ['type' => 'string', 'length' => 25],
         'TaxOverride' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
+    ];
+
+    public static $validTaxOverrideFields = [
+        'Reason' => ['type' => 'string', 'required' => true],
+        'TaxOverrideType' => [
+            'type' => 'string',
+            'options' => ['None', 'TaxAmount', 'Exemption', 'TaxDate'],
+            'required' => true,
+        ],
+        'TaxDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'TaxAmount' => ['type' => 'double'],
     ];
 
     /**
@@ -190,7 +194,6 @@ class Tax
      * @param Address $address
      * @param Config $config
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
-     * @param Validation $validation
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param TaxServiceSoapFactory $taxServiceSoapFactory
      * @param GetTaxRequestFactory $getTaxRequestFactory
@@ -207,7 +210,6 @@ class Tax
         Address $address,
         Config $config,
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
-        Validation $validation,
         MetaDataObjectFactory $metaDataObjectFactory,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
@@ -224,8 +226,7 @@ class Tax
         $this->address = $address;
         $this->config = $config;
         $this->taxClassHelper = $taxClassHelper;
-        $this->validation = $validation;
-        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this->validDataFields]);
+        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->taxOverrideFactory = $taxOverrideFactory;
@@ -511,7 +512,6 @@ class Tax
             $data
         );
 
-//        $data = $this->validation->validateData($data, $this->validDataFields); // TODO: Compare all processes in side by side to ensure validation is same
         $data = $this->metaDataObject->validateData($data);
 
         /** @var $getTaxRequest GetTaxRequest */
@@ -607,11 +607,12 @@ class Tax
 
         $customer = $this->getCustomer($object->getOrder()->getCustomerId());
         $data = [
-<<<<<<< HEAD
+            'StoreId' => $store->getId(),
             'Commit' => false,
+            'TaxOverride' => $taxOverride,
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
-//            'CustomerUsageType' => null,//$taxClass->,
+            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
             'DestinationAddress' => $address,
             'DocCode' => $object->getIncrementId(),
             'DocDate' => $docDate,
@@ -620,27 +621,10 @@ class Tax
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
 //            'PaymentDate' => null,
-=======
-            'store_id' => $store->getId(),
-            'commit' => false,
-            'tax_override' => $taxOverride,
-            'currency_code' => $order->getOrderCurrencyCode(),
-            'customer_code' => $this->getCustomerCode($order),
-            'customer_usage_type' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
-            'destination_address' => $address,
-            'doc_code' => $object->getIncrementId(),
-            'doc_date' => $docDate,
-            'doc_type' => $docType,
-            'exchange_rate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
-            'exchange_rate_eff_date' => $currentDate,
-            'lines' => $lines,
-//            'payment_date' => null,
->>>>>>> origin/develop
             // TODO: Is this the appropriate value to set?
             'PurchaseOrderNumber' => $object->getIncrementId(),
 //            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
 //            'SalespersonCode' => null,
-//            'TaxOverride' => null,
         ];
 
         $storeId = $object->getStoreId();
@@ -649,8 +633,6 @@ class Tax
             $data
         );
 
-        $unvalidated = $data;
-        $data = $this->validation->validateData($data, $this->validDataFields);
         $data = $this->metaDataObject->validateData($data);
 
         /** @var $getTaxRequest GetTaxRequest */
