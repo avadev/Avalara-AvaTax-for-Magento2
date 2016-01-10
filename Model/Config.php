@@ -172,6 +172,11 @@ class Config
     const API_APP_NAME_PREFIX = 'Magento 2';
 
     /**
+     * Cache tag code
+     */
+    const AVATAX_CACHE_TAG = 'AVATAX';
+
+    /**
      * @var ScopeConfigInterface
      */
     protected $scopeConfig = null;
@@ -286,32 +291,32 @@ class Config
     public function getOriginAddress($store = null)
     {
         return [
-            'line1' => $this->scopeConfig->getValue(
+            'Line1' => $this->scopeConfig->getValue(
                 self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE1,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'line2' => $this->scopeConfig->getValue(
+            'Line2' => $this->scopeConfig->getValue(
                 self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE2,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'city' => $this->scopeConfig->getValue(
+            'City' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_CITY,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'regionId' => $this->scopeConfig->getValue(
+            'RegionId' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'postalCode' => $this->scopeConfig->getValue(
+            'PostalCode' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_POSTCODE,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'country' => $this->scopeConfig->getValue(
+            'Country' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_COUNTRY_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store

@@ -7,6 +7,7 @@ use AvaTax\TextCase;
 use AvaTax\ValidateRequestFactory;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
+use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\AddressService;
 use ClassyLlama\AvaTax\Model\Session;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
@@ -14,6 +15,15 @@ use Magento\Framework\Phrase;
 
 class Validation
 {
+    /**
+     * @var Address
+     */
+    protected $interactionAddress = null;
+
+    /**
+     * @var AddressService
+     */
+    protected $addressService = null;
 
     /**
      * @var ValidateRequestFactory
@@ -26,20 +36,19 @@ class Validation
     protected $session = null;
 
     /**
-     * @var Address
-     */
-    protected $interactionAddress = null;
-
-    /**
      * @param Address $interactionAddress
+     * @param AddressService $addressService
+     * @param Session $session
      * @param ValidateRequestFactory $validateRequestFactory
      */
     public function __construct(
         Address $interactionAddress,
+        AddressService $addressService,
         Session $session,
         ValidateRequestFactory $validateRequestFactory
     ) {
         $this->interactionAddress = $interactionAddress;
+        $this->addressService = $addressService;
         $this->session = $session;
         $this->validateRequestFactory = $validateRequestFactory;
     }
@@ -49,47 +58,33 @@ class Validation
      * TODO: request or implement an interface for /AvaTax/Address and /AvaTax/ValidAddress since they can't extend because of SoapClient bug
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $addressInput
-     * @return \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|null
+     * @param array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
+     * @return array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
      * @throws AddressValidateException
      * @throws LocalizedException
      */
     public function validateAddress($addressInput)
     {
-        $addressService = $this->interactionAddress->getAddressService();
-
         // TODO: Move try to be only around SOAP request calls.  Other exceptions should fall through.
         try {
             $returnCoordinates = 1;
-            $avataxAddress = $this->interactionAddress->getAddress($addressInput);
-
-            $validAddress = $this->session->getAddressResponse($avataxAddress);
-
-            if (is_null($validAddress)) {
                 $validateRequest = $this->validateRequestFactory->create(
                     [
-                        'address' => $avataxAddress,
+                    'address' => $this->interactionAddress->getAddress($addressInput),
                         'textCase' => (TextCase::$Mixed ? TextCase::$Mixed : TextCase::$Default),
                         'coordinates' => $returnCoordinates,
                     ]
                 );
-                $validateResult = $addressService->Validate($validateRequest);
-                $resultCode = $validateResult->getResultCode();
-            } else {
-                $resultCode = SeverityLevel::$Success;
-            }
+                $validateResult = $this->addressService->validate($validateRequest);
 
-            if ($resultCode == SeverityLevel::$Success) {
+            if ($validateResult->getResultCode() == SeverityLevel::$Success) {
+                $validAddresses = $validateResult->getValidAddresses();
 
-                if (is_null($validAddress)) {
-                    $validAddresses = $validateResult->getValidAddresses();
                     if (isset($validAddresses[0])) {
                         $validAddress = $validAddresses[0];
-                        $this->session->addAddressResponse($avataxAddress, $validAddress);
                     } else {
                         return null;
                     }
-                }
                 // Convert data back to the type it was passed in as
                 // TODO: Return null if address could not be converted to original type
                 switch (true) {

@@ -9,7 +9,7 @@ use AvaTax\GetTaxRequestFactory;
 use AvaTax\TaxOverrideFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
-use ClassyLlama\AvaTax\Helper\Validation;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\GroupRepositoryInterface;
@@ -38,9 +38,9 @@ class Tax
     protected $taxClassHelper;
 
     /**
-     * @var Validation
+     * @var MetaData\MetaDataObject
      */
-    protected $validation = null;
+    protected $metaDataObject = null;
 
     /**
      * @var TaxServiceSoapFactory
@@ -102,7 +102,7 @@ class Tax
      *
      * @var array
      */
-    protected $simpleTypes = ['boolean', 'integer', 'string', 'float'];
+    protected $simpleTypes = ['boolean', 'integer', 'string', 'double'];
 
     /**
      * A list of valid fields for the data array and meta data about their types to use in validation
@@ -110,46 +110,56 @@ class Tax
      *
      * @var array
      */
-    protected $validDataFields = [
-        'store_id' => ['type' => 'integer'],
-        'business_identification_no' => ['type' => 'string', 'length' => 25],
-        'commit' => ['type' => 'boolean'],
+    public static $validFields = [
+        'StoreId' => ['type' => 'integer'],
+        'BusinessIdentificationNo' => ['type' => 'string', 'length' => 25],
+        'Commit' => ['type' => 'boolean'],
         // Company Code is not required by the the API, but we are requiring it in this integration
-        'company_code' => ['type' => 'string', 'length' => 25, 'required' => true],
-        'currency_code' => ['type' => 'string', 'length' => 3],
-        'customer_code' => ['type' => 'string', 'length' => 50, 'required' => true],
-        'customer_usage_type' => ['type' => 'string', 'length' => 25],
-        'destination_address' => ['type' => 'object', 'class' => '\AvaTax\Address', 'required' => true],
-        'detail_level' => [
+        'CompanyCode' => ['type' => 'string', 'length' => 25, 'required' => true],
+        'CurrencyCode' => ['type' => 'string', 'length' => 3],
+        'CustomerCode' => ['type' => 'string', 'length' => 50, 'required' => true],
+        'CustomerUsageType' => ['type' => 'string', 'length' => 25],
+        'DestinationAddress' => ['type' => 'object', 'class' => '\AvaTax\Address', 'required' => true],
+        'DetailLevel' => [
             'type' => 'string',
             'options' => ['Document', 'Diagnostic', 'Line', 'Summary', 'Tax']
         ],
-        'discount' => ['type' => 'float'],
-        'doc_code' => ['type' => 'string', 'length' => 50],
-        'doc_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
-        'doc_type' => [
+        'Discount' => ['type' => 'double'],
+        'DocCode' => ['type' => 'string', 'length' => 50],
+        'DocDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
+        'DocType' => [
             'type' => 'string',
             'options' =>
                 ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
             'required' => true,
         ],
-        'exchange_rate' => ['type' => 'float'],
-        'exchange_rate_eff_date' => [
-            'type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
-        'exemption_no' => ['type' => 'string', 'length' => 25],
-        'lines' => [
+        'ExchangeRate' => ['type' => 'double'],
+        'ExchangeRateEffDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'ExemptionNo' => ['type' => 'string', 'length' => 25],
+        'Lines' => [
             'type' => 'array',
             'length' => 15000,
             'subtype' => ['*' => ['type' => 'object', 'class' => '\AvaTax\Line']],
             'required' => true,
         ],
-        'location_code' => ['type' => 'string', 'length' => 50],
-        'origin_address' => ['type' => 'object', 'class' => '\AvaTax\Address'],
-        'payment_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
-        'purchase_order_number' => ['type' => 'string', 'length' => 50],
-        'reference_code' => ['type' => 'string', 'length' => 50],
-        'salesperson_code' => ['type' => 'string', 'length' => 25],
-        'tax_override' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
+        'LocationCode' => ['type' => 'string', 'length' => 50],
+        'OriginAddress' => ['type' => 'object', 'class' => '\AvaTax\Address'],
+        'PaymentDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'PurchaseOrderNumber' => ['type' => 'string', 'length' => 50],
+        'ReferenceCode' => ['type' => 'string', 'length' => 50],
+        'SalespersonCode' => ['type' => 'string', 'length' => 25],
+        'TaxOverride' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
+    ];
+
+    public static $validTaxOverrideFields = [
+        'Reason' => ['type' => 'string', 'required' => true],
+        'TaxOverrideType' => [
+            'type' => 'string',
+            'options' => ['None', 'TaxAmount', 'Exemption', 'TaxDate'],
+            'required' => true,
+        ],
+        'TaxDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'TaxAmount' => ['type' => 'double'],
     ];
 
     /**
@@ -184,7 +194,7 @@ class Tax
      * @param Address $address
      * @param Config $config
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
-     * @param Validation $validation
+     * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param TaxServiceSoapFactory $taxServiceSoapFactory
      * @param GetTaxRequestFactory $getTaxRequestFactory
      * @param CustomerRepositoryInterface $customerRepository
@@ -200,7 +210,7 @@ class Tax
         Address $address,
         Config $config,
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
-        Validation $validation,
+        MetaDataObjectFactory $metaDataObjectFactory,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
         TaxOverrideFactory $taxOverrideFactory,
@@ -216,7 +226,7 @@ class Tax
         $this->address = $address;
         $this->config = $config;
         $this->taxClassHelper = $taxClassHelper;
-        $this->validation = $validation;
+        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->taxOverrideFactory = $taxOverrideFactory;
@@ -247,19 +257,6 @@ class Tax
                 $this->taxServiceSoapFactory->create(['configurationName' => $type]);
         }
         return $this->taxServiceSoap[$type];
-    }
-
-    /**
-     * Determines whether tax should be committed or not
-     * TODO: Add functionality to determine whether an order should be committed or not, look at previous module and maybe do something around order statuses
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
-     * @return bool
-     */
-    protected function shouldCommit(\Magento\Sales\Api\Data\OrderInterface $order)
-    {
-        return false;
     }
 
     /**
@@ -379,28 +376,28 @@ class Tax
         $docDate = $this->getFormattedDate($store, $order->getCreatedAt());
 
         return [
-            'store_id' => $store->getId(),
-            'commit' => $this->shouldCommit($order),
-            'currency_code' => $order->getOrderCurrencyCode(), // TODO: Make sure these all map correctly
-            'customer_code' => $this->getCustomerCode(
+            'StoreId' => $store->getId(),
+            'Commit' => false,
+            'CurrencyCode' => $order->getOrderCurrencyCode(), // TODO: Make sure these all map correctly
+            'CustomerCode' => $this->getCustomerCode(
                 $order->getCustomerFirstname(),
                 $order->getCustomerEmail(),
                 $order->getCustomerId()
             ),
-//            'customer_usage_type' => null,//$taxClass->,
-            'destination_address' => $address,
-            'discount' => $order->getDiscountAmount(),
-            'doc_code' => $order->getIncrementId(),
-            'doc_date' => $docDate,
-            'doc_type' => DocumentType::$PurchaseInvoice,
-            'exchange_rate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
-            'exchange_rate_eff_date' => $currentDate,
-            'lines' => $lines,
-//            'payment_date' => null,
-            'purchase_order_number' => $order->getIncrementId(),
-//            'reference_code' => null, // Most likely only set on credit memos or order edits
-//            'salesperson_code' => null,
-//            'tax_override' => null,
+//            'CustomerUsageType' => null,//$taxClass->,
+            'DestinationAddress' => $address,
+            'Discount' => $order->getDiscountAmount(),
+            'DocCode' => $order->getIncrementId(),
+            'DocDate' => $docDate,
+            'DocType' => DocumentType::$PurchaseInvoice,
+            'ExchangeRate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
+            'ExchangeRateEffDate' => $currentDate,
+            'Lines' => $lines,
+//            'PaymentDate' => null,
+            'PurchaseOrderNumber' => $order->getIncrementId(),
+//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
+//            'SalespersonCode' => null,
+//            'TaxOverride' => null,
         ];
     }
     */
@@ -457,6 +454,7 @@ class Tax
             return null;
         }
 
+        // TODO: Make this rely on a method available via the interface and not just on model.  Should be done at least conditionally. getStoreId() is valid method.
         $store = $quote->getStore();
         $currentDate = $this->getFormattedDate($store);
 
@@ -464,23 +462,23 @@ class Tax
         $docDate = $currentDate;
 
         return [
-            'store_id' => $store->getId(),
-            'commit' => false,
-            'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
-            'customer_code' => $this->getCustomerCode($quote),
-            'customer_usage_type' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer()),
-            'destination_address' => $address,
-            'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
-            'doc_date' => $docDate,
-            'doc_type' => DocumentType::$PurchaseOrder,
-            'exchange_rate' => $this->getExchangeRate($store, $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
-            'exchange_rate_eff_date' => $currentDate,
-            'lines' => $lines,
-//            'payment_date' => null,
-            'purchase_order_number' => $quote->getReservedOrderId(),
-//            'reference_code' => null, // Most likely only set on credit memos or order edits
-//            'salesperson_code' => null,
-//            'tax_override' => null,
+            'StoreId' => $store->getId(),
+            'Commit' => false,
+            'CurrencyCode' => $quote->getCurrency()->getQuoteCurrencyCode(),
+            'CustomerCode' => $this->getCustomerCode($quote),
+            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer()),
+            'DestinationAddress' => $address,
+            'DocCode' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
+            'DocDate' => $docDate,
+            'DocType' => DocumentType::$PurchaseOrder,
+            'ExchangeRate' => $this->getExchangeRate($store, $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
+            'ExchangeRateEffDate' => $currentDate,
+            'Lines' => $lines,
+//            'PaymentDate' => null,
+            'PurchaseOrderNumber' => $quote->getReservedOrderId(),
+//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
+//            'SalespersonCode' => null,
+//            'TaxOverride' => null,
         ];
     }
 
@@ -514,7 +512,7 @@ class Tax
             $data
         );
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
 
         /** @var $getTaxRequest GetTaxRequest */
         $getTaxRequest = $this->getTaxRequestFactory->create();
@@ -609,25 +607,24 @@ class Tax
 
         $customer = $this->getCustomer($object->getOrder()->getCustomerId());
         $data = [
-            'store_id' => $store->getId(),
-            'commit' => false,
-            'tax_override' => $taxOverride,
-            'currency_code' => $order->getOrderCurrencyCode(),
-            'customer_code' => $this->getCustomerCode($order),
-            'customer_usage_type' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
-            'destination_address' => $address,
-            'doc_code' => $object->getIncrementId(),
-            'doc_date' => $docDate,
-            'doc_type' => $docType,
-            'exchange_rate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
-            'exchange_rate_eff_date' => $currentDate,
-            'lines' => $lines,
-//            'payment_date' => null,
+            'StoreId' => $store->getId(),
+            'Commit' => false,
+            'TaxOverride' => $taxOverride,
+            'CurrencyCode' => $order->getOrderCurrencyCode(),
+            'CustomerCode' => $this->getCustomerCode($order),
+            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
+            'DestinationAddress' => $address,
+            'DocCode' => $object->getIncrementId(),
+            'DocDate' => $docDate,
+            'DocType' => $docType,
+            'ExchangeRate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
+            'ExchangeRateEffDate' => $currentDate,
+            'Lines' => $lines,
+//            'PaymentDate' => null,
             // TODO: Is this the appropriate value to set?
-            'purchase_order_number' => $object->getIncrementId(),
-//            'reference_code' => null, // Most likely only set on credit memos or order edits
-//            'salesperson_code' => null,
-//            'tax_override' => null,
+            'PurchaseOrderNumber' => $object->getIncrementId(),
+//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
+//            'SalespersonCode' => null,
         ];
 
         $storeId = $object->getStoreId();
@@ -636,7 +633,7 @@ class Tax
             $data
         );
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
 
         /** @var $getTaxRequest GetTaxRequest */
         $getTaxRequest = $this->getTaxRequestFactory->create();
@@ -673,18 +670,20 @@ class Tax
      */
     protected function retrieveGetTaxRequestFields($store)
     {
+        $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
         if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {
             $companyCode = $this->config->getCompanyCode($store);
         } else {
             $companyCode = $this->config->getDevelopmentCompanyCode($store);
         }
         return [
-            'business_identification_no' => $this->config->getBusinessIdentificationNumber($store),
-            'company_code' => $companyCode,
-            'detail_level' => DetailLevel::$Diagnostic,
+            'BusinessIdentificationNo' => $this->config->getBusinessIdentificationNumber(),
+            'CompanyCode' => $companyCode,
+            'DetailLevel' => DetailLevel::$Diagnostic,
+            'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
             // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
-            'origin_address' => $this->address->getAddress($this->config->getOriginAddress($store)),
         ];
+
     }
 
     /**
@@ -697,74 +696,11 @@ class Tax
     protected function populateGetTaxRequest(array $data, GetTaxRequest $getTaxRequest)
     {
         // Set any data elements that exist on the getTaxRequest
-        if (isset($data['business_identification_no'])) {
-            $getTaxRequest->setBusinessIdentificationNo($data['business_identification_no']);
-        }
-        if (isset($data['commit'])) {
-            $getTaxRequest->setCommit($data['commit']);
-        }
-        if (isset($data['company_code'])) {
-            $getTaxRequest->setCompanyCode($data['company_code']);
-        }
-        if (isset($data['currency_code'])) {
-            $getTaxRequest->setCurrencyCode($data['currency_code']);
-        }
-        if (isset($data['customer_code'])) {
-            $getTaxRequest->setCustomerCode($data['customer_code']);
-        }
-        if (isset($data['customer_usage_type'])) {
-            $getTaxRequest->setCustomerUsageType($data['customer_usage_type']);
-        }
-        if (isset($data['destination_address'])) {
-            $getTaxRequest->setDestinationAddress($data['destination_address']);
-        }
-        if (isset($data['detail_level'])) {
-            $getTaxRequest->setDetailLevel($data['detail_level']);
-        }
-        if (isset($data['discount'])) {
-            $getTaxRequest->setDiscount($data['discount']);
-        }
-        if (isset($data['doc_code'])) {
-            $getTaxRequest->setDocCode($data['doc_code']);
-        }
-        if (isset($data['doc_date'])) {
-            $getTaxRequest->setDocDate($data['doc_date']);
-        }
-        if (isset($data['doc_type'])) {
-            $getTaxRequest->setDocType($data['doc_type']);
-        }
-        if (isset($data['exchange_rate'])) {
-            $getTaxRequest->setExchangeRate($data['exchange_rate']);
-        }
-        if (isset($data['exchange_rate_eff_date'])) {
-            $getTaxRequest->setExchangeRateEffDate($data['exchange_rate_eff_date']);
-        }
-        if (isset($data['exemption_no'])) {
-            $getTaxRequest->setExemptionNo($data['exemption_no']);
-        }
-        if (isset($data['lines'])) {
-            $getTaxRequest->setLines($data['lines']);
-        }
-        if (isset($data['location_code'])) {
-            $getTaxRequest->setLocationCode($data['location_code']);
-        }
-        if (isset($data['origin_address'])) {
-            $getTaxRequest->setOriginAddress($data['origin_address']);
-        }
-        if (isset($data['payment_date'])) {
-            $getTaxRequest->setPaymentDate($data['payment_date']);
-        }
-        if (isset($data['purchase_order_number'])) {
-            $getTaxRequest->setPurchaseOrderNo($data['purchase_order_number']);
-        }
-        if (isset($data['reference_code'])) {
-            $getTaxRequest->setReferenceCode($data['reference_code']);
-        }
-        if (isset($data['salesperson_code'])) {
-            $getTaxRequest->setSalespersonCode($data['salesperson_code']);
-        }
-        if (isset($data['tax_override'])) {
-            $getTaxRequest->setTaxOverride($data['tax_override']);
+        foreach ($data as $key => $datum) {
+            $methodName = 'set' . $key;
+            if (method_exists($getTaxRequest, $methodName)) {
+                $getTaxRequest->$methodName($datum);
+            }
         }
         return $getTaxRequest;
     }
