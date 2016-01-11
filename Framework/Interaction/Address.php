@@ -2,6 +2,8 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use Magento\Customer\Api\Data\AddressInterface as CustomerAddressInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressInterfaceFactory;
 use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
@@ -9,11 +11,9 @@ use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFacto
 use Magento\Quote\Model\ResourceModel\Quote;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
-use AvaTax\ATConfigFactory;
 use AvaTax\AddressFactory;
 use AvaTax\AddressServiceSoapFactory;
 use AvaTax\AddressServiceSoap;
-use ClassyLlama\AvaTax\Helper\Validation;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Customer\Model\Address\AddressModelInterface;
 use Magento\Directory\Model\Region;
@@ -32,9 +32,9 @@ class Address
     protected $config = null;
 
     /**
-     * @var Validation
+     * @var MetaDataObject
      */
-    protected $validation = null;
+    protected $metaDataObject = null;
 
     /**
      * @var AddressFactory
@@ -77,21 +77,21 @@ class Address
      *
      * @var array
      */
-    protected $validAddressFields = [
+    public static $validFields = [
         /*
          * The AvaTax API defines Line1 as required, however in implementation it is not required. We can't require
          * it here, as we need to be able to calculate taxes from the cart page using Postal Code, Region, and Country.
          */
-        'line1' => ['type' => 'string', 'length' => 50],
-        'line2' => ['type' => 'string', 'length' => 50],
-        'line3' => ['type' => 'string', 'length' => 50],
-        'city' => ['type' => 'string', 'length' => 50], // Either city & region are required or postalCode is required.
-        'region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
-        'postalCode' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
-        'country' => ['type' => 'string', 'length' => 2],
-        'taxRegionId' => ['type' => 'integer'],
-        'latitude' => ['type' => 'string'],
-        'longitude' => ['type' => 'string'],
+        'Line1' => ['type' => 'string', 'length' => 50],
+        'Line2' => ['type' => 'string', 'length' => 50],
+        'Line3' => ['type' => 'string', 'length' => 50],
+        'City' => ['type' => 'string', 'length' => 50], // Either city & region are required or postalCode is required.
+        'Region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
+        'PostalCode' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
+        'Country' => ['type' => 'string', 'length' => 2],
+        'TaxRegionId' => ['type' => 'integer', 'use_in_cache_key' => false],
+        'Latitude' => ['type' => 'string', 'use_in_cache_key' => false],
+        'Longitude' => ['type' => 'string', 'use_in_cache_key' => false],
     ];
 
     /**
@@ -102,7 +102,6 @@ class Address
     /**
      * Address constructor.
      * @param Config $config
-     * @param Validation $validation
      * @param AddressFactory $addressFactory
      * @param AddressServiceSoapFactory $addressServiceSoapFactory
      * @param RegionCollectionFactory $regionCollectionFactory
@@ -114,7 +113,7 @@ class Address
      */
     public function __construct(
         Config $config,
-        Validation $validation,
+        MetaDataObjectFactory $metaDataObjectFactory,
         AddressFactory $addressFactory,
         AddressServiceSoapFactory $addressServiceSoapFactory,
         RegionCollectionFactory $regionCollectionFactory,
@@ -124,7 +123,7 @@ class Address
         DataObjectHelper $dataObjectHelper
     ) {
         $this->config = $config;
-        $this->validation = $validation;
+        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->addressFactory = $addressFactory;
         $this->addressServiceSoapFactory = $addressServiceSoapFactory;
         $this->regionCollection = $regionCollectionFactory->create();
@@ -188,13 +187,14 @@ class Address
                 ]));
         }
 
-        if (isset($data['regionId'])) {
-            $data['region'] = $this->getRegionById($data['regionId'])->getCode();
-            unset($data['regionId']);
+        if (isset($data['RegionId'])) {
+            $data['Region'] = $this->getRegionById($data['RegionId'])->getCode();
+            unset($data['RegionId']);
         }
 
-        $data = $this->validation->validateData($data, $this->validAddressFields);
-        return  $this->addressFactory->create($data);
+        $data = $this->metaDataObject->validateData($data);
+        $address = $this->addressFactory->create();
+        return $this->populateAddress($data, $address);
     }
 
     /**
@@ -209,13 +209,13 @@ class Address
         $street = $address->getStreet();
 
         return [
-            'line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'line3' => array_key_exists(2, $street) ? $street[2] : '',
-            'city' => $address->getCity(),
-            'region' => $this->getRegionById($address->getRegionId())->getCode(),
-            'postalCode' => $address->getPostcode(),
-            'country' => $address->getCountryId(),
+            'Line1' => array_key_exists(0, $street) ? $street[0] : '',
+            'Line2' => array_key_exists(1, $street) ? $street[1] : '',
+            'Line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'City' => $address->getCity(),
+            'Region' => $this->getRegionById($address->getRegionId())->getCode(),
+            'PostalCode' => $address->getPostcode(),
+            'Country' => $address->getCountryId(),
         ];
     }
 
@@ -231,13 +231,13 @@ class Address
         $street = $address->getStreet();
 
         return [
-            'line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'line3' => array_key_exists(2, $street) ? $street[2] : '',
-            'city' => $address->getCity(),
-            'region' => $this->getRegionById($address->getRegionId())->getCode(),
-            'postalCode' => $address->getPostcode(),
-            'country' => $address->getCountryId(),
+            'Line1' => array_key_exists(0, $street) ? $street[0] : '',
+            'Line2' => array_key_exists(1, $street) ? $street[1] : '',
+            'Line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'City' => $address->getCity(),
+            'Region' => $this->getRegionById($address->getRegionId())->getCode(),
+            'PostalCode' => $address->getPostcode(),
+            'Country' => $address->getCountryId(),
         ];
     }
 
@@ -253,13 +253,13 @@ class Address
         $street = $address->getStreet();
 
         return [
-            'line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'line3' => array_key_exists(2, $street) ? $street[2] : '',
-            'city' => $address->getCity(),
-            'region' => $this->getRegionById($address->getRegionId())->getCode(),
-            'postalCode' => $address->getPostcode(),
-            'country' => $address->getCountryId(),
+            'Line1' => array_key_exists(0, $street) ? $street[0] : '',
+            'Line2' => array_key_exists(1, $street) ? $street[1] : '',
+            'Line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'City' => $address->getCity(),
+            'Region' => $this->getRegionById($address->getRegionId())->getCode(),
+            'PostalCode' => $address->getPostcode(),
+            'Country' => $address->getCountryId(),
         ];
     }
 
@@ -397,13 +397,13 @@ class Address
     public function convertAvaTaxValidAddressToArray(\AvaTax\ValidAddress $address)
     {
         return [
-            'region' => $address->getRegion(),
-            'country' => $address->getCountry(),
-            'line1' => $address->getLine1(),
-            'line2' => $address->getLine2(),
-            'line3' => $address->getLine3(),
-            'postalCode' => $address->getPostalCode(),
-            'city' => $address->getCity(),
+            'Region' => $address->getRegion(),
+            'Country' => $address->getCountry(),
+            'Line1' => $address->getLine1(),
+            'Line2' => $address->getLine2(),
+            'Line3' => $address->getLine3(),
+            'PostalCode' => $address->getPostalCode(),
+            'City' => $address->getCity(),
         ];
     }
 
@@ -505,13 +505,13 @@ class Address
     public function convertAddressModelToAvaTaxAddress(AddressModelInterface $address)
     {
         return [
-            'line1' => $address->getStreetLine(1),
-            'line2' => $address->getStreetLine(2),
-            'line3' => $address->getStreetLine(3),
-            'city' => $address->getCity(),
-            'region' => $this->getRegionById($address->getRegionId())->getCode(),
-            'postalCode' => $address->getPostcode(),
-            'country' => $address->getCountryId(),
+            'Line1' => $address->getStreetLine(1),
+            'Line2' => $address->getStreetLine(2),
+            'Line3' => $address->getStreetLine(3),
+            'City' => $address->getCity(),
+            'Region' => $this->getRegionById($address->getRegionId())->getCode(),
+            'PostalCode' => $address->getPostcode(),
+            'Country' => $address->getCountryId(),
         ];
     }
 
@@ -556,5 +556,24 @@ class Address
         }
 
         return null;
+    }
+
+    /**
+     * Map data array to methods in GetTaxRequest object
+     *
+     * @param array $data
+     * @param \AvaTax\Address $getTaxRequest
+     * @return \AvaTax\Address
+     */
+    protected function populateAddress(array $data, \AvaTax\Address $address)
+    {
+        // Set any data elements that exist on the getTaxRequest
+        foreach ($data as $key => $datum) {
+            $methodName = 'set' . $key;
+            if (method_exists($address, $methodName)) {
+                $address->$methodName($datum);
+            }
+        }
+        return $address;
     }
 }

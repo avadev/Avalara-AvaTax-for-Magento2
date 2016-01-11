@@ -14,12 +14,19 @@ use Magento\Store\Model\Store;
 use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 
+/**
+ * AvaTax Config model
+ */
 class Config
 {
     /**#@+
      * Module config settings
      */
     const XML_PATH_AVATAX_MODULE_ENABLED = 'tax/avatax/enabled';
+
+    const XML_PATH_AVATAX_TAX_MODE = 'tax/avatax/tax_mode';
+
+    const XML_PATH_AVATAX_COMMIT_SUBMITTED_TRANSACTIONS = 'tax/avatax/commit_submitted_transactions';
 
     const XML_PATH_AVATAX_LIVE_MODE = 'tax/avatax/live_mode';
 
@@ -65,7 +72,7 @@ class Config
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED = "tax/avatax/address_validation_enabled";
 
-    const XML_PATH_AVATAX_ADDRESS_VALIDATION_USER_HAS_CHOICE = "tax/avatax/address_validation_user_has_choice";
+    const XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD = "tax/avatax/address_validation_method";
 
     const XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED = "tax/avatax/address_validation_countries_enabled";
 
@@ -79,6 +86,8 @@ class Config
 
     const XML_PATH_AVATAX_LOG_DB_DETAIL = 'tax/avatax/logging_db_detail';
 
+    const XML_PATH_AVATAX_LOG_DB_LIFETIME = 'tax/avatax/logging_db_lifetime';
+
     const XML_PATH_AVATAX_LOG_FILE_ENABLED = 'tax/avatax/logging_file_enabled';
 
     const XML_PATH_AVATAX_LOG_FILE_MODE = 'tax/avatax/logging_file_mode';
@@ -86,6 +95,12 @@ class Config
     const XML_PATH_AVATAX_LOG_FILE_LEVEL = 'tax/avatax/logging_file_level';
 
     const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
+
+    const XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS = 'tax/avatax/queue_max_retry_attempts';
+
+    const XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME = 'tax/avatax/queue_complete_lifetime';
+
+    const XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME = 'tax/avatax/queue_failed_lifetime';
     /**#@-*/
 
     /**#@+
@@ -135,9 +150,17 @@ class Config
      */
     const ERROR_ACTION_DISABLE_CHECKOUT = 1;
 
-    const ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX = 2;
+    const ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX = 2;
+    /**#@-*/
 
-    const ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX = 3;
+    /**#@+
+     * Tax Modes
+     */
+    const TAX_MODE_NO_ESTIMATE_OR_SUBMIT = 1;
+
+    const TAX_MODE_ESTIMATE_ONLY = 2;
+
+    const TAX_MODE_ESTIMATE_AND_SUBMIT = 3;
     /**#@-*/
 
     /**#@+
@@ -152,10 +175,18 @@ class Config
     const API_PROFILE_NAME_PROD = 'Production';
     /**#@-*/
 
+    const AVATAX_DOCUMENTATION_TAX_CODE_LINK
+        = 'https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes/Tax_Codes_-_Frequently_Asked_Questions';
+
     /**
      * Magento version prefix
      */
     const API_APP_NAME_PREFIX = 'Magento 2';
+
+    /**
+     * Cache tag code
+     */
+    const AVATAX_CACHE_TAG = 'AVATAX';
 
     /**
      * @var ScopeConfigInterface
@@ -178,6 +209,13 @@ class Config
     protected $taxClassRepository = null;
 
     /**
+     * Url Builder
+     *
+     * @var \Magento\Framework\UrlInterface
+     */
+    protected $urlBuilder;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
@@ -185,13 +223,15 @@ class Config
      * @param ATConfigFactory $avaTaxConfigFactory
      * @param State $appState
      * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param \Magento\Framework\UrlInterface $urlBuilder
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
         State $appState,
-        TaxClassRepositoryInterface $taxClassRepository
+        TaxClassRepositoryInterface $taxClassRepository,
+        \Magento\Framework\UrlInterface $urlBuilder
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->magentoProductMetadata = $magentoProductMetadata;
@@ -199,6 +239,7 @@ class Config
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->createAvaTaxProfile();
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -253,6 +294,36 @@ class Config
     }
 
     /**
+     * Return tax mode
+     *
+     * @param $store
+     * @return mixed
+     */
+    public function getTaxMode($store)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_TAX_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return whether to commit submitted transactions
+     *
+     * @param $store
+     * @return mixed
+     */
+    public function getCommitSubmittedTransactions($store)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_COMMIT_SUBMITTED_TRANSACTIONS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
      * Return origin address
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -262,32 +333,32 @@ class Config
     public function getOriginAddress($store = null)
     {
         return [
-            'line1' => $this->scopeConfig->getValue(
+            'Line1' => $this->scopeConfig->getValue(
                 self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE1,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'line2' => $this->scopeConfig->getValue(
+            'Line2' => $this->scopeConfig->getValue(
                 self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE2,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'city' => $this->scopeConfig->getValue(
+            'City' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_CITY,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'regionId' => $this->scopeConfig->getValue(
+            'RegionId' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'postalCode' => $this->scopeConfig->getValue(
+            'PostalCode' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_POSTCODE,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'country' => $this->scopeConfig->getValue(
+            'Country' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_COUNTRY_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store
@@ -632,9 +703,11 @@ class Config
      */
     public function getErrorActionDisableCheckoutMessage($store = null)
     {
-        // TODO: Ensure that this method of checking area actually works
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
-            return __($this->getErrorActionDisableCheckoutMessageBackend($store));
+            return __(
+                $this->getErrorActionDisableCheckoutMessageBackend($store),
+                $this->urlBuilder->getUrl('avatax/log')
+            );
         } else {
             return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
         }
@@ -671,24 +744,6 @@ class Config
     }
 
     /**
-     * Get gift wrap tax class
-     *
-     * @param null $store
-     * @return \Magento\Tax\Api\Data\TaxClassInterface
-     */
-    public function getWrappingTaxClass($store = null)
-    {
-        $taxClassId = $this->scopeConfig->getValue(
-            \Magento\GiftWrapping\Helper\Data::XML_PATH_TAX_CLASS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-        // TODO: Implement logic like \OnePica_AvaTax_Model_Avatax_Abstract::_getGiftTaxClassCode once AvaTax custom tax codes are implemented
-        //return $this->taxClassRepository->get($taxClassId)->getClassName();
-        return null;
-    }
-
-    /**
      * Return if address validation is enabled
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
@@ -714,7 +769,7 @@ class Config
     public function allowUserToChooseAddress($store = null)
     {
         return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_USER_HAS_CHOICE,
+            self::XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -790,7 +845,7 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logDbLevel($store = null)
+    public function getLogDbLevel($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_DB_LEVEL,
@@ -805,10 +860,25 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logDbDetail($store = null)
+    public function getLogDbDetail($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_DB_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured log lifetime
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getLogDbLifetime($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_DB_LIFETIME,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -820,7 +890,7 @@ class Config
      * @param null $store
      * @return bool
      */
-    public function logFileEnabled($store = null)
+    public function getLogFileEnabled($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_ENABLED,
@@ -835,7 +905,7 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logFileMode($store = null)
+    public function getLogFileMode($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_MODE,
@@ -850,7 +920,7 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logFileLevel($store = null)
+    public function getLogFileLevel($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_LEVEL,
@@ -865,10 +935,55 @@ class Config
      * @param null $store
      * @return int
      */
-    public function logFileDetail($store = null)
+    public function getLogFileDetail($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured queue max retry attempts
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getQueueMaxRetryAttempts($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured queue complete lifetime
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getQueueCompleteLifetime($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return configured queue failed lifetime
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getQueueFailedLifetime($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME,
             ScopeInterface::SCOPE_STORE,
             $store
         );

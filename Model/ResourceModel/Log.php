@@ -1,4 +1,10 @@
 <?php
+/**
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
+ */
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel;
 
@@ -9,6 +15,13 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
  */
 class Log extends AbstractDb
 {
+    /**#@+
+     * Field Names
+     */
+    const LEVEL_FIELD_NAME = 'level';
+    const CREATED_AT_FIELD_NAME = 'created_at';
+    /**#@-*/
+
     /**
      * Define main table
      *

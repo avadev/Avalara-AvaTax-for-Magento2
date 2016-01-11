@@ -9,7 +9,7 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
     /**
      * @const Path to template
      */
-    const COMPONENT_PATH = 'ClassyLlama_AvaTax/js/view/reviewPayment';
+    const COMPONENT_PATH = 'ClassyLlama_AvaTax/js/view/ReviewPayment';
 
     /**
      * @var Config

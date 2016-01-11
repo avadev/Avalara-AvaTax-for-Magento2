@@ -56,6 +56,28 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $extensionFactory;
 
     /**
+     * @var \Magento\Framework\Message\ManagerInterface
+     */
+    protected $messageManager;
+
+    /**
+     * Core registry
+     *
+     * @var \Magento\Framework\Registry
+     */
+    protected $coreRegistry;
+
+    /**
+     * @var \ClassyLlama\AvaTax\Helper\TaxClass
+     */
+    protected $taxClassHelper;
+
+    /**
+     * Registry key to track whether AvaTax GetTaxRequest was successful
+     */
+    const AVATAX_GET_TAX_REQUEST_ERROR = 'avatax_get_tax_request_error';
+
+    /**
      * Class constructor
      *
      * @param \Magento\Tax\Model\Config $taxConfig
@@ -71,6 +93,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param Config $config
      * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @param \Magento\Framework\Registry $coreRegistry
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
      */
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
@@ -85,13 +110,19 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         TaxCalculation $taxCalculation,
         Config $config,
         \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
-        \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
+        \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Framework\Registry $coreRegistry,
+        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->taxCalculation = $taxCalculation;
         $this->config = $config;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->extensionFactory = $extensionFactory;
+        $this->messageManager = $messageManager;
+        $this->coreRegistry = $coreRegistry;
+        $this->taxClassHelper = $taxClassHelper;
         parent::__construct(
             $taxConfig,
             $taxCalculationService,
@@ -140,8 +171,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return $this;
         }
 
-        $taxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, false);
-        $baseTaxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, true);
+        $taxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, false);
+        $baseTaxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, true);
 
         // Get array of tax details
         $taxDetailsList = $this->interactionGetTax->getTaxDetailsForQuote($quote, $taxQuoteDetails, $baseTaxQuoteDetails, $shippingAssignment);
@@ -149,18 +180,18 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         if (!$taxDetailsList) {
             switch ($this->config->getErrorAction($quote->getStoreId())) {
                 case Config::ERROR_ACTION_DISABLE_CHECKOUT:
-                    $errorMessage = $this->config->getErrorActionDisableCheckoutMessage($quote->getStoreId());
-                    // TODO: This exception gets caught by the last try/catch block in \Magento\Checkout\Model\ShippingInformationManagement::saveAddressInformation, so getting our custom exception message to display to user will take a different approach
-                    throw new RemoteServiceUnavailableException($errorMessage);
-                    break;
-                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
+                    $this->coreRegistry->register(self::AVATAX_GET_TAX_REQUEST_ERROR, true, true);
                     return parent::collect($quote, $shippingAssignment, $total);
                     break;
-                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NO_TAX:
+                case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
                 default:
-                    // TODO: Get this fully working, as prices "including taxes" are still showing in checkout, and "Subtotal" is displaying $0. Reference how M1 does this.
-                    $this->clearValues($total);
-                    return null;
+                    /**
+                     * Note: while this should return Magento's tax calculation, the tax calculation may be slightly
+                     * off, as these two collect methods will not have run:
+                     * @see \Magento\Tax\Model\Sales\Total\Quote\Shipping::collect()
+                     * @see \Magento\Tax\Model\Sales\Total\Quote\Subtotal::collect()
+                     */
+                    return parent::collect($quote, $shippingAssignment, $total);
                     break;
             }
         } else {
@@ -204,9 +235,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param ShippingAssignmentInterface $shippingAssignment
      * @param Address\Total $total
      * @param bool $useBaseCurrency
+     * @param string $storeId
      * @return \Magento\Tax\Api\Data\QuoteDetailsInterface
      */
-    protected function getTaxQuoteDetails($shippingAssignment, $total, $useBaseCurrency)
+    protected function getTaxQuoteDetails($shippingAssignment, $total, $storeId, $useBaseCurrency)
     {
         $address = $shippingAssignment->getShipping()->getAddress();
         //Setup taxable items
@@ -216,7 +248,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         //Add shipping
         $shippingDataObject = $this->getShippingDataObject($shippingAssignment, $total, $useBaseCurrency);
         if ($shippingDataObject != null) {
-            $this->addInfoToQuoteDetailsItemForShipping($shippingDataObject);
+            $this->addInfoToQuoteDetailsItemForShipping($shippingDataObject, $storeId);
             $itemDataObjects[] = $shippingDataObject;
         }
 
@@ -265,7 +297,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             ? $quoteDetailsItem->getExtensionAttributes()
             : $this->extensionFactory->create();
 
+        $taxCode = $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getProduct());
         $extensionAttribute->setAvataxItemCode($item->getSku());
+        $extensionAttribute->setAvataxTaxCode($taxCode);
         $extensionAttribute->setAvataxDescription($item->getName());
         // TODO: Implement logic for Ref1/Ref2
         //$extensionAttribute->setAvataxRef1();
@@ -281,14 +315,18 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject
      * @return $this
      */
-    protected function addInfoToQuoteDetailsItemForShipping(\Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject)
-    {
-        $itemCode = \ClassyLlama\AvaTax\Framework\Interaction\Line::SHIPPING_LINE_TAX_CODE;
+    protected function addInfoToQuoteDetailsItemForShipping(
+        \Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject,
+        $storeId
+    ) {
+        $itemCode = $this->config->getSkuShipping($storeId);
         $itemDescription = \ClassyLlama\AvaTax\Framework\Interaction\Line::SHIPPING_LINE_DESCRIPTION;
+        $taxCode = $this->taxClassHelper->getAvataxTaxCodeForShipping();
 
         $this->addExtensionAttributesToTaxQuoteDetailsItem(
             $shippingDataObject,
             $itemCode,
+            $taxCode,
             $itemDescription
         );
         return $this;
@@ -299,12 +337,14 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $quoteDetailsItem
      * @param $avaTaxItemCode
+     * @param $avaTaxTaxCode
      * @param $avaTaxDescription
      * @return $this
      */
     protected function addExtensionAttributesToTaxQuoteDetailsItem(
         \Magento\Tax\Api\Data\QuoteDetailsItemInterface $quoteDetailsItem,
         $avaTaxItemCode,
+        $avaTaxTaxCode,
         $avaTaxDescription
     ) {
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterface $extensionAttribute */
@@ -313,6 +353,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             : $this->extensionFactory->create();
 
         $extensionAttribute->setAvataxItemCode($avaTaxItemCode);
+        $extensionAttribute->setAvataxTaxCode($avaTaxTaxCode);
         $extensionAttribute->setAvataxDescription($avaTaxDescription);
         $quoteDetailsItem->setExtensionAttributes($extensionAttribute);
         return $this;
@@ -349,9 +390,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             switch ($itemDataObject->getType()) {
                 case Giftwrapping::ITEM_TYPE:
                     $itemCode = $this->config->getSkuShippingGiftWrapItem($storeId);
+                    $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
+                        $taxCode,
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ITEM_LINE_DESCRIPTION
                     );
                     break;
@@ -389,17 +432,21 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             switch ($itemDataObject->getType()) {
                 case Giftwrapping::QUOTE_TYPE:
                     $itemCode = $this->config->getSkuGiftWrapOrder($storeId);
+                    $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
+                        $taxCode,
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ORDER_LINE_DESCRIPTION
                     );
                     break;
                 case Giftwrapping::PRINTED_CARD_TYPE:
                     $itemCode = $this->config->getSkuShippingGiftWrapCard($storeId);
+                    $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
                         $itemDataObject,
                         $itemCode,
+                        $taxCode,
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ORDER_LINE_DESCRIPTION
                     );
                     break;

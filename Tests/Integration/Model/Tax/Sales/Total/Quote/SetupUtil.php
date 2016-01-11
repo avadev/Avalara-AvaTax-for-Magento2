@@ -96,29 +96,64 @@ class SetupUtil
 
     const PRODUCT_TAX_CLASS_1 = 'product_tax_class_1';
     const PRODUCT_TAX_CLASS_2 = 'product_tax_class_2';
+    const PRODUCT_TAX_CLASS_3_DIGITAL_GOODS = 'product_tax_class_3_digital_goods';
     const SHIPPING_TAX_CLASS = 'shipping_tax_class';
 
     /**
-     * List of product tax class that will be created
+     * List of product tax class that will be created.
+     *
+     * The ID of the created tax classes will be stored as the values for each of the keys
      *
      * @var array
      */
     protected $productTaxClasses = [
         self::PRODUCT_TAX_CLASS_1 => null,
         self::PRODUCT_TAX_CLASS_2 => null,
+        // This tax class is for digital goods
+        self::PRODUCT_TAX_CLASS_3_DIGITAL_GOODS => null,
+        self::SHIPPING_TAX_CLASS => null,
+    ];
+
+    /**
+     * Information to use when creating tax classes listed above
+     *
+     * @var array
+     */
+    protected $productTaxClassesCreationData = [
+        self::PRODUCT_TAX_CLASS_1 => ['avatax_code' => ''],
+        self::PRODUCT_TAX_CLASS_2 => ['avatax_code' => ''],
+        self::PRODUCT_TAX_CLASS_3_DIGITAL_GOODS => ['avatax_code' => 'D0000000'],
         self::SHIPPING_TAX_CLASS => null,
     ];
 
     const CUSTOMER_TAX_CLASS_1 = 'customer_tax_class_1';
+    const CUSTOMER_TAX_CLASS_2_NON_PROFIT = 'customer_tax_class_2_non_profit';
     const CUSTOMER_PASSWORD = 'password';
 
     /**
      * List of customer tax class to be created
      *
+     * The ID of the created tax classes will be stored as the values for each of the keys
+     *
      * @var array
      */
     protected $customerTaxClasses = [
         self::CUSTOMER_TAX_CLASS_1 => null,
+        self::CUSTOMER_TAX_CLASS_2_NON_PROFIT => null,
+    ];
+
+    /**
+     * Information to use when creating tax classes listed above
+     *
+     * @var array
+     */
+    protected $customerTaxClassesCreationData = [
+        self::CUSTOMER_TAX_CLASS_1 => ['avatax_code' => ''],
+        /**
+         * "E" is the code for a Charitable Organization.
+         * @see \ClassyLlama\AvaTax\Model\Config\Source\AvaTaxCustomerUsageType::toOptionArray
+         */
+        self::CUSTOMER_TAX_CLASS_2_NON_PROFIT => ['avatax_code' => 'E'],
     ];
 
     /**
@@ -209,7 +244,12 @@ class SetupUtil
     protected function createCustomerTaxClass()
     {
         foreach (array_keys($this->customerTaxClasses) as $className) {
+            $extraData = [];
+            if (isset($this->customerTaxClassesCreationData[$className])) {
+                $extraData = $this->customerTaxClassesCreationData[$className];
+            }
             $this->customerTaxClasses[$className] = $this->objectManager->create('Magento\Tax\Model\ClassModel')
+                ->setData($extraData)
                 ->setClassName($className)
                 ->setClassType(\Magento\Tax\Model\ClassModel::TAX_CLASS_TYPE_CUSTOMER)
                 ->save()
@@ -227,7 +267,12 @@ class SetupUtil
     protected function createProductTaxClass()
     {
         foreach (array_keys($this->productTaxClasses) as $className) {
+            $extraData = [];
+            if (isset($this->productTaxClassesCreationData[$className])) {
+                $extraData = $this->productTaxClassesCreationData[$className];
+            }
             $this->productTaxClasses[$className] = $this->objectManager->create('Magento\Tax\Model\ClassModel')
+                ->setData($extraData)
                 ->setClassName($className)
                 ->setClassType(\Magento\Tax\Model\ClassModel::TAX_CLASS_TYPE_PRODUCT)
                 ->save()
@@ -814,15 +859,19 @@ class SetupUtil
     /**
      * Create a customer
      *
+     * @param array $customerData
      * @return \Magento\Customer\Api\Data\CustomerInterface
      */
-    protected function createCustomer()
+    protected function createCustomer(array $customerData)
     {
         if ($this->customer) {
             return $this->customer;
         }
 
-        $customerGroupId = $this->createCustomerGroup($this->customerTaxClasses[self::CUSTOMER_TAX_CLASS_1]);
+        $taxClassName = isset($customerData['tax_class_name'])
+            ? $customerData['tax_class_name']
+            : self::CUSTOMER_TAX_CLASS_1;
+        $customerGroupId = $this->createCustomerGroup($this->customerTaxClasses[$taxClassName]);
         /** @var \Magento\Customer\Model\Customer $customer */
         $customer = $this->objectManager->create('Magento\Customer\Model\Customer');
         $customer->isObjectNew(true);
@@ -1087,7 +1136,8 @@ class SetupUtil
      */
     public function setupQuote($quoteData)
     {
-        $customer = $this->createCustomer();
+        $customerData = isset($quoteData['customer_data']) ? $quoteData['customer_data'] : [];
+        $customer = $this->createCustomer($customerData);
 
         $quote = $this->createQuote($quoteData, $customer);
 

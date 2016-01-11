@@ -1,4 +1,10 @@
 <?php
+/**
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
+ */
 
 namespace ClassyLlama\AvaTax\Model\Logger;
 
@@ -14,8 +20,6 @@ use ClassyLlama\AvaTax\Model\Config\Source\LogFileMode;
 
 /**
  * Monolog Hanlder for writing log entries to a custom file
- *
- * @author Matt Johnson <matt.johnson@classyllama.com>
  */
 class FileHandler extends System
 {
@@ -63,7 +67,7 @@ class FileHandler extends System
 
     protected function addExtraProcessors(array $processors) {
         // Add additional processors for extra detail
-        if ($this->avaTaxConfig->logFileDetail() == LogDetail::EXTRA) {
+        if ($this->avaTaxConfig->getLogFileDetail() == LogDetail::EXTRA) {
             $this->processors = $processors;
         }
     }
@@ -79,7 +83,9 @@ class FileHandler extends System
      */
     public function isHandling(array $record)
     {
-        return $this->avaTaxConfig->isModuleEnabled() && $this->avaTaxConfig->logFileEnabled() && $record['level'] >= $this->avaTaxConfig->logFileLevel();
+        return  $this->avaTaxConfig->isModuleEnabled() &&
+                $this->avaTaxConfig->getLogFileEnabled() &&
+                $record['level'] >= $this->avaTaxConfig->getLogFileLevel();
     }
 
     /**
@@ -92,11 +98,11 @@ class FileHandler extends System
     public function write(array $record)
     {
         // Filter the log details
-        if ($this->avaTaxConfig->logFileDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
+        if ($this->avaTaxConfig->getLogFileDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {
             if (isset($record['context']['extra'])) unset($record['context']['extra']);
-        } elseif ($this->avaTaxConfig->logFileDetail() == LogDetail::NORMAL) {
+        } elseif ($this->avaTaxConfig->getLogFileDetail() == LogDetail::NORMAL) {
             if (isset($record['context']['extra'])) unset($record['context']['extra']);
-        } elseif ($this->avaTaxConfig->logFileDetail() == LogDetail::EXTRA) {
+        } elseif ($this->avaTaxConfig->getLogFileDetail() == LogDetail::EXTRA) {
             // do not remove any of the context data
         } else {
             if (isset($record['context']['request'])) unset($record['context']['request']);
@@ -106,7 +112,7 @@ class FileHandler extends System
         }
 
         // Write the log file
-        if ($this->avaTaxConfig->logFileMode() == LogFileMode::COMBINED) {
+        if ($this->avaTaxConfig->getLogFileMode() == LogFileMode::COMBINED) {
             // forward the record to the default system handler for processing instead
             $this->systemHandler->handle($record);
         } else {

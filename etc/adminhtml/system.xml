@@ -9,6 +9,23 @@
                     <label>Enable AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="tax_mode" translate="label" type="select" sortOrder="1002" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tax Mode</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxMode</source_model>
+                    <comment><![CDATA[<ul><li><strong>Disabled</strong> — AvaTax tax estimation will be disabled and native Magento tax estimation will be used. Only use this option if you want to use Address Validation without tax estimation.</li><li><strong>Estimate Tax</strong> — AvaTax tax estimation will run during checkout, but completed orders will not be submitted to AvaTax.</li><li><strong>Estimate Tax & Submit Transactions to AvaTax</strong> — AvaTax tax estimation will run during checkout and invoices and credit memos will be submitted to AvaTax.</li></ul>]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="commit_submitted_transactions" translate="label" type="select" sortOrder="1004" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Commit Submitted Transactions</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Should transactions sent to AvaTax be committed? Only change to "No" if you have specific reason to do so.File Log Mode</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="tax_mode">3</field>
+                    </depends>
+                </field>
                 <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Connection Settings</strong>]]></label>
                     <depends>
@@ -72,66 +89,6 @@
                         <field id="enabled">1</field>
                         <field id="live_mode">0</field>
                     </depends>
-                </field>
-                <field id="logging_settings_header" translate="label" type="label" sortOrder="1500" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[<strong>Logging Settings</strong>]]></label>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="logging_db_level" translate="label" type="select" sortOrder="1510" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Database Log Level</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                    <comment>Notice or Warning recommended for production use</comment>
-                </field>
-                <field id="logging_db_detail" translate="label" type="select" sortOrder="1520" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Database Log Detail</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                    <comment>Minimal recommended for production use</comment>
-                </field>
-                <field id="logging_db_lifetime" translate="label" type="text" sortOrder="1530" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Database Log Record Lifetime, Days</label>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="logging_file_enabled" translate="label" type="select" sortOrder="1540" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enable Logging To File</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                    <comment>Archiving of log files is affected by System -> Admin Actions Log Archiving</comment>
-                </field>
-                <field id="logging_file_mode" translate="label" type="select" sortOrder="1550" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>File Log Mode</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
-                    <depends>
-                        <field id="logging_file_enabled">1</field>
-                    </depends>
-                    <comment>Log files are located in the magento var/log/ directory</comment>
-                </field>
-                <field id="logging_file_level" translate="label" type="select" sortOrder="1560" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>File Log Level</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
-                    <depends>
-                        <field id="logging_file_enabled">1</field>
-                    </depends>
-                    <comment>Info or Notice recommended for production use</comment>
-                </field>
-                <field id="logging_file_detail" translate="label" type="select" sortOrder="1570" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>File Log Detail</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                    <comment>Normal recommended for production use</comment>
                 </field>
                 <field id="data_mapping_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Data Mapping</strong>]]></label>
@@ -198,7 +155,7 @@
                 </field>
                 <field id="location_code" translate="label" type="text" sortOrder="2080" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Location Code</label>
-                    <comment>Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location.</comment>
+                    <comment><![CDATA[Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -219,12 +176,6 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="general_header" translate="label" type="label" sortOrder="3000" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[<strong>General Settings</strong>]]></label>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
                 <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="3010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Submit VAT Number to AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -235,7 +186,7 @@
                 </field>
                 <field id="business_identification_number" translate="label comment" type="text" sortOrder="3020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>VAT Number</label>
-                    <config_path>tax/avatax_settings/business_identification_number</config_path>
+                    <config_path>tax/avatax/business_identification_number</config_path>
                     <comment>VAT Number can also be found at GENERAL: General -> Store Information -> VAT Number</comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -307,9 +258,17 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <field id="error_action" translate="label comment" type="select" sortOrder="5010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Error Action</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
+                    <comment><![CDATA[What should happen if Magento is unable to retrieve taxes from the AvaTax API. Regardless of which option is selected, if there is an error in the AvaTax tax estimation, the extension will fall back to using native Magento tax rules. However if <strong>Disable checkout & show error message</strong> is selected, the extension will prevent users and admins from placing orders.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
                 <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="5020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Frontend Error Message</label>
-                    <comment>This error message will be displayed to user if there is an error calculating taxes</comment>
+                    <comment><![CDATA[This error message will be displayed to user if there is an error calculating taxes and if <strong>Disable checkout & show error message</strong> is selected above.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="error_action">1</field>
@@ -317,10 +276,111 @@
                 </field>
                 <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="5030" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Backend Error Message</label>
-                    <comment>This error message will be displayed to backend user if there is an error calculating taxes</comment>
+                    <comment><![CDATA[This error message will be displayed to admin if there is an error calculating taxes and if <strong>Disable checkout & show error message</strong> is selected above.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="error_action">1</field>
+                    </depends>
+                </field>
+                <field id="logging_settings_header" translate="label" type="label" sortOrder="5500" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Logging Settings</strong>]]></label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="logging_db_level" translate="label" type="select" sortOrder="5510" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Level</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Notice or Warning recommended for production use</comment>
+                </field>
+                <field id="logging_db_detail" translate="label" type="select" sortOrder="5520" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Detail</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Minimal recommended for production use</comment>
+                </field>
+                <field id="logging_db_lifetime" translate="label" type="text" sortOrder="5530" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Database Log Record Lifetime</label>
+                    <comment>Required. Days before entries are auto-purged.</comment>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="logging_file_enabled" translate="label" type="select" sortOrder="5540" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Logging To File</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Archiving of log files is affected by System -> Admin Actions Log Archiving</comment>
+                </field>
+                <field id="logging_file_mode" translate="label" type="select" sortOrder="5550" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Mode</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="logging_file_enabled">1</field>
+                    </depends>
+                    <comment>Log files are located in the magento var/log/ directory</comment>
+                </field>
+                <field id="logging_file_level" translate="label" type="select" sortOrder="5560" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Level</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="logging_file_enabled">1</field>
+                    </depends>
+                    <comment>Info or Notice recommended for production use</comment>
+                </field>
+                <field id="logging_file_detail" translate="label" type="select" sortOrder="5570" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>File Log Detail</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Normal recommended for production use</comment>
+                </field>
+                <field id="queue_processing_header" translate="label" type="label" sortOrder="6000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Queue Processing Settings</strong>]]></label>
+                    <comment><![CDATA[If <strong><a href="#row_tax_avatax_tax_mode">Tax Mode</a></strong> is set to <strong>Estimate Tax & Submit Transactions to AvaTax</strong>, then queue processing is enabled. Otherwise the queue will not submit invoices and credit memos to AvaTax as transaction submissions are disabled.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="queue_max_retry_attempts" translate="label comment" type="text" sortOrder="6020" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Queue Retry Attempts</label>
+                    <comment>Please enter a number 1 or greater in this field.</comment>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="queue_complete_lifetime" translate="label comment" type="text" sortOrder="6030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Complete Queue Lifetime</label>
+                    <comment>Required. Days before entries are auto-purged.</comment>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="queue_submission_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="queue_failed_lifetime" translate="label comment" type="text" sortOrder="6040" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Failed Queue Lifetime</label>
+                    <comment>Required. Days before entries are auto-purged.</comment>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="queue_submission_enabled">1</field>
                     </depends>
                 </field>
             </group>

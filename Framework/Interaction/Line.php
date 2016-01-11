@@ -3,7 +3,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\LineFactory;
-use ClassyLlama\AvaTax\Helper\Validation;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
 
@@ -15,9 +15,9 @@ class Line
     protected $config = null;
 
     /**
-     * @var Validation
+     * @var \ClassyLlama\AvaTax\Helper\TaxClass
      */
-    protected $validation = null;
+    protected $taxClassHelper;
 
     /**
      * @var LineFactory
@@ -38,11 +38,6 @@ class Line
      * Description for shipping line
      */
     const SHIPPING_LINE_DESCRIPTION = 'Shipping costs';
-
-    /**
-     * Avatax shipping tax code
-     */
-    const SHIPPING_LINE_TAX_CODE = 'FR020100';
 
     /**
      * An arbitrary ID used to track tax for shipping
@@ -82,23 +77,22 @@ class Line
      *
      * @var array
      */
-    protected $validDataFields = [
-        'store_id' => ['type' => 'integer'],
-        'no' => ['type' => 'string', 'length' => 50, 'required' => true],
-        'origin_address' => ['type' => 'object', 'class' => '\AvaTax\Address'],
-        'destination_address' => ['type' => 'object', 'class' => '\AvaTax\Address'],
-        'item_code' => ['type' => 'string', 'length' => 50],
-        'tax_code' => ['type' => 'string', 'length' => 25],
-        'customer_usage_type' => ['type' => 'string', 'length' => 25],
-        'exemption_no' => ['type' => 'string', 'length' => 25],
-        'description' => ['type' => 'string', 'length' => 255],
-        'qty' => ['type' => 'float'],
-        'amount' => ['type' => 'float'], // Required but $0 value is acceptable so removing required attribute.
-        'discounted' => ['type' => 'boolean'],
-        'tax_included' => ['type' => 'boolean'],
-        'ref1' => ['type' => 'string', 'length' => 250],
-        'ref2' => ['type' => 'string', 'length' => 250],
-        'tax_override' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
+    public static $validFields = [
+        'StoreId' => ['type' => 'integer', 'use_in_cache_key' => false],
+        'No' => ['type' => 'string', 'length' => 50, 'required' => true],
+        'OriginAddress' => ['type' => 'object', 'class' => '\AvaTax\Address'],
+        'DestinationAddress' => ['type' => 'object', 'class' => '\AvaTax\Address'],
+        'ItemCode' => ['type' => 'string', 'length' => 50],
+        'TaxCode' => ['type' => 'string', 'length' => 25],
+        'ExemptionNo' => ['type' => 'string', 'length' => 25],
+        'Description' => ['type' => 'string', 'length' => 255],
+        'Qty' => ['type' => 'double'],
+        'Amount' => ['type' => 'double'], // Required but $0 value is acceptable so removing required attribute.
+        'Discounted' => ['type' => 'boolean'],
+        'TaxIncluded' => ['type' => 'boolean'],
+        'Ref1' => ['type' => 'string', 'length' => 250],
+        'Ref2' => ['type' => 'string', 'length' => 250],
+        'TaxOverride' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
     ];
 
     /**
@@ -112,33 +106,32 @@ class Line
      * Class constructor
      *
      * @param Config $config
-     * @param Validation $validation
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
      * @param LineFactory $lineFactory
      * @param ResourceProduct $resourceProduct
      */
     public function __construct(
         Config $config,
-        Validation $validation,
+        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
+        MetaDataObjectFactory $metaDataObjectFactory,
         LineFactory $lineFactory,
         ResourceProduct $resourceProduct
     ) {
         $this->config = $config;
-        $this->validation = $validation;
+        $this->taxClassHelper = $taxClassHelper;
+        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->lineFactory = $lineFactory;
         $this->resourceProduct = $resourceProduct;
     }
 
     /**
-     * Return an array with relevant data from an order item.
-     * All TODOs in the doc block and the method body apply to all 4 conversion methods
-     * TODO: tax_code can either be custom or system.  Custom tax codes can be configured in the AvaTax admin to set up specific tax reductions or exemptions for certain products.  In AvaTax Pro, there are many system tax codes that can be passed depending on the type of item that is being sold.  This really belongs on the product level although we could also put it on the Tax Class level as well.  The M1 module just uses the same value for this as for customer_usage_type which is confusing and incorrect for cases where you may want to pass both on the same item.  We should at least implement this as a text field on either the product, the tax class, or both.  We could possibly implement this as a more configurable option but that really seems like a phase 2 or phase 3 feature. More information: https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes and http://developer.avalara.com/api-docs/designing-your-integration/gettax.
-     * TODO: Wishlist Product Attribute for tax_code
-     * TODO: Fields to figure out: tax_override
-     * TODO: Use Tax Class to get customer_usage_type, once this functionality is implemented
+     * Return an array with relevant data from an invoice item
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * All TODOs in the doc block and the method body apply to all 4 conversion methods
+     * TODO: Fields to figure out: tax_override
+     *
      * @param \Magento\Sales\Api\Data\InvoiceItemInterface $item
-     * @return array
+     * @return array|bool
      */
     protected function convertInvoiceItemToData(\Magento\Sales\Api\Data\InvoiceItemInterface $item)
     {
@@ -155,22 +148,27 @@ class Line
         }
 
         return [
-            'store_id' => $item->getStoreId(),
-            'no' => $this->getLineNumber(),
-            'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
-//            'tax_code' => null,
-//            'customer_usage_type' => null,
-            'description' => $item->getName(),
-            'qty' => $item->getQty(),
-            'amount' => $amount,
-            'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
-            'tax_included' => false,
-            'ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
-            'ref2' => $this->config->getRef2($item->getStoreId()),
-//            'tax_override' => null,
+            'StoreId' => $item->getStoreId(),
+            'No' => $this->getLineNumber(),
+            'ItemCode' => $item->getSku(),
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getOrderItem()->getProduct()),
+            'Description' => $item->getName(),
+            'Qty' => $item->getQty(),
+            'Amount' => $amount,
+            'Discounted' => (bool)($item->getBaseDiscountAmount() > 0),
+            'TaxIncluded' => false,
+            'Ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
+            'Ref2' => $this->config->getRef2($item->getStoreId()),
+//            'TaxOverride' => null,
         ];
     }
 
+    /**
+     * Return an array with relevant data from an credit memo item
+     *
+     * @param \Magento\Sales\Api\Data\CreditmemoItemInterface $item
+     * @return array|bool
+     */
     protected function convertCreditMemoItemToData(\Magento\Sales\Api\Data\CreditmemoItemInterface $item)
     {
         if (!$this->isProductCalculated($item->getOrderItem())) {
@@ -189,19 +187,18 @@ class Line
         }
 
         return [
-            'store_id' => $item->getStoreId(),
-            'no' => $this->getLineNumber(),
-            'item_code' => $item->getSku(), // TODO: Figure out if this is related to AvaTax UPC functionality
-//            'tax_code' => null,
-//            'customer_usage_type' => null,
-            'description' => $item->getName(),
-            'qty' => $item->getQty(),
-            'amount' => $amount,
-            'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
-            'tax_included' => false,
-            'ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
-            'ref2' => $this->config->getRef2($item->getStoreId()),
-//            'tax_override' => null,
+            'StoreId' => $item->getStoreId(),
+            'No' => $this->getLineNumber(),
+            'ItemCode' => $item->getSku(),
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getOrderItem()->getProduct()),
+            'Description' => $item->getName(),
+            'Qty' => $item->getQty(),
+            'Amount' => $amount,
+            'Discounted' => (bool)($item->getBaseDiscountAmount() > 0),
+            'TaxIncluded' => false,
+            'Ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
+            'Ref2' => $this->config->getRef2($item->getStoreId()),
+//            'TaxOverride' => null,
         ];
     }
 
@@ -224,6 +221,7 @@ class Line
 
         $itemCode = $extensionAttributes ? $extensionAttributes->getAvataxItemCode() : '';
         $description = $extensionAttributes ? $extensionAttributes->getAvataxDescription() : '';
+        $taxCode = $extensionAttributes ? $extensionAttributes->getAvataxTaxCode() : null;
 
         // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
         // from taxable amount
@@ -233,24 +231,23 @@ class Line
         $ref2 = $extensionAttributes ? $extensionAttributes->getAvataxRef2() : null;
 
         return [
-//            'store_id' => $item->getStoreId(),
-            'no' => $item->getCode(),
-            'item_code' => $itemCode,
-//            'tax_code' => null,
-//            'customer_usage_type' => null,
-            'description' => $description,
-            'qty' => $item->getQuantity(),
-            'amount' => $amount,
-            'discounted' => (bool)($item->getDiscountAmount() > 0),
-            'tax_included' => false,
-            'ref1' => $ref1,
-            'ref2' => $ref2,
+//            'StoreId' => $item->getStoreId(),
+            'No' => $item->getCode(),
+            'ItemCode' => $itemCode,
+            'TaxCode' => $taxCode,
+            'Description' => $description,
+            'Qty' => $item->getQuantity(),
+            'Amount' => $amount,
+            'Discounted' => (bool)($item->getDiscountAmount() > 0),
+            'TaxIncluded' => false,
+            'Ref1' => $ref1,
+            'Ref2' => $ref2,
         ];
     }
 
     /**
      *
-     * TODO: Figure out if we need to account for Streamlined Sales Tax requirements for description
+     * TODO: Figure out if we need to account for Streamlined Sales Tax requirements for Description
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
@@ -277,7 +274,7 @@ class Line
             return null;
         }
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -307,17 +304,16 @@ class Line
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuShipping($storeId);
         $data = [
-            'no' => $this->getLineNumber(),
-            'item_code' => $itemCode,
-            // TODO: Set this value to something appropriate
-//            'tax_code' => self::SHIPPING_LINE_TAX_CLASS,
-            'description' => self::SHIPPING_LINE_DESCRIPTION,
-            'qty' => 1,
-            'amount' => $shippingAmount,
-            'discounted' => false,
+            'No' => $this->getLineNumber(),
+            'ItemCode' => $itemCode,
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForShipping(),
+            'Description' => self::SHIPPING_LINE_DESCRIPTION,
+            'Qty' => 1,
+            'Amount' => $shippingAmount,
+            'Discounted' => false,
         ];
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -346,17 +342,17 @@ class Line
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuGiftWrapOrder($storeId);
         $data = [
-            'no' => $this->getLineNumber(),
-            'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
-            'description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
-            'qty' => 1,
-            'amount' => $giftWrapOrderAmount,
-            'discounted' => false,
+            'No' => $this->getLineNumber(),
+            'ItemCode' => $itemCode,
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
+            'Description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
+            'Qty' => 1,
+            'Amount' => $giftWrapOrderAmount,
+            'Discounted' => false,
         ];
 
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -388,16 +384,16 @@ class Line
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuShippingGiftWrapItem($storeId);
         $data = [
-            'no' => $this->getLineNumber(),
-            'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
-            'description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
-            'qty' => 1,
-            'amount' => $giftWrapItemAmount,
-            'discounted' => false,
+            'No' => $this->getLineNumber(),
+            'ItemCode' => $itemCode,
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
+            'Description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
+            'Qty' => 1,
+            'Amount' => $giftWrapItemAmount,
+            'Discounted' => false,
         ];
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -425,16 +421,16 @@ class Line
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuShippingGiftWrapCard($storeId);
         $data = [
-            'no' => $this->getLineNumber(),
-            'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
-            'description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,
-            'qty' => 1,
-            'amount' => $giftWrapCardAmount,
-            'discounted' => false,
+            'No' => $this->getLineNumber(),
+            'ItemCode' => $itemCode,
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
+            'Description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,
+            'Qty' => 1,
+            'Amount' => $giftWrapCardAmount,
+            'Discounted' => false,
         ];
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -461,18 +457,18 @@ class Line
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuAdjustmentPositive($storeId);
         $data = [
-            'no' => $this->getLineNumber(),
-            'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
-            'description' => self::ADJUSTMENT_POSITIVE_LINE_DESCRIPTION,
-            'qty' => 1,
-            'amount' => $amount,
-            'discounted' => false,
+            'No' => $this->getLineNumber(),
+            'ItemCode' => $itemCode,
+            // Intentionally excluding TaxCode key
+            'Description' => self::ADJUSTMENT_POSITIVE_LINE_DESCRIPTION,
+            'Qty' => 1,
+            'Amount' => $amount,
+            'Discounted' => false,
             // Since taxes will already be included in this amount, set this flag to true
-            'tax_included' => true
+            'TaxIncluded' => true
         ];
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -496,18 +492,18 @@ class Line
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuAdjustmentNegative($storeId);
         $data = [
-            'no' => $this->getLineNumber(),
-            'item_code' => $itemCode,
-            'tax_code' => 'AVATAX', // TODO: Set to correct tax class
-            'description' => self::ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION,
-            'qty' => 1,
-            'amount' => $amount,
-            'discounted' => false,
+            'No' => $this->getLineNumber(),
+            'ItemCode' => $itemCode,
+            // Intentionally excluding TaxCode key
+            'Description' => self::ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION,
+            'Qty' => 1,
+            'Amount' => $amount,
+            'Discounted' => false,
             // Since taxes will already be included in this amount, set this flag to true
-            'tax_included' => true
+            'TaxIncluded' => true
         ];
 
-        $data = $this->validation->validateData($data, $this->validDataFields);
+        $data = $this->metaDataObject->validateData($data);
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -520,55 +516,18 @@ class Line
      */
     protected function populateLine(array $data, \AvaTax\Line $line)
     {
-        if (isset($data['no'])) {
-            $line->setNo($data['no']);
+        // Set any data elements that exist on the getTaxRequest
+        foreach ($data as $key => $datum) {
+            $methodName = 'set' . $key;
+            if (method_exists($line, $methodName)) {
+                $line->$methodName($datum);
+            }
         }
-        if (isset($data['origin_address'])) {
-            $line->setOriginAddress($data['origin_address']);
-        }
-        if (isset($data['destination_address'])) {
-            $line->setDestinationAddress($data['destination_address']);
-        }
-        if (isset($data['item_code'])) {
-            $line->setItemCode($data['item_code']);
-        }
-        if (isset($data['tax_code'])) {
-            $line->setTaxCode($data['tax_code']);
-        }
-        if (isset($data['customer_usage_type'])) {
-            $line->setCustomerUsageType($data['customer_usage_type']);
-        }
-        if (isset($data['exemption_no'])) {
-            $line->setExemptionNo($data['exemption_no']);
-        }
-        if (isset($data['description'])) {
-            $line->setDescription($data['description']);
-        }
-        if (isset($data['qty'])) {
-            $line->setQty($data['qty']);
-        }
-        if (isset($data['amount'])) {
-            $line->setAmount($data['amount']);
-        }
-        if (isset($data['discounted'])) {
-            $line->setDiscounted($data['discounted']);
-        }
-        if (isset($data['tax_included'])) {
-            $line->setTaxIncluded($data['tax_included']);
-        }
-        if (isset($data['ref1'])) {
-            $line->setRef1($data['ref1']);
-        }
-        if (isset($data['ref2'])) {
-            $line->setRef2($data['ref2']);
-        }
-        if (isset($data['tax_override'])) {
-            $line->setTaxOverride($data['tax_override']);
-        }
+        return $line;
     }
 
     /**
-     * Get line number for \AvaTax\Line "no" field
+     * Get line number for \AvaTax\Line "No" field
      *
      * @return int
      */

@@ -3,6 +3,9 @@
     <default>
         <tax>
             <avatax>
+                <enabled>0</enabled>
+                <tax_mode>3</tax_mode>
+                <commit_submitted_transactions>1</commit_submitted_transactions>
                 <use_business_identification_number>1</use_business_identification_number>
                 <sku_shipping>Shipping</sku_shipping>
                 <sku_gift_wrap_order>GwOrder</sku_gift_wrap_order>
@@ -12,7 +15,7 @@
                 <sku_adjustment_negative>Adjustment</sku_adjustment_negative>
                 <error_action>1</error_action>
                 <error_action_disable_checkout_message_frontend>Unfortunately, we could not calculate tax for your order. Please try again with a different address or contact us to complete your order.</error_action_disable_checkout_message_frontend>
-                <error_action_disable_checkout_message_backend>There was an error getting tax rates from Avalara. Please see the error log for details.</error_action_disable_checkout_message_backend>
+                <error_action_disable_checkout_message_backend><![CDATA[There was an error getting tax rates from Avalara. Please see the <a href="%1">error log</a> for details.]]></error_action_disable_checkout_message_backend>
                 <address_validation_enabled>1</address_validation_enabled>
                 <address_validation_user_has_choice>1</address_validation_user_has_choice>
                 <address_validation_instructions_with_choice><![CDATA[There is a problem with the address that you entered. The removed text is in red and the added text is in green. Please choose which address you would like to use. If neither option is correct, <a>edit your address</a>.]]></address_validation_instructions_with_choice>
@@ -20,12 +23,16 @@
                 <address_validation_error_instructions><![CDATA[We were unable to validate your address: <br/> <p>%s</p> If the address below is correct then you don’t need to do anything. To change your address, <a>click here</a>.]]></address_validation_error_instructions>
                 <address_validation_countries_enabled>CA,US</address_validation_countries_enabled>
                 <logging_db_level>250</logging_db_level>
-                <logging_db_lifetime>60</logging_db_lifetime>
+                <logging_db_lifetime>180</logging_db_lifetime>
                 <logging_db_detail>1</logging_db_detail>
                 <logging_file_enabled>1</logging_file_enabled>
                 <logging_file_mode>1</logging_file_mode>
                 <logging_file_level>200</logging_file_level>
                 <logging_file_detail>2</logging_file_detail>
+                <queue_max_retry_attempts>15</queue_max_retry_attempts>
+                <queue_submission_enabled>1</queue_submission_enabled>
+                <queue_complete_lifetime>60</queue_complete_lifetime>
+                <queue_failed_lifetime>180</queue_failed_lifetime>
             </avatax>
         </tax>
     </default>

@@ -12,9 +12,18 @@ use Magento\Framework\Phrase;
 
 class Session extends \Magento\Framework\Session\SessionManager
 {
+    /**
+     * A unique string for decreasing the likelihood that an object
+     * stored as array may have a property which tries to be converted into an object
+     */
+    const UNIQUE_STRING = 'avatax_unique_string_l3o8dslij';
+    
+    /**
+     * Properties on object to use as cache key
+     *
+     * @var array
+     */
     protected $addressCacheFields = ['Line1', 'Line2', 'Line3', 'City', 'Region', 'PostalCode', 'Country'];
-
-    protected $addressResponseFields = ['AddressCode', 'Line1', 'Line2', 'Line3', 'City', 'Region', 'PostalCode', 'Country', 'TaxRegionId', 'Line4', 'County', 'FipsCode', 'CarrierRoute', 'PostNet', 'AddressType', 'Latitude', 'Longitude'];
 
     /**
      * @var null|array
@@ -71,6 +80,116 @@ class Session extends \Magento\Framework\Session\SessionManager
     }
 
     /**
+     * Add tax request response pair to session and cache by both
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     */
+    public function addGetTaxResponse(\AvaTax\GetTaxRequest $requestTax, \AvaTax\GetTaxResult $responseTax)
+    {
+        $propertiesArray = [];
+        $reflectResponseTax = new \ReflectionObject($responseTax);
+        $properties = $reflectResponseTax->getProperties();
+        foreach ($properties as $property) {
+            $property->setAccessible(true);
+            $propertiesArray[$property->getName()] = $property->getValue($requestTax);
+
+        }
+        $validTax = $this->getObjectAsArray($this->taxResponseFields, $responseTax);
+
+        $cacheKey = $this->getCacheKey($this->taxCacheFields, $requestTax);
+        $this->taxResponses[$cacheKey] = $validTax;
+
+        $cacheKey = $this->getCacheKey($this->taxCacheFields, $responseTax);
+        $this->taxResponses[$cacheKey] = $validTax;
+
+        $this->storage->setData('tax_responses', $this->taxResponses);
+
+        return $this;
+    }
+
+    protected function reflectObjectAsArray($object)
+    {
+        $propertiesArray = [];
+        $reflection = new \ReflectionObject($object);
+        $properties = $reflection->getProperties();
+        foreach ($properties as $property) {
+            $property->setAccessible(true);
+            $propertiesArray[$property->getName()] = $property->getValue($object);
+            if (is_object($propertiesArray[$property->getName()])) {
+                $propertiesArray[$property->getName()] = $this->reflectObjectAsArray($propertiesArray[$property->getName()]);
+            }
+        }
+
+        return ['className' => get_class($object), 'properties' => $propertiesArray, 'is_a_reflection_array' => self::UNIQUE_STRING];
+    }
+
+    protected function reflectObjectFromArray(array $reflectionArray)
+    {
+        if (!isset($reflectionArray['className']) ||
+            !isset($reflectionArray['properties']) ||
+            !isset($reflectionArray['is_a_reflection_array']) ||
+            $reflectionArray['is_a_reflection_array'] != self::UNIQUE_STRING
+        ) {
+            return false;
+        }
+
+        $object = new $reflectionArray['className'];
+
+        $reflection = new \ReflectionClass($reflectionArray['className']);
+
+        $reflectionProperties = $reflection->getProperties();
+
+        $reflectionPropertyMap = [];
+
+        foreach ($reflectionProperties as $reflectionProperty) {
+            $reflectionPropertyMap[$reflectionProperty->getName()] = $reflectionProperty;
+        }
+
+        foreach ($reflectionArray['properties'] as $propertyName => $property) {
+            if (is_array($property) &&
+                isset($property['is_a_reflection_array']) &&
+                $property['is_a_reflection_array'] == self::UNIQUE_STRING
+            ) {
+                $property = $this->reflectObjectFromArray($property);
+            }
+            if (isset($reflectionPropertyMap[$propertyName])) {
+                $reflectionPropertyMap[$propertyName]->setAccessible(true);
+                $reflectionPropertyMap[$propertyName]->setValue($object, $property);
+            }
+        }
+
+        return $object;
+    }
+
+    /**
+     * Load tax data from session if it exists and return as \AvaTax\ValidTax object or null if not found
+     *
+     */
+    public function getGetTaxResponse(\AvaTax\GetTaxRequest $tax)
+    {
+        $validTax = null;
+        if (empty($this->taxResponses)) {
+            $this->taxResponses = $this->storage->getData('tax_responses', $this->taxResponses);
+            if (!is_array($this->taxResponses)) {
+                $this->taxResponses = [];
+                return null;
+            }
+        }
+
+        $cacheKey = $this->getCacheKey($this->taxCacheFields, $tax);
+
+        if (isset($this->taxResponses[$cacheKey])) {
+            $validTax = $this->getArrayAsObject(
+                $this->taxResponseFields,
+                $this->taxResponses[$cacheKey],
+                '\AvaTax\ValidTax'
+            );
+        }
+
+        return $validTax;
+    }
+
+    /**
      * Add address request response pair to session and cache by both
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -81,7 +200,7 @@ class Session extends \Magento\Framework\Session\SessionManager
      */
     public function addAddressResponse(\AvaTax\Address $requestAddress, \AvaTax\ValidAddress $responseAddress)
     {
-        $validAddress = $this->getObjectAsArray($this->addressResponseFields, $responseAddress);
+        $validAddress = $this->reflectObjectAsArray($responseAddress);
 
         $cacheKey = $this->getCacheKey($this->addressCacheFields, $requestAddress);
         $this->addressResponses[$cacheKey] = $validAddress;
@@ -116,11 +235,7 @@ class Session extends \Magento\Framework\Session\SessionManager
         $cacheKey = $this->getCacheKey($this->addressCacheFields, $address);
 
         if (isset($this->addressResponses[$cacheKey])) {
-            $validAddress = $this->getArrayAsObject(
-                $this->addressResponseFields,
-                $this->addressResponses[$cacheKey],
-                '\AvaTax\ValidAddress'
-            );
+            $validAddress = $this->reflectObjectFromArray($this->addressResponses[$cacheKey]);
         }
 
         return $validAddress;

@@ -1,4 +1,10 @@
 <?php
+/**
+ * @category    ClassyLlama
+ * @package     AvaTax
+ * @author      Matt Johnson <matt.johnson@classyllama.com>
+ * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
+ */
 
 namespace ClassyLlama\AvaTax\Model\Logger;
 
@@ -9,8 +15,6 @@ use Monolog\Formatter\NormalizerFormatter;
  * Formats incoming records similar to LineFormatter
  * but allows for new line characters in the context, and extra parts of the record
  * and prints them on multiple lines instead of condensing those sections to a single line.
- *
- * @author Matt Johnson <matt.johnson@classyllama.com>
  */
 class FileFormatter extends LineFormatter
 {
