@@ -3,6 +3,7 @@
     <default>
         <tax>
             <avatax>
+                <enabled>0</enabled>
                 <tax_mode>3</tax_mode>
                 <commit_submitted_transactions>1</commit_submitted_transactions>
                 <use_business_identification_number>1</use_business_identification_number>
