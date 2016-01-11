@@ -65,7 +65,7 @@ class ModuleChecks
      *
      * @return array
      */
-    protected function checkNativeTaxRules()
+    public function checkNativeTaxRules()
     {
         $errors = [];
         $taxRules = $this->taxRuleRepository->getList($this->searchCriteriaBuilder->create());
