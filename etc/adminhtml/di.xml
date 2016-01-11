@@ -4,6 +4,7 @@
         <arguments>
             <argument name="messages" xsi:type="array">
                 <item name="avatax_queue" xsi:type="string">ClassyLlama\AvaTax\Model\Message\QueueNotification</item>
+                <item name="avatax_queue_disabled" xsi:type="string">ClassyLlama\AvaTax\Model\Message\QueueDisabledNotification</item>
                 <item name="avatax_config" xsi:type="string">ClassyLlama\AvaTax\Model\Message\ConfigNotification</item>
             </argument>
         </arguments>
