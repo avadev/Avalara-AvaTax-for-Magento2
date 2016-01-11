@@ -3,6 +3,8 @@
     <default>
         <tax>
             <avatax>
+                <tax_mode>3</tax_mode>
+                <commit_submitted_transactions>1</commit_submitted_transactions>
                 <use_business_identification_number>1</use_business_identification_number>
                 <sku_shipping>Shipping</sku_shipping>
                 <sku_gift_wrap_order>GwOrder</sku_gift_wrap_order>

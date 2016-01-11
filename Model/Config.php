@@ -24,6 +24,10 @@ class Config
      */
     const XML_PATH_AVATAX_MODULE_ENABLED = 'tax/avatax/enabled';
 
+    const XML_PATH_AVATAX_TAX_MODE = 'tax/avatax/tax_mode';
+
+    const XML_PATH_AVATAX_COMMIT_SUBMITTED_TRANSACTIONS = 'tax/avatax/commit_submitted_transactions';
+
     const XML_PATH_AVATAX_LIVE_MODE = 'tax/avatax/live_mode';
 
     const XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER = 'tax/avatax/production_account_number';
@@ -92,8 +96,6 @@ class Config
 
     const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
 
-    const XML_PATH_AVATAX_QUEUE_SUBMISSION_ENABLED = 'tax/avatax/queue_submission_enabled';
-
     const XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS = 'tax/avatax/queue_max_retry_attempts';
 
     const XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME = 'tax/avatax/queue_complete_lifetime';
@@ -149,6 +151,16 @@ class Config
     const ERROR_ACTION_DISABLE_CHECKOUT = 1;
 
     const ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX = 2;
+    /**#@-*/
+
+    /**#@+
+     * Tax Modes
+     */
+    const TAX_MODE_NO_ESTIMATE_OR_SUBMIT = 1;
+
+    const TAX_MODE_ESTIMATE_ONLY = 2;
+
+    const TAX_MODE_ESTIMATE_AND_SUBMIT = 3;
     /**#@-*/
 
     /**#@+
@@ -276,6 +288,36 @@ class Config
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_MODULE_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return tax mode
+     *
+     * @param $store
+     * @return mixed
+     */
+    public function getTaxMode($store)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_TAX_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return whether to commit submitted transactions
+     *
+     * @param $store
+     * @return mixed
+     */
+    public function getCommitSubmittedTransactions($store)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_COMMIT_SUBMITTED_TRANSACTIONS,
             ScopeInterface::SCOPE_STORE,
             $store
         );
@@ -897,21 +939,6 @@ class Config
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Return configured queue max retry attempts
-     *
-     * @param null $store
-     * @return int
-     */
-    public function getQueueSubmissionEnabled($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_QUEUE_SUBMISSION_ENABLED,
             ScopeInterface::SCOPE_STORE,
             $store
         );

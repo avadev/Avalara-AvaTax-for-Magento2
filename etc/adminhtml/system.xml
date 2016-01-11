@@ -9,6 +9,23 @@
                     <label>Enable AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="tax_mode" translate="label" type="select" sortOrder="1002" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tax Mode</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxMode</source_model>
+                    <comment><![CDATA[<ul><li><strong>Disabled</strong> — AvaTax tax estimation will be disabled and native Magento tax estimation will be used. Only use this option if you want to use Address Validation without tax estimation.</li><li><strong>Estimate Tax</strong> — AvaTax tax estimation will run during checkout, but completed orders will not be submitted to AvaTax.</li><li><strong>Estimate Tax & Submit Transactions to AvaTax</strong> — AvaTax tax estimation will run during checkout and invoices and credit memos will be submitted to AvaTax.</li></ul>]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="commit_submitted_transactions" translate="label" type="select" sortOrder="1004" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Commit Submitted Transactions</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Should transactions sent to AvaTax be committed? Only change to "No" if you have specific reason to do so.File Log Mode</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="tax_mode">3</field>
+                    </depends>
+                </field>
                 <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Connection Settings</strong>]]></label>
                     <depends>
@@ -159,12 +176,6 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="general_header" translate="label" type="label" sortOrder="3000" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[<strong>General Settings</strong>]]></label>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
                 <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="3010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Submit VAT Number to AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -250,7 +261,7 @@
                 <field id="error_action" translate="label comment" type="select" sortOrder="5010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Error Action</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
-                    <comment><![CDATA[What should happen if Magento is unable to retrieve taxes from the AvaTax API. Regardless of which option is selected, if there is an error in the AvaTax tax calculation, the extension will fall back to using native Magento tax rules. However if <strong>Disable checkout & show error message</strong> is selected, the extension will prevent users and admins from placing orders.]]></comment>
+                    <comment><![CDATA[What should happen if Magento is unable to retrieve taxes from the AvaTax API. Regardless of which option is selected, if there is an error in the AvaTax tax estimation, the extension will fall back to using native Magento tax rules. However if <strong>Disable checkout & show error message</strong> is selected, the extension will prevent users and admins from placing orders.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -271,7 +282,7 @@
                         <field id="error_action">1</field>
                     </depends>
                 </field>
-                <field id="logging_settings_header" translate="label" type="label" sortOrder="6000" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_settings_header" translate="label" type="label" sortOrder="5500" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Logging Settings</strong>]]></label>
                     <depends>
                         <field id="enabled">1</field>
@@ -314,6 +325,7 @@
                     <label>File Log Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
                     <depends>
+                        <field id="enabled">1</field>
                         <field id="logging_file_enabled">1</field>
                     </depends>
                     <comment>Log files are located in the magento var/log/ directory</comment>
@@ -322,6 +334,7 @@
                     <label>File Log Level</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
                     <depends>
+                        <field id="enabled">1</field>
                         <field id="logging_file_enabled">1</field>
                     </depends>
                     <comment>Info or Notice recommended for production use</comment>
@@ -336,14 +349,7 @@
                 </field>
                 <field id="queue_processing_header" translate="label" type="label" sortOrder="6000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Queue Processing Settings</strong>]]></label>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="queue_submission_enabled" translate="label" type="select" sortOrder="6010" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Submit Orders to AvaTax</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>This will enable queueing of Invoices and Credit Memos to be submitted to AvaTax on a schedule via a cron job</comment>
+                    <comment><![CDATA[If <strong><a href="#row_tax_avatax_tax_mode">Tax Mode</a></strong> is set to <strong>Estimate Tax & Submit Transactions to AvaTax</strong>, then queue processing is enabled. Otherwise the queue will not submit invoices and credit memos to AvaTax as transaction submissions are disabled.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -363,6 +369,7 @@
                     <frontend_class>validate-number</frontend_class>
                     <validate>required-entry integer validate-greater-than-zero</validate>
                     <depends>
+                        <field id="enabled">1</field>
                         <field id="queue_submission_enabled">1</field>
                     </depends>
                 </field>
@@ -372,6 +379,7 @@
                     <frontend_class>validate-number</frontend_class>
                     <validate>required-entry integer validate-greater-than-zero</validate>
                     <depends>
+                        <field id="enabled">1</field>
                         <field id="queue_submission_enabled">1</field>
                     </depends>
                 </field>
