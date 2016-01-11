@@ -18,11 +18,6 @@ class ConfigNotification implements MessageInterface
     protected $storeManager;
 
     /**
-     * @var \Magento\Framework\UrlInterface
-     */
-    protected $urlBuilder;
-
-    /**
      * @var \Magento\Framework\App\RequestInterface
      */
     protected $request;
@@ -40,24 +35,29 @@ class ConfigNotification implements MessageInterface
     protected $taxConfig;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\ModuleChecks
+     */
+    protected $moduleChecks;
+
+    /**
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Framework\UrlInterface $urlBuilder
      * @param \Magento\Framework\App\RequestInterface $request
      * @param Config $config
      * @param \Magento\Tax\Model\Config $taxConfig
+     * @param \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\App\RequestInterface $request,
         Config $config,
-        \Magento\Tax\Model\Config $taxConfig
+        \Magento\Tax\Model\Config $taxConfig,
+        \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks
     ) {
         $this->storeManager = $storeManager;
-        $this->urlBuilder = $urlBuilder;
         $this->request = $request;
         $this->config = $config;
         $this->taxConfig = $taxConfig;
+        $this->moduleChecks = $moduleChecks;
     }
 
     /**
@@ -103,15 +103,7 @@ class ConfigNotification implements MessageInterface
      */
     public function getText()
     {
-        $errors = array();
-        $errors = array_merge(
-            $errors,
-//            $this->checkNativeTaxRules($storeId),
-            $this->checkSoapSupport(),
-            $this->checkSslSupport()
-        );
-
-        return implode('<br>', $errors);
+        return implode('<br>', $this->moduleChecks->getModuleCheckErrors());
     }
 
     /**
@@ -123,41 +115,5 @@ class ConfigNotification implements MessageInterface
     {
         // Critical messages will always show, which is what we want
         return MessageInterface::SEVERITY_CRITICAL;
-    }
-
-    /**
-     * Check SOAP support
-     *
-     * @return array
-     */
-    protected function checkSoapSupport()
-    {
-        $errors = array();
-        if (!class_exists('SoapClient')) {
-            $errors[] = __(
-                'The PHP class SoapClient is missing. It must be enabled to use this extension. See %1 for details.',
-                '<a href="http://www.php.net/manual/en/book.soap.php" target="_blank">http://www.php.net/manual/en/book.soap.php</a>'
-            );
-        }
-
-        return $errors;
-    }
-
-    /**
-     * Check SSL support
-     *
-     * @return array
-     */
-    protected function checkSslSupport()
-    {
-        $errors = array();
-        if (!function_exists('openssl_sign')) {
-            $errors[] = __(
-                'SSL must be enabled in PHP to use this extension. Typically, OpenSSL is used but it is not enabled on your server. This may not be a problem if you have some other form of SSL in place. For more information about OpenSSL, see %1.',
-                '<a href="http://www.php.net/manual/en/book.openssl.php" target="_blank">http://www.php.net/manual/en/book.openssl.php</a>'
-            );
-        }
-
-        return $errors;
     }
 }
