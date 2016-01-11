@@ -20,7 +20,7 @@
                 <field id="commit_submitted_transactions" translate="label" type="select" sortOrder="1004" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Commit Submitted Transactions</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Should transactions sent to AvaTax be committed? Only change to "No" if you have specific reason to do so.File Log Mode</comment>
+                    <comment>Should transactions sent to AvaTax be committed? Only change to "No" if you have specific reason to do so.</comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="tax_mode">3</field>
@@ -349,7 +349,7 @@
                 </field>
                 <field id="queue_processing_header" translate="label" type="label" sortOrder="6000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Queue Processing Settings</strong>]]></label>
-                    <comment><![CDATA[If <strong><a href="#row_tax_avatax_tax_mode">Tax Mode</a></strong> is set to <strong>Estimate Tax & Submit Transactions to AvaTax</strong>, then queue processing is enabled. Otherwise the queue will not submit invoices and credit memos to AvaTax as transaction submissions are disabled.]]></comment>
+                    <comment><![CDATA[If <strong><a href="#tax_avatax">Tax Mode</a></strong> is set to <strong>Estimate Tax & Submit Transactions to AvaTax</strong>, then queue processing is enabled. Otherwise the queue will not submit invoices and credit memos to AvaTax as transaction submissions are disabled.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -382,6 +382,47 @@
                         <field id="enabled">1</field>
                         <field id="queue_submission_enabled">1</field>
                     </depends>
+                </field>
+            </group>
+            <group id="classes">
+                <field id="shipping_tax_class">
+                    <comment>This setting will be ignored if AvaTax is enabled, as shipping Tax Code is hard-coded as FR020100 and AvaTax will determine whether tax applies to an order.</comment>
+                </field>
+            </group>
+            <group id="calculation">
+                <field id="algorithm">
+                    <comment>This setting will be ignored if AvaTax is enabled, as AvaTax always calculates tax on a row level.</comment>
+                </field>
+                <field id="based_on">
+                    <comment>This setting will be ignored if AvaTax is enabled, as AvaTax always uses the shipping address for estimation.</comment>
+                </field>
+                <field id="price_includes_tax">
+                    <comment>This setting will be ignored if AvaTax is enabled, as you must set your prices in Magento without taxes included so that AvaTax is the single system of record for tax estimation.</comment>
+                </field>
+                <field id="shipping_includes_tax">
+                    <comment>This setting will be ignored if AvaTax is enabled, as AvaTax must be responsible for calculating shipping tax.</comment>
+                </field>
+                <field id="apply_after_discount">
+                    <comment>This setting will be ignored if AvaTax is enabled, as AvaTax doesn't support line-level discounts.</comment>
+                </field>
+                <field id="discount_tax">
+                    <comment>This setting will be ignored if AvaTax is enabled, as AvaTax doesn't support line-level discounts.</comment>
+                </field>
+                <field id="apply_tax_on">
+                    <comment>This setting will be ignored if AvaTax is enabled, as AvaTax should always calculate tax after discounts are applied in Magento.</comment>
+                </field>
+                <field id="cross_border_trade_enabled">
+                    <comment>This setting will be ignored if AvaTax is enabled.</comment>
+                </field>
+            </group>
+            <group id="defaults">
+                <field id="postcode">
+                    <comment>If AvaTax is enabled, it is highly recommended that you leave this field blank. Otherwise, the number of AvaTax API requests will increase significantly, as every time a guest adds a product to their cart, AvaTax will calculate tax for the postal code entered above.</comment>
+                </field>
+            </group>
+            <group id="weee">
+                <field id="enable">
+                    <comment>The AvaTax extension does not support the usage of Fixed Product Taxes, so do not enable this option.</comment>
                 </field>
             </group>
         </section>
