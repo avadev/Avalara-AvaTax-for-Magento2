@@ -463,7 +463,7 @@ class Tax
 
         return [
             'StoreId' => $store->getId(),
-            'Commit' => false,
+            'Commit' => false, // quotes should never be committed
             'CurrencyCode' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($quote),
             'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer()),
@@ -608,7 +608,7 @@ class Tax
         $customer = $this->getCustomer($object->getOrder()->getCustomerId());
         $data = [
             'StoreId' => $store->getId(),
-            'Commit' => false,
+            'Commit' => $this->config->getCommitSubmittedTransactions($store),
             'TaxOverride' => $taxOverride,
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
