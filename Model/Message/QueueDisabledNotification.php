@@ -71,7 +71,7 @@ class QueueDisabledNotification implements MessageInterface
             && $this->isQueuePage()
             && $this->config->isModuleEnabled()
             && $this->config->getTaxMode($this->storeManager->getDefaultStoreView())
-                !== Config::TAX_MODE_ESTIMATE_AND_SUBMIT;
+                != Config::TAX_MODE_ESTIMATE_AND_SUBMIT;
     }
 
     /**
