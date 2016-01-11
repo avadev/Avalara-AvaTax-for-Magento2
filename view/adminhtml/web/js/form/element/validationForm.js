@@ -7,7 +7,7 @@ define([
     'mageUtils',
     'Magento_UI/js/form/element/abstract',
     'Magento_Ui/js/modal/alert',
-    'ClassyLlama_AvaTax/js/action/set-customer-address',
+    'ClassyLlama_AvaTax/js/action/validate-address-request',
     'ClassyLlama_AvaTax/js/model/address-model',
     'ClassyLlama_AvaTax/js/view/address-validation-form',
     'ClassyLlama_AvaTax/js/lib/serialize-form'
@@ -16,7 +16,7 @@ define([
     utils,
     Abstract,
     alert,
-    setCustomerAddress,
+    validateAddressRequest,
     addressModel,
     addressValidationForm
 ) {
@@ -27,7 +27,7 @@ define([
             links: {
                 value: ''
             },
-            template: 'ClassyLlama_AvaTax/form/element/customerValidateAddress'
+            template: 'ClassyLlama_AvaTax/form/element/adminValidateAddress'
         },
         baseTemplate: 'ClassyLlama_AvaTax/baseValidateAddress',
 

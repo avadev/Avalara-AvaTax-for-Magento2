@@ -49,8 +49,9 @@ define(
             },
 
             toggleAddressToUse: function () {
+                var self = this;
                 $('input[name=addressToUse]:radio').on('change', function() {
-                    var validSelected = $('#validAddress:checked').length ? true : false;
+                    var validSelected = $(self.validAddressRadioSelector + ':checked').length ? true : false;
                     setShippingAddress(validSelected);
                 });
             }

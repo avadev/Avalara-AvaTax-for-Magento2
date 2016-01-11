@@ -4,19 +4,29 @@
  */
 define([
     'jquery',
+    'underscore',
     'mageUtils',
-    'Magento_UI/js/form/element/abstract',
+    'Magento_Ui/js/form/element/abstract',
     'Magento_Ui/js/modal/alert',
-    'ClassyLlama_AvaTax/js/action/set-customer-address',
+    'ClassyLlama_AvaTax/js/action/validate-address-request',
     'ClassyLlama_AvaTax/js/model/address-model',
+    'ClassyLlama_AvaTax/js/view/validation-response-handler',
+    'ClassyLlama_AvaTax/js/view/diff-address',
+    'ClassyLlama_AvaTax/js/view/address-validation-form',
+
+    // No object assigned to below dependencies
     'ClassyLlama_AvaTax/js/lib/serialize-form'
 ], function (
     $,
+    _,
     utils,
     Abstract,
     alert,
-    setCustomerAddress,
-    addressModel
+    validateAddressRequest,
+    addressModel,
+    validationResponseHandler,
+    diffAddress,
+    addressValidationForm
 ) {
     'use strict';
 
@@ -32,6 +42,8 @@ define([
         formSelector: '.address-item-edit-content fieldset',
         validateButtonSelector: '.validateButton',
         addressValidationFormSelector: '.validateAddressForm',
+        radioGroupName: 'addressToUse',
+        selectedClass: 'selected',
 
 
         /**
@@ -65,11 +77,13 @@ define([
         },
 
         validateAddress: function (data, event) {
+            var self = this;
             var settings = {
                 validationEnabled: this.validationEnabled,
-                choice: this.choice,
+                hasChoice: this.choice,
                 countriesEnabled: this.countriesEnabled,
-                baseUrl: this.baseUrl
+                errorInstructions: this.errorInstructions,
+                validationFormSelector: this.addressValidationFormSelector
             };
             var form = $(event.target).closest(this.formSelector);
             var hasErrors = form.find('.admin__field-error:visible').length;
@@ -81,8 +95,22 @@ define([
                 if (inCountry) {
                     addressModel.originalAddress(addressObject);
                     // TODO: Show 'Validating Address' spinner next to button instead of page
-                    $(this.validateButtonSelector).trigger('processStart');
-                    setCustomerAddress.validateAddress(settings, form);
+                    $('body').trigger('processStart');
+                    validateAddressRequest(this.baseUrl).done(function (response) {
+                        addressModel.selectedAddress(addressModel.validAddress());
+                        validationResponseHandler.validationResponseHandler(response, settings, form);
+                        self.toggleAddressToUse(form);
+                        if (diffAddress.isDifferent && addressModel.error() == null) {
+                            addressValidationForm.updateFormFields(form);
+                        }
+                        $('body').trigger('processStop');
+                    }).fail(function () {
+                        alert({
+                            title: jQuery.mage.__('Error'),
+                            content: jQuery.mage.__('The address could not be validated as entered. Please make sure all required fields have values and contain properly formatted values.')
+                        });
+                        $('body').trigger('processStop');
+                    });
                 } else {
                     $(form).find(this.addressValidationFormSelector).hide();
                     alert({
@@ -98,6 +126,13 @@ define([
                     content: $.mage.__('Please fix the form validation errors above and try again.')
                 });
             }
+        },
+
+        toggleAddressToUse: function (form) {
+            var self = this;
+            $(form).find('input[name=' + self.radioGroupName + ']:radio').on('change', function () {
+                addressValidationForm.updateFormFields(form);
+            });
         }
     });
 });

@@ -4,6 +4,7 @@ define(
         "underscore",
         'uiComponent',
         'ko',
+        'mageUtils',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/step-navigator',
         'Magento_Checkout/js/model/payment-service',
@@ -16,6 +17,7 @@ define(
         _,
         Component,
         ko,
+        utils,
         quote,
         stepNavigator,
         paymentService,
@@ -39,6 +41,7 @@ define(
                 return paymentService.getAvailablePaymentMethods().length > 0;
             }),
             context: 'checkout',
+            uid: utils.uniqueid(),
 
             initialize: function () {
                 this._super();

@@ -10,7 +10,13 @@ define(
             originalAddress: originalAddress,
             validAddress: validAddress,
             selectedAddress: selectedAddress,
-            error: error
+            error: error,
+            resetValues: function () {
+                this.originalAddress(null);
+                this.validAddress(null);
+                this.selectedAddress(null);
+                this.error(null);
+            }
         };
     }
 );

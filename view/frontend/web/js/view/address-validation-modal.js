@@ -7,11 +7,7 @@ define([
     'ClassyLlama_AvaTax/js/view/customer-validation-handler',
     'ClassyLlama_AvaTax/js/view/diff-address',
     'ClassyLlama_AvaTax/js/view/address-validation-form',
-    'Magento_Ui/js/modal/modal',
-    // This dependency will commonly already be loaded by Magento_Ui/js/core/app, however the load order is not
-    // guaranteed, so we must require this dependency so that the custom Magento templateEngine is set before
-    // ko.applyBindings is called in this file.
-    'Magento_Ui/js/lib/ko/initialize'
+    'Magento_Ui/js/modal/modal'
 ], function(
         $,
         ko,
@@ -32,17 +28,16 @@ define([
             closeText: $.mage.__('Close'),
             buttons: [
                 {
-                    text: $.mage.__('Edit Address'),
+                    text: $.mage.__('Edit This Address'),
                     class: 'action-secondary action-dismiss',
                     click: function () {
                         this.closeModal();
                     }
                 },
                 {
-                    text: $.mage.__('Save Address'),
+                    text: $.mage.__('Use This Address'),
                     class: 'action-primary action primary',
                     click: function () {
-                        addressValidationForm.setAddressToUse(this.options.hasChoice, this.validationForm);
                         addressValidationForm.updateFormFields(this.formSelector);
                         this.closeModal();
                         $(this.formSelector).off('submit');
@@ -56,6 +51,7 @@ define([
         formSelector: '.form-address-edit',
         validationForm: '#co-validate-form',
         errorInstructionSelector: '.errorMessageContainer .instructions',
+        // TODO: Fix misspelling
         originalAddressContainer: '.errorCessageContainer .originalAddressText',
         /**
          * Creates modal widget.
@@ -64,7 +60,7 @@ define([
             this._super();
 
             this.handleFormSubmit();
-            addressValidationForm.bindTemplate(this.validationContainer, this.options);
+            addressValidationForm.bindTemplate(this.validationContainer, this.options, 'ClassyLlama_AvaTax/baseValidateAddress');
         },
 
         openModal: function () {
@@ -85,16 +81,10 @@ define([
                     var inCountry = $.inArray(addressObject.countryId, self.options.countriesEnabled.split(',')) >= 0;
                     if (inCountry) {
                         addressModel.originalAddress(addressObject);
-                        $("." + self.options.modalClass).trigger('processStart');
+                        $('body').trigger('processStart');
                         setCustomerAddress().done(function (response) {
                             customerValidationHandler.validationResponseHandler(response);
-                            if (addressModel.error() != null) {
-                                var errorInstructions = self.options.errorInstructions;
-                                $(self.errorInstructionSelector).html(errorInstructions.replace('%s', addressModel.error()));
-                                $(self.originalAddressContainer).html(addressValidationForm.buildOriginalAddress(addressModel.originalAddress()));
-                                addressModel.error(null);
-                                self.openModal();
-                            } else if (diffAddress.isDifferent()) {
+                            if (diffAddress.isDifferent() || addressModel.error() != null) {
                                 self.openModal();
                             } else {
                                 $(self.formSelector).off();

@@ -12,8 +12,7 @@ define(
         'use strict';
 
         return {
-            validationContainer: '.validationModal .modal-content .validateBinding',
-            bindingElement: '.validationModal',
+            validationContainer: '.validationModal .modal-content > div',
 
             // TODO: maybe remove this function? It seems a bit too much to have this whole file for a single function
             validationResponseHandler: function (response) {
@@ -24,7 +23,7 @@ define(
                         addressModel.validAddress(response);
                     }
                     addressValidationForm.fillValidateForm(this.validationContainer);
-                    $(this.bindingElement).trigger('processStop');
+                    $('body').trigger('processStop');
                 }
             }
         };
