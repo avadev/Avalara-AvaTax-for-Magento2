@@ -49,7 +49,9 @@ class Shipping
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
         $storeId = $quote->getStoreId();
-        if (!$this->config->isModuleEnabled($storeId)) {
+        if (!$this->config->isModuleEnabled($storeId)
+            || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+        ) {
             return $proceed($quote, $shippingAssignment, $total);
         }
     }
