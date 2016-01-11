@@ -1,5 +1,6 @@
 define(
     [
+        'jquery',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/resource-url-manager',
         'mage/storage',
@@ -8,9 +9,11 @@ define(
         'Magento_Checkout/js/model/error-processor',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/select-billing-address',
-        'ClassyLlama_AvaTax/js/view/checkout-validation-handler'
+        'ClassyLlama_AvaTax/js/view/checkout-validation-handler',
+        'Magento_Ui/js/modal/alert'
     ],
     function (
+        $,
         quote,
         resourceUrlManager,
         storage,
@@ -19,7 +22,8 @@ define(
         errorProcessor,
         fullScreenLoader,
         selectBillingAddressAction,
-        checkoutValidationHandler
+        checkoutValidationHandler,
+        alert
     ) {
         'use strict';
 
@@ -56,7 +60,14 @@ define(
                     }
                 ).fail(
                     function (response) {
-                        errorProcessor.process(response);
+                        // Begin Edit - Native error message display is not obvious enough, so add to an alert box
+                        var messageObject = JSON.parse(response.responseText);
+                        alert({
+                            title: $.mage.__('Error'),
+                            content: messageObject.message
+                        });
+                        //errorProcessor.process(response);
+                        // End Edit
                         fullScreenLoader.stopLoader();
                     }
                 );
