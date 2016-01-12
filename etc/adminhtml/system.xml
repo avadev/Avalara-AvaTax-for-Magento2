@@ -330,7 +330,34 @@
                     </depends>
                     <comment>Log files are located in the magento var/log/ directory</comment>
                 </field>
-                <field id="logging_file_level" translate="label" type="select" sortOrder="5560" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_file_builtin_rotation_enabled" translate="label" type="select" sortOrder="5560" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Built-In Log File Rotation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="logging_file_enabled">1</field>
+                        <field id="logging_file_mode">2</field>
+                    </depends>
+                    <comment>When using the separate avatax log file this is an alternative option for rotating log
+                        files and will allow the process writing the log file to rotate log files. This method isn't
+                        efficient and using logrotate to handle the rotation at the system level is strongly encouraged
+                        when you can use it.</comment>
+                </field>
+                <field id="logging_file_builtin_rotation_max_files" translate="label" type="text" sortOrder="5570" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Built-In Log File Rotation Max Files</label>
+                    <frontend_class>validate-number</frontend_class>
+                    <validate>required-entry integer validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="logging_file_enabled">1</field>
+                        <field id="logging_file_mode">2</field>
+                        <field id="logging_file_builtin_rotation_enabled">1</field>
+                    </depends>
+                    <comment>The number of files/days to maintain in the log directory when rotating. The log file rotator
+                        will create a new file each day.
+                    </comment>
+                </field>
+                <field id="logging_file_level" translate="label" type="select" sortOrder="5580" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>File Log Level</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
                     <depends>
@@ -339,11 +366,12 @@
                     </depends>
                     <comment>Info or Notice recommended for production use</comment>
                 </field>
-                <field id="logging_file_detail" translate="label" type="select" sortOrder="5570" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_file_detail" translate="label" type="select" sortOrder="5590" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>File Log Detail</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
                         <field id="enabled">1</field>
+                        <field id="logging_file_enabled">1</field>
                     </depends>
                     <comment>Normal recommended for production use</comment>
                 </field>
