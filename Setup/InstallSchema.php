@@ -144,7 +144,7 @@ class InstallSchema implements InstallSchemaInterface
                 'updated_at',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
                 null,
-                ['nullable' => false, 'default' => '0000-00-00 00:00:00'],
+                ['nullable' => true],
                 'Updated Time'
             )
             ->addColumn(
