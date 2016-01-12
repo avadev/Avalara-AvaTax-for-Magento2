@@ -344,6 +344,7 @@
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
                         <field id="enabled">1</field>
+                        <field id="logging_file_enabled">1</field>
                     </depends>
                     <comment>Normal recommended for production use</comment>
                 </field>
