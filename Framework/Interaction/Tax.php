@@ -274,7 +274,7 @@ class Tax
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_NAME_ID:
                 $customer = $this->getCustomerById($data->getCustomerId());
-                if ($customer->getId()) {
+                if ($customer && $customer->getId()) {
                     $name = $customer->getFirstname() . ' ' . $customer->getLastname();
                     $id = $customer->getId();
                 } else {
@@ -298,11 +298,18 @@ class Tax
      * Get customer by ID
      *
      * @param $customerId
-     * @return \Magento\Customer\Api\Data\CustomerInterface
+     * @return \Magento\Customer\Api\Data\CustomerInterface|null
      */
     protected function getCustomerById($customerId)
     {
-        return $this->customerRepository->getById($customerId);
+        if (!$customerId) {
+            return null;
+        }
+        try {
+            return $this->customerRepository->getById($customerId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return null;
+        }
     }
 
     /**
