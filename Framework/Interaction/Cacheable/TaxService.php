@@ -76,7 +76,10 @@ class TaxService
         }
 
         $getTaxResult = $this->taxInteraction->getTaxService($this->type)->getTax($getTaxRequest);
-        $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from SOAP.', ['result' => $getTaxResult]);
+        $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from SOAP.', [
+            'request' => var_export($getTaxRequest, true),
+            'result' => var_export($getTaxResult, true),
+        ]);
 
         $serializedGetTaxResult = serialize($getTaxResult);
         $this->cache->save($serializedGetTaxResult, $cacheKey, [Config::AVATAX_CACHE_TAG]);
