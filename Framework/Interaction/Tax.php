@@ -627,9 +627,9 @@ class Tax
             $invoice = $this->getInvoice($object->getInvoiceId());
             // If a Creditmemo was generated for an invoice, use the created_at value from the invoice
             if ($invoice) {
-                $taxCalculationDate = $this->getFormattedDate($store, $invoice->getCreatedAt());;
+                $taxCalculationDate = $this->getFormattedDate($store, $invoice->getCreatedAt());
             } else {
-                $taxCalculationDate = $this->getFormattedDate($store, $order->getCreatedAt());;
+                $taxCalculationDate = $this->getFormattedDate($store, $order->getCreatedAt());
             }
 
             // Set the tax date for calculation
@@ -640,7 +640,7 @@ class Tax
             $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
-        $customer = $this->getCustomer($order->getCustomerId());
+        $customer = $this->getCustomerById($order->getCustomerId());
         $data = [
             'StoreId' => $store->getId(),
             'Commit' => $this->config->getCommitSubmittedTransactions($store),
@@ -675,21 +675,6 @@ class Tax
         $this->populateGetTaxRequest($data, $getTaxRequest);
 
         return $getTaxRequest;
-    }
-
-    /**
-     * Load customer by id
-     *
-     * @param $customerId
-     * @return \Magento\Customer\Api\Data\CustomerInterface|null
-     */
-    protected function getCustomer($customerId)
-    {
-        try {
-            return $this->customerRepository->getById($customerId);
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            return null;
-        }
     }
 
     /**
