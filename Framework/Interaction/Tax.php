@@ -15,6 +15,10 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Api\StoreRepositoryInterface;
+use Magento\Store\Api\Data\StoreInterface;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
@@ -66,6 +70,21 @@ class Tax
      * @var GroupRepositoryInterface
      */
     protected $groupRepository = null;
+
+    /**
+     * @var InvoiceRepositoryInterface
+     */
+    protected $invoiceRepository = null;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    protected $orderRepository = null;
+
+    /**
+     * @var StoreRepositoryInterface
+     */
+    protected $storeRepository = null;
 
     /**
      * @var TaxClassRepositoryInterface
@@ -199,6 +218,9 @@ class Tax
      * @param GetTaxRequestFactory $getTaxRequestFactory
      * @param CustomerRepositoryInterface $customerRepository
      * @param GroupRepositoryInterface $groupRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param OrderRepositoryInterface $orderRepository
+     * @param StoreRepositoryInterface $storeRepository
      * @param TaxClassRepositoryInterface $taxClassRepository
      * @param PriceCurrencyInterface $priceCurrency
      * @param TimezoneInterface $localeDate
@@ -216,6 +238,9 @@ class Tax
         TaxOverrideFactory $taxOverrideFactory,
         CustomerRepositoryInterface $customerRepository,
         GroupRepositoryInterface $groupRepository,
+        InvoiceRepositoryInterface $invoiceRepository,
+        OrderRepositoryInterface $orderRepository,
+        StoreRepositoryInterface $storeRepository,
         TaxClassRepositoryInterface $taxClassRepository,
         PriceCurrencyInterface $priceCurrency,
         TimezoneInterface $localeDate,
@@ -232,6 +257,9 @@ class Tax
         $this->taxOverrideFactory = $taxOverrideFactory;
         $this->customerRepository = $customerRepository;
         $this->groupRepository = $groupRepository;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->orderRepository = $orderRepository;
+        $this->storeRepository = $storeRepository;
         $this->taxClassRepository = $taxClassRepository;
         $this->priceCurrency = $priceCurrency;
         $this->localeDate = $localeDate;
@@ -461,8 +489,7 @@ class Tax
             return null;
         }
 
-        // TODO: Make this rely on a method available via the interface and not just on model.  Should be done at least conditionally. getStoreId() is valid method.
-        $store = $quote->getStore();
+        $store = $this->storeRepository->getById($quote->getStoreId());
         $currentDate = $this->getFormattedDate($store);
 
         // Quote created/updated date is not relevant, so just pass the current date
@@ -536,8 +563,7 @@ class Tax
      * @return GetTaxRequest
      */
     public function getGetTaxRequestForSalesObject($object) {
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $object->getOrder();
+        $order = $this->orderRepository->get($object->getOrderId());
 
         $lines = [];
         $items = $object->getItems();
@@ -582,10 +608,12 @@ class Tax
             }
         }
 
+        // TODO: Would be nice to use the service layer to get the shipping address somehow
+        /** @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress */
         $shippingAddress = $order->getShippingAddress();
         $address = $this->address->getAddress($shippingAddress);
 
-        $store = $object->getStore();
+        $store = $this->storeRepository->getById($object->getStoreId());
         $currentDate = $this->getFormattedDate($store);
 
         $docDate = $this->getFormattedDate($store, $object->getCreatedAt());
@@ -596,7 +624,7 @@ class Tax
         } else {
             $docType = DocumentType::$ReturnInvoice;
 
-            $invoice = $object->getInvoice();
+            $invoice = $this->invoiceRepository->get($object->getInvoiceId());
             // If a Creditmemo was generated for an invoice, use the created_at value from the invoice
             if ($invoice) {
                 $taxCalculationDate = $this->getFormattedDate($store, $invoice->getCreatedAt());;
@@ -612,7 +640,7 @@ class Tax
             $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
-        $customer = $this->getCustomer($object->getOrder()->getCustomerId());
+        $customer = $this->getCustomer($order->getCustomerId());
         $data = [
             'StoreId' => $store->getId(),
             'Commit' => $this->config->getCommitSubmittedTransactions($store),
@@ -634,9 +662,8 @@ class Tax
 //            'SalespersonCode' => null,
         ];
 
-        $storeId = $object->getStoreId();
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($storeId),
+            $this->retrieveGetTaxRequestFields($store),
             $data
         );
 
@@ -671,11 +698,11 @@ class Tax
      * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
      * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
      *
-     * @param $store
+     * @param \Magento\Store\Api\Data\StoreInterface $store
      * @return array
      * @throws LocalizedException
      */
-    protected function retrieveGetTaxRequestFields($store)
+    protected function retrieveGetTaxRequestFields(StoreInterface $store)
     {
         $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
         if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {

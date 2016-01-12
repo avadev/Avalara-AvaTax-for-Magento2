@@ -71,7 +71,10 @@ class TaxService
         $getTaxResult = @unserialize($this->cache->load($cacheKey));
 
         if ($getTaxResult instanceof GetTaxResult) {
-            $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from cache.', ['result' => $getTaxResult, 'cache_key' => $cacheKey]);
+            $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from cache.', [
+                'result' => var_export($getTaxResult, true),
+                'cache_key' => $cacheKey
+            ]);
             return $getTaxResult;
         }
 
