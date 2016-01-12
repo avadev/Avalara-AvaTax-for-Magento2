@@ -124,11 +124,9 @@ class SalesSpiCreditmemoResource
         /** @var \Magento\Sales\Model\Spi\CreditmemoResourceInterface $resultEntity */
         $resultEntity = $proceed($entity);
 
-        $storeId = $entity->getOrder()->getStoreId();
-
         // Queue the entity to be sent to AvaTax
-        if ($this->avaTaxConfig->isModuleEnabled($storeId)
-            && $this->avaTaxConfig->getTaxMode($storeId) === Config::TAX_MODE_ESTIMATE_AND_SUBMIT
+        if ($this->avaTaxConfig->isModuleEnabled($entity->getStoreId())
+            && $this->avaTaxConfig->getTaxMode($entity->getStoreId()) == Config::TAX_MODE_ESTIMATE_AND_SUBMIT
         ) {
 
             // Add this entity to the avatax processing queue if this is a new entity
