@@ -198,7 +198,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
                     <item name="visible" xsi:type="boolean">false</item>
-                    <item name="label" xsi:type="string" translate="true">Request</item>
+                    <item name="label" xsi:type="string" translate="true">Result</item>
                     <item name="sortOrder" xsi:type="number">80</item>
                 </item>
             </argument>
@@ -208,7 +208,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
                     <item name="visible" xsi:type="boolean">false</item>
-                    <item name="label" xsi:type="string" translate="true">Request</item>
+                    <item name="label" xsi:type="string" translate="true">Additional</item>
                     <item name="sortOrder" xsi:type="number">90</item>
                 </item>
             </argument>
