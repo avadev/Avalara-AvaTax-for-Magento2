@@ -128,14 +128,6 @@ class Get
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                $this->avaTaxLogger->info(
-                    'response from external api getTax',
-                    [ /* context */
-                        'request' => var_export($getTaxRequest, true),
-                        'result' => var_export($getTaxResult, true),
-                    ]
-                );
-
                 // TODO: If debug logging is on, log the extra debug info
                 //$this->extraDebug($getTaxRequest, $getTaxResult, $object);
 
@@ -147,6 +139,9 @@ class Get
                 $response = $this->getTaxResponseFactory->create();
                 $response->setIsUnbalanced($unbalanced)
                     ->setBaseAvataxTaxAmount($avataxTaxAmount);
+
+//                return $this->extraDebug($getTaxRequest, $getTaxResult, $object) . var_export($response, true);
+
                 return $response;
             } else {
                 $message = $this->getErrorMessageFromGetTaxResult($getTaxResult);
@@ -219,13 +214,6 @@ class Get
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                $this->avaTaxLogger->info(
-                    'response from external api getTax',
-                    [ /* context */
-                        'request' => var_export($getTaxRequest, true),
-                        'result' => var_export($getTaxResult, true),
-                    ]
-                );
 
                 $store = $quote->getStore();
                 $taxDetails = $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);

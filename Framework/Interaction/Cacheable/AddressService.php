@@ -65,7 +65,7 @@ class AddressService
         $validateResult = @unserialize($this->cache->load($addressCacheKey));
 
         if ($validateResult instanceof ValidateResult) {
-            $this->avaTaxLogger->addDebug('Loaded \AvaTax\ValidateResult from cache.', ['request' => $validateRequest, 'result' => $validateResult, 'cache_key' => $addressCacheKey]);
+            $this->avaTaxLogger->addDebug('Loaded \AvaTax\ValidateResult from cache.', ['request' => var_export($validateRequest, true), 'result' => var_export($validateResult, true), 'cache_key' => $addressCacheKey]);
             return $validateResult;
         }
 
@@ -77,11 +77,11 @@ class AddressService
         try {
             $validAddress = isset($validateResult->getValidAddresses()[0]) ? $validateResult->getValidAddresses()[0] : null;
             $validAddressCacheKey = $this->getCacheKey($validAddress);
-            $this->avaTaxLogger->addDebug('Loaded \AvaTax\ValidateResult from SOAP.', ['request' => $validateRequest, 'result' => $validateResult]);
+            $this->avaTaxLogger->addDebug('Loaded \AvaTax\ValidateResult from SOAP.', ['request' => var_export($validateRequest, true), 'result' => var_export($validateResult, true)]);
 
             $this->cache->save($serializedValidateResult, $validAddressCacheKey, [Config::AVATAX_CACHE_TAG]);
         } catch (LocalizedException $e) {
-            $this->avaTaxLogger->addDebug('\AvaTax\ValidateResult no valid address found from SOAP.', ['result' => $validateResult]);
+            $this->avaTaxLogger->addDebug('\AvaTax\ValidateResult no valid address found from SOAP.', ['result' => var_export($validateResult, true)]);
         }
 
         return $validateResult;
