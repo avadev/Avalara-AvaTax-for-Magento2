@@ -101,7 +101,11 @@ class Queue extends AbstractDb
         $condition[] = $this->getConnection()->quoteInto(self::QUEUE_STATUS_FIELD_NAME . '=?', $originalQueueStatus);
 
         // only update the record if nothing else has updated it
-        $condition[] = $this->getConnection()->quoteInto(self::UPDATED_AT_FIELD_NAME . '=?', $originalUpdatedAt);
+        if ($originalUpdatedAt === null) {
+            $condition[] = self::UPDATED_AT_FIELD_NAME . ' IS NULL';
+        } else {
+            $condition[] = $this->getConnection()->quoteInto(self::UPDATED_AT_FIELD_NAME . '=?', $originalUpdatedAt);
+        }
 
         // update the record and get the number of affected records
         $affectedRowCount = $this->getConnection()->update($this->getMainTable(), $data, $condition);

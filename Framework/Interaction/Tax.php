@@ -624,7 +624,7 @@ class Tax
         } else {
             $docType = DocumentType::$ReturnInvoice;
 
-            $invoice = $this->invoiceRepository->get($object->getInvoiceId());
+            $invoice = $this->getInvoice($object->getInvoiceId());
             // If a Creditmemo was generated for an invoice, use the created_at value from the invoice
             if ($invoice) {
                 $taxCalculationDate = $this->getFormattedDate($store, $invoice->getCreatedAt());;
@@ -687,6 +687,24 @@ class Tax
     {
         try {
             return $this->customerRepository->getById($customerId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Load invoice by id
+     *
+     * @param int|null $invoiceId
+     * @return \Magento\Sales\Api\Data\InvoiceInterface|null
+     */
+    protected function getInvoice($invoiceId)
+    {
+        if ($invoiceId === null) {
+            return null;
+        }
+        try {
+            return $this->invoiceRepository->get($invoiceId);
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             return null;
         }
