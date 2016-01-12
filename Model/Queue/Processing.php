@@ -489,7 +489,7 @@ class Processing
      */
     protected function failQueueProcessing(Queue $queue, $message)
     {
-        $queue->setMessage($message . "\n" . $queue->getMessage());
+        $queue->setMessage($message);
         $queue->setQueueStatus(Queue::QUEUE_STATUS_FAILED);
         $queue->save();
     }
@@ -516,7 +516,7 @@ class Processing
             $message .= __(' The processing is set to automatically retry on the next processing attempt.');
 
             // retry processing later by setting queue status to pending
-            $queue->setMessage($message . "\n" . $queue->getMessage());
+            $queue->setMessage($message);
             $queue->setQueueStatus(Queue::QUEUE_STATUS_PENDING);
             $queue->save();
 
@@ -545,8 +545,7 @@ class Processing
                 __('Unbalanced Response - Collected: %1, AvaTax Actual: %2',
                     $entity->getBaseTaxAmount(),
                     $processSalesResponse->getBaseAvataxTaxAmount()
-                ) . "\n" .
-                $queue->getMessage()
+                )
             );
 
             // add comment about unbalanced amount

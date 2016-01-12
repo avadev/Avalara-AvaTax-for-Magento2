@@ -62,6 +62,13 @@
                 </item>
             </argument>
         </component>
+        <exportButton name="export_button">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="selectProvider" xsi:type="string">avatax_queue_listing.avatax_queue_listing.avatax_queue_columns.ids</item>
+                </item>
+            </argument>
+        </exportButton>
         <filters name="listing_filters">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -108,6 +115,13 @@
                 </item>
             </item>
         </argument>
+        <selectionsColumn name="ids">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="indexField" xsi:type="string">queue_id</item>
+                </item>
+            </argument>
+        </selectionsColumn>
         <column name="queue_id">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
