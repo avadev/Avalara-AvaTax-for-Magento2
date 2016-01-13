@@ -20,7 +20,6 @@ define(
         'use strict';
 
         return {
-            validateAddressContainerSelector: '#validate_address',
             validAddressRadioSelector: '.validAddress',
             originalAddressRadioSelector: '.originalAddress',
             originalAddressTextSelector: ".originalAddressText",
@@ -49,12 +48,11 @@ define(
                 $(containerSelector).html(template);
             },
 
-            fillValidateForm: function (form, config) {
+            fillValidateForm: function (form) {
                 this.reset(form);
                 if (addressModel.error() != null) {
                     $(form).find(this.errorMessageContainerSelector).show();
-                    var errorInstructions = config.errorInstructions;
-                    $(form).find(this.errorMessageContainerSelector + " .instructions").html(errorInstructions.replace('%s', addressModel.error()));
+                    $(form).find(this.errorMessageContainerSelector + " .instructions p").html(addressModel.error());
                     $(form).find(this.errorMessageContainerSelector + " " + this.originalAddressTextSelector).html(this.buildOriginalAddress(addressModel.originalAddress()));
                     $(form).find('.yesError').show();
                     $(form).find('.noError').hide();
@@ -153,14 +151,14 @@ define(
              */
             toggleRadioSelected: function (form, radioGroupName, selectedClass) {
                 var self = this;
-                $('input[name=' + radioGroupName + ']:radio').on('change', function () {
+                $(form).find('input[name=' + radioGroupName + ']:radio').on('change', function () {
                     $(form).find(self.validationForm + " .selected")
                         .removeClass(selectedClass)
                         .parent().find('input[name=' + radioGroupName + ']:checked')
                         .parents(self.addressOptionSelector)
                         .addClass(selectedClass);
 
-                    if ($(form).find(self.validAddressRadioSelector + ':checked').length) {
+                    if ($(form).find(self.validAddressRadioSelector).is(':checked')) {
                         addressModel.selectedAddress(addressModel.validAddress());
                     } else {
                         addressModel.selectedAddress(addressModel.originalAddress());

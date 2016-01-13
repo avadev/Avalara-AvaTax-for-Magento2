@@ -23,9 +23,11 @@ define(
             options: {
                 validateAddressContainerSelector: '#validate_address'
             },
+            validAddressRadioSelector: '.validAddress',
+            addressValidationRadioGroupName: 'addressToUse',
 
             validationResponseHandler: function (response) {
-                diffAddress.isDifferent(false);
+                addressModel.error(null);
                 if (typeof response.extension_attributes !== 'undefined') {
                     $(this.options.validateAddressContainerSelector + ' *').fadeIn();
                     this.toggleAddressToUse();
@@ -36,7 +38,9 @@ define(
                         addressModel.error(response.extension_attributes.error_message)
                     }
                     addressValidationForm.fillValidateForm(this.options.validateAddressContainerSelector);
-
+                    if (!diffAddress.isDifferent() && addressModel.error() == null) {
+                        $(this.options.validateAddressContainerSelector + " *").hide();
+                    }
                     // This click event handler is to allow the user to navigate to the first step to change their
                     // address if they notice an error in their address on the Review & Payments step by clicking
                     // a link in the instructions above their address
@@ -44,14 +48,18 @@ define(
                         stepNavigator.navigateTo('shipping', 'shipping');
                     });
                 } else {
-                    $(this.options.validateAddressContainerSelector).hide();
+                    $(this.options.validateAddressContainerSelector + " *").hide();
                 }
             },
 
             toggleAddressToUse: function () {
                 var self = this;
-                $('input[name=addressToUse]:radio').on('change', function() {
-                    var validSelected = $(self.validAddressRadioSelector + ':checked').length ? true : false;
+                // This function is called every time an initial address validation request is made which could happen
+                // multiple times so the change event binding is removed to prevent multiple api requests being sent
+                // when a user selects between the original and valid address
+                $('input[name=' + this.addressValidationRadioGroupName + ']:radio').off('change');
+                $('input[name=' + this.addressValidationRadioGroupName + ']:radio').on('change', function() {
+                    var validSelected = $(self.validAddressRadioSelector).is(':checked');
                     setShippingAddress(validSelected);
                 });
             }

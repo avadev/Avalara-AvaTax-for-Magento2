@@ -4,7 +4,6 @@ define([
     'ClassyLlama_AvaTax/js/model/address-model',
     'ClassyLlama_AvaTax/js/action/set-customer-address',
     'ClassyLlama_AvaTax/js/model/address-converter',
-    'ClassyLlama_AvaTax/js/view/customer-validation-handler',
     'ClassyLlama_AvaTax/js/view/diff-address',
     'ClassyLlama_AvaTax/js/view/address-validation-form',
     'Magento_Ui/js/modal/modal'
@@ -14,7 +13,6 @@ define([
         addressModel,
         setCustomerAddress,
         addressConverter,
-        customerValidationHandler,
         diffAddress,
         addressValidationForm
     ){
@@ -28,14 +26,14 @@ define([
             closeText: $.mage.__('Close'),
             buttons: [
                 {
-                    text: $.mage.__('Edit This Address'),
+                    text: $.mage.__('Edit Address'),
                     class: 'action-secondary action-dismiss',
                     click: function () {
                         this.closeModal();
                     }
                 },
                 {
-                    text: $.mage.__('Use This Address'),
+                    text: $.mage.__('Save Address'),
                     class: 'action-primary action primary',
                     click: function () {
                         addressValidationForm.updateFormFields(this.formSelector);
@@ -46,13 +44,8 @@ define([
                 }
             ]
         },
-        addressToUse: null,
         validationContainer: '.validationModal .modal-content > div',
         formSelector: '.form-address-edit',
-        validationForm: '#co-validate-form',
-        errorInstructionSelector: '.errorMessageContainer .instructions',
-        // TODO: Fix misspelling
-        originalAddressContainer: '.errorCessageContainer .originalAddressText',
         /**
          * Creates modal widget.
          */
@@ -74,6 +67,7 @@ define([
         handleFormSubmit: function () {
             var self = this;
             $(this.formSelector).on('submit', function (e) {
+                $('.validateAddressForm').show();
                 var isValid = $(':mage-validation').validation('isValid');
                 if (isValid) {
                     e.preventDefault();
@@ -83,13 +77,19 @@ define([
                         addressModel.originalAddress(addressObject);
                         $('body').trigger('processStart');
                         setCustomerAddress().done(function (response) {
-                            customerValidationHandler.validationResponseHandler(response);
+                            if (typeof response === 'string') {
+                                addressModel.error(response);
+                            } else {
+                                addressModel.validAddress(response);
+                            }
+                            addressValidationForm.fillValidateForm(self.validationContainer);
                             if (diffAddress.isDifferent() || addressModel.error() != null) {
                                 self.openModal();
                             } else {
                                 $(self.formSelector).off();
                                 $(self.formSelector).submit();
                             }
+                            $('body').trigger('processStop');
                         });
                     } else {
                         $(self.formSelector).off();

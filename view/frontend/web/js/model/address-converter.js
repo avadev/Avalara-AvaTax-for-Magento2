@@ -1,7 +1,3 @@
-/**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
 define(
     [
         'jquery',
@@ -10,7 +6,12 @@ define(
         'mage/utils/objects',
         'ClassyLlama_AvaTax/js/lib/serialize-form'
     ],
-    function($, address, customerData, mageUtils) {
+    function(
+        $,
+        address,
+        customerData,
+        mageUtils
+    ) {
         'use strict';
         var countryData = customerData.get('directory-data');
 

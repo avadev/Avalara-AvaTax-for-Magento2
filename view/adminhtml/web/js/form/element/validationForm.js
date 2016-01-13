@@ -1,24 +1,9 @@
-/**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
 define([
     'jquery',
-    'mageUtils',
-    'Magento_UI/js/form/element/abstract',
-    'Magento_Ui/js/modal/alert',
-    'ClassyLlama_AvaTax/js/action/validate-address-request',
-    'ClassyLlama_AvaTax/js/model/address-model',
-    'ClassyLlama_AvaTax/js/view/address-validation-form',
-    'ClassyLlama_AvaTax/js/lib/serialize-form'
+    'Magento_UI/js/form/element/abstract'
 ], function (
     $,
-    utils,
-    Abstract,
-    alert,
-    validateAddressRequest,
-    addressModel,
-    addressValidationForm
+    Abstract
 ) {
     'use strict';
 
@@ -31,25 +16,16 @@ define([
         },
         baseTemplate: 'ClassyLlama_AvaTax/baseValidateAddress',
 
-        /**
-         * Initializes file component.
-         *
-         * @returns {Media} Chainable.
-         */
         initialize: function () {
             this._super()
                 .initFormId();
-
-            // TODO: Add binding to <a> in instructions to focus on street input when clicked
+            $(document).on('click', '.validateAddressForm .instructions[data-uid="' + this.uid + '"] a', function () {
+                $('html, body').animate({scrollTop: $("#container").offset().top}, 1000);
+            });
 
             return this;
         },
 
-        /**
-         * Defines form ID with which file input will be associated.
-         *
-         * @returns {Media} Chainable.
-         */
         initFormId: function () {
             var namespace;
 
@@ -65,14 +41,6 @@ define([
 
         getBaseValidateAddressTemplate: function () {
             return this.baseTemplate;
-        },
-
-        setOriginalAddress: function () {
-            addressValidationForm.setOriginalAddress();
-        },
-
-        setValidAddress: function () {
-            addressValidationForm.setValidAddress();
         }
     });
 });

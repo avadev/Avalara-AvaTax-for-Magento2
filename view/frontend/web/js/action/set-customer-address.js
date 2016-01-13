@@ -1,18 +1,17 @@
-/**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
-/*global define,alert*/
 define(
     [
+        'jquery',
+        'mage/storage',
+        'Magento_Ui/js/modal/alert',
         'ClassyLlama_AvaTax/js/model/address-model',
-        'ClassyLlama_AvaTax/js/model/url-builder',
-        'mage/storage'
+        'ClassyLlama_AvaTax/js/model/url-builder'
     ],
     function (
+        $,
+        storage,
+        alert,
         addressModel,
-        urlBuilder,
-        storage
+        urlBuilder
     ) {
         'use strict';
         return function () {
@@ -32,8 +31,11 @@ define(
                 }
             ).fail(
                 function (response) {
-                    // TODO: implement custom error processor
-                    //return errorProcessor.process(response);
+                    var messageObject = JSON.parse(response.responseText);
+                    alert({
+                        title: $.mage.__('Error'),
+                        content: messageObject.message
+                    });
                 }
             );
         }

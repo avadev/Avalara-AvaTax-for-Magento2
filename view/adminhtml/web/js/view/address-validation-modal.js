@@ -1,8 +1,6 @@
 define([
     'jquery',
-    'ko',
     'Magento_Ui/js/modal/alert',
-    'Magento_Sales/order/create/scripts',
     'ClassyLlama_AvaTax/js/view/address-validation-form',
     'ClassyLlama_AvaTax/js/model/address-model',
     'ClassyLlama_AvaTax/js/action/validate-address-request',
@@ -16,9 +14,7 @@ define([
     'prototype'
 ], function(
     jQuery,
-    ko,
     alert,
-    scripts,
     addressValidationForm,
     addressModel,
     validateAddressRequest,
@@ -35,14 +31,14 @@ define([
             closeText: jQuery.mage.__('Close'),
             buttons: [
                 {
-                    text: jQuery.mage.__('Edit Address'),
+                    text: jQuery.mage.__('Edit This Address'),
                     class: 'action-secondary action-dismiss',
                     click: function () {
                         this.closeModal();
                     }
                 },
                 {
-                    text: jQuery.mage.__('Save Address'),
+                    text: jQuery.mage.__('Use This Address'),
                     class: 'action-primary action primary',
                     click: function () {
                         if (addressModel.error() == null) {
@@ -62,10 +58,10 @@ define([
                 }
             ]
         },
-        validationFormContainer: "ValidateAddressForm",
         validationButtonContainer: ".validateAddressButton",
         validationContainer: '.validationModal .modal-content > div',
         validationForm: '#co-validate-form',
+        editAddressLink: '.validateAddressForm a',
         addressForm: null,
         addressType: null,
 
@@ -79,6 +75,9 @@ define([
                 //if(jQuery(event.target).hasClass(self.validationButtonContainer.replace('.', ''))) {
                 self.validateAddress(event);
                 //}
+            });
+            jQuery(document).on('click', self.validationContainer + ' .instructions a', function () {
+                self.closeModal();
             });
         },
 
@@ -97,16 +96,14 @@ define([
             // reflected in the dom so it is necessary to set the region field manually
             addressObject['region'] = jQuery("#order-" + this.addressType + "_address_region_id option[value='" + addressObject.region_id + "']").attr('title');
             addressModel.resetValues();
-
             var inCountry = jQuery.inArray(addressObject.country_id, settings.countriesEnabled.split(',')) >= 0;
             if (inCountry) {
                 addressModel.originalAddress(addressObject);
-                // TODO: Show 'Validating Address' spinner next to button instead of page
                 jQuery('body').trigger('processStart');
                 var self = this;
                 validateAddressRequest(this.options.baseUrl).done(function (response) {
                     validationResponseHandler.validationResponseHandler(response, settings, self.validationContainer);
-
+                    jQuery('.validateAddressForm').show();
                     if (diffAddress.isDifferent() || addressModel.error() != null) {
                         self.openModal();
                     }

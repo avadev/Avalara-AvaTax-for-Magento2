@@ -62,7 +62,7 @@ define(['ko'], function(ko){
                 }
             }
 
-            return str.trim();
+            return str.trim().replace('undefined', '');
         },
 
         diff: function ( o, n ) {
