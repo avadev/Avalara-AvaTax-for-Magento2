@@ -6,6 +6,8 @@ use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\DB\Ddl\Table;
 
 /**
  * @codeCoverageIgnore
@@ -144,7 +146,7 @@ class InstallSchema implements InstallSchemaInterface
                 'updated_at',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
                 null,
-                ['nullable' => false, 'default' => '0000-00-00 00:00:00'],
+                ['nullable' => true],
                 'Updated Time'
             )
             ->addColumn(
@@ -202,6 +204,23 @@ class InstallSchema implements InstallSchemaInterface
                 255,
                 [],
                 'Message'
+            )
+            ->addIndex(
+                $installer->getIdxName(
+                    'avatax_queue',
+                    [
+                        'entity_type_id',
+                        'entity_id'
+                    ],
+                    AdapterInterface::INDEX_TYPE_UNIQUE
+                ),
+                [
+                    'entity_type_id',
+                    'entity_id'
+                ],
+                [
+                    'type' => AdapterInterface::INDEX_TYPE_UNIQUE
+                ]
             )
             ->setComment('AvaTax Queue Table');
         $installer->getConnection()->createTable($table);

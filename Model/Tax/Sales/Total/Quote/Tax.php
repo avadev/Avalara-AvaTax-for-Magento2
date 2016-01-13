@@ -153,7 +153,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         // This will allow a merchant to configure default tax settings for their site using Magento's core tax
         // calculation and AvaTax's calculation will only kick in during cart/checkout. This is useful for countries
         // where merchants are required to display prices including tax (such as some countries that charge VAT tax).
-        if (!$this->config->isModuleEnabled($storeId)) {
+        if (!$this->config->isModuleEnabled($storeId)
+            || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+        ) {
             return parent::collect($quote, $shippingAssignment, $total);
         }
 
@@ -288,7 +290,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $quoteDetailsItem = parent::mapItem($itemDataObjectFactory, $item, $priceIncludesTax, $useBaseCurrency, $parentCode);
 
         $storeId = $item->getStore()->getId();
-        if (!$this->config->isModuleEnabled($storeId)) {
+        if (!$this->config->isModuleEnabled($storeId)
+            || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+        ) {
             return $quoteDetailsItem;
         }
 
@@ -382,7 +386,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         );
 
         $storeId = $item->getStore()->getId();
-        if (!$this->config->isModuleEnabled($storeId)) {
+        if (!$this->config->isModuleEnabled($storeId)
+            || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+        ) {
             return $itemDataObjects;
         }
 
@@ -424,7 +430,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         );
 
         $storeId = $address->getQuote()->getStore()->getId();
-        if (!$this->config->isModuleEnabled($storeId)) {
+        if (!$this->config->isModuleEnabled($storeId)
+            || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+        ) {
             return $itemDataObjects;
         }
 

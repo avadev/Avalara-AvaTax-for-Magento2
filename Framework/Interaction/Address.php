@@ -188,7 +188,7 @@ class Address
         }
 
         if (isset($data['RegionId'])) {
-            $data['Region'] = $this->getRegionById($data['RegionId'])->getCode();
+            $data['Region'] = $this->getRegionCodeById($data['RegionId']);
             unset($data['RegionId']);
         }
 
@@ -213,7 +213,7 @@ class Address
             'Line2' => array_key_exists(1, $street) ? $street[1] : '',
             'Line3' => array_key_exists(2, $street) ? $street[2] : '',
             'City' => $address->getCity(),
-            'Region' => $this->getRegionById($address->getRegionId())->getCode(),
+            'Region' => $this->getRegionCodeById($address->getRegionId()),
             'PostalCode' => $address->getPostcode(),
             'Country' => $address->getCountryId(),
         ];
@@ -235,7 +235,7 @@ class Address
             'Line2' => array_key_exists(1, $street) ? $street[1] : '',
             'Line3' => array_key_exists(2, $street) ? $street[2] : '',
             'City' => $address->getCity(),
-            'Region' => $this->getRegionById($address->getRegionId())->getCode(),
+            'Region' => $this->getRegionCodeById($address->getRegionId()),
             'PostalCode' => $address->getPostcode(),
             'Country' => $address->getCountryId(),
         ];
@@ -257,7 +257,7 @@ class Address
             'Line2' => array_key_exists(1, $street) ? $street[1] : '',
             'Line3' => array_key_exists(2, $street) ? $street[2] : '',
             'City' => $address->getCity(),
-            'Region' => $this->getRegionById($address->getRegionId())->getCode(),
+            'Region' => $this->getRegionCodeById($address->getRegionId()),
             'PostalCode' => $address->getPostcode(),
             'Country' => $address->getCountryId(),
         ];
@@ -509,23 +509,27 @@ class Address
             'Line2' => $address->getStreetLine(2),
             'Line3' => $address->getStreetLine(3),
             'City' => $address->getCity(),
-            'Region' => $this->getRegionById($address->getRegionId())->getCode(),
+            'Region' => $this->getRegionCodeById($address->getRegionId()),
             'PostalCode' => $address->getPostcode(),
             'Country' => $address->getCountryId(),
         ];
     }
 
     /**
-     * Return region by id and if no region is found, throw an exception to prevent a fatal error so this can
-     * be chained to call getCode or other method by wrapping in a try/catch block.
+     * Return region code by id
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $regionId
-     * @return \Magento\Framework\DataObject
+     * @return string|null
      * @throws LocalizedException
      */
-    protected function getRegionById($regionId)
+    protected function getRegionCodeById($regionId)
     {
+        if (!$regionId) {
+            return null;
+        }
+
+        /** @var \Magento\Directory\Model\Region $region */
         $region = $this->regionCollection->getItemById($regionId);
 
         if (!($region instanceof Region)) {
@@ -535,7 +539,7 @@ class Address
             ]));
         }
 
-        return $region;
+        return $region->getCode();
     }
 
     /**

@@ -20,6 +20,11 @@ class ConfigSaveObserver implements ObserverInterface
     protected $messageManager;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\ModuleChecks
+     */
+    protected $moduleChecks;
+
+    /**
      * @var \ClassyLlama\AvaTax\Framework\Interaction\Tax
      */
     protected $interactionTax;
@@ -29,15 +34,18 @@ class ConfigSaveObserver implements ObserverInterface
      *
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param Config $config
+     * @param \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks
      * @param \ClassyLlama\AvaTax\Framework\Interaction\Tax $interactionTax
      */
     public function __construct(
         \Magento\Framework\Message\ManagerInterface $messageManager,
         Config $config,
+        \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks,
         \ClassyLlama\AvaTax\Framework\Interaction\Tax $interactionTax
     ) {
         $this->messageManager = $messageManager;
         $this->config = $config;
+        $this->moduleChecks = $moduleChecks;
         $this->interactionTax = $interactionTax;
     }
 
@@ -53,6 +61,10 @@ class ConfigSaveObserver implements ObserverInterface
 
         foreach ($this->getErrors($store) as $error) {
             $this->messageManager->addError($error);
+        }
+
+        foreach ($this->getNotices() as $notice) {
+            $this->messageManager->addNotice($notice);
         }
 
         return $this;
@@ -73,6 +85,25 @@ class ConfigSaveObserver implements ObserverInterface
         );
 
         return $errors;
+    }
+
+    /**
+     * Get all notices  that should display when tax config is saved
+     *
+     * @return array
+     */
+    protected function getNotices()
+    {
+        $notices = array();
+        $notices = array_merge(
+            $notices,
+            // This check is also being displayed at the top of the page via
+            // \ClassyLlama\AvaTax\Model\Message\ConfigNotification, but it's not as visible as a notice message, so
+            // also add it as a notice.
+            $this->moduleChecks->checkNativeTaxRules()
+        );
+
+        return $notices;
     }
 
     /**

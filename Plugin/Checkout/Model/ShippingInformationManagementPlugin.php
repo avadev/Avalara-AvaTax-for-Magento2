@@ -119,12 +119,16 @@ class ShippingInformationManagementPlugin
         $quote = $this->quoteRepository->getActive($cartId);
         $storeId = $quote->getStoreId();
         if (!$this->config->isModuleEnabled($storeId)) {
-            return $proceed($cartId, $addressInformation);
+            $paymentDetails = $proceed($cartId, $addressInformation);
+            $this->ensureTaxCalculationSuccess($storeId);
+            return $paymentDetails;
         }
 
         // Only validate address if address validation is enabled
         if (!$this->config->isAddressValidationEnabled($storeId)) {
-            return $proceed($cartId, $addressInformation);
+            $paymentDetails = $proceed($cartId, $addressInformation);
+            $this->ensureTaxCalculationSuccess($storeId);
+            return $paymentDetails;
         }
 
         $shippingAddress = $addressInformation->getShippingAddress();
@@ -178,10 +182,7 @@ class ShippingInformationManagementPlugin
 
         $returnValue = $proceed($cartId, $addressInformation);
 
-        if ($this->coreRegistry->registry(Tax::AVATAX_GET_TAX_REQUEST_ERROR)) {
-            $errorMessage = $this->config->getErrorActionDisableCheckoutMessage($storeId);
-            throw new LocalizedException($errorMessage);
-        }
+        $this->ensureTaxCalculationSuccess($storeId);
 
         if (!$shouldValidateAddress) {
             return $returnValue;
@@ -204,5 +205,20 @@ class ShippingInformationManagementPlugin
         $returnValue->setExtensionAttributes($paymentDetailsExtension);
 
         return $returnValue;
+    }
+
+    /**
+     * Check to see if there was an error during tax calculation, and if so, throw exception to prevent further progress
+     *
+     * @param $storeId
+     * @return void
+     * @throws LocalizedException
+     */
+    protected function ensureTaxCalculationSuccess($storeId)
+    {
+        if ($this->coreRegistry->registry(Tax::AVATAX_GET_TAX_REQUEST_ERROR)) {
+            $errorMessage = $this->config->getErrorActionDisableCheckoutMessage($storeId);
+            throw new LocalizedException($errorMessage);
+        }
     }
 }

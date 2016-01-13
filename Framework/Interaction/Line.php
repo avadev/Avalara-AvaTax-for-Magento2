@@ -87,7 +87,7 @@ class Line
         'ExemptionNo' => ['type' => 'string', 'length' => 25],
         'Description' => ['type' => 'string', 'length' => 255],
         'Qty' => ['type' => 'double'],
-        'Amount' => ['type' => 'double'], // Required but $0 value is acceptable so removing required attribute.
+        'Amount' => ['type' => 'double'], // Required, but $0 value is acceptable so removing required attribute.
         'Discounted' => ['type' => 'boolean'],
         'TaxIncluded' => ['type' => 'boolean'],
         'Ref1' => ['type' => 'string', 'length' => 250],
