@@ -27,6 +27,8 @@
                 <logging_db_detail>1</logging_db_detail>
                 <logging_file_enabled>1</logging_file_enabled>
                 <logging_file_mode>1</logging_file_mode>
+                <logging_file_builtin_rotation_enabled>0</logging_file_builtin_rotation_enabled>
+                <logging_file_builtin_rotation_max_files>60</logging_file_builtin_rotation_max_files>
                 <logging_file_level>200</logging_file_level>
                 <logging_file_detail>2</logging_file_detail>
                 <queue_max_retry_attempts>15</queue_max_retry_attempts>

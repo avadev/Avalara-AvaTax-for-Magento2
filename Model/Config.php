@@ -92,6 +92,10 @@ class Config
 
     const XML_PATH_AVATAX_LOG_FILE_MODE = 'tax/avatax/logging_file_mode';
 
+    const XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_ENABLED = 'tax/avatax/logging_file_builtin_rotation_enabled';
+
+    const XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_MAX_FILES = 'tax/avatax/logging_file_builtin_rotation_max_files';
+
     const XML_PATH_AVATAX_LOG_FILE_LEVEL = 'tax/avatax/logging_file_level';
 
     const XML_PATH_AVATAX_LOG_FILE_DETAIL = 'tax/avatax/logging_file_detail';
@@ -909,6 +913,36 @@ class Config
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LOG_FILE_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return if built-in log file rotation is enabled
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getLogFileBuiltinRotateEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return the number of built-in log files to maintain in the log directory when rotating files
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getLogFileBuiltinRotateMaxFiles($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_MAX_FILES,
             ScopeInterface::SCOPE_STORE,
             $store
         );

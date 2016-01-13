@@ -17,6 +17,7 @@ use Magento\Framework\Logger\Handler\System;
 use ClassyLlama\AvaTax\Model\Config;
 use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
 use ClassyLlama\AvaTax\Model\Config\Source\LogFileMode;
+use Monolog\Handler\RotatingFileHandler;
 
 /**
  * Monolog Hanlder for writing log entries to a custom file
@@ -37,6 +38,11 @@ class FileHandler extends System
      * @var System
      */
     protected $systemHandler;
+
+    /**
+     * @var RotatingFileHandler
+     */
+    protected $rotatingFileHandler;
 
     /**
      * @param DriverInterface $filesystem
@@ -63,12 +69,40 @@ class FileHandler extends System
         // Set our custom formatter so that the context and extra parts of the record will print on multiple lines
         $this->setFormatter(new FileFormatter());
         $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
+        $this->initializeRotatingLogs($filePath);
     }
 
+    /**
+     * @param array $processors
+     */
     protected function addExtraProcessors(array $processors) {
         // Add additional processors for extra detail
-        if ($this->avaTaxConfig->getLogFileDetail() == LogDetail::EXTRA) {
+        if (
+            $this->avaTaxConfig->isModuleEnabled() &&
+            $this->avaTaxConfig->getLogFileEnabled() &&
+            $this->avaTaxConfig->getLogFileDetail() == LogDetail::EXTRA
+        ) {
             $this->processors = $processors;
+        }
+    }
+
+    /*
+     * Performs any initialization for log file rotation
+     */
+    protected function initializeRotatingLogs($filePath)
+    {
+        // Add additional processors for extra detail
+        if (
+            $this->avaTaxConfig->isModuleEnabled() &&
+            $this->avaTaxConfig->getLogFileEnabled() &&
+            $this->avaTaxConfig->getLogFileMode() == LogFileMode::SEPARATE &&
+            $this->avaTaxConfig->getLogFileBuiltinRotateEnabled()
+        ) {
+            $this->rotatingFileHandler = new RotatingFileHandler(
+                $filePath ? $filePath . $this->fileName : BP . $this->fileName,
+                $this->avaTaxConfig->getLogFileBuiltinRotateMaxFiles(),
+                $this->avaTaxConfig->getLogFileLevel()
+            );
         }
     }
 
@@ -77,7 +111,6 @@ class FileHandler extends System
      *
      * Uses the admin configuration settings to determine if the record should be handled
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return Boolean
      */
@@ -91,7 +124,6 @@ class FileHandler extends System
     /**
      * Writes the log record to a file based on admin configuration settings
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param $record array
      * @return void
      */
@@ -115,8 +147,36 @@ class FileHandler extends System
         if ($this->avaTaxConfig->getLogFileMode() == LogFileMode::COMBINED) {
             // forward the record to the default system handler for processing instead
             $this->systemHandler->handle($record);
+        } elseif (
+            $this->avaTaxConfig->getLogFileMode() == LogFileMode::SEPARATE &&
+            $this->avaTaxConfig->getLogFileBuiltinRotateEnabled()
+        ) {
+            $this->writeWithRotation($record);
         } else {
             // write the log to the custom log file
+            parent::write($record);
+        }
+    }
+
+    /**
+     * Writes the log record to a separate rotatingFileHandler
+     *
+     * @param $record array
+     * @return void
+     */
+    public function writeWithRotation(array $record)
+    {
+        $logDir = $this->filesystem->getParentDirectory($this->url);
+        if (!$this->filesystem->isDirectory($logDir)) {
+            $this->filesystem->createDirectory($logDir, DriverInterface::WRITEABLE_DIRECTORY_MODE);
+        }
+
+        // make sure the handler is at least there
+        if ($this->rotatingFileHandler != null) {
+            $this->rotatingFileHandler->write($record);
+        } else {
+            // write the log somewhere
+            $record['message'] .= ' - ERROR ROTATING LOG FILE';
             parent::write($record);
         }
     }
