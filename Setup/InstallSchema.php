@@ -114,6 +114,23 @@ class InstallSchema implements InstallSchemaInterface
                 [],
                 'Additional'
             )
+            ->addIndex(
+                $installer->getIdxName('avatax_log', ['created_at']),
+                ['created_at']
+            )
+            ->addIndex(
+                $installer->getIdxName(
+                    'avatax_log',
+                    [
+                        'level',
+                        'created_at'
+                    ]
+                ),
+                [
+                    'level',
+                    'created_at'
+                ]
+            )
             ->setComment('AvaTax Log Table');
         $installer->getConnection()->createTable($table);
 
@@ -204,6 +221,25 @@ class InstallSchema implements InstallSchemaInterface
                 255,
                 [],
                 'Message'
+            )
+            ->addIndex(
+                $installer->getIdxName(
+                    'avatax_queue',
+                    [
+                        'queue_status',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ),
+                [
+                    'queue_status',
+                    'created_at',
+                    'updated_at'
+                ]
+            )
+            ->addIndex(
+                $installer->getIdxName('avatax_log', ['updated_at']),
+                ['updated_at']
             )
             ->addIndex(
                 $installer->getIdxName(
