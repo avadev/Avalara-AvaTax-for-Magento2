@@ -43,7 +43,11 @@ define([
                     click: function () {
                         if (addressModel.error() == null) {
                             addressValidationForm.updateFormFields(this.addressForm);
-                            if (this.addressType == 'billing' && diffAddress.isDifferent() && jQuery('#order-shipping_same_as_billing:checked').length > 0 && addressModel.selectedAddress() == addressModel.validAddress()) {
+                            if (this.addressType == 'billing'
+                                && diffAddress.isDifferent()
+                                && jQuery('#order-shipping_same_as_billing').is(':checked')
+                                && addressModel.selectedAddress() == addressModel.validAddress()
+                            ) {
                                 // Update shipping address with billing newly validation billing information.
                                 // Need to use Prototype to trigger event since events are bound with Prototype and
                                 // jQuery.trigger() doesn't work. See AdminOrder.bindAddressFields for bind logic.
@@ -72,10 +76,9 @@ define([
             addressValidationForm.bindTemplate(this.validationContainer, this.options, 'ClassyLlama_AvaTax/baseValidateAddress');
 
             jQuery(document).on('click', self.validationButtonContainer, function(event) {
-                //if(jQuery(event.target).hasClass(self.validationButtonContainer.replace('.', ''))) {
                 self.validateAddress(event);
-                //}
             });
+            // When the 'Edit this address' link in the instructions is clicked, close the modal
             jQuery(document).on('click', self.validationContainer + ' .instructions a', function () {
                 self.closeModal();
             });

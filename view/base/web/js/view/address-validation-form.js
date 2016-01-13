@@ -154,7 +154,8 @@ define(
                 $(form).find('input[name=' + radioGroupName + ']:radio').on('change', function () {
                     $(form).find(self.validationForm + " .selected")
                         .removeClass(selectedClass)
-                        .parent().find('input[name=' + radioGroupName + ']:checked')
+                        .parent()
+                        .find('input[name=' + radioGroupName + ']:checked')
                         .parents(self.addressOptionSelector)
                         .addClass(selectedClass);
 

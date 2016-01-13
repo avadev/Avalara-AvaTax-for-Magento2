@@ -25,7 +25,7 @@ define(
                         addressModel.validAddress(response);
                     }
                     addressValidationForm.fillValidateForm(form, settings);
-                    if ( addressModel.error() == null) {
+                    if (addressModel.error() == null) {
                         if (!diffAddress.isDifferent()) {
                             alert({
                                 title: $.mage.__('Success'),

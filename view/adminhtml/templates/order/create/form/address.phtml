@@ -1,14 +1,4 @@
 <?php
-/**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
-
-// @codingStandardsIgnoreFile
-
-/**
- * @var \Magento\Sales\Block\Adminhtml\Order\Create\Billing\Address|\Magento\Sales\Block\Adminhtml\Order\Create\Shipping\Address $block
- */
 if ($block->getIsShipping()):
     $_fieldsContainerId = 'order-shipping_address_fields';
     $_addressChoiceContainerId = 'order-shipping_address_choice';
@@ -101,7 +91,9 @@ endif; ?>
     </script>
 </fieldset>
 
+<?php // Begin Edit - Add Button to validate above address ?>
 <?php $addressType = $block->getAddressType(); ?>
 <?php if (!$block->getIsAsBilling() || $addressType === 'billing'): ?>
     <button class="validateAddressButton" data-address-type="<?= $addressType ?>" type="button">Validate address</button>
 <?php endif; ?>
+<?php // End Edit ?>
