@@ -17,7 +17,6 @@ define(
 
         return {
             validationResponseHandler: function (response, settings, form) {
-                var self = this;
                 if (typeof response !== 'undefined') {
                     if (typeof response === 'string') {
                         addressModel.error(response);
@@ -25,13 +24,11 @@ define(
                         addressModel.validAddress(response);
                     }
                     addressValidationForm.fillValidateForm(form, settings);
-                    if (addressModel.error() == null) {
-                        if (!diffAddress.isDifferent()) {
-                            alert({
-                                title: $.mage.__('Success'),
-                                content: $.mage.__('This address is already valid.')
-                            });
-                        }
+                    if (addressModel.error() == null && !diffAddress.isDifferent()) {
+                        alert({
+                            title: $.mage.__('Success'),
+                            content: $.mage.__('This address is already valid.')
+                        });
                     }
                 }
             }
