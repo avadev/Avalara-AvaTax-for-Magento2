@@ -282,13 +282,13 @@
                         <field id="error_action">1</field>
                     </depends>
                 </field>
-                <field id="logging_settings_header" translate="label" type="label" sortOrder="5500" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_settings_header" translate="label" type="label" sortOrder="5500" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label><![CDATA[<strong>Logging Settings</strong>]]></label>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="logging_db_level" translate="label" type="select" sortOrder="5510" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_db_level" translate="label" type="select" sortOrder="5510" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Database Log Level</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
                     <depends>
@@ -304,7 +304,7 @@
                     </depends>
                     <comment>Minimal recommended for production use</comment>
                 </field>
-                <field id="logging_db_lifetime" translate="label" type="text" sortOrder="5530" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_db_lifetime" translate="label" type="text" sortOrder="5530" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Database Log Record Lifetime</label>
                     <comment>Required. Days before entries are auto-purged.</comment>
                     <frontend_class>validate-number</frontend_class>
@@ -313,7 +313,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="logging_file_enabled" translate="label" type="select" sortOrder="5540" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_file_enabled" translate="label" type="select" sortOrder="5540" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable Logging To File</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
@@ -321,7 +321,7 @@
                     </depends>
                     <comment>Archiving of log files is affected by System -> Admin Actions Log Archiving</comment>
                 </field>
-                <field id="logging_file_mode" translate="label" type="select" sortOrder="5550" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_file_mode" translate="label" type="select" sortOrder="5550" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>File Log Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
                     <depends>
@@ -330,7 +330,7 @@
                     </depends>
                     <comment>Log files are located in the magento var/log/ directory</comment>
                 </field>
-                <field id="logging_file_builtin_rotation_enabled" translate="label" type="select" sortOrder="5560" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_file_builtin_rotation_enabled" translate="label" type="select" sortOrder="5560" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable Built-In Log File Rotation</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
@@ -338,12 +338,12 @@
                         <field id="logging_file_enabled">1</field>
                         <field id="logging_file_mode">2</field>
                     </depends>
-                    <comment>When using the separate avatax log file this is an alternative option for rotating log
-                        files and will allow the process writing the log file to rotate log files. This method isn't
-                        efficient and using logrotate to handle the rotation at the system level is strongly encouraged
-                        when you can use it.</comment>
+                    <comment>Automatic log file rotation will allow you to control how much history is maintained in
+                        the AvaTax log files, and separate them by day. For more efficient management of log files you
+                        should disable this option and use something like logrotate to handle the rotation of log files
+                        at the system level.</comment>
                 </field>
-                <field id="logging_file_builtin_rotation_max_files" translate="label" type="text" sortOrder="5570" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_file_builtin_rotation_max_files" translate="label" type="text" sortOrder="5570" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Built-In Log File Rotation Max Files</label>
                     <frontend_class>validate-number</frontend_class>
                     <validate>required-entry integer validate-greater-than-zero</validate>
@@ -357,7 +357,7 @@
                         will create a new file each day.
                     </comment>
                 </field>
-                <field id="logging_file_level" translate="label" type="select" sortOrder="5580" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_file_level" translate="label" type="select" sortOrder="5580" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>File Log Level</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
                     <depends>
@@ -366,7 +366,7 @@
                     </depends>
                     <comment>Info or Notice recommended for production use</comment>
                 </field>
-                <field id="logging_file_detail" translate="label" type="select" sortOrder="5590" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_file_detail" translate="label" type="select" sortOrder="5590" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>File Log Detail</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
@@ -375,14 +375,14 @@
                     </depends>
                     <comment>Normal recommended for production use</comment>
                 </field>
-                <field id="queue_processing_header" translate="label" type="label" sortOrder="6000" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="queue_processing_header" translate="label" type="label" sortOrder="6000" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label><![CDATA[<strong>Queue Processing Settings</strong>]]></label>
                     <comment><![CDATA[If <strong><a href="#tax_avatax">Tax Mode</a></strong> is set to <strong>Estimate Tax & Submit Transactions to AvaTax</strong>, then queue processing is enabled. Otherwise the queue will not submit invoices and credit memos to AvaTax as transaction submissions are disabled.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="queue_max_retry_attempts" translate="label comment" type="text" sortOrder="6020" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="queue_max_retry_attempts" translate="label comment" type="text" sortOrder="6020" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Max Queue Retry Attempts</label>
                     <comment>Please enter a number 1 or greater in this field.</comment>
                     <frontend_class>validate-number</frontend_class>
@@ -391,7 +391,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="queue_complete_lifetime" translate="label comment" type="text" sortOrder="6030" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="queue_complete_lifetime" translate="label comment" type="text" sortOrder="6030" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Complete Queue Lifetime</label>
                     <comment>Required. Days before entries are auto-purged.</comment>
                     <frontend_class>validate-number</frontend_class>
@@ -401,7 +401,7 @@
                         <field id="queue_submission_enabled">1</field>
                     </depends>
                 </field>
-                <field id="queue_failed_lifetime" translate="label comment" type="text" sortOrder="6040" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="queue_failed_lifetime" translate="label comment" type="text" sortOrder="6040" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Failed Queue Lifetime</label>
                     <comment>Required. Days before entries are auto-purged.</comment>
                     <frontend_class>validate-number</frontend_class>
