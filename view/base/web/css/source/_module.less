@@ -1,35 +1,35 @@
 @color-inserted: #93EE9E;
 @color-deleted: #ffc1c3;
 
-.validateAddressForm {
-    display: none;
+.validateAddressForm,
+.validateBinding,
+.checkout-validate-address {
     .form.validate {
         display: flex;
         flex-wrap: wrap;
         .addressOption {
-            padding: 10px;
+            display: flex;
             margin: 20px 0 0 0;
-            cursor: pointer;
-            flex:1 0 auto;
-            .optionTitle {
-                font-weight: bold;
-                font-size: 14px;
-                margin-bottom: 5px;
+            flex: 1 0 auto;
+            .addressLabel {
+                flex: 1;
+                cursor: pointer;
+                display: block;
+                padding: 10px 10px 10px 30px;
+                left: -10px;
+                position: relative;
+                .optionTitle {
+                    font-weight: bold;
+                    font-size: 14px;
+                    margin-bottom: 5px;
+                }
             }
-            .optionAddress {
-                display: flex;
-                input {
-                    outline: none;
-                    cursor: pointer;
-                    width: 30px;
-                    &:focus {
-                        box-shadow: none;
-                    }
-                }
-                label {
-                    width: 100%;
-                    cursor: pointer;
-                }
+            .addressRadio {
+                flex: 0;
+                right: -10px;
+                top: 10px;
+                display: table;
+                position: relative;
             }
             &.selected {
                 outline: 1px solid @color-gray80;
@@ -39,7 +39,7 @@
     }
     .validatedAddress {
         margin-top: 10px;
-        padding: 10px;
+        padding:10px;
         outline: 1px solid @color-gray80;
         background: @color-white-smoke;
     }
@@ -63,6 +63,11 @@
     .instructions a {
         cursor: pointer;
     }
+}
+
+.validateAddressForm,
+.validateBinding {
+    display: none;
 }
 
 .admin__avatax-queue-summary {

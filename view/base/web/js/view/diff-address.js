@@ -62,7 +62,7 @@ define(['ko'], function(ko){
                 }
             }
 
-            return str.trim();
+            return str.trim().replace('undefined', '');
         },
 
         diff: function ( o, n ) {
@@ -106,8 +106,6 @@ define(['ko'], function(ko){
 
             if (JSON.stringify(o) !== JSON.stringify(n)) {
                 this.isDifferent(true);
-            } else {
-                this.isDifferent(false);
             }
 
             return { o: o, n: n };

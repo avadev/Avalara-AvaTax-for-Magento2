@@ -4,9 +4,15 @@ namespace ClassyLlama\AvaTax\Block;
 
 use ClassyLlama\AvaTax\Model\Config;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\UrlInterface;
 
 class CustomerAddress extends \Magento\Framework\View\Element\Template
 {
+
+    /**
+     * Validate address path
+     */
+    const VALIDATE_ADDRESS_PATH = 'avatax/address/validation';
 
     /**
     * @var Config
@@ -14,17 +20,25 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     protected $config = null;
 
     /**
-     * CustomerAddress constructor.
+     * @var \Magento\Framework\UrlInterface
+     */
+    protected $urlBuilder;
+
+    /**
+     * CustomerAddress constructor
      * @param Context $context
+     * @param UrlInterface $urlBuilder
      * @param array $data
      * @param Config $config
      */
     public function __construct(
         Context $context,
+        UrlInterface $urlBuilder,
         array $data = [],
         Config $config
     ) {
         parent::__construct($context, $data);
+        $this->urlBuilder = $urlBuilder;
         $this->config = $config;
     }
 
@@ -78,5 +92,13 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      */
     public function getCountriesEnabled() {
         return $this->config->getAddressValidationCountriesEnabled();
+    }
+
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @return string
+     */
+    public function getBaseUrl() {
+        return $this->urlBuilder->getUrl(self::VALIDATE_ADDRESS_PATH);
     }
 }

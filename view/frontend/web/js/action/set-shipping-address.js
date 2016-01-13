@@ -1,7 +1,6 @@
 define(
     [
         'jquery',
-        'ko',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/resource-url-manager',
         'mage/storage',
@@ -14,7 +13,6 @@ define(
     ],
     function (
         $,
-        ko,
         quote,
         resourceUrlManager,
         storage,
