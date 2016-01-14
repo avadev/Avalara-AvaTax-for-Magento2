@@ -23,6 +23,11 @@ class View extends Container
     protected $coreRegistry;
 
     /**
+     * @var \ClassyLlama\AvaTax\Model\Log
+     */
+    protected $currentLog;
+
+    /**
      * @param \Magento\Backend\Block\Widget\Context $context
      * @param \Magento\Framework\Registry $coreRegistry
      * @param array $data
@@ -37,12 +42,33 @@ class View extends Container
     }
 
     /**
+     * Add back button
+     *
+     * @return void
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->buttonList->add(
+            'back',
+            [
+                'label' => __('Back'),
+                'onclick' => "setLocation('" . $this->_urlBuilder->getUrl('avatax/log') . "')",
+                'class' => 'back'
+            ]
+        );
+    }
+
+    /**
      * Get log model
      *
      * @return \ClassyLlama\AvaTax\Model\Log
      */
     public function getLog()
     {
-        return $this->coreRegistry->registry('current_log');
+        if (null === $this->currentLog) {
+            $this->currentLog = $this->coreRegistry->registry('current_log');
+        }
+        return $this->currentLog;
     }
 }
