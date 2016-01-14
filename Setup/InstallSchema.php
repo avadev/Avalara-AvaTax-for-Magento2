@@ -5,29 +5,13 @@ namespace ClassyLlama\AvaTax\Setup;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\DB\Adapter\AdapterInterface;
-use Magento\Framework\DB\Ddl\Table;
 
 /**
  * @codeCoverageIgnore
  */
 class InstallSchema implements InstallSchemaInterface
 {
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @param AvaTaxLogger $logger
-     */
-    public function __construct(
-        AvaTaxLogger $logger
-    ) {
-        $this->logger = $logger;
-    }
-
     /**
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
@@ -36,9 +20,6 @@ class InstallSchema implements InstallSchemaInterface
     {
         $installer = $setup;
         $installer->startSetup();
-
-        // Logging
-        $this->logger->info(__('ClassyLlama_AvaTax Schema Installation'));
 
         /**
          * Create table 'avatax_log'
@@ -113,6 +94,30 @@ class InstallSchema implements InstallSchemaInterface
                 '64k',
                 [],
                 'Additional'
+            )
+            ->addIndex(
+                $installer->getIdxName(
+                    'avatax_log',
+                    ['created_at'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX
+                ),
+                ['created_at'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX]
+            )
+            ->addIndex(
+                $installer->getIdxName(
+                    'avatax_log',
+                    [
+                        'level',
+                        'created_at'
+                    ],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX
+                ),
+                [
+                    'level',
+                    'created_at'
+                ],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX]
             )
             ->setComment('AvaTax Log Table');
         $installer->getConnection()->createTable($table);
@@ -204,6 +209,32 @@ class InstallSchema implements InstallSchemaInterface
                 255,
                 [],
                 'Message'
+            )
+            ->addIndex(
+                $installer->getIdxName(
+                    'avatax_queue',
+                    [
+                        'queue_status',
+                        'created_at',
+                        'updated_at'
+                    ],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX
+                ),
+                [
+                    'queue_status',
+                    'created_at',
+                    'updated_at'
+                ],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX]
+            )
+            ->addIndex(
+                $installer->getIdxName(
+                    'avatax_log',
+                    ['updated_at'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX
+                ),
+                ['updated_at'],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX]
             )
             ->addIndex(
                 $installer->getIdxName(
