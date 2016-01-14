@@ -676,10 +676,10 @@ class Config extends AbstractHelper
      * Get whether should use Business Identification Number (VAT)
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getUseBusinessIdentificationNumber($store = null)
+    public function getUseBusinessIdentificationNumber($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_USE_VAT,

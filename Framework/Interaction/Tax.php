@@ -530,10 +530,6 @@ class Tax
         ];
     }
 
-    protected function convertCreditMemoToData(\Magento\Sales\Api\Data\CreditmemoInterface $creditMemo)
-    {
-    }
-
     /**
      * Creates and returns a populated getTaxRequest for a quote
      *
