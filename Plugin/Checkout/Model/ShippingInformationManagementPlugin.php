@@ -5,7 +5,7 @@ namespace ClassyLlama\AvaTax\Plugin\Checkout\Model;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address\Validation as ValidationInteraction;
 use ClassyLlama\AvaTax\Framework\Interaction\Address as AddressInteraction;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax;
 use Magento\Checkout\Model\ShippingInformationManagement;
 use Magento\Checkout\Api\Data\ShippingInformationInterface;

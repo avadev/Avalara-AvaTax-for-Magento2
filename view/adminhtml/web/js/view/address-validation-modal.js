@@ -103,19 +103,11 @@ define([
                 jQuery('body').trigger('processStart');
                 var self = this;
                 validateAddressRequest(this.options.baseUrl).done(function (response) {
-                    try {
-                        addressModel.selectedAddress(addressModel.validAddress());
-                        validationResponseHandler.validationResponseHandler(response, settings, self.validationContainer);
-                        jQuery('.validateAddressForm').show();
-                        if (addressModel.isDifferent() || addressModel.error() != null) {
-                            self.openModal();
-                        }
-                    } catch (e) {
-                        // Todo: use standardized error message
-                        alert({
-                            title: $.mage.__('Error'),
-                            content: $.mage.__('This address should not be validated.')
-                        })
+                    addressModel.selectedAddress(addressModel.validAddress());
+                    validationResponseHandler.validationResponseHandler(response, settings, self.validationContainer);
+                    jQuery('.validateAddressForm').show();
+                    if (addressModel.isDifferent() || addressModel.error() != null) {
+                        self.openModal();
                     }
                     jQuery('body').trigger('processStop');
                 }).fail(function () {

@@ -15,14 +15,14 @@ class Plugin
     protected $cartRepository = null;
 
     /**
-     * @var \ClassyLlama\AvaTax\Model\Config
+     * @var \ClassyLlama\AvaTax\Helper\Config
      */
     protected $config = null;
 
     public function __construct(
         \Magento\Framework\DataObject\Factory $objectFactory,
         \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
-        \ClassyLlama\AvaTax\Model\Config $config
+        \ClassyLlama\AvaTax\Helper\Config $config
     ) {
         $this->objectFactory = $objectFactory;
         $this->cartRepository = $cartRepository;

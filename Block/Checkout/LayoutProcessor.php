@@ -2,7 +2,7 @@
 
 namespace ClassyLlama\AvaTax\Block\Checkout;
 
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 
 class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
 {

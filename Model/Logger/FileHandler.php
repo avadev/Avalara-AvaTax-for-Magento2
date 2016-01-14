@@ -14,9 +14,9 @@ use Monolog\Processor\IntrospectionProcessor;
 use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Logger\Handler\Exception;
 use Magento\Framework\Logger\Handler\System;
-use ClassyLlama\AvaTax\Model\Config;
-use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
-use ClassyLlama\AvaTax\Model\Config\Source\LogFileMode;
+use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\Config\Source\LogDetail;
+use ClassyLlama\AvaTax\Helper\Config\Source\LogFileMode;
 use Monolog\Handler\RotatingFileHandler;
 
 /**

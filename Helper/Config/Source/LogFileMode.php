@@ -1,6 +1,6 @@
 <?php
 
-namespace ClassyLlama\AvaTax\Model\Config\Source;
+namespace ClassyLlama\AvaTax\Helper\Config\Source;
 
 use Magento\Framework\Option\ArrayInterface;
 

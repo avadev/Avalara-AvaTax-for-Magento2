@@ -1,8 +1,8 @@
 <?php
 
-namespace ClassyLlama\AvaTax\Model\Config\Source;
+namespace ClassyLlama\AvaTax\Helper\Config\Source;
 
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 
 class TaxMode implements \Magento\Framework\Option\ArrayInterface
 {

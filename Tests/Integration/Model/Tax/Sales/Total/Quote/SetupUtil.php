@@ -151,7 +151,7 @@ class SetupUtil
         self::CUSTOMER_TAX_CLASS_1 => ['avatax_code' => ''],
         /**
          * "E" is the code for a Charitable Organization.
-         * @see \ClassyLlama\AvaTax\Model\Config\Source\AvaTaxCustomerUsageType::toOptionArray
+         * @see \ClassyLlama\AvaTax\Helper\Config\Source\AvaTaxCustomerUsageType::toOptionArray
          */
         self::CUSTOMER_TAX_CLASS_2_NON_PROFIT => ['avatax_code' => 'E'],
     ];

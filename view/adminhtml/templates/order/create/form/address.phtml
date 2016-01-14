@@ -91,9 +91,13 @@ endif; ?>
     </script>
 </fieldset>
 
-<?php // Begin Edit - Add Button to validate above address ?>
-<?php $addressType = $block->getAddressType(); ?>
-<?php if (!$block->getIsAsBilling() || $addressType === 'billing'): ?>
+<?php
+// Begin Edit - Add Button to validate above address
+$addressType = $block->getAddressType();
+$addressValidationEnabled = $this->helper('ClassyLlama\AvaTax\Helper\Config')->isAddressValidationEnabled();
+if ((!$block->getIsAsBilling() || $addressType === 'billing') && $addressValidationEnabled):
+?>
     <button class="validateAddressButton" data-address-type="<?= $addressType ?>" type="button">Validate address</button>
-<?php endif; ?>
-<?php // End Edit ?>
+<?php endif;
+// End Edit
+?>

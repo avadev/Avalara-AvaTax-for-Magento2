@@ -71,7 +71,8 @@ define(
                     return;
                 }
 
-                if ($(this.originalAddressTextSelector).length) {
+                var userCanChooseOriginalAddress = $(this.originalAddressTextSelector).length;
+                if (userCanChooseOriginalAddress) {
                     $(form).find(this.originalAddressTextSelector).html(originalAddress);
                     this.toggleRadioSelected(form, this.addressRadioGroupName, this.selectedAddressClass);
                 }
