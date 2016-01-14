@@ -23,16 +23,6 @@
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CreditmemoInterface" type="ClassyLlama\AvaTax\Model\Creditmemo" />
     <preference for="ClassyLlama\AvaTax\Api\Data\InvoiceInterface" type="ClassyLlama\AvaTax\Model\Invoice" />
-    <type name="ClassyLlama\AvaTax\Model\Session">
-        <arguments>
-            <argument name="storage" xsi:type="object">ClassyLlama\AvaTax\Model\Session\Storage</argument>
-        </arguments>
-    </type>
-    <virtualType name="ClassyLlama\AvaTax\Model\Session\Storage" type="Magento\Framework\Session\Storage">
-        <arguments>
-            <argument name="namespace" xsi:type="string">classyllama_avatax</argument>
-        </arguments>
-    </virtualType>
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
