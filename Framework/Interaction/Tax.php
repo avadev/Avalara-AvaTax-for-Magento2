@@ -747,7 +747,7 @@ class Tax
     protected function getBusinessIdentificationNumber($store, $shippingAddress)
     {
         if ($this->config->getUseBusinessIdentificationNumber($store)) {
-            return $shippingAddress->getVatNumber();
+            return $shippingAddress->getVatId();
         }
         return null;
     }
