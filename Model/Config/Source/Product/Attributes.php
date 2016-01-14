@@ -1,6 +1,6 @@
 <?php
 
-namespace ClassyLlama\AvaTax\Helper\Config\Source\Product;
+namespace ClassyLlama\AvaTax\Model\Config\Source\Product;
 
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;

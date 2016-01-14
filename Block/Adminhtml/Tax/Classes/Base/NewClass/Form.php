@@ -16,7 +16,7 @@ abstract class Form extends \Magento\Backend\Block\Widget\Form\Generic
     /**
      * AvaTax CustomerUsageType
      *
-     * @var \ClassyLlama\AvaTax\Helper\Config\Source\AvaTaxCustomerUsageType|null
+     * @var \ClassyLlama\AvaTax\Model\Config\Source\AvaTaxCustomerUsageType|null
      */
     protected $avaTaxCustomerUsageType = null;
 
@@ -27,14 +27,14 @@ abstract class Form extends \Magento\Backend\Block\Widget\Form\Generic
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Data\FormFactory $formFactory
      * @param array $data
-     * @param \ClassyLlama\AvaTax\Helper\Config\Source\AvaTaxCustomerUsageType $avaTaxCustomerUsageType
+     * @param \ClassyLlama\AvaTax\Model\Config\Source\AvaTaxCustomerUsageType $avaTaxCustomerUsageType
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Data\FormFactory $formFactory,
         array $data,
-        \ClassyLlama\AvaTax\Helper\Config\Source\AvaTaxCustomerUsageType $avaTaxCustomerUsageType
+        \ClassyLlama\AvaTax\Model\Config\Source\AvaTaxCustomerUsageType $avaTaxCustomerUsageType
     ) {
         $this->avaTaxCustomerUsageType = $avaTaxCustomerUsageType;
         parent::__construct($context, $registry, $formFactory, $data);

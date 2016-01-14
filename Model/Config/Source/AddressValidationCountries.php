@@ -1,6 +1,6 @@
 <?php
 
-namespace ClassyLlama\AvaTax\Helper\Config\Source;
+namespace ClassyLlama\AvaTax\Model\Config\Source;
 
 class AddressValidationCountries implements \Magento\Framework\Option\ArrayInterface
 {

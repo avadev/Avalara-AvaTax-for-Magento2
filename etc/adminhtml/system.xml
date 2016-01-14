@@ -11,7 +11,7 @@
                 </field>
                 <field id="tax_mode" translate="label" type="select" sortOrder="1002" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Tax Mode</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\TaxMode</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxMode</source_model>
                     <comment><![CDATA[<ul><li><strong>Disabled</strong> — AvaTax tax estimation will be disabled and native Magento tax estimation will be used. Only use this option if you want to use Address Validation without tax estimation.</li><li><strong>Estimate Tax</strong> — AvaTax tax estimation will run during checkout, but completed orders will not be submitted to AvaTax.</li><li><strong>Estimate Tax & Submit Transactions to AvaTax</strong> — AvaTax tax estimation will run during checkout and invoices and credit memos will be submitted to AvaTax.</li></ul>]]></comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -37,7 +37,7 @@
                 <!-- TODO: Consider using the term "test" for non production/live environments instead of "development". -->
                 <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mode</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\Mode</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -103,7 +103,7 @@
                 <!-- TODO: Possibly have a value that gets set after the first time a live mode customer is set and disable the ability to change this value -->
                 <field id="customer_code_format" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Customer Code Format</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\CustomerCode</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CustomerCode</source_model>
                     <comment>Select a format for customers to be identified in AvaTax.  Once the integration is live, this setting should not be changed.</comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -166,7 +166,7 @@
                 </field>
                 <field id="ref1" translate="label comment" type="select" sortOrder="2090" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Attribute to send as ref1</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\Product\Attributes</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment>Select a text type product attribute to be sent to AvaTax as ref1. Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -174,7 +174,7 @@
                 </field>
                 <field id="ref2" translate="label comment" type="select" sortOrder="2100" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Attribute to send as ref2</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\Product\Attributes</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment>Select a text type product attribute to be sent to AvaTax as ref1. Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -225,7 +225,7 @@
                 </field>
                 <field id="address_validation_countries_enabled" translate="label comment" type="multiselect" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled Countries</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\AddressValidationCountries</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\AddressValidationCountries</source_model>
                     <comment>Select which countries to enable for address validation. AvaTax Address Validation currently only supports United States and Canada.</comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -268,7 +268,7 @@
                 </field>
                 <field id="error_action" translate="label comment" type="select" sortOrder="5010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Error Action</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\ErrorAction</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
                     <comment><![CDATA[What should happen if Magento is unable to retrieve taxes from the AvaTax API. Regardless of which option is selected, if there is an error in the AvaTax tax estimation, the extension will fall back to using native Magento tax rules. However if <strong>Disable checkout & show error message</strong> is selected, the extension will prevent users and admins from placing orders.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -300,7 +300,7 @@
                 </field>
                 <field id="logging_db_level" translate="label" type="select" sortOrder="5510" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Database Log Level</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\LogLevel</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -308,7 +308,7 @@
                 </field>
                 <field id="logging_db_detail" translate="label" type="select" sortOrder="5520" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Database Log Detail</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\LogDetail</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -333,7 +333,7 @@
                 </field>
                 <field id="logging_file_mode" translate="label" type="select" sortOrder="5550" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>File Log Mode</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\LogFileMode</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="logging_file_enabled">1</field>
@@ -369,7 +369,7 @@
                 </field>
                 <field id="logging_file_level" translate="label" type="select" sortOrder="5580" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>File Log Level</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\LogLevel</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="logging_file_enabled">1</field>
@@ -378,7 +378,7 @@
                 </field>
                 <field id="logging_file_detail" translate="label" type="select" sortOrder="5590" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>File Log Detail</label>
-                    <source_model>ClassyLlama\AvaTax\Helper\Config\Source\LogDetail</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="logging_file_enabled">1</field>

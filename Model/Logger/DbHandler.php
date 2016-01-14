@@ -15,7 +15,7 @@ use Monolog\Processor\WebProcessor;
 use Monolog\Processor\IntrospectionProcessor;
 use ClassyLlama\AvaTax\Model\LogFactory;
 use ClassyLlama\AvaTax\Helper\Config;
-use ClassyLlama\AvaTax\Helper\Config\Source\LogDetail;
+use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
 
 /**
  * Monolog Handler for writing log entries to a database table
