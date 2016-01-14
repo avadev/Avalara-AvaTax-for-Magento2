@@ -16,6 +16,11 @@ use Magento\Framework\Phrase;
 class TaxService
 {
     /**
+     * 1 day in seconds
+     */
+    const CACHE_LIFETIME = 86400;
+
+    /**
      * @var CacheInterface
      */
     protected $cache = null;
@@ -70,12 +75,12 @@ class TaxService
      * @return GetTaxResult
      * @throws LocalizedException
      */
-    public function getTax(GetTaxRequest $getTaxRequest)
+    public function getTax(GetTaxRequest $getTaxRequest, $useCache = false)
     {
         $cacheKey = $this->getCacheKey($getTaxRequest);
         $getTaxResult = @unserialize($this->cache->load($cacheKey));
 
-        if ($getTaxResult instanceof GetTaxResult) {
+        if ($getTaxResult instanceof GetTaxResult && $useCache) {
             $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from cache.', [
                 'result' => var_export($getTaxResult, true),
                 'cache_key' => $cacheKey
@@ -90,7 +95,12 @@ class TaxService
         ]);
 
         $serializedGetTaxResult = serialize($getTaxResult);
-        $this->cache->save($serializedGetTaxResult, $cacheKey, [Config::AVATAX_CACHE_TAG]);
+        $this->cache->save(
+            $serializedGetTaxResult,
+            $cacheKey,
+            [Config::AVATAX_CACHE_TAG],
+            self::CACHE_LIFETIME
+        );
         return $getTaxResult;
     }
 

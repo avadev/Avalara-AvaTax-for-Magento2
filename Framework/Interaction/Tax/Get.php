@@ -228,7 +228,7 @@ class Get
         }
 
         try {
-            $getTaxResult = $taxService->getTax($getTaxRequest);
+            $getTaxResult = $taxService->getTax($getTaxRequest, true);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
 
                 $store = $quote->getStore();
