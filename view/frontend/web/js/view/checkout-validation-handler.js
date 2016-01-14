@@ -5,8 +5,7 @@ define(
         'ClassyLlama_AvaTax/js/action/set-shipping-address',
         'ClassyLlama_AvaTax/js/view/update-address',
         'ClassyLlama_AvaTax/js/model/address-model',
-        'ClassyLlama_AvaTax/js/view/address-validation-form',
-        'ClassyLlama_AvaTax/js/view/diff-address'
+        'ClassyLlama_AvaTax/js/view/address-validation-form'
     ],
     function (
         $,
@@ -14,8 +13,7 @@ define(
         setShippingAddress,
         updateAddress,
         addressModel,
-        addressValidationForm,
-        diffAddress
+        addressValidationForm
     ) {
         'use strict';
 
@@ -23,9 +21,11 @@ define(
             options: {
                 validateAddressContainerSelector: '#validate_address'
             },
+            validAddressRadioSelector: '.validAddress',
+            addressValidationRadioGroupName: 'addressToUse',
 
             validationResponseHandler: function (response) {
-                diffAddress.isDifferent(false);
+                addressModel.error(null);
                 if (typeof response.extension_attributes !== 'undefined') {
                     $(this.options.validateAddressContainerSelector + ' *').fadeIn();
                     this.toggleAddressToUse();
@@ -36,21 +36,28 @@ define(
                         addressModel.error(response.extension_attributes.error_message)
                     }
                     addressValidationForm.fillValidateForm(this.options.validateAddressContainerSelector);
-
+                    if (!addressModel.isDifferent() && addressModel.error() == null) {
+                        $(this.options.validateAddressContainerSelector + " *").hide();
+                    }
                     // This click event handler is to allow the user to navigate to the first step to change their
                     // address if they notice an error in their address on the Review & Payments step by clicking
                     // a link in the instructions above their address
-                    $(this.options.validateAddressContainerSelector + ' .instructions a').on('click', function () {
+                    $(this.options.validateAddressContainerSelector + ' .instructions .edit-address').on('click', function () {
                         stepNavigator.navigateTo('shipping', 'shipping');
                     });
                 } else {
-                    $(this.options.validateAddressContainerSelector).hide();
+                    $(this.options.validateAddressContainerSelector + " *").hide();
                 }
             },
 
             toggleAddressToUse: function () {
-                $('input[name=addressToUse]:radio').on('change', function() {
-                    var validSelected = $('#validAddress:checked').length ? true : false;
+                var self = this;
+                // This function is called every time an initial address validation request is made which could happen
+                // multiple times so the change event binding is removed to prevent multiple api requests being sent
+                // when a user selects between the original and valid address
+                $('input[name=' + this.addressValidationRadioGroupName + ']:radio').off('change');
+                $('input[name=' + this.addressValidationRadioGroupName + ']:radio').on('change', function() {
+                    var validSelected = $(self.validAddressRadioSelector).is(':checked');
                     setShippingAddress(validSelected);
                 });
             }

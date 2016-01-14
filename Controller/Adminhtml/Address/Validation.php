@@ -45,6 +45,7 @@ class Validation extends Action
      * @param ValidAddressManagement $validAddressManagement
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
      * @param DataObjectHelper $dataObjectHelper
+     * @param JsonFactory $resultJsonFactory
      * @param Context $context
      */
     public function __construct(
@@ -69,7 +70,7 @@ class Validation extends Action
      */
     public function execute()
     {
-        $customerAddressData = $this->getRequest()->getParams()['address'];
+        $customerAddressData = $this->getRequest()->getParam('address');
 
         $customerAddressDataWithRegion = [];
         $customerAddressDataWithRegion['region']['region'] = $customerAddressData['region'];
@@ -92,19 +93,22 @@ class Validation extends Action
             '\Magento\Customer\Api\Data\AddressInterface'
         );
 
-        $validAddress = $this->validAddressManagement->saveValidAddress($addressDataObject);
-
+        $addressValidationResponse = $this->validAddressManagement->saveValidAddress($addressDataObject);
         $resultJson = $this->resultJsonFactory->create();
-        $resultJson->setData([
-            AddressInterface::FIRSTNAME => $validAddress->getFirstname(),
-            AddressInterface::LASTNAME => $validAddress->getLastname(),
-            AddressInterface::STREET => $validAddress->getStreet(),
-            AddressInterface::COUNTRY_ID => $validAddress->getCountryId(),
-            AddressInterface::CITY => $validAddress->getCity(),
-            AddressInterface::REGION_ID => $validAddress->getRegionId(),
-            AddressInterface::REGION => $validAddress->getRegion(),
-            AddressInterface::POSTCODE => $validAddress->getPostcode()
-        ]);
+        if (!is_string($addressValidationResponse)) {
+            $resultJson->setData([
+                AddressInterface::FIRSTNAME => $addressValidationResponse->getFirstname(),
+                AddressInterface::LASTNAME => $addressValidationResponse->getLastname(),
+                AddressInterface::STREET => $addressValidationResponse->getStreet(),
+                AddressInterface::COUNTRY_ID => $addressValidationResponse->getCountryId(),
+                AddressInterface::CITY => $addressValidationResponse->getCity(),
+                AddressInterface::REGION_ID => $addressValidationResponse->getRegionId(),
+                AddressInterface::REGION => $addressValidationResponse->getRegion(),
+                AddressInterface::POSTCODE => $addressValidationResponse->getPostcode()
+            ]);
+        } else {
+            $resultJson->setData($addressValidationResponse);
+        }
 
         return $resultJson;
     }

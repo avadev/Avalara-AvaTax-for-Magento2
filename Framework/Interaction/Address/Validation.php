@@ -8,7 +8,6 @@ use AvaTax\ValidateRequestFactory;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\AddressService;
-use ClassyLlama\AvaTax\Model\Session;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -31,25 +30,17 @@ class Validation
     protected $validateRequestFactory = null;
 
     /**
-     * @var Session
-     */
-    protected $session = null;
-
-    /**
      * @param Address $interactionAddress
      * @param AddressService $addressService
-     * @param Session $session
      * @param ValidateRequestFactory $validateRequestFactory
      */
     public function __construct(
         Address $interactionAddress,
         AddressService $addressService,
-        Session $session,
         ValidateRequestFactory $validateRequestFactory
     ) {
         $this->interactionAddress = $interactionAddress;
         $this->addressService = $addressService;
-        $this->session = $session;
         $this->validateRequestFactory = $validateRequestFactory;
     }
 
@@ -107,10 +98,10 @@ class Validation
 
                 return $validAddress;
             } else {
-                throw new AddressValidateException(new Phrase($validateResult->getMessages()[0]->getSummary()));
+                throw new AddressValidateException(__($validateResult->getMessages()[0]->getSummary()));
             }
         } catch (\SoapFault $exception) {
-            throw new LocalizedException(new Phrase($exception->getMessage()));
+            throw new LocalizedException(__($exception->getMessage()));
         }
     }
 }

@@ -9,7 +9,7 @@
 namespace ClassyLlama\AvaTax\Model\Log;
 
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Log;
 use ClassyLlama\AvaTax\Model\ResourceModel\Log\CollectionFactory;
 
@@ -42,6 +42,7 @@ class Task
      * Task constructor.
      * @param AvaTaxLogger $avaTaxLogger
      * @param Config $avaTaxConfig
+     * @param CollectionFactory $logCollectionFactory
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,

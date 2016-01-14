@@ -4,7 +4,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\LineFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
 
 class Line
@@ -107,6 +107,7 @@ class Line
      *
      * @param Config $config
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param LineFactory $lineFactory
      * @param ResourceProduct $resourceProduct
      */
@@ -286,7 +287,9 @@ class Line
      * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
+     * @param $credit
      * @return \AvaTax\Line|bool
+     * @throws MetaData\ValidationException
      */
     public function getShippingLine($data, $credit)
     {
@@ -325,7 +328,9 @@ class Line
      * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
+     * @param $credit
      * @return \AvaTax\Line|bool
+     * @throws MetaData\ValidationException
      */
     public function getGiftWrapOrderLine($data, $credit)
     {
@@ -364,7 +369,9 @@ class Line
      * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
+     * @param $credit
      * @return \AvaTax\Line|bool
+     * @throws MetaData\ValidationException
      */
     public function getGiftWrapItemsLine($data, $credit) {
         $giftWrapItemsPrice = $data->getGwItemsBasePrice();
@@ -405,7 +412,9 @@ class Line
      * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
+     * @param $credit
      * @return \AvaTax\Line|bool
+     * @throws MetaData\ValidationException
      */
     public function getGiftWrapCardLine($data, $credit) {
         $giftWrapCardAmount = $data->getGwCardBasePrice();
@@ -510,9 +519,11 @@ class Line
         $this->populateLine($data, $line);
         return $line;
     }
+
     /**
      * @param array $data
      * @param \AvaTax\Line $line
+     * @return \AvaTax\Line
      */
     protected function populateLine(array $data, \AvaTax\Line $line)
     {

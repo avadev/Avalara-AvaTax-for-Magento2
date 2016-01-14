@@ -5,7 +5,7 @@
  */
 namespace ClassyLlama\AvaTax\Ui\Component\Form\Element;
 
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Ui\Component\AbstractComponent;

@@ -10,7 +10,7 @@ use AvaTax\TaxOverrideFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -216,6 +216,7 @@ class Tax
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param TaxServiceSoapFactory $taxServiceSoapFactory
      * @param GetTaxRequestFactory $getTaxRequestFactory
+     * @param TaxOverrideFactory $taxOverrideFactory
      * @param CustomerRepositoryInterface $customerRepository
      * @param GroupRepositoryInterface $groupRepository
      * @param InvoiceRepositoryInterface $invoiceRepository
@@ -437,6 +438,15 @@ class Tax
     }
     */
 
+    /**
+     * Convert Tax Quote Details into data to be converted to a GetTax Request
+     *
+     * @author Jonathan Hodges <jonathan@classyllama.com>
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
+     * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
+     * @param \Magento\Quote\Api\Data\CartInterface $quote
+     * @return array|null
+     */
     protected function convertTaxQuoteDetailsToData(
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
@@ -505,7 +515,8 @@ class Tax
             'DocCode' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'DocDate' => $docDate,
             'DocType' => DocumentType::$PurchaseOrder,
-            'ExchangeRate' => $this->getExchangeRate($store, $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
+            'ExchangeRate' => $this->getExchangeRate($store,
+                $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
 //            'PaymentDate' => null,
@@ -641,6 +652,8 @@ class Tax
             $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
+        // TODO: Fix for guest checkout when $customer is null
+        // TODO: You can't pass a null value to $this->taxClassHelper->getAvataxTaxCodeForCustomer()
         $customer = $this->getCustomerById($order->getCustomerId());
         $data = [
             'StoreId' => $store->getId(),
@@ -653,7 +666,8 @@ class Tax
             'DocCode' => $object->getIncrementId(),
             'DocDate' => $docDate,
             'DocType' => $docType,
-            'ExchangeRate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
+            'ExchangeRate' => $this->getExchangeRate($store,
+                $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
 //            'PaymentDate' => null,

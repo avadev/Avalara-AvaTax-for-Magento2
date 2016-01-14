@@ -1,30 +1,33 @@
 define(
     [
         'jquery',
+        'Magento_Ui/js/modal/alert',
         'ClassyLlama_AvaTax/js/model/address-model',
         'ClassyLlama_AvaTax/js/view/address-validation-form'
     ],
     function (
         $,
+        alert,
         addressModel,
         addressValidationForm
     ) {
         'use strict';
 
         return {
-            validationContainer: '.validationModal .modal-content .validateBinding',
-            bindingElement: '.validationModal',
-
-            // TODO: maybe remove this function? It seems a bit too much to have this whole file for a single function
-            validationResponseHandler: function (response) {
+            validationResponseHandler: function (response, settings, form) {
                 if (typeof response !== 'undefined') {
                     if (typeof response === 'string') {
                         addressModel.error(response);
                     } else {
                         addressModel.validAddress(response);
                     }
-                    addressValidationForm.fillValidateForm(this.validationContainer);
-                    $(this.bindingElement).trigger('processStop');
+                    addressValidationForm.fillValidateForm(form, settings);
+                    if (addressModel.error() == null && !addressModel.isDifferent()) {
+                        alert({
+                            title: $.mage.__('Success'),
+                            content: $.mage.__('This address is already valid.')
+                        });
+                    }
                 }
             }
         };

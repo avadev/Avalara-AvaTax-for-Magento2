@@ -334,7 +334,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         // Ensure AvaTax is disabled
         $nativeConfigData = [
             SetupUtil::CONFIG_OVERRIDES => [
-                \ClassyLlama\AvaTax\Model\Config::XML_PATH_AVATAX_MODULE_ENABLED => 0,
+                \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_MODULE_ENABLED => 0,
             ],
         ];
         $nativeQuoteAddress = $this->calculateTaxes($nativeConfigData, $quoteData);

@@ -9,7 +9,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\TaxService;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\DataObject;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
@@ -77,6 +77,7 @@ class Get
      * @param Config $config
      * @param Get\ResponseFactory $getTaxResponseFactory
      * @param AvaTaxLogger $avaTaxLogger
+     * @param TaxService $taxService
      */
     public function __construct(
         TaxCalculation $taxCalculation,
@@ -114,9 +115,21 @@ class Get
             /** @var $getTaxRequest GetTaxRequest */
             $getTaxRequest = $this->interactionTax->getGetTaxRequestForSalesObject($object);
         } catch (\Exception $e) {
-            $message = $e->getMessage();
-            $this->avaTaxLogger->warning($message);
-            throw new Get\Exception($message, $e->getCode(), $e);
+            $message = __('Error while building the request to send to AvaTax. ');
+            $this->avaTaxLogger->error(
+                $message,
+                [ /* context */
+                    'entity_id' => $object->getEntityId(),
+                    'object_class' => get_class($object),
+                    'exception' => sprintf(
+                        'Exception message: %s%sTrace: %s',
+                        $e->getMessage(),
+                        "\n",
+                        $e->getTraceAsString()
+                    ),
+                ]
+            );
+            throw new Get\Exception($message . $e->getMessage(), $e->getCode(), $e);
         }
 
         if (is_null($getTaxRequest)) {
@@ -157,6 +170,8 @@ class Get
                 throw new Get\Exception($message);
             }
         } catch (\SoapFault $exception) {
+            // TODO: Has this been tested? The IDE isn't aware of faultstring or __getLastRequest/Response
+            // TODO: Details expected to exceed 255 characters should be put in the context array
             $message = "Exception: \n";
             if ($exception) {
                 $message .= $exception->faultstring;
@@ -202,7 +217,8 @@ class Get
         // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
         // calculated by multiplying the base tax rates * currency conversion rate.
         /** @var $getTaxRequest GetTaxRequest */
-        $getTaxRequest = $this->interactionTax->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
+        $getTaxRequest =
+            $this->interactionTax->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
 
         if (is_null($getTaxRequest)) {
             // TODO: Possibly refactor all usages of setErrorMessage to throw exception instead so that this class can be stateless
@@ -212,12 +228,14 @@ class Get
         }
 
         try {
-            $getTaxResult = $taxService->getTax($getTaxRequest);
+            $getTaxResult = $taxService->getTax($getTaxRequest, true);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
 
                 $store = $quote->getStore();
-                $taxDetails = $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
-                $baseTaxDetails = $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
+                $taxDetails =
+                    $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
+                $baseTaxDetails =
+                    $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
 
                 return [
                     self::KEY_TAX_DETAILS => $taxDetails,

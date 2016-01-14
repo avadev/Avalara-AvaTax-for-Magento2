@@ -10,7 +10,7 @@ namespace ClassyLlama\AvaTax\Plugin;
 
 use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Model\QueueFactory;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Sales\Api\Data\CreditmemoExtensionFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
