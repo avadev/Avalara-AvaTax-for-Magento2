@@ -28,6 +28,7 @@ define(
         'use strict';
 
         return {
+            validateAddressContainerSelector: '#validate_address',
             saveShippingInformation: function () {
                 var payload;
 
@@ -54,7 +55,11 @@ define(
                         quote.setTotals(response.totals);
                         paymentService.setPaymentMethods(methodConverter(response.payment_methods));
                         // Begin Edit
-                        checkoutValidationHandler.validationResponseHandler(response);
+                        try {
+                            checkoutValidationHandler.validationResponseHandler(response);
+                        } catch (e) {
+                            $(this.validateAddressContainerSelector + " *").hide();
+                        }
                         // End Edit
                         fullScreenLoader.stopLoader();
                     }

@@ -209,7 +209,7 @@
                     <label>Enable Address Validation</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <config_path>tax/avatax/address_validation_enabled</config_path>
-                    <comment>Enable validation of shipping address using the AvaTax Address Validation API</comment>
+                    <comment>Enable validation of shipping address using the AvaTax Address Validation API.</comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -217,7 +217,7 @@
                 <field id="address_validation_user_has_choice" translate="label comment" type="select" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Allow user to choose original (invalid) address</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Set this to "Yes" to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to "No", user will be required to use validated address or update their original address.</comment>
+                    <comment>Set this to "Yes" to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to "No", user will be required to use the validated address or update their original address.</comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation">1</field>
@@ -234,7 +234,7 @@
                 </field>
                 <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Address Validation Instructions With Choice</label>
-                    <comment>This text will be displayed to the user in the "Verify Your Address" step of the checkout process when the "Allow user to choose original (invalid) address" option above is set to "Yes"</comment>
+                    <comment>This text will be displayed when the "Allow user to choose original (invalid) address" option above is set to "Yes."</comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation">1</field>
@@ -243,7 +243,7 @@
                 </field>
                 <field id="address_validation_instructions_without_choice" translate="label comment" type="textarea" sortOrder="4050" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Address Validation Instructions Without Choice</label>
-                    <comment>This text will be displayed to the user in the "Verify Your Address" step of the checkout process when the "Allow user to choose original (invalid) address" option above is set to "No"</comment>
+                    <comment>This text will be displayed when the "Allow user to choose original (invalid) address" option above is set to "No."</comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation">1</field>
@@ -252,7 +252,7 @@
                 </field>
                 <field id="address_validation_error_instructions" translate="label comment" type="textarea" sortOrder="4060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Address Validation Error Instructions</label>
-                    <comment>This text will be displayed to the user in the "Verify Your Address" step of the checkout process when there is an error in the validation process</comment>
+                    <comment>This text will be displayed when there is an error in the address validation process. The &lt;p&gt; tag will be filled with the error message summary returned by AvaTax.</comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation">1</field>

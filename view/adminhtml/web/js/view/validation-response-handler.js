@@ -3,15 +3,13 @@ define(
         'jquery',
         'Magento_Ui/js/modal/alert',
         'ClassyLlama_AvaTax/js/model/address-model',
-        'ClassyLlama_AvaTax/js/view/address-validation-form',
-        'ClassyLlama_AvaTax/js/view/diff-address'
+        'ClassyLlama_AvaTax/js/view/address-validation-form'
     ],
     function (
         $,
         alert,
         addressModel,
-        addressValidationForm,
-        diffAddress
+        addressValidationForm
     ) {
         'use strict';
 
@@ -24,7 +22,7 @@ define(
                         addressModel.validAddress(response);
                     }
                     addressValidationForm.fillValidateForm(form, settings);
-                    if (addressModel.error() == null && !diffAddress.isDifferent()) {
+                    if (addressModel.error() == null && !addressModel.isDifferent()) {
                         alert({
                             title: $.mage.__('Success'),
                             content: $.mage.__('This address is already valid.')
