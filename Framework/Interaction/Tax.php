@@ -640,6 +640,8 @@ class Tax
             $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
+        // TODO: Fix for guest checkout when $customer is null
+        // TODO: You can't pass a null value to $this->taxClassHelper->getAvataxTaxCodeForCustomer()
         $customer = $this->getCustomerById($order->getCustomerId());
         $data = [
             'StoreId' => $store->getId(),

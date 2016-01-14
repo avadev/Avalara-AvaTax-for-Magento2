@@ -114,9 +114,21 @@ class Get
             /** @var $getTaxRequest GetTaxRequest */
             $getTaxRequest = $this->interactionTax->getGetTaxRequestForSalesObject($object);
         } catch (\Exception $e) {
-            $message = $e->getMessage();
-            $this->avaTaxLogger->warning($message);
-            throw new Get\Exception($message, $e->getCode(), $e);
+            $message = __('Error while building the request to send to AvaTax. ');
+            $this->avaTaxLogger->error(
+                $message,
+                [ /* context */
+                    'entity_id' => $object->getEntityId(),
+                    'object_class' => get_class($object),
+                    'exception' => sprintf(
+                        'Exception message: %s%sTrace: %s',
+                        $e->getMessage(),
+                        "\n",
+                        $e->getTraceAsString()
+                    ),
+                ]
+            );
+            throw new Get\Exception($message . $e->getMessage(), $e->getCode(), $e);
         }
 
         if (is_null($getTaxRequest)) {
@@ -157,6 +169,8 @@ class Get
                 throw new Get\Exception($message);
             }
         } catch (\SoapFault $exception) {
+            // TODO: Has this been tested? The IDE isn't aware of faultstring or __getLastRequest/Response
+            // TODO: Details expected to exceed 255 characters should be put in the context array
             $message = "Exception: \n";
             if ($exception) {
                 $message .= $exception->faultstring;
