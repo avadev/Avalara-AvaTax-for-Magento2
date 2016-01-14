@@ -43,6 +43,9 @@ class TaxService
     /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
+     * @param Tax $taxInteraction
+     * @param MetaDataObjectFactory $metaDataObjectFactory
+     * @param null $type
      */
     public function __construct(
         CacheInterface $cache,
@@ -54,7 +57,9 @@ class TaxService
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->taxInteraction = $taxInteraction;
-        $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => \ClassyLlama\AvaTax\Framework\Interaction\Tax::$validFields]);
+        $this->metaDataObject = $metaDataObjectFactory->create(
+            ['metaDataProperties' => \ClassyLlama\AvaTax\Framework\Interaction\Tax::$validFields]
+        );
     }
 
     /**

@@ -77,6 +77,7 @@ class Get
      * @param Config $config
      * @param Get\ResponseFactory $getTaxResponseFactory
      * @param AvaTaxLogger $avaTaxLogger
+     * @param TaxService $taxService
      */
     public function __construct(
         TaxCalculation $taxCalculation,
@@ -216,7 +217,8 @@ class Get
         // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
         // calculated by multiplying the base tax rates * currency conversion rate.
         /** @var $getTaxRequest GetTaxRequest */
-        $getTaxRequest = $this->interactionTax->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
+        $getTaxRequest =
+            $this->interactionTax->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
 
         if (is_null($getTaxRequest)) {
             // TODO: Possibly refactor all usages of setErrorMessage to throw exception instead so that this class can be stateless
@@ -230,8 +232,10 @@ class Get
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
 
                 $store = $quote->getStore();
-                $taxDetails = $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
-                $baseTaxDetails = $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
+                $taxDetails =
+                    $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
+                $baseTaxDetails =
+                    $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
 
                 return [
                     self::KEY_TAX_DETAILS => $taxDetails,

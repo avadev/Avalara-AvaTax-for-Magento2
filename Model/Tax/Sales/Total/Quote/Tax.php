@@ -317,6 +317,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * Add extension attribute fields to the \Magento\Tax\Model\Sales\Quote\ItemDetails object for the shipping record
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject
+     * @param $storeId
      * @return $this
      */
     protected function addInfoToQuoteDetailsItemForShipping(

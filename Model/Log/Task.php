@@ -42,6 +42,7 @@ class Task
      * Task constructor.
      * @param AvaTaxLogger $avaTaxLogger
      * @param Config $avaTaxConfig
+     * @param CollectionFactory $logCollectionFactory
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,

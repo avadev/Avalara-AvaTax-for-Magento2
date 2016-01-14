@@ -59,7 +59,7 @@ class ObjectType extends MetaDataAbstract
     public function setClass($class)
     {
         if (!is_string($class) || !class_exists($class)) {
-            throw new LocalizedException(new Phrase('%1 is not a valid class', [$class]));
+            throw new LocalizedException(__('%1 is not a valid class', [$class]));
         }
 
         $this->data[self::ATTR_CLASS] = $class;
@@ -78,14 +78,14 @@ class ObjectType extends MetaDataAbstract
     {
         if ($this->getType() != getType($value)) {
             if ($this->getRequired()) {
-                throw new ValidationException(new Phrase('The value you passed in is not an object.'));
+                throw new ValidationException(__('The value you passed in is not an object.'));
             }
             $value = null;
         }
 
         $class = $this->getClass();
         if (!is_null($value) && !($value instanceof $class)) {
-            throw new ValidationException(new Phrase(
+            throw new ValidationException(__(
                 'The object you passed in is of type %1 and is required to be of type %2.',
                 [
                     get_class($value),
@@ -101,8 +101,9 @@ class ObjectType extends MetaDataAbstract
      * Returns the cacheable portion of the string version of this object
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data
+     * @param $value
      * @return mixed
+     * @internal param $data
      */
     public function getCacheKey($value)
     {

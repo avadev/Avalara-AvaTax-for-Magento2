@@ -154,7 +154,7 @@ class MetaDataObject
         foreach ($this->requiredRules as $requiredRule) {
             if (!array_key_exists($requiredRule->getName(), $validatedData) ||
                 empty($validatedData[$requiredRule->getName()])) {
-                throw new ValidationException(new Phrase(
+                throw new ValidationException(__(
                     '%1 is a required field and was either not passed in or did not pass validation.',
                     [
                         $requiredRule->getName()
@@ -183,7 +183,8 @@ class MetaDataObject
 
         foreach ($data as $name => $item) {
             /** @var $keyGenerator MetaDataAbstract */
-            $keyGenerator = isset($this->metaDataProperties[$name]) ? $this->metaDataProperties[$name] : $defaultKeyGenerator;
+            $keyGenerator =
+                isset($this->metaDataProperties[$name]) ? $this->metaDataProperties[$name] : $defaultKeyGenerator;
             if (!is_null($keyGenerator)) {
                 $cacheKey .= $keyGenerator->getCacheKey($item);
             }
