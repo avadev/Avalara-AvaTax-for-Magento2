@@ -505,12 +505,15 @@ class Tax
         // Quote created/updated date is not relevant, so just pass the current date
         $docDate = $currentDate;
 
+        $customerUsageType = $quote->getCustomer()
+            ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer())
+            : null;
         return [
             'StoreId' => $store->getId(),
             'Commit' => false, // quotes should never be committed
             'CurrencyCode' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($quote),
-            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer()),
+            'CustomerUsageType' => $customerUsageType,
             'DestinationAddress' => $address,
             'DocCode' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'DocDate' => $docDate,
@@ -655,13 +658,14 @@ class Tax
         // TODO: Fix for guest checkout when $customer is null
         // TODO: You can't pass a null value to $this->taxClassHelper->getAvataxTaxCodeForCustomer()
         $customer = $this->getCustomerById($order->getCustomerId());
+        $customerUsageType = $customer ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer) : null;
         $data = [
             'StoreId' => $store->getId(),
             'Commit' => $this->config->getCommitSubmittedTransactions($store),
             'TaxOverride' => $taxOverride,
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
-            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
+            'CustomerUsageType' => $customerUsageType,
             'DestinationAddress' => $address,
             'DocCode' => $object->getIncrementId(),
             'DocDate' => $docDate,

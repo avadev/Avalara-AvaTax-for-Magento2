@@ -114,6 +114,10 @@ class TaxClass
     public function getAvataxTaxCodeForCustomer(\Magento\Customer\Api\Data\CustomerInterface $customer)
     {
         $customerGroupId = $customer->getGroupId();
+        if (!$customerGroupId) {
+            return null;
+        }
+
         try {
             $customerGroup = $this->customerGroupRepository->getById($customerGroupId);
             $taxClassId = $customerGroup->getTaxClassId();
