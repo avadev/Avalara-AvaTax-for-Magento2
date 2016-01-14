@@ -203,7 +203,9 @@ define(
             diffAddressField: function (o, n) {
                 if(o !== n) {
                     addressModel.isDifferent(true);
-                    n = '<span class="address-field-changed">' + n + '</span>';
+                    if (n.length) {
+                        n = '<span class="address-field-changed">' + n + '</span>';
+                    }
                 }
                 return n;
             },
