@@ -5,7 +5,6 @@ namespace ClassyLlama\AvaTax\Setup;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 /**
  * @codeCoverageIgnore
@@ -13,29 +12,12 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @param AvaTaxLogger $logger
-     */
-    public function __construct(
-        AvaTaxLogger $logger
-    ) {
-        $this->logger = $logger;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
         if (version_compare($context->getVersion(), '0.1.3', '<')) {
-
-            $this->logger->info(__('ClassyLlama_AvaTax Schema Upgrade to 0.1.3'));
-
             // Add column to invoice and credit memo tables for avatax responses
             $setup->getConnection()->addColumn(
                 $setup->getTable('sales_invoice'),
@@ -90,9 +72,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         if (version_compare($context->getVersion(), '0.1.4', '<')) {
-            // Logging
-            $this->logger->info('ClassyLlama_AvaTax Schema Upgrade to 0.1.4');
-
             /**
              * Add "avatax_code" column to tax_class table
              */
