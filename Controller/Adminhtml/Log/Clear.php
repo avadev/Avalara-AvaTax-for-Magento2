@@ -9,7 +9,6 @@
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Log;
 
 use ClassyLlama\AvaTax\Controller\Adminhtml\Log;
-use Magento\Backend\Model\View\Result\Page;
 use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\App\Action\Context;

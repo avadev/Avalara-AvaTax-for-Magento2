@@ -45,6 +45,7 @@ class Validation extends Action
      * @param ValidAddressManagement $validAddressManagement
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
      * @param DataObjectHelper $dataObjectHelper
+     * @param JsonFactory $resultJsonFactory
      * @param Context $context
      */
     public function __construct(

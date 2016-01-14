@@ -1026,7 +1026,9 @@ class SetupUtil
      * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Catalog\Model\Product $product
      * @param int $qty
+     * @param $itemData
      * @throws \Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function addProductToQuote(
         \Magento\Quote\Model\Quote $quote,

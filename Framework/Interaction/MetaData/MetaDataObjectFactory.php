@@ -29,8 +29,10 @@ class MetaDataObjectFactory
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param string $instanceName
      */
-    public function __construct(\Magento\Framework\ObjectManagerInterface $objectManager, $instanceName = '\\ClassyLlama\\AvaTax\\Framework\\Interaction\\MetaData\\MetaDataObject')
-    {
+    public function __construct(
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        $instanceName = '\\ClassyLlama\\AvaTax\\Framework\\Interaction\\MetaData\\MetaDataObject'
+    ) {
         $this->_objectManager = $objectManager;
         $this->_instanceName = $instanceName;
     }

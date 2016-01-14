@@ -107,10 +107,10 @@ class Validation
 
                 return $validAddress;
             } else {
-                throw new AddressValidateException(new Phrase($validateResult->getMessages()[0]->getSummary()));
+                throw new AddressValidateException(__($validateResult->getMessages()[0]->getSummary()));
             }
         } catch (\SoapFault $exception) {
-            throw new LocalizedException(new Phrase($exception->getMessage()));
+            throw new LocalizedException(__($exception->getMessage()));
         }
     }
 }

@@ -27,7 +27,7 @@ class StringType extends MetaDataAbstract
     public function setLength($length)
     {
         if (!is_integer($length) || $length <= 0) {
-            throw new LocalizedException(new Phrase(
+            throw new LocalizedException(__(
                 'Length can only be set to integer greater than or equal to 0.  You tried to set it to: %1.',
                 [
                     $length
@@ -51,9 +51,7 @@ class StringType extends MetaDataAbstract
     public function setFormat($format)
     {
         if (!is_string($format) || preg_match($format, null) === false) {
-            throw new LocalizedException(
-                new Phrase('Format must be a valid regular expression.  You passed "%1"', [$format])
-            );
+            throw new LocalizedException(__('Format must be a valid regular expression.  You passed "%1"', [$format]));
         }
         $this->data[self::ATTR_FORMAT] = $format;
         return false;
@@ -106,7 +104,7 @@ class StringType extends MetaDataAbstract
     {
         if (!empty($this->getFormat()) &&
             !preg_match($this->getFormat(), $value)) {
-            throw new ValidationException(new Phrase('AvaTax requires %1 field to match the regex: "%2"', [
+            throw new ValidationException(__('AvaTax requires %1 field to match the regex: "%2"', [
                 $this->getName(),
                 $this->getFormat(),
             ]));

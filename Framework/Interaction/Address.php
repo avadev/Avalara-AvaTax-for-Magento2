@@ -102,13 +102,13 @@ class Address
     /**
      * Address constructor.
      * @param Config $config
+     * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param AddressFactory $addressFactory
      * @param AddressServiceSoapFactory $addressServiceSoapFactory
      * @param RegionCollectionFactory $regionCollectionFactory
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
      * @param QuoteAddressInterfaceFactory $quoteAddressFactory
      * @param OrderAddressInterfaceFactory $orderAddressFactory
-     * @internal param ATConfigFactory $avaTaxConfigFactory
      * @param DataObjectHelper $dataObjectHelper
      */
     public function __construct(
@@ -181,7 +181,7 @@ class Address
                 $data = $this->convertAddressModelToAvaTaxAddress($data);
                 break;
             case (!is_array($data)):
-                throw new LocalizedException(new Phrase(
+                throw new LocalizedException(__(
                     'Input parameter "$data" was not of a recognized/valid type: "%1".', [
                         gettype($data),
                 ]));
@@ -367,7 +367,7 @@ class Address
         if ($address->getLine3()) {
             $street[] = $address->getLine3();
         }
-        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
+        // Not using line 4, as it returns a concatenation of city, state, and zip (e.g., BAINBRIDGE IS WA 98110-2450)
 
         $region = $this->getRegionByCode($address->getRegion());
         if (is_null($region)) {
@@ -429,7 +429,7 @@ class Address
         if ($address->getLine3()) {
             $street[] = $address->getLine3();
         }
-        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
+        // Not using line 4, as it returns a concatenation of city, state, and zip (e.g., BAINBRIDGE IS WA 98110-2450)
 
         // Get data from original address so that information like name and telephone will be preserved
         $data = array_merge($originalAddress->getData(), [
@@ -471,7 +471,7 @@ class Address
         if ($address->getLine3()) {
             $street[] = $address->getLine3();
         }
-        // Not using line 4, as it returns a concatenation of city, state, and zipcode (e.g., BAINBRIDGE IS WA 98110-2450)
+        // Not using line 4, as it returns a concatenation of city, state, and zip (e.g., BAINBRIDGE IS WA 98110-2450)
 
         $region = $this->getRegionByCode($address->getRegion());
         if (is_null($region)) {
@@ -533,7 +533,7 @@ class Address
         $region = $this->regionCollection->getItemById($regionId);
 
         if (!($region instanceof Region)) {
-            throw new LocalizedException(new Phrase(
+            throw new LocalizedException(__(
                 'Region "%1" was not found.', [
                 $regionId,
             ]));
@@ -566,7 +566,7 @@ class Address
      * Map data array to methods in GetTaxRequest object
      *
      * @param array $data
-     * @param \AvaTax\Address $getTaxRequest
+     * @param \AvaTax\Address $address
      * @return \AvaTax\Address
      */
     protected function populateAddress(array $data, \AvaTax\Address $address)

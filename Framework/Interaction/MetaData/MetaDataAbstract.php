@@ -60,7 +60,8 @@ abstract class MetaDataAbstract
             $this->data[self::ATTR_NAME] = $name;
         } else {
             throw new LocalizedException(
-                new Phrase('Both type and name must be strings.  Type must be one of the following: \'boolean\', \'integer\', \'string\', \'double\', \'object\', \'array\'.')
+                __('Both type and name must be strings.  Type must be one of the following: ' .
+                    '\'boolean\', \'integer\', \'string\', \'double\', \'object\', \'array\'.')
             );
         }
 
@@ -183,7 +184,7 @@ abstract class MetaDataAbstract
         foreach ($validOptions as $validOption) {
             if (getType($validOption) !== $this->data[self::ATTR_TYPE]) {
                 throw new LocalizedException(
-                    new Phrase(
+                    __(
                         'All valid options must be of type %1, you passed one of type %2.',
                         [
                             $this->data[self::ATTR_TYPE],
@@ -309,7 +310,7 @@ abstract class MetaDataAbstract
         // Make sure the value is a valid option if options are set
         if (!empty($this->getOptions()) && !in_array($value, $this->getOptions())) {
             if ($this->getRequired()) {
-                throw new ValidationException(new Phrase(
+                throw new ValidationException(__(
                     'The value you passed in is not one of the valid options.  Valid Options are: %1',
                     [
                         print_r($this->getOptions(), true)
@@ -337,7 +338,7 @@ abstract class MetaDataAbstract
             try {
                 settype($value, $this->getType());
             } catch (\Exception $e) {
-                throw new ValidationException(new Phrase('Could not convert "%1" to a "%2"', [
+                throw new ValidationException(__('Could not convert "%1" to a "%2"', [
                     $this->getName(),
                     $this->getType(),
                 ]));
@@ -351,7 +352,7 @@ abstract class MetaDataAbstract
      * Returns the cacheable portion of the string version of this object
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data
+     * @param $value
      * @return mixed
      */
     public function getCacheKey($value)
