@@ -220,7 +220,7 @@
                     <comment>Set this to "Yes" to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to "No", user will be required to use the validated address or update their original address.</comment>
                     <depends>
                         <field id="enabled">1</field>
-                        <field id="address_validation">1</field>
+                        <field id="address_validation_enabled">1</field>
                     </depends>
                 </field>
                 <field id="address_validation_countries_enabled" translate="label comment" type="multiselect" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -229,7 +229,7 @@
                     <comment>Select which countries to enable for address validation. AvaTax Address Validation currently only supports United States and Canada.</comment>
                     <depends>
                         <field id="enabled">1</field>
-                        <field id="address_validation">1</field>
+                        <field id="address_validation_enabled">1</field>
                     </depends>
                 </field>
                 <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -237,7 +237,7 @@
                     <comment><![CDATA[This text will be displayed to the user above the <strong>Suggested Address</strong> and <strong>Original Address</strong>.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
-                        <field id="address_validation">1</field>
+                        <field id="address_validation_enabled">1</field>
                         <field id="address_validation_user_has_choice">1</field>
                     </depends>
                 </field>
@@ -246,16 +246,16 @@
                     <comment>This text will be displayed to the user above the suggested address.</comment>
                     <depends>
                         <field id="enabled">1</field>
-                        <field id="address_validation">1</field>
+                        <field id="address_validation_enabled">1</field>
                         <field id="address_validation_user_has_choice">0</field>
                     </depends>
                 </field>
                 <field id="address_validation_error_instructions" translate="label comment" type="textarea" sortOrder="4060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Address Validation Error Instructions</label>
-                    <comment>This text will be displayed when there is an error in the address validation process. The &lt;p&gt; tag will be filled with the error message summary returned by AvaTax.</comment>
+                    <comment>This text will be displayed when there is an error in the address validation process. The element assigned the 'error-message' class will be filled with the error message summary returned by AvaTax.</comment>
                     <depends>
                         <field id="enabled">1</field>
-                        <field id="address_validation">1</field>
+                        <field id="address_validation_enabled">1</field>
                     </depends>
                 </field>
                 <field id="error_handling_header" translate="label" type="label" sortOrder="5000" showInDefault="1" showInWebsite="1" showInStore="1">
