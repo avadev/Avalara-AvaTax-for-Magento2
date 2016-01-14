@@ -83,6 +83,7 @@ define([
                                 }
                                 addressValidationForm.fillValidateForm(self.validationContainer);
                                 if (addressModel.isDifferent() || addressModel.error() != null) {
+                                    $('.validateAddressForm').show();
                                     self.openModal();
                                 } else {
                                     $(self.formSelector).off();
