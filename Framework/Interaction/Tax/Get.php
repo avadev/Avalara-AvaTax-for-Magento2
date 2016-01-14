@@ -254,7 +254,7 @@ class Get
             }
             $message .= $taxService->__getLastRequest() . "\n";
             $message .= $taxService->__getLastResponse() . "\n";
-            $this->avaTaxLogger->critical(
+            $this->avaTaxLogger->error(
                 "Exception: \n" . ($exception) ? $exception->faultstring: "",
                 [ /* context */
                     'request' => var_export($taxService->__getLastRequest(), true),
