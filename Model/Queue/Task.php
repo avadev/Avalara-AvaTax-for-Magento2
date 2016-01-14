@@ -11,7 +11,7 @@ namespace ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use ClassyLlama\AvaTax\Model\ResourceModel\Queue\CollectionFactory;
 use ClassyLlama\AvaTax\Model\Queue;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 
 /**
  * Queue Task

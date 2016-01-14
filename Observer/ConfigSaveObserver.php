@@ -1,7 +1,7 @@
 <?php
 namespace ClassyLlama\AvaTax\Observer;
 
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\Event\ObserverInterface;
 
 /**

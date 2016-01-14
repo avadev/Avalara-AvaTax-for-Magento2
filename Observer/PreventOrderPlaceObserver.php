@@ -2,7 +2,7 @@
 namespace ClassyLlama\AvaTax\Observer;
 
 use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Event\ObserverInterface;
 

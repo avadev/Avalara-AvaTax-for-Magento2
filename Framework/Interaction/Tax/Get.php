@@ -9,7 +9,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\TaxService;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\DataObject;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;

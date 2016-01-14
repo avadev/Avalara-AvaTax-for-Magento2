@@ -4,7 +4,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\LineFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
 
 class Line

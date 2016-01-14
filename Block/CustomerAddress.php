@@ -2,7 +2,7 @@
 
 namespace ClassyLlama\AvaTax\Block;
 
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\UrlInterface;
 

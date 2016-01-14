@@ -9,7 +9,7 @@
 namespace ClassyLlama\AvaTax\Model\Queue;
 
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get;
 use ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface;

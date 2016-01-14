@@ -19,7 +19,7 @@ define([
         initialize: function () {
             this._super()
                 .initFormId();
-            $(document).on('click', '.validateAddressForm .instructions[data-uid="' + this.uid + '"] a', function () {
+            $(document).on('click', '.validateAddressForm .instructions[data-uid="' + this.uid + '"] .edit-address', function () {
                 $('html, body').animate({scrollTop: $("#container").offset().top}, 1000);
             });
 

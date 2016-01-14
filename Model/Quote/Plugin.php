@@ -3,7 +3,7 @@
 namespace ClassyLlama\AvaTax\Model\Quote;
 
 use Magento\Quote\Model\Quote\Config as QuoteConfig;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 
 class Plugin
 {

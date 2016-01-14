@@ -5,7 +5,6 @@ define([
     'ClassyLlama_AvaTax/js/action/validate-address-request',
     'ClassyLlama_AvaTax/js/model/address-model',
     'ClassyLlama_AvaTax/js/view/validation-response-handler',
-    'ClassyLlama_AvaTax/js/view/diff-address',
     'ClassyLlama_AvaTax/js/view/address-validation-form',
 
     // No object assigned to below dependencies
@@ -17,7 +16,6 @@ define([
     validateAddressRequest,
     addressModel,
     validationResponseHandler,
-    diffAddress,
     addressValidationForm
 ) {
     'use strict';
@@ -80,10 +78,10 @@ define([
                         addressModel.selectedAddress(addressModel.validAddress());
                         validationResponseHandler.validationResponseHandler(response, settings, form);
                         self.toggleAddressToUse(form);
-                        if (diffAddress.isDifferent && addressModel.error() == null) {
+                        if (addressModel.isDifferent && addressModel.error() == null) {
                             addressValidationForm.updateFormFields(form);
                         }
-                        $('body').trigger('processStop');
+                        jQuery('body').trigger('processStop');
                     }).fail(function () {
                         alert({
                             title: $.mage.__('Error'),
