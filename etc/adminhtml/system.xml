@@ -180,21 +180,12 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="3010" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="2110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Submit VAT Number to AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Set this to yes if you need to consider VAT when calculating tax</comment>
+                    <comment><![CDATA[Set this to "Yes" if you want to send your customer's VAT tax numbers to AvaTax to affect tax calculation. If a customer address has a <strong>VAT Id</strong> stored on their Magento shipping address, it will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="business_identification_number" translate="label comment" type="text" sortOrder="3020" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>VAT Number</label>
-                    <config_path>tax/avatax/business_identification_number</config_path>
-                    <comment>VAT Number can also be found at GENERAL: General -> Store Information -> VAT Number</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                        <field id="use_business_identification_number">1</field>
                     </depends>
                 </field>
                 <field id="address_validation_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">

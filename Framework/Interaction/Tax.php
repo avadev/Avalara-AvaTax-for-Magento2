@@ -552,8 +552,9 @@ class Tax
         }
 
         $store = $quote->getStore();
+        $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store),
+            $this->retrieveGetTaxRequestFields($store, $shippingAddress),
             $data
         );
 
@@ -677,7 +678,7 @@ class Tax
         ];
 
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store),
+            $this->retrieveGetTaxRequestFields($store, $shippingAddress),
             $data
         );
 
@@ -719,7 +720,7 @@ class Tax
      * @return array
      * @throws LocalizedException
      */
-    protected function retrieveGetTaxRequestFields(StoreInterface $store)
+    protected function retrieveGetTaxRequestFields(StoreInterface $store, $shippingAddress)
     {
         $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
         if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {
@@ -727,14 +728,28 @@ class Tax
         } else {
             $companyCode = $this->config->getDevelopmentCompanyCode($store);
         }
+        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $shippingAddress);
         return [
-            'BusinessIdentificationNo' => $this->config->getBusinessIdentificationNumber(),
+            'BusinessIdentificationNo' => $businessIdentificationNumber,
             'CompanyCode' => $companyCode,
             'DetailLevel' => DetailLevel::$Diagnostic,
             'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
             // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
         ];
+    }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param $store
+     * @param $shippingAddress
+     * @return null
+     */
+    protected function getBusinessIdentificationNumber($store, $shippingAddress)
+    {
+        if ($this->config->getUseBusinessIdentificationNumber($store)) {
+            return $shippingAddress->getVatId();
+        }
+        return null;
     }
 
     /**
