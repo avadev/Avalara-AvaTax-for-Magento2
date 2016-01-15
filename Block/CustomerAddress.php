@@ -20,25 +20,17 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     protected $config = null;
 
     /**
-     * @var \Magento\Framework\UrlInterface
-     */
-    protected $urlBuilder;
-
-    /**
      * CustomerAddress constructor
      * @param Context $context
-     * @param UrlInterface $urlBuilder
      * @param array $data
      * @param Config $config
      */
     public function __construct(
         Context $context,
-        UrlInterface $urlBuilder,
         array $data = [],
         Config $config
     ) {
         parent::__construct($context, $data);
-        $this->urlBuilder = $urlBuilder;
         $this->config = $config;
     }
 
@@ -99,6 +91,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      * @return string
      */
     public function getBaseUrl() {
-        return $this->urlBuilder->getUrl(self::VALIDATE_ADDRESS_PATH);
+        return $this->_urlBuilder->getUrl(self::VALIDATE_ADDRESS_PATH);
     }
 }

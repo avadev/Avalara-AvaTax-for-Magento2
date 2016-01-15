@@ -20,18 +20,15 @@ use Magento\Framework\View\Element\Template;
  */
 class Summary extends Template
 {
-    // Match the date time format in the columns for the queue records
+    /**
+     * Match the date time format in the columns for the queue records
+     */
     const GRID_COLUMN_DATE_FORMAT = 'M d, Y h:i:s A';
 
     /**
      * @var CollectionFactory
      */
     protected $queueCollectionFactory;
-
-    /**
-     * @var TimezoneInterface
-     */
-    protected $localeDate;
 
     /**
      * @var Collection
@@ -47,17 +44,14 @@ class Summary extends Template
      * Summary constructor.
      * @param Context $context
      * @param CollectionFactory $queueCollectionFactory
-     * @param TimezoneInterface $localeDate
      * @param array $data
      */
     public function __construct(
         Context $context,
         CollectionFactory $queueCollectionFactory,
-        TimezoneInterface $localeDate,
         array $data = []
     ) {
         $this->queueCollectionFactory = $queueCollectionFactory;
-        $this->localeDate = $localeDate;
         parent::__construct($context, $data);
     }
 
@@ -108,8 +102,8 @@ class Summary extends Template
     protected function getFormattedDate($time = null)
     {
         $time = $time ?: 'now';
-        $timezone = $this->localeDate->getConfigTimezone();
-        $date = new \DateTime($time, new \DateTimeZone($this->localeDate->getDefaultTimezone()));
+        $timezone = $this->_localeDate->getConfigTimezone();
+        $date = new \DateTime($time, new \DateTimeZone($this->_localeDate->getDefaultTimezone()));
         $date->setTimezone(new \DateTimeZone($timezone));
         return $date->format(self::GRID_COLUMN_DATE_FORMAT);
     }

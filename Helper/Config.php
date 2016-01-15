@@ -195,14 +195,14 @@ class Config extends AbstractHelper
     const AVATAX_CACHE_TAG = 'AVATAX';
 
     /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig = null;
-
-    /**
      * @var ProductMetadataInterface
      */
     protected $magentoProductMetadata = null;
+
+    /**
+     * @var ATConfigFactory
+     */
+    protected $avaTaxConfigFactory = null;
 
     /**
      * @var \Magento\Framework\App\State
@@ -215,39 +215,26 @@ class Config extends AbstractHelper
     protected $taxClassRepository = null;
 
     /**
-     * Url Builder
-     *
-     * @var \Magento\Framework\UrlInterface
-     */
-    protected $urlBuilder;
-
-    /**
      * Class constructor
      *
      * @param Context $context
-     * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $magentoProductMetadata
      * @param ATConfigFactory $avaTaxConfigFactory
      * @param State $appState
      * @param TaxClassRepositoryInterface $taxClassRepository
-     * @param \Magento\Framework\UrlInterface $urlBuilder
      */
     public function __construct(
         Context $context,
-        ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
         State $appState,
-        TaxClassRepositoryInterface $taxClassRepository,
-        \Magento\Framework\UrlInterface $urlBuilder
+        TaxClassRepositoryInterface $taxClassRepository
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->createAvaTaxProfile();
-        $this->urlBuilder = $urlBuilder;
         parent::__construct($context);
     }
 
@@ -715,7 +702,7 @@ class Config extends AbstractHelper
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
             return __(
                 $this->getErrorActionDisableCheckoutMessageBackend($store),
-                $this->urlBuilder->getUrl('avatax/log')
+                $this->_urlBuilder->getUrl('avatax/log')
             );
         } else {
             return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
