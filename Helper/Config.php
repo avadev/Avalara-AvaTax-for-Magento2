@@ -234,8 +234,8 @@ class Config extends AbstractHelper
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
-        $this->createAvaTaxProfile();
         parent::__construct($context);
+        $this->createAvaTaxProfile();
     }
 
     /**
