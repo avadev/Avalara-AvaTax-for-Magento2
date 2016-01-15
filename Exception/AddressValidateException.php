@@ -2,6 +2,9 @@
 
 namespace ClassyLlama\AvaTax\Exception;
 
-class AddressValidateException extends \Magento\Framework\Exception\LocalizedException {
-
+/**
+ * Class AddressValidateException
+ */
+class AddressValidateException extends \Magento\Framework\Exception\LocalizedException
+{
 }

@@ -10,7 +10,7 @@ use AvaTax\TaxOverrideFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -505,12 +505,15 @@ class Tax
         // Quote created/updated date is not relevant, so just pass the current date
         $docDate = $currentDate;
 
+        $customerUsageType = $quote->getCustomer()
+            ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer())
+            : null;
         return [
             'StoreId' => $store->getId(),
             'Commit' => false, // quotes should never be committed
             'CurrencyCode' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($quote),
-            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer()),
+            'CustomerUsageType' => $customerUsageType,
             'DestinationAddress' => $address,
             'DocCode' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'DocDate' => $docDate,
@@ -525,10 +528,6 @@ class Tax
 //            'SalespersonCode' => null,
 //            'TaxOverride' => null,
         ];
-    }
-
-    protected function convertCreditMemoToData(\Magento\Sales\Api\Data\CreditmemoInterface $creditMemo)
-    {
     }
 
     /**
@@ -552,8 +551,9 @@ class Tax
         }
 
         $store = $quote->getStore();
+        $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store),
+            $this->retrieveGetTaxRequestFields($store, $shippingAddress),
             $data
         );
 
@@ -654,13 +654,14 @@ class Tax
         // TODO: Fix for guest checkout when $customer is null
         // TODO: You can't pass a null value to $this->taxClassHelper->getAvataxTaxCodeForCustomer()
         $customer = $this->getCustomerById($order->getCustomerId());
+        $customerUsageType = $customer ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer) : null;
         $data = [
             'StoreId' => $store->getId(),
             'Commit' => $this->config->getCommitSubmittedTransactions($store),
             'TaxOverride' => $taxOverride,
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
-            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
+            'CustomerUsageType' => $customerUsageType,
             'DestinationAddress' => $address,
             'DocCode' => $object->getIncrementId(),
             'DocDate' => $docDate,
@@ -677,7 +678,7 @@ class Tax
         ];
 
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store),
+            $this->retrieveGetTaxRequestFields($store, $shippingAddress),
             $data
         );
 
@@ -719,7 +720,7 @@ class Tax
      * @return array
      * @throws LocalizedException
      */
-    protected function retrieveGetTaxRequestFields(StoreInterface $store)
+    protected function retrieveGetTaxRequestFields(StoreInterface $store, $shippingAddress)
     {
         $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
         if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {
@@ -727,14 +728,28 @@ class Tax
         } else {
             $companyCode = $this->config->getDevelopmentCompanyCode($store);
         }
+        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $shippingAddress);
         return [
-            'BusinessIdentificationNo' => $this->config->getBusinessIdentificationNumber(),
+            'BusinessIdentificationNo' => $businessIdentificationNumber,
             'CompanyCode' => $companyCode,
             'DetailLevel' => DetailLevel::$Diagnostic,
             'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
             // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
         ];
+    }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param $store
+     * @param $shippingAddress
+     * @return null
+     */
+    protected function getBusinessIdentificationNumber($store, $shippingAddress)
+    {
+        if ($this->config->getUseBusinessIdentificationNumber($store)) {
+            return $shippingAddress->getVatId();
+        }
+        return null;
     }
 
     /**

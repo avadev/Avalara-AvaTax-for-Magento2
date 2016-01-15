@@ -2,7 +2,7 @@
 
 namespace ClassyLlama\AvaTax\Model\Config\Source;
 
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 
 class ErrorAction implements \Magento\Framework\Option\ArrayInterface
 {

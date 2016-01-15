@@ -8,7 +8,7 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote;
 
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 
 class Subtotal
 {

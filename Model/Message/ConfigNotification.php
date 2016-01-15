@@ -2,7 +2,7 @@
 
 namespace ClassyLlama\AvaTax\Model\Message;
 
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\Notification\MessageInterface;
 
 /**

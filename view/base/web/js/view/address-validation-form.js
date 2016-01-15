@@ -3,7 +3,6 @@ define(
         'jquery',
         'ko',
         'mageUtils',
-        'ClassyLlama_AvaTax/js/view/diff-address',
         'ClassyLlama_AvaTax/js/model/address-model',
         // This dependency will commonly already be loaded by Magento_Ui/js/core/app, however the load order is not
         // guaranteed, so we must require this dependency so that the custom Magento templateEngine is set before
@@ -14,7 +13,6 @@ define(
         $,
         ko,
         utils,
-        diffAddress,
         addressModel
     ) {
         'use strict';
@@ -50,9 +48,10 @@ define(
 
             fillValidateForm: function (form) {
                 this.reset(form);
+
                 if (addressModel.error() != null) {
                     $(form).find(this.errorMessageContainerSelector).show();
-                    $(form).find(this.errorMessageContainerSelector + " .instructions p").html(addressModel.error());
+                    $(form).find(this.errorMessageContainerSelector + " .instructions .error-message").html(addressModel.error());
                     $(form).find(this.errorMessageContainerSelector + " " + this.originalAddressTextSelector).html(this.buildOriginalAddress(addressModel.originalAddress()));
                     $(form).find('.yesError').show();
                     $(form).find('.noError').hide();
@@ -67,13 +66,12 @@ define(
                 var originalAddress = this.buildOriginalAddress(addressModel.originalAddress());
                 var validAddress = this.buildValidAddress(addressModel.originalAddress(), addressModel.validAddress());
 
-                if (!diffAddress.isDifferent()) {
+                if (!addressModel.isDifferent()) {
                     $(form).find(this.addressValidationFormSelector).hide();
                     return;
                 }
 
                 var userCanChooseOriginalAddress = $(this.originalAddressTextSelector).length;
-
                 if (userCanChooseOriginalAddress) {
                     $(form).find(this.originalAddressTextSelector).html(originalAddress);
                     this.toggleRadioSelected(form, this.addressRadioGroupName, this.selectedAddressClass);
@@ -94,23 +92,23 @@ define(
                 for (var i = 0; i < maxStreets; i++) {
                     var originalStreet = typeof originalAddress.street[i] === 'undefined' ? '' : originalAddress.street[i];
                     var validStreet = typeof validAddress.street[i] === 'undefined' ? '' : validAddress.street[i];
-                    var validatedStreet = diffAddress.diffString(originalStreet, validStreet);
+                    var validatedStreet = this.diffAddressField(originalStreet, validStreet);
                     result += validatedStreet;
                     result += validatedStreet.length ? "<br/>" : "";
                 }
 
                 // City
-                result += diffAddress.diffString(originalAddress.city, validAddress.city) + ", ";
+                result += this.diffAddressField(originalAddress.city, validAddress.city) + ", ";
 
                 // State - The region_code isn't used for customer addresses
                 if (typeof originalAddress.region_code !== 'undefined') {
-                    result += diffAddress.diffString(originalAddress.region_code, validAddress.region_code) + " ";
+                    result += this.diffAddressField(originalAddress.region_code, validAddress.region_code) + " ";
                 } else {
-                    result += diffAddress.diffString(originalAddress.region, validAddress.region) + " ";
+                    result += this.diffAddressField(originalAddress.region, validAddress.region) + " ";
                 }
 
                 // Postal code
-                result += diffAddress.diffString(originalAddress.postcode, validAddress.postcode);
+                result += this.diffAddressField(originalAddress.postcode, validAddress.postcode);
 
                 return result;
             },
@@ -202,10 +200,20 @@ define(
                 }
             },
 
+            diffAddressField: function (o, n) {
+                if(o !== n) {
+                    addressModel.isDifferent(true);
+                    if (n.length) {
+                        n = '<span class="address-field-changed">' + n + '</span>';
+                    }
+                }
+                return n;
+            },
+
             reset: function (form) {
                 // isDifferent() must be reset to false every time an address is validated or you could get a false
                 // positive saying the address is different because it was in the last address that was validated
-                diffAddress.isDifferent(false);
+                addressModel.isDifferent(false);
                 addressModel.selectedAddress(addressModel.validAddress());
                 $(form).find(this.originalAddressRadioSelector).prop('checked', false);
                 $(form).find(this.validAddressRadioSelector).prop('checked', true);

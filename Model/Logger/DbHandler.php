@@ -14,7 +14,7 @@ use Monolog\Handler\AbstractHandler;
 use Monolog\Processor\WebProcessor;
 use Monolog\Processor\IntrospectionProcessor;
 use ClassyLlama\AvaTax\Model\LogFactory;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Config\Source\LogDetail;
 
 /**

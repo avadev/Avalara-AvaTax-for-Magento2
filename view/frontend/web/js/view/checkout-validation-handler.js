@@ -5,8 +5,7 @@ define(
         'ClassyLlama_AvaTax/js/action/set-shipping-address',
         'ClassyLlama_AvaTax/js/view/update-address',
         'ClassyLlama_AvaTax/js/model/address-model',
-        'ClassyLlama_AvaTax/js/view/address-validation-form',
-        'ClassyLlama_AvaTax/js/view/diff-address'
+        'ClassyLlama_AvaTax/js/view/address-validation-form'
     ],
     function (
         $,
@@ -14,8 +13,7 @@ define(
         setShippingAddress,
         updateAddress,
         addressModel,
-        addressValidationForm,
-        diffAddress
+        addressValidationForm
     ) {
         'use strict';
 
@@ -38,13 +36,13 @@ define(
                         addressModel.error(response.extension_attributes.error_message)
                     }
                     addressValidationForm.fillValidateForm(this.options.validateAddressContainerSelector);
-                    if (!diffAddress.isDifferent() && addressModel.error() == null) {
+                    if (!addressModel.isDifferent() && addressModel.error() == null) {
                         $(this.options.validateAddressContainerSelector + " *").hide();
                     }
                     // This click event handler is to allow the user to navigate to the first step to change their
                     // address if they notice an error in their address on the Review & Payments step by clicking
                     // a link in the instructions above their address
-                    $(this.options.validateAddressContainerSelector + ' .instructions a').on('click', function () {
+                    $(this.options.validateAddressContainerSelector + ' .instructions .edit-address').on('click', function () {
                         stepNavigator.navigateTo('shipping', 'shipping');
                     });
                 } else {

@@ -12,7 +12,7 @@ namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote;
 
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy as InteractionGet;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation\Proxy as TaxCalculation;
-use ClassyLlama\AvaTax\Model\Config;
+use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
@@ -177,9 +177,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $baseTaxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, true);
 
         // Get array of tax details
-        $taxDetailsList = $this->interactionGetTax->getTaxDetailsForQuote($quote, $taxQuoteDetails, $baseTaxQuoteDetails, $shippingAssignment);
-
-        if (!$taxDetailsList) {
+        try {
+            $taxDetailsList = $this->interactionGetTax->getTaxDetailsForQuote($quote, $taxQuoteDetails, $baseTaxQuoteDetails, $shippingAssignment);
+        } catch (\Exception $e) {
             switch ($this->config->getErrorAction($quote->getStoreId())) {
                 case Config::ERROR_ACTION_DISABLE_CHECKOUT:
                     $this->coreRegistry->register(self::AVATAX_GET_TAX_REQUEST_ERROR, true, true);
@@ -196,10 +196,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                     return parent::collect($quote, $shippingAssignment, $total);
                     break;
             }
-        } else {
-            $taxDetails = $taxDetailsList[InteractionGet::KEY_TAX_DETAILS];
-            $baseTaxDetails = $taxDetailsList[InteractionGet::KEY_BASE_TAX_DETAILS];
         }
+
+        $taxDetails = $taxDetailsList[InteractionGet::KEY_TAX_DETAILS];
+        $baseTaxDetails = $taxDetailsList[InteractionGet::KEY_BASE_TAX_DETAILS];
 
         $itemsByType = $this->organizeItemTaxDetailsByType($taxDetails, $baseTaxDetails);
 

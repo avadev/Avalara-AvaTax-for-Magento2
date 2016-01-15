@@ -11,7 +11,6 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\GetTaxResult;
-use ClassyLlama\AvaTax\Model\Session;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\CalculatorFactory;
@@ -49,11 +48,6 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     protected $extensionFactory;
 
     /**
-     * @var Session
-     */
-    protected $session = null;
-
-    /**
      * Constructor
      *
      * @param Calculation $calculation
@@ -68,7 +62,6 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory
      * @param AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory
      * @param QuoteDetailsItemExtensionFactory $extensionFactory
-     * @param Session $session
      */
     public function __construct(
         Calculation $calculation,
@@ -82,8 +75,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         PriceCurrencyInterface $priceCurrency,
         AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory,
-        QuoteDetailsItemExtensionFactory $extensionFactory,
-        Session $session
+        QuoteDetailsItemExtensionFactory $extensionFactory
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;

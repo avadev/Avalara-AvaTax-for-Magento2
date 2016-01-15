@@ -1,10 +1,12 @@
 <?php
 
-namespace ClassyLlama\AvaTax\Model;
+namespace ClassyLlama\AvaTax\Helper;
 
 use AvaTax\ATConfigFactory;
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Phrase;
 use Magento\Shipping\Model\Config as ShippingConfig;
@@ -17,7 +19,7 @@ use Magento\Tax\Api\TaxClassRepositoryInterface;
 /**
  * AvaTax Config model
  */
-class Config
+class Config extends AbstractHelper
 {
     /**#@+
      * Module config settings
@@ -222,6 +224,7 @@ class Config
     /**
      * Class constructor
      *
+     * @param Context $context
      * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $magentoProductMetadata
      * @param ATConfigFactory $avaTaxConfigFactory
@@ -230,6 +233,7 @@ class Config
      * @param \Magento\Framework\UrlInterface $urlBuilder
      */
     public function __construct(
+        Context $context,
         ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
@@ -244,6 +248,7 @@ class Config
         $this->taxClassRepository = $taxClassRepository;
         $this->createAvaTaxProfile();
         $this->urlBuilder = $urlBuilder;
+        parent::__construct($context);
     }
 
     /**
@@ -671,10 +676,10 @@ class Config
      * Get whether should use Business Identification Number (VAT)
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getUseBusinessIdentificationNumber($store = null)
+    public function getUseBusinessIdentificationNumber($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_USE_VAT,
