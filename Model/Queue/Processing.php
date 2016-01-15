@@ -541,11 +541,22 @@ class Processing
         );
 
         if ($processSalesResponse->getIsUnbalanced()) {
+            $adjustmentMessage = null;
+            if ($entity instanceof CreditmemoInterface) {
+                if (abs($entity->getBaseAdjustmentNegative()) > 0 || abs($entity->getBaseAdjustmentPositive()) > 0) {
+                    $adjustmentMessage = __('The difference was at least partly caused by the fact that the creditmemo '
+                            . 'contained an adjustment of %1 and Magento doesn\'t factor that into its calculation, '
+                            . 'but AvaTax does.',
+                        $entity->getBaseAdjustment()
+                    );
+                }
+            }
+
             $queue->setMessage(
                 __('Unbalanced Response - Collected: %1, AvaTax Actual: %2',
                     $entity->getBaseTaxAmount(),
                     $processSalesResponse->getBaseAvataxTaxAmount()
-                )
+                ) . ' — ' . $adjustmentMessage
             );
 
             // add comment about unbalanced amount
@@ -554,8 +565,13 @@ class Processing
                     ' recorded in Magento.', $queue->getEntityTypeCode()) . '<br/>' .
                 __('There was a difference of %1',
                     ($entity->getBaseTaxAmount() - $processSalesResponse->getBaseAvataxTaxAmount())
-                ) . '<br/>' .
-                __('Magento listed a tax amount of %1', $entity->getBaseTaxAmount()) . '<br/>' .
+                ) . '<br/>';
+
+            if ($adjustmentMessage) {
+                $message .= '<strong>' . $adjustmentMessage . '</strong><br/>';
+            }
+
+            $message .= __('Magento listed a tax amount of %1', $entity->getBaseTaxAmount()) . '<br/>' .
                 __('AvaTax calculated the tax to be %1', $processSalesResponse->getBaseAvataxTaxAmount()) . '<br/>';
         }
 
