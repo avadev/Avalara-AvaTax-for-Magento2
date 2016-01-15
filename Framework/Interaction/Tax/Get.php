@@ -101,7 +101,7 @@ class Get
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
      * @return \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface
-     * @throws Get\Exception
+     * @throws \ClassyLlama\AvaTax\Exception\TaxCalculationException
      */
     public function processSalesObject($object)
     {
@@ -124,13 +124,13 @@ class Get
                     ),
                 ]
             );
-            throw new Get\Exception($message . $e->getMessage(), $e->getCode(), $e);
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message . $e->getMessage(), $e->getCode(), $e);
         }
 
         if (is_null($getTaxRequest)) {
             $message = '$getTaxRequest was empty so not running getTax request.';
             $this->avaTaxLogger->warning($message);
-            throw new Get\Exception($message);
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         }
 
         try {
@@ -162,7 +162,7 @@ class Get
                     ]
                 );
 
-                throw new Get\Exception($message);
+                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
             }
         } catch (\SoapFault $exception) {
             // TODO: Has this been tested? The IDE isn't aware of faultstring or __getLastRequest/Response
@@ -181,7 +181,7 @@ class Get
                 ]
             );
 
-            throw new Get\Exception($message);
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         }
     }
 
@@ -237,7 +237,7 @@ class Get
                     self::KEY_BASE_TAX_DETAILS => $baseTaxDetails
                 ];
             } else {
-                $message = __('Bad result code:  %1', $getTaxResult->getResultCode());
+                $message = __('Bad result code: %1', $getTaxResult->getResultCode());
                 $this->avaTaxLogger->warning(
                     $message,
                     [ /* context */
@@ -261,7 +261,7 @@ class Get
                     'result' => var_export($taxService->__getLastResponse(), true),
                 ]
             );
-            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException(__($message));
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         }
     }
 

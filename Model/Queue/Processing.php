@@ -323,7 +323,7 @@ class Processing
         } catch (\Exception $e) {
 
             $message = '';
-            if ($e instanceof Get\Exception) {
+            if ($e instanceof \ClassyLlama\AvaTax\Exception\TaxCalculationException) {
                 $message .= __('An error occurred when attempting to send %1 #%2 to AvaTax.',
                     ucfirst($queue->getEntityTypeCode()),
                     $entity->getIncrementId()
