@@ -34,7 +34,6 @@
                     </depends>
                     -->
                 </field>
-                <!-- TODO: Consider using the term "test" for non production/live environments instead of "development". -->
                 <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
@@ -66,7 +65,6 @@
                         <field id="live_mode">1</field>
                     </depends>
                 </field>
-                <!-- TODO: Have an error if development or production credentials are not entered on config after save -->
                 <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Account Number (Development)</label>
                     <frontend_class>required-entry</frontend_class>
@@ -100,7 +98,6 @@
                     </depends>
                     -->
                 </field>
-                <!-- TODO: Possibly have a value that gets set after the first time a live mode customer is set and disable the ability to change this value -->
                 <field id="customer_code_format" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Customer Code Format</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\CustomerCode</source_model>
