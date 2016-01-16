@@ -126,8 +126,6 @@ class MetaDataObject
 
     /**
      * Validates an array of values according to the initializing rules
-     * TODO: Test all this to make sure it actually works as expected
-     * TODO: Consider whether  || empty($data[$key] portion of required condition is necessary
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
