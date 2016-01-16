@@ -729,9 +729,11 @@ class Tax
             $companyCode = $this->config->getDevelopmentCompanyCode($store);
         }
         $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $shippingAddress);
+        $locationCode = $this->config->getLocationCode($store);
         return [
             'BusinessIdentificationNo' => $businessIdentificationNumber,
             'CompanyCode' => $companyCode,
+            'LocationCode' => $locationCode,
             'DetailLevel' => DetailLevel::$Diagnostic,
             'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
             // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
