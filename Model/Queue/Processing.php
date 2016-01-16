@@ -552,12 +552,14 @@ class Processing
                 }
             }
 
-            $queue->setMessage(
-                __('Unbalanced Response - Collected: %1, AvaTax Actual: %2',
-                    $entity->getBaseTaxAmount(),
-                    $processSalesResponse->getBaseAvataxTaxAmount()
-                ) . ' — ' . $adjustmentMessage
+            $queueMessage = __('Unbalanced Response - Collected: %1, AvaTax Actual: %2',
+                $entity->getBaseTaxAmount(),
+                $processSalesResponse->getBaseAvataxTaxAmount()
             );
+            if ($adjustmentMessage) {
+                $queueMessage .= ' — ' . $adjustmentMessage;
+            }
+            $queue->setMessage($queueMessage);
 
             // add comment about unbalanced amount
             $message .= '<br/>' .
