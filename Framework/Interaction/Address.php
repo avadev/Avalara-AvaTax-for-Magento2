@@ -177,9 +177,6 @@ class Address
             case ($data instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
                 $data = $this->convertOrderAddressToAvaTaxAddress($data);
                 break;
-            case ($data instanceof AddressModelInterface): // TODO: Decide if we need this still.  If we working with the Service Layer, this should never come up.
-                $data = $this->convertAddressModelToAvaTaxAddress($data);
-                break;
             case (!is_array($data)):
                 throw new LocalizedException(__(
                     'Input parameter "$data" was not of a recognized/valid type: "%1".', [
