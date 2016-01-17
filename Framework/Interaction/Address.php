@@ -161,7 +161,7 @@ class Address
      * Likely no special consideration since the code is already sending all addresses (up to 3) to AvaTax if present.
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|AddressModelInterface|array
+     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array
      * @return \AvaTax\Address
      * @throws LocalizedException
      */

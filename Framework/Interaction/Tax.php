@@ -620,9 +620,13 @@ class Tax
         }
 
         // TODO: Would be nice to use the service layer to get the shipping address somehow
-        /** @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress */
-        $shippingAddress = $order->getShippingAddress();
-        $address = $this->address->getAddress($shippingAddress);
+        /** @var \Magento\Sales\Api\Data\OrderAddressInterface $address */
+        if (!$order->getIsVirtual()) {
+            $address = $order->getShippingAddress();
+        } else {
+            $address = $order->getBillingAddress();
+        }
+        $avaTaxAddress = $this->address->getAddress($address);
 
         $store = $this->storeRepository->getById($object->getStoreId());
         $currentDate = $this->getFormattedDate($store);
@@ -662,8 +666,8 @@ class Tax
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
             'CustomerUsageType' => $customerUsageType,
-            'DestinationAddress' => $address,
             'DocCode' => $object->getIncrementId(),
+            'DestinationAddress' => $avaTaxAddress,
             'DocDate' => $docDate,
             'DocType' => $docType,
             'ExchangeRate' => $this->getExchangeRate($store,
@@ -678,7 +682,7 @@ class Tax
         ];
 
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store, $shippingAddress),
+            $this->retrieveGetTaxRequestFields($store, $address),
             $data
         );
 
@@ -717,10 +721,11 @@ class Tax
      * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
      *
      * @param \Magento\Store\Api\Data\StoreInterface $store
+     * @param $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface
      * @return array
      * @throws LocalizedException
      */
-    protected function retrieveGetTaxRequestFields(StoreInterface $store, $shippingAddress)
+    protected function retrieveGetTaxRequestFields(StoreInterface $store, $address)
     {
         $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
         if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {
@@ -728,7 +733,7 @@ class Tax
         } else {
             $companyCode = $this->config->getDevelopmentCompanyCode($store);
         }
-        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $shippingAddress);
+        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address);
         $locationCode = $this->config->getLocationCode($store);
         return [
             'BusinessIdentificationNo' => $businessIdentificationNumber,
@@ -743,13 +748,13 @@ class Tax
     /**
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param $store
-     * @param $shippingAddress
+     * @param $address
      * @return null
      */
-    protected function getBusinessIdentificationNumber($store, $shippingAddress)
+    protected function getBusinessIdentificationNumber($store, $address)
     {
         if ($this->config->getUseBusinessIdentificationNumber($store)) {
-            return $shippingAddress->getVatId();
+            return $address->getVatId();
         }
         return null;
     }
