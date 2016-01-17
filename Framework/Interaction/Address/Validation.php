@@ -56,7 +56,6 @@ class Validation
      */
     public function validateAddress($addressInput)
     {
-        // TODO: Move try to be only around SOAP request calls.  Other exceptions should fall through.
         try {
             $returnCoordinates = 1;
                 $validateRequest = $this->validateRequestFactory->create(

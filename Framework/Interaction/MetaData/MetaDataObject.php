@@ -206,13 +206,7 @@ class MetaDataObject
             /** @var $keyGenerator MetaDataAbstract */
             $methodName = 'get' . $name;
             if (method_exists($object, $methodName)) {
-                // TODO: Fix so this method does not (unintentionally) take a parameter that doesn't do anything and issue PR and remove workaround
-                // TODO: Get Anya to create a new tag from master in the repo
-                if ($methodName == 'getTaxIncluded') {
-                    $cacheKey .= $keyGenerator->getCacheKey(call_user_func([$object, $methodName], ''));
-                } else {
-                    $cacheKey .= $keyGenerator->getCacheKey(call_user_func([$object, $methodName]));
-                }
+                $cacheKey .= $keyGenerator->getCacheKey(call_user_func([$object, $methodName]));
             }
         }
 

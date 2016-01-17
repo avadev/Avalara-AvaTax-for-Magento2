@@ -89,9 +89,9 @@ class Address
         'Region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
         'PostalCode' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
         'Country' => ['type' => 'string', 'length' => 2],
-        'TaxRegionId' => ['type' => 'integer', 'use_in_cache_key' => false],
-        'Latitude' => ['type' => 'string', 'use_in_cache_key' => false],
-        'Longitude' => ['type' => 'string', 'use_in_cache_key' => false],
+        'TaxRegionId' => ['type' => 'integer', 'useInCacheKey' => false],
+        'Latitude' => ['type' => 'string', 'useInCacheKey' => false],
+        'Longitude' => ['type' => 'string', 'useInCacheKey' => false],
     ];
 
     /**
