@@ -34,14 +34,14 @@
                     </depends>
                     -->
                 </field>
-                <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Account Number (Production)</label>
                     <frontend_class>required-entry</frontend_class>
                     <depends>
@@ -58,14 +58,14 @@
                         <field id="live_mode">1</field>
                     </depends>
                 </field>
-                <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Company Code (Production)</label>
                     <frontend_class>required-entry validate-length maximum-length-25</frontend_class>
                     <depends>
                         <field id="live_mode">1</field>
                     </depends>
                 </field>
-                <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Account Number (Development)</label>
                     <frontend_class>required-entry</frontend_class>
                     <depends>
@@ -82,7 +82,7 @@
                         <field id="live_mode">0</field>
                     </depends>
                 </field>
-                <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Company Code (Development)</label>
                     <frontend_class>required-entry validate-length maximum-length-25</frontend_class>
                     <depends>

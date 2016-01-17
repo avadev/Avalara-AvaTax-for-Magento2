@@ -413,16 +413,15 @@ class Config extends AbstractHelper
     /**
      * Get Live vs. Development mode of the module
      *
+     * Must be configured at default level as it is difficult to pass store in all contexts this is used
+     *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return bool
      */
-    public function getLiveMode($store = null)
+    public function getLiveMode()
     {
         return (bool)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LIVE_MODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
+            self::XML_PATH_AVATAX_LIVE_MODE
         );
     }
 
@@ -430,96 +429,66 @@ class Config extends AbstractHelper
      * Get account number from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getAccountNumber($store = null)
+    public function getAccountNumber()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER);
     }
 
     /**
-     * get license key from config
+     * Get license key from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getLicenseKey($store = null)
+    public function getLicenseKey()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY);
     }
 
     /**
      * Get company code from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getCompanyCode($store = null)
+    public function getCompanyCode()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE);
     }
 
     /**
      * Get development account number from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getDevelopmentAccountNumber($store = null)
+    public function getDevelopmentAccountNumber()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER);
     }
 
     /**
      * Get development license key from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getDevelopmentLicenseKey($store = null)
+    public function getDevelopmentLicenseKey()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY);
     }
 
     /**
      * Get development company code from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getDevelopmentCompanyCode($store = null)
+    public function getDevelopmentCompanyCode()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE);
     }
 
     /**
