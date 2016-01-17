@@ -539,6 +539,7 @@ class Processing
             ucfirst($queue->getEntityTypeCode()),
             $entity->getIncrementId()
         );
+        $queueMessage = '';
 
         if ($processSalesResponse->getIsUnbalanced()) {
             $adjustmentMessage = null;
@@ -559,7 +560,6 @@ class Processing
             if ($adjustmentMessage) {
                 $queueMessage .= ' — ' . $adjustmentMessage;
             }
-            $queue->setMessage($queueMessage);
 
             // add comment about unbalanced amount
             $message .= '<br/>' .
@@ -577,6 +577,7 @@ class Processing
                 __('AvaTax calculated the tax to be %1', $processSalesResponse->getBaseAvataxTaxAmount()) . '<br/>';
         }
 
+        $queue->setMessage($queueMessage);
         $queue->setQueueStatus(Queue::QUEUE_STATUS_COMPLETE);
         $queue->save();
 
