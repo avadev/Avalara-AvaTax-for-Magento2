@@ -103,7 +103,6 @@ class AddressService
 
     /**
      * Create cache key by calling specified methods and concatenating and hashing
-     * TODO: Get Anya to update to create a new tag off of master so that getCountry on \AvaTax\Address works correctly
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $object
