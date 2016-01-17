@@ -85,7 +85,7 @@ class SalesSpiInvoiceResource
         $isObjectNew = $entity->isObjectNew();
 
         // Save AvaTax extension attributes
-        if ($this->avaTaxConfig->isModuleEnabled()) {
+        if ($this->avaTaxConfig->isModuleEnabled($entity->getStoreId())) {
             // check to see if any extension attributes exist and set them on the model for saving to the db
             $extensionAttributes = $entity->getExtensionAttributes();
             if ($extensionAttributes && $extensionAttributes->getAvataxIsUnbalanced() !== null) {
@@ -178,7 +178,7 @@ class SalesSpiInvoiceResource
         $resultEntity = $proceed($entity, $value, $field);
 
         // Load AvaTax extension attributes
-        if ($this->avaTaxConfig->isModuleEnabled()) {
+        if ($this->avaTaxConfig->isModuleEnabled($entity->getStoreId())) {
 
             // Get the AvaTax Attributes from the AbstractModel
             $avataxIsUnbalanced = $entity->getData('avatax_is_unbalanced');
