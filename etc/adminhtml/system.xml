@@ -156,6 +156,7 @@
                 </field>
                 <field id="location_code" translate="label" type="text" sortOrder="2080" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Location Code</label>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
                     <comment><![CDATA[Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
