@@ -3,7 +3,7 @@
     "type": "magento2-module",
     "require": {
         "magento/framework": "100.0.*",
-        "avalara/avatax": "^14.4.3"
+        "avalara/avatax": "^14.4.4"
     },
     "autoload": {
         "files": [ "registration.php" ],

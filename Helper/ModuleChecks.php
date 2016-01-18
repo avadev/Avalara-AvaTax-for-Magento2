@@ -72,7 +72,7 @@ class ModuleChecks
         if (count($taxRules->getItems())) {
             $errors[] = __(
                 'You have %1 native Magento Tax Rule(s) configured. '
-                    . 'Please <a href="%2">review them</a> and delete any that you do not specifically want enabled. '
+                    . 'Please <a href="%2">review the tax rule(s)</a> and delete any that you do not specifically want enabled. '
                     . 'You should only have rules setup if you want to use them as backup rules in case of AvaTax '
                     . 'errors (see <a href="#row_tax_avatax_error_handling_header">Error Action setting</a>) '
                     . 'or if you need to support VAT tax.',

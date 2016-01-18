@@ -61,7 +61,7 @@ class AddressService
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param ValidateRequest $validateRequest
      * @return ValidateResult
-     * @throws LocalizedException
+     * @throws \SoapFault
      */
     public function validate(ValidateRequest $validateRequest)
     {
@@ -77,7 +77,8 @@ class AddressService
             return $validateResult;
         }
 
-        $validateResult = $this->interactionAddress->getAddressService($this->type)->validate($validateRequest);
+        $addressService = $this->interactionAddress->getAddressService($this->type);
+        $validateResult = $addressService->validate($validateRequest);
 
         $serializedValidateResult = serialize($validateResult);
         $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
@@ -96,6 +97,16 @@ class AddressService
             $this->avaTaxLogger->addDebug('\AvaTax\ValidateResult no valid address found from SOAP.', [
                 'result' => var_export($validateResult, true)
             ]);
+        } catch (\SoapFault $e) {
+            $this->avaTaxLogger->error(
+                "Exception: \n" . $e->getMessage() . "\n" . $e->faultstring,
+                [
+                    'request' => var_export($addressService->__getLastRequest(), true),
+                    'result' => var_export($addressService->__getLastResponse(), true),
+                ]
+            );
+
+            throw $e;
         }
 
         return $validateResult;
@@ -103,7 +114,6 @@ class AddressService
 
     /**
      * Create cache key by calling specified methods and concatenating and hashing
-     * TODO: Get Anya to update to create a new tag off of master so that getCountry on \AvaTax\Address works correctly
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $object

@@ -89,9 +89,9 @@ class Address
         'Region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
         'PostalCode' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
         'Country' => ['type' => 'string', 'length' => 2],
-        'TaxRegionId' => ['type' => 'integer', 'use_in_cache_key' => false],
-        'Latitude' => ['type' => 'string', 'use_in_cache_key' => false],
-        'Longitude' => ['type' => 'string', 'use_in_cache_key' => false],
+        'TaxRegionId' => ['type' => 'integer', 'useInCacheKey' => false],
+        'Latitude' => ['type' => 'string', 'useInCacheKey' => false],
+        'Longitude' => ['type' => 'string', 'useInCacheKey' => false],
     ];
 
     /**
@@ -161,7 +161,7 @@ class Address
      * Likely no special consideration since the code is already sending all addresses (up to 3) to AvaTax if present.
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|AddressModelInterface|array
+     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array
      * @return \AvaTax\Address
      * @throws LocalizedException
      */
@@ -176,9 +176,6 @@ class Address
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
                 $data = $this->convertOrderAddressToAvaTaxAddress($data);
-                break;
-            case ($data instanceof AddressModelInterface): // TODO: Decide if we need this still.  If we working with the Service Layer, this should never come up.
-                $data = $this->convertAddressModelToAvaTaxAddress($data);
                 break;
             case (!is_array($data)):
                 throw new LocalizedException(__(

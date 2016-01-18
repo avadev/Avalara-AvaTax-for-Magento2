@@ -505,12 +505,15 @@ class Tax
         // Quote created/updated date is not relevant, so just pass the current date
         $docDate = $currentDate;
 
+        $customerUsageType = $quote->getCustomer()
+            ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer())
+            : null;
         return [
             'StoreId' => $store->getId(),
             'Commit' => false, // quotes should never be committed
             'CurrencyCode' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($quote),
-            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer()),
+            'CustomerUsageType' => $customerUsageType,
             'DestinationAddress' => $address,
             'DocCode' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'DocDate' => $docDate,
@@ -525,10 +528,6 @@ class Tax
 //            'SalespersonCode' => null,
 //            'TaxOverride' => null,
         ];
-    }
-
-    protected function convertCreditMemoToData(\Magento\Sales\Api\Data\CreditmemoInterface $creditMemo)
-    {
     }
 
     /**
@@ -552,8 +551,9 @@ class Tax
         }
 
         $store = $quote->getStore();
+        $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store),
+            $this->retrieveGetTaxRequestFields($store, $shippingAddress),
             $data
         );
 
@@ -620,9 +620,13 @@ class Tax
         }
 
         // TODO: Would be nice to use the service layer to get the shipping address somehow
-        /** @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress */
-        $shippingAddress = $order->getShippingAddress();
-        $address = $this->address->getAddress($shippingAddress);
+        /** @var \Magento\Sales\Api\Data\OrderAddressInterface $address */
+        if (!$order->getIsVirtual()) {
+            $address = $order->getShippingAddress();
+        } else {
+            $address = $order->getBillingAddress();
+        }
+        $avaTaxAddress = $this->address->getAddress($address);
 
         $store = $this->storeRepository->getById($object->getStoreId());
         $currentDate = $this->getFormattedDate($store);
@@ -654,15 +658,16 @@ class Tax
         // TODO: Fix for guest checkout when $customer is null
         // TODO: You can't pass a null value to $this->taxClassHelper->getAvataxTaxCodeForCustomer()
         $customer = $this->getCustomerById($order->getCustomerId());
+        $customerUsageType = $customer ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer) : null;
         $data = [
             'StoreId' => $store->getId(),
             'Commit' => $this->config->getCommitSubmittedTransactions($store),
             'TaxOverride' => $taxOverride,
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
-            'CustomerUsageType' => $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer),
-            'DestinationAddress' => $address,
+            'CustomerUsageType' => $customerUsageType,
             'DocCode' => $object->getIncrementId(),
+            'DestinationAddress' => $avaTaxAddress,
             'DocDate' => $docDate,
             'DocType' => $docType,
             'ExchangeRate' => $this->getExchangeRate($store,
@@ -677,7 +682,7 @@ class Tax
         ];
 
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store),
+            $this->retrieveGetTaxRequestFields($store, $address),
             $data
         );
 
@@ -716,25 +721,42 @@ class Tax
      * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
      *
      * @param \Magento\Store\Api\Data\StoreInterface $store
+     * @param $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface
      * @return array
      * @throws LocalizedException
      */
-    protected function retrieveGetTaxRequestFields(StoreInterface $store)
+    protected function retrieveGetTaxRequestFields(StoreInterface $store, $address)
     {
         $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
-        if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {
-            $companyCode = $this->config->getCompanyCode($store);
+        if ($this->config->getLiveMode() == Config::API_PROFILE_NAME_PROD) {
+            $companyCode = $this->config->getCompanyCode();
         } else {
-            $companyCode = $this->config->getDevelopmentCompanyCode($store);
+            $companyCode = $this->config->getDevelopmentCompanyCode();
         }
+        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address);
+        $locationCode = $this->config->getLocationCode($store);
         return [
-            'BusinessIdentificationNo' => $this->config->getBusinessIdentificationNumber(),
+            'BusinessIdentificationNo' => $businessIdentificationNumber,
             'CompanyCode' => $companyCode,
+            'LocationCode' => $locationCode,
             'DetailLevel' => DetailLevel::$Diagnostic,
             'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
             // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
         ];
+    }
 
+    /**
+     * @author Nathan Toombs <nathan.toombs@classyllama.com>
+     * @param $store
+     * @param $address
+     * @return null
+     */
+    protected function getBusinessIdentificationNumber($store, $address)
+    {
+        if ($this->config->getUseBusinessIdentificationNumber($store)) {
+            return $address->getVatId();
+        }
+        return null;
     }
 
     /**

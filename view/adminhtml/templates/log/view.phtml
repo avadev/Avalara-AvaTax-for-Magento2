@@ -54,7 +54,7 @@ $logModel = $block->getLog();
             </legend><br />
 
             <div class="field log-details-grid">
-                <?php echo $block->escapeHtml($logModel->getRequest()) ?>
+                <pre class="admin__avatax-log-text"><?php echo $block->escapeHtml($logModel->getRequest()) ?></pre>
             </div>
         </fieldset>
         <?php
@@ -69,7 +69,7 @@ $logModel = $block->getLog();
             </legend><br />
 
             <div class="field log-details-grid">
-                <?php echo $block->escapeHtml($logModel->getResult()) ?>
+                <pre class="admin__avatax-log-text"><?php echo $block->escapeHtml($logModel->getResult()) ?></pre>
             </div>
         </fieldset>
         <?php
@@ -84,7 +84,7 @@ $logModel = $block->getLog();
             </legend><br />
 
             <div class="field log-details-grid">
-                <?php echo $block->escapeHtml($logModel->getAdditional()) ?>
+                <pre class="admin__avatax-log-text"><?php echo $block->escapeHtml($logModel->getAdditional()) ?></pre>
             </div>
         </fieldset>
         <?php

@@ -323,7 +323,7 @@ class Processing
         } catch (\Exception $e) {
 
             $message = '';
-            if ($e instanceof Get\Exception) {
+            if ($e instanceof \ClassyLlama\AvaTax\Exception\TaxCalculationException) {
                 $message .= __('An error occurred when attempting to send %1 #%2 to AvaTax.',
                     ucfirst($queue->getEntityTypeCode()),
                     $entity->getIncrementId()
@@ -539,14 +539,27 @@ class Processing
             ucfirst($queue->getEntityTypeCode()),
             $entity->getIncrementId()
         );
+        $queueMessage = '';
 
         if ($processSalesResponse->getIsUnbalanced()) {
-            $queue->setMessage(
-                __('Unbalanced Response - Collected: %1, AvaTax Actual: %2',
-                    $entity->getBaseTaxAmount(),
-                    $processSalesResponse->getBaseAvataxTaxAmount()
-                )
+            $adjustmentMessage = null;
+            if ($entity instanceof CreditmemoInterface) {
+                if (abs($entity->getBaseAdjustmentNegative()) > 0 || abs($entity->getBaseAdjustmentPositive()) > 0) {
+                    $adjustmentMessage = __('The difference was at least partly caused by the fact that the creditmemo '
+                            . 'contained an adjustment of %1 and Magento doesn\'t factor that into its calculation, '
+                            . 'but AvaTax does.',
+                        $entity->getBaseAdjustment()
+                    );
+                }
+            }
+
+            $queueMessage = __('Unbalanced Response - Collected: %1, AvaTax Actual: %2',
+                $entity->getBaseTaxAmount(),
+                $processSalesResponse->getBaseAvataxTaxAmount()
             );
+            if ($adjustmentMessage) {
+                $queueMessage .= ' — ' . $adjustmentMessage;
+            }
 
             // add comment about unbalanced amount
             $message .= '<br/>' .
@@ -554,11 +567,17 @@ class Processing
                     ' recorded in Magento.', $queue->getEntityTypeCode()) . '<br/>' .
                 __('There was a difference of %1',
                     ($entity->getBaseTaxAmount() - $processSalesResponse->getBaseAvataxTaxAmount())
-                ) . '<br/>' .
-                __('Magento listed a tax amount of %1', $entity->getBaseTaxAmount()) . '<br/>' .
+                ) . '<br/>';
+
+            if ($adjustmentMessage) {
+                $message .= '<strong>' . $adjustmentMessage . '</strong><br/>';
+            }
+
+            $message .= __('Magento listed a tax amount of %1', $entity->getBaseTaxAmount()) . '<br/>' .
                 __('AvaTax calculated the tax to be %1', $processSalesResponse->getBaseAvataxTaxAmount()) . '<br/>';
         }
 
+        $queue->setMessage($queueMessage);
         $queue->setQueueStatus(Queue::QUEUE_STATUS_COMPLETE);
         $queue->save();
 

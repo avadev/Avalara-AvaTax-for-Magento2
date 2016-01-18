@@ -36,11 +36,19 @@ class ValidateAddress extends AbstractComponent
     protected $config = null;
 
     /**
+     * Store manager
+     *
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * ValidateAddress constructor
      *
      * @param ContextInterface $context
      * @param UrlInterface $urlBuilder
      * @param Config $config
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param array $components
      * @param array $data
      */
@@ -48,10 +56,12 @@ class ValidateAddress extends AbstractComponent
         ContextInterface $context,
         UrlInterface $urlBuilder,
         Config $config,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         array $components = [],
         array $data = []
     ) {
         parent::__construct($context, $components, $data);
+        $this->storeManager = $storeManager;
         $this->urlBuilder = $urlBuilder;
         $this->config = $config;
     }
@@ -81,7 +91,7 @@ class ValidateAddress extends AbstractComponent
             $config['options'] = $options;
         }
 
-        $config['validationEnabled'] = $this->config->isAddressValidationEnabled();
+        $config['validationEnabled'] = $this->config->isAddressValidationEnabled($this->storeManager->getStore());
         $hasChoice = $this->config->allowUserToChooseAddress();
         $config['choice'] = $hasChoice;
         if ($hasChoice) {

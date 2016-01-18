@@ -129,7 +129,6 @@ class Line
      * Return an array with relevant data from an invoice item
      *
      * All TODOs in the doc block and the method body apply to all 4 conversion methods
-     * TODO: Fields to figure out: tax_override
      *
      * @param \Magento\Sales\Api\Data\InvoiceItemInterface $item
      * @return array|bool
@@ -160,7 +159,6 @@ class Line
             'TaxIncluded' => false,
             'Ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
             'Ref2' => $this->config->getRef2($item->getStoreId()),
-//            'TaxOverride' => null,
         ];
     }
 

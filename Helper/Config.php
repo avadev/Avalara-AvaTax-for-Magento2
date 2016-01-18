@@ -195,14 +195,14 @@ class Config extends AbstractHelper
     const AVATAX_CACHE_TAG = 'AVATAX';
 
     /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig = null;
-
-    /**
      * @var ProductMetadataInterface
      */
     protected $magentoProductMetadata = null;
+
+    /**
+     * @var ATConfigFactory
+     */
+    protected $avaTaxConfigFactory = null;
 
     /**
      * @var \Magento\Framework\App\State
@@ -215,40 +215,27 @@ class Config extends AbstractHelper
     protected $taxClassRepository = null;
 
     /**
-     * Url Builder
-     *
-     * @var \Magento\Framework\UrlInterface
-     */
-    protected $urlBuilder;
-
-    /**
      * Class constructor
      *
      * @param Context $context
-     * @param ScopeConfigInterface $scopeConfig
      * @param ProductMetadataInterface $magentoProductMetadata
      * @param ATConfigFactory $avaTaxConfigFactory
      * @param State $appState
      * @param TaxClassRepositoryInterface $taxClassRepository
-     * @param \Magento\Framework\UrlInterface $urlBuilder
      */
     public function __construct(
         Context $context,
-        ScopeConfigInterface $scopeConfig,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
         State $appState,
-        TaxClassRepositoryInterface $taxClassRepository,
-        \Magento\Framework\UrlInterface $urlBuilder
+        TaxClassRepositoryInterface $taxClassRepository
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
-        $this->createAvaTaxProfile();
-        $this->urlBuilder = $urlBuilder;
         parent::__construct($context);
+        $this->createAvaTaxProfile();
     }
 
     /**
@@ -426,16 +413,15 @@ class Config extends AbstractHelper
     /**
      * Get Live vs. Development mode of the module
      *
+     * Must be configured at default level as it is difficult to pass store in all contexts this is used
+     *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return bool
      */
-    public function getLiveMode($store = null)
+    public function getLiveMode()
     {
         return (bool)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LIVE_MODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
+            self::XML_PATH_AVATAX_LIVE_MODE
         );
     }
 
@@ -443,96 +429,66 @@ class Config extends AbstractHelper
      * Get account number from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getAccountNumber($store = null)
+    public function getAccountNumber()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER);
     }
 
     /**
-     * get license key from config
+     * Get license key from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getLicenseKey($store = null)
+    public function getLicenseKey()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY);
     }
 
     /**
      * Get company code from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getCompanyCode($store = null)
+    public function getCompanyCode()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE);
     }
 
     /**
      * Get development account number from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getDevelopmentAccountNumber($store = null)
+    public function getDevelopmentAccountNumber()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER);
     }
 
     /**
      * Get development license key from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getDevelopmentLicenseKey($store = null)
+    public function getDevelopmentLicenseKey()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY);
     }
 
     /**
      * Get development company code from config
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getDevelopmentCompanyCode($store = null)
+    public function getDevelopmentCompanyCode()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE);
     }
 
     /**
@@ -676,10 +632,10 @@ class Config extends AbstractHelper
      * Get whether should use Business Identification Number (VAT)
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getUseBusinessIdentificationNumber($store = null)
+    public function getUseBusinessIdentificationNumber($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_USE_VAT,
@@ -715,7 +671,7 @@ class Config extends AbstractHelper
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
             return __(
                 $this->getErrorActionDisableCheckoutMessageBackend($store),
-                $this->urlBuilder->getUrl('avatax/log')
+                $this->_urlBuilder->getUrl('avatax/log')
             );
         } else {
             return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
@@ -759,7 +715,7 @@ class Config extends AbstractHelper
      * @param null $store
      * @return mixed
      */
-    public function isAddressValidationEnabled($store = null)
+    public function isAddressValidationEnabled($store)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED,

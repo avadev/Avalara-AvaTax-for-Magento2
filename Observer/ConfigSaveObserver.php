@@ -120,7 +120,7 @@ class ConfigSaveObserver implements ObserverInterface
         }
 
         $message = '';
-        $type = $this->config->getLiveMode($store) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
+        $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         try {
             $result = $this->interactionTax->getTaxService($type)->ping();
             if (is_object($result) && $result->getResultCode() != \AvaTax\SeverityLevel::$Success) {

@@ -34,15 +34,14 @@
                     </depends>
                     -->
                 </field>
-                <!-- TODO: Consider using the term "test" for non production/live environments instead of "development". -->
-                <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Account Number (Production)</label>
                     <frontend_class>required-entry</frontend_class>
                     <depends>
@@ -53,23 +52,21 @@
                 <!-- TODO: Change this to a password? -->
                 <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Production)</label>
-                    <frontend_class>required-entry</frontend_class>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="live_mode">1</field>
                     </depends>
                 </field>
-                <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Company Code (Production)</label>
-                    <frontend_class>required-entry validate-length maximum-length-25</frontend_class>
+                    <frontend_class>validate-length maximum-length-25</frontend_class>
                     <depends>
                         <field id="live_mode">1</field>
                     </depends>
                 </field>
-                <!-- TODO: Have an error if development or production credentials are not entered on config after save -->
-                <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Account Number (Development)</label>
-                    <frontend_class>required-entry</frontend_class>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="live_mode">0</field>
@@ -84,9 +81,9 @@
                         <field id="live_mode">0</field>
                     </depends>
                 </field>
-                <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Company Code (Development)</label>
-                    <frontend_class>required-entry validate-length maximum-length-25</frontend_class>
+                    <frontend_class>validate-length maximum-length-25</frontend_class>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="live_mode">0</field>
@@ -100,7 +97,6 @@
                     </depends>
                     -->
                 </field>
-                <!-- TODO: Possibly have a value that gets set after the first time a live mode customer is set and disable the ability to change this value -->
                 <field id="customer_code_format" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Customer Code Format</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\CustomerCode</source_model>
@@ -159,6 +155,7 @@
                 </field>
                 <field id="location_code" translate="label" type="text" sortOrder="2080" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Location Code</label>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
                     <comment><![CDATA[Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
@@ -180,21 +177,12 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="3010" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="2110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Submit VAT Number to AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Set this to yes if you need to consider VAT when calculating tax</comment>
+                    <comment><![CDATA[Set this to "Yes" if you want to send your customer's VAT tax numbers to AvaTax to affect tax calculation. If a customer address has a <strong>VAT Id</strong> stored on their Magento shipping address, it will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="business_identification_number" translate="label comment" type="text" sortOrder="3020" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>VAT Number</label>
-                    <config_path>tax/avatax/business_identification_number</config_path>
-                    <comment>VAT Number can also be found at GENERAL: General -> Store Information -> VAT Number</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                        <field id="use_business_identification_number">1</field>
                     </depends>
                 </field>
                 <field id="address_validation_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">
