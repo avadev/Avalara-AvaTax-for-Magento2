@@ -17,11 +17,20 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
     protected $config = null;
 
     /**
+     * Store manager
+     *
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * LayoutProcessor constructor.
      * @param Config $config
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
-    public function __construct(Config $config) {
+    public function __construct(Config $config, \Magento\Store\Model\StoreManagerInterface $storeManager) {
         $this->config = $config;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -41,7 +50,7 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
      */
     public function process($jsLayout) {
         if ($this->config->isModuleEnabled()) {
-            if ($this->config->isAddressValidationEnabled()) {
+            if ($this->config->isAddressValidationEnabled($this->storeManager->getStore())) {
                 $userHasChoice = $this->config->allowUserToChooseAddress();
                 if ($userHasChoice) {
                     $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']

@@ -715,7 +715,7 @@ class Config extends AbstractHelper
      * @param null $store
      * @return mixed
      */
-    public function isAddressValidationEnabled($store = null)
+    public function isAddressValidationEnabled($store)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED,

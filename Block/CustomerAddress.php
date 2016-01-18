@@ -47,7 +47,7 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      * @return mixed
      */
     public function isValidationEnabled() {
-        return $this->config->isAddressValidationEnabled();
+        return $this->config->isAddressValidationEnabled($this->_storeManager->getStore());
     }
 
     /**
