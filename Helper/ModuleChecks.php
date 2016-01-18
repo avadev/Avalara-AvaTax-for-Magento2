@@ -28,11 +28,6 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
     protected $taxRuleRepository;
 
     /**
-     * @var \Magento\Framework\UrlInterface
-     */
-    protected $urlBuilder;
-
-    /**
      * @var Config
      */
     protected $avaTaxConfig;
@@ -44,7 +39,6 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param TaxRuleRepositoryInterface $taxRuleRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Framework\UrlInterface $urlBuilder
      * @param Config $avaTaxConfig
      */
     public function __construct(
@@ -52,13 +46,11 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         TaxRuleRepositoryInterface $taxRuleRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Framework\UrlInterface $urlBuilder,
         Config $avaTaxConfig
     ) {
         $this->storeManager = $storeManager;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->taxRuleRepository = $taxRuleRepository;
-        $this->urlBuilder = $urlBuilder;
         $this->avaTaxConfig = $avaTaxConfig;
         return parent::__construct($context);
     }
@@ -103,7 +95,7 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
         ) {
             $errors[] = __('In order for AvaTax tax calculation to work, you need to configure the <strong>Origin '
                 . 'Address</strong> on the <a href="%1">Shipping Settings page</a>.',
-                $this->urlBuilder->getUrl('admin/system_config/edit', ['section' => 'shipping'])
+                $this->_urlBuilder->getUrl('admin/system_config/edit', ['section' => 'shipping'])
             );
         }
 
@@ -131,7 +123,7 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
                     . 'errors (see <a href="#row_tax_avatax_error_handling_header">Error Action setting</a>) '
                     . 'or if you need to support VAT tax.',
                 count($taxRules->getItems()),
-                $this->urlBuilder->getUrl('tax/rule')
+                $this->_urlBuilder->getUrl('tax/rule')
             );
         }
         return $errors;
