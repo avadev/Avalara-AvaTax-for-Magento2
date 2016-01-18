@@ -412,13 +412,8 @@ class Tax
 
         // Shipping Address not documented in the interface for some reason
         // they do have a constant for it but not a method in the interface
-        try {
-            $shippingAddress = $shippingAssignment->getShipping()->getAddress();
-            $address = $this->address->getAddress($shippingAddress);
-        } catch (LocalizedException $e) {
-            // TODO: Log this exception
-            return null;
-        }
+        $shippingAddress = $shippingAssignment->getShipping()->getAddress();
+        $address = $this->address->getAddress($shippingAddress);
 
         $store = $this->storeRepository->getById($quote->getStoreId());
         $currentDate = $this->getFormattedDate($store);
