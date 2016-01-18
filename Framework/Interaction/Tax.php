@@ -728,10 +728,10 @@ class Tax
     protected function retrieveGetTaxRequestFields(StoreInterface $store, $address)
     {
         $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
-        if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {
-            $companyCode = $this->config->getCompanyCode($store);
+        if ($this->config->getLiveMode() == Config::API_PROFILE_NAME_PROD) {
+            $companyCode = $this->config->getCompanyCode();
         } else {
-            $companyCode = $this->config->getDevelopmentCompanyCode($store);
+            $companyCode = $this->config->getDevelopmentCompanyCode();
         }
         $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address);
         $locationCode = $this->config->getLocationCode($store);
