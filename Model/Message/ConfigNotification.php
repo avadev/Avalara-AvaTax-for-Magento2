@@ -103,7 +103,7 @@ class ConfigNotification implements MessageInterface
      */
     public function getText()
     {
-        return implode('<br>', $this->moduleChecks->getModuleCheckErrors());
+        return implode('<br><br>', $this->moduleChecks->getModuleCheckErrors());
     }
 
     /**
