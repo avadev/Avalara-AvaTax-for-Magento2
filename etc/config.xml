@@ -19,7 +19,7 @@
                 <address_validation_enabled>1</address_validation_enabled>
                 <address_validation_user_has_choice>1</address_validation_user_has_choice>
                 <address_validation_instructions_with_choice><![CDATA[To ensure accurate delivery, we suggest the changes highlighted below. Please choose which address you would like to use. If neither option is correct, <a href="#" class="edit-address">edit your address</a>.]]></address_validation_instructions_with_choice>
-                <address_validation_instructions_without_choice><![CDATA[There is a problem with the address that you entered. The address fields that have changed are highlighted. If this address is not correct, <a href="#" class="edit-address">edit your address</a>.]]></address_validation_instructions_without_choice>
+                <address_validation_instructions_without_choice><![CDATA[To ensure accurate delivery, we've made the changes highlighted below. If this address is not correct, <a href="#" class="edit-address">edit your address</a>.]]></address_validation_instructions_without_choice>
                 <address_validation_error_instructions><![CDATA[We were unable to validate your address. <p class="error-message"></p> If the address below is correct then you don’t need to do anything. To change your address, <a href="#" class="edit-address">click here</a>.]]></address_validation_error_instructions>
                 <address_validation_countries_enabled>CA,US</address_validation_countries_enabled>
                 <logging_db_level>250</logging_db_level>

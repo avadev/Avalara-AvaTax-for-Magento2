@@ -70,6 +70,7 @@ define([
                     var isValid = $(':mage-validation').validation('isValid');
                     if (isValid) {
                         e.preventDefault();
+                        addressModel.error(null);
                         var addressObject = addressConverter.formAddressDataToCustomerAddress($(self.formSelector));
                         var inCountry = $.inArray(addressObject.countryId, self.options.countriesEnabled.split(',')) >= 0;
                         if (inCountry) {

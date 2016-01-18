@@ -5,8 +5,8 @@
             "addressValidationModal": {
                 "validationEnabled": <?= $this->isValidationEnabled() ?>,
                 "hasChoice": <?= $this->getChoice() ?>,
-                "instructions": "<?= $this->getInstructions() ?>",
-                "errorInstructions": "<?= $this->getErrorInstructions() ?>",
+                "instructions": <?= $this->getInstructions() ?>,
+                "errorInstructions": <?= $this->getErrorInstructions() ?>,
                 "countriesEnabled": "<?= $this->getCountriesEnabled() ?>",
                 "baseUrl": "<?= $this->getBaseUrl() ?>"
             }

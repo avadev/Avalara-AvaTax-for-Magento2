@@ -72,9 +72,9 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      */
     public function getInstructions() {
         if ($this->getChoice()) {
-            return addslashes($this->config->getAddressValidationInstructionsWithChoice());
+            return json_encode($this->config->getAddressValidationInstructionsWithChoice());
         } else {
-            return addslashes($this->config->getAddressValidationInstructionsWithOutChoice());
+            return json_encode($this->config->getAddressValidationInstructionsWithOutChoice());
         }
     }
 
@@ -83,7 +83,7 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      * @return string
      */
     public function getErrorInstructions() {
-        return addslashes($this->config->getAddressValidationErrorInstructions());
+        return json_encode($this->config->getAddressValidationErrorInstructions());
     }
 
     /**
