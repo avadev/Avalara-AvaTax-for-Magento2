@@ -35,6 +35,7 @@
                 <queue_submission_enabled>1</queue_submission_enabled>
                 <queue_complete_lifetime>60</queue_complete_lifetime>
                 <queue_failed_lifetime>180</queue_failed_lifetime>
+                <queue_admin_notification_enabled>1</queue_admin_notification_enabled>
             </avatax>
         </tax>
     </default>

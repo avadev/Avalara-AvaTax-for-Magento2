@@ -107,6 +107,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME = 'tax/avatax/queue_complete_lifetime';
 
     const XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME = 'tax/avatax/queue_failed_lifetime';
+
+    const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
     /**#@-*/
 
     /**#@+
@@ -1010,6 +1012,21 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Return if queue admin notification is enabled
+     *
+     * @param null $store
+     * @return int
+     */
+    public function getQueueAdminNotificationEnabled($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED,
             ScopeInterface::SCOPE_STORE,
             $store
         );

@@ -412,6 +412,15 @@
                         <field id="queue_submission_enabled">1</field>
                     </depends>
                 </field>
+                <field id="queue_admin_notification_enabled" translate="label" type="select" sortOrder="5560" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Queue Admin Notification</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="queue_submission_enabled">1</field>
+                    </depends>
+                    <comment>A notification will be displayed at the top of any admin page if there are pending queue records waiting to be submitted to AvaTax but no attempts have been made in the last 24 hours to submit them.</comment>
+                </field>
             </group>
             <group id="classes">
                 <field id="shipping_tax_class">
