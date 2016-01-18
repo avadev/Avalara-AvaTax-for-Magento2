@@ -39,7 +39,9 @@ class ValidAddressManagement implements ValidAddressManagementInterface
     public function saveValidAddress(AddressInterface $address) {
         try {
             return $this->validationInteraction->validateAddress($address);
-        } catch (AddressValidateException $e) {
+        } catch (\SoapFault $e) {
+            return 'Connection Error: ' . $e->getMessage();
+        } catch (\Exception $e) {
             return $e->getMessage();
         }
     }
