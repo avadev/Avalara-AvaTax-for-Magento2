@@ -51,16 +51,19 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
     public function process($jsLayout) {
         if ($this->config->isModuleEnabled()) {
             if ($this->config->isAddressValidationEnabled($this->storeManager->getStore())) {
-                $userHasChoice = $this->config->allowUserToChooseAddress();
+                $userHasChoice = $this->config->allowUserToChooseAddress($this->storeManager->getStore());
                 if ($userHasChoice) {
                     $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
-                        ['payment']['config']['instructions'] = $this->config->getAddressValidationInstructionsWithChoice();
+                        ['payment']['config']['instructions']
+                        = $this->config->getAddressValidationInstructionsWithChoice($this->storeManager->getStore());
                 } else {
                     $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
-                        ['payment']['config']['instructions'] = $this->config->getAddressValidationInstructionsWithoutChoice();
+                        ['payment']['config']['instructions']
+                        = $this->config->getAddressValidationInstructionsWithoutChoice($this->storeManager->getStore());
                 }
                 $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
-                ['payment']['config']['errorInstructions'] = $this->config->getAddressValidationErrorInstructions();
+                    ['payment']['config']['errorInstructions']
+                    = $this->config->getAddressValidationErrorInstructions($this->storeManager->getStore());
                 $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
                     ['payment']['config']['choice'] = $userHasChoice;
                 $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']

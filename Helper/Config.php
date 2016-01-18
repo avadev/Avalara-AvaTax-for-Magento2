@@ -705,7 +705,7 @@ class Config extends AbstractHelper
      * @param null $store
      * @return mixed
      */
-    public function allowUserToChooseAddress($store = null)
+    public function allowUserToChooseAddress($store)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD,
@@ -718,10 +718,10 @@ class Config extends AbstractHelper
      * Instructions for the user if they have a choice between the original address and validated address
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getAddressValidationInstructionsWithChoice($store = null)
+    public function getAddressValidationInstructionsWithChoice($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE,
@@ -734,10 +734,10 @@ class Config extends AbstractHelper
      * Instructions for the user if they do not have a choice between the original address and the validated address
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getAddressValidationInstructionsWithoutChoice($store = null)
+    public function getAddressValidationInstructionsWithoutChoice($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE,
@@ -750,10 +750,10 @@ class Config extends AbstractHelper
      * Instructions for the user if there was an error in validating their address
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getAddressValidationErrorInstructions($store = null)
+    public function getAddressValidationErrorInstructions($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS,
@@ -766,10 +766,10 @@ class Config extends AbstractHelper
      * Returns which countries were enabled to validate the users address
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return mixed
      */
-    public function getAddressValidationCountriesEnabled($store = null)
+    public function getAddressValidationCountriesEnabled($store)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED,
@@ -781,180 +781,120 @@ class Config extends AbstractHelper
     /**
      * Return configured log level
      *
-     * @param null $store
      * @return int
      */
-    public function getLogDbLevel($store = null)
+    public function getLogDbLevel()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_DB_LEVEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_DB_LEVEL);
     }
 
     /**
      * Return configured log detail
      *
-     * @param null $store
      * @return int
      */
-    public function getLogDbDetail($store = null)
+    public function getLogDbDetail()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_DB_DETAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_DB_DETAIL);
     }
 
     /**
      * Return configured log lifetime
      *
-     * @param null $store
      * @return int
      */
-    public function getLogDbLifetime($store = null)
+    public function getLogDbLifetime()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_DB_LIFETIME,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_DB_LIFETIME);
     }
 
     /**
      * Return if file logging is enabled
      *
-     * @param null $store
      * @return bool
      */
-    public function getLogFileEnabled($store = null)
+    public function getLogFileEnabled()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_ENABLED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_FILE_ENABLED);
     }
 
     /**
      * Return configured log mode
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileMode($store = null)
+    public function getLogFileMode()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_MODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_FILE_MODE);
     }
 
     /**
      * Return if built-in log file rotation is enabled
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileBuiltinRotateEnabled($store = null)
+    public function getLogFileBuiltinRotateEnabled()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_ENABLED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_ENABLED);
     }
 
     /**
      * Return the number of built-in log files to maintain in the log directory when rotating files
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileBuiltinRotateMaxFiles($store = null)
+    public function getLogFileBuiltinRotateMaxFiles()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_MAX_FILES,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_MAX_FILES);
     }
 
     /**
      * Return configured log level
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileLevel($store = null)
+    public function getLogFileLevel()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_LEVEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_FILE_LEVEL);
     }
 
     /**
      * Return configured log detail
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileDetail($store = null)
+    public function getLogFileDetail()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_FILE_DETAIL);
     }
 
     /**
      * Return configured queue max retry attempts
      *
-     * @param null $store
      * @return int
      */
-    public function getQueueMaxRetryAttempts($store = null)
+    public function getQueueMaxRetryAttempts()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS);
     }
 
     /**
      * Return configured queue complete lifetime
      *
-     * @param null $store
      * @return int
      */
-    public function getQueueCompleteLifetime($store = null)
+    public function getQueueCompleteLifetime()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME);
     }
 
     /**
      * Return configured queue failed lifetime
      *
-     * @param null $store
      * @return int
      */
-    public function getQueueFailedLifetime($store = null)
+    public function getQueueFailedLifetime()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME);
     }
 }

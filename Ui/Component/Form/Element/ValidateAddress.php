@@ -91,17 +91,18 @@ class ValidateAddress extends AbstractComponent
             $config['options'] = $options;
         }
 
-        $config['validationEnabled'] = $this->config->isAddressValidationEnabled($this->storeManager->getStore());
-        $hasChoice = $this->config->allowUserToChooseAddress();
+        $store = $this->storeManager->getStore();
+        $config['validationEnabled'] = $this->config->isAddressValidationEnabled($store);
+        $hasChoice = $this->config->allowUserToChooseAddress($store);
         $config['choice'] = $hasChoice;
         if ($hasChoice) {
-            $instructions = $this->config->getAddressValidationInstructionsWithChoice();
+            $instructions = $this->config->getAddressValidationInstructionsWithChoice($store);
         } else {
-            $instructions = $this->config->getAddressValidationInstructionsWithOutChoice();
+            $instructions = $this->config->getAddressValidationInstructionsWithOutChoice($store);
         }
         $config['instructions'] =  $instructions;
-        $config['errorInstructions'] =  $this->config->getAddressValidationErrorInstructions();
-        $config['countriesEnabled'] = $this->config->getAddressValidationCountriesEnabled();
+        $config['errorInstructions'] =  $this->config->getAddressValidationErrorInstructions($store);
+        $config['countriesEnabled'] = $this->config->getAddressValidationCountriesEnabled($store);
         $config['baseUrl'] = $this->urlBuilder->getUrl(self::VALIDATE_ADDRESS_PATH);
 
         $this->setData('config', $config);
