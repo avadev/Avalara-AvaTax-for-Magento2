@@ -49,7 +49,8 @@
                         <field id="live_mode">1</field>
                     </depends>
                 </field>
-                <field id="production_license_key" translate="label" type="obscure" sortOrder="1040" showInDefault="1" showInWebsite="0" showInStore="0">
+                <!-- TODO: Change this to a password? -->
+                <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Production)</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
@@ -71,9 +72,10 @@
                         <field id="live_mode">0</field>
                     </depends>
                 </field>
-                <field id="development_license_key" translate="label" type="obscure" sortOrder="1070" showInDefault="1" showInWebsite="0" showInStore="0">
+                <!-- TODO: Change this to a password? -->
+                <field id="development_license_key" translate="label" type="text" sortOrder="1070" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Development)</label>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <frontend_class>required-entry</frontend_class>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="live_mode">0</field>
