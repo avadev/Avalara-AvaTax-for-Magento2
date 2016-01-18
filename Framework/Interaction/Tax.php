@@ -19,11 +19,13 @@ use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Store\Api\Data\StoreInterface;
-use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
+/**
+ * Class Tax
+ */
 class Tax
 {
     /**
@@ -85,11 +87,6 @@ class Tax
      * @var StoreRepositoryInterface
      */
     protected $storeRepository = null;
-
-    /**
-     * @var TaxClassRepositoryInterface
-     */
-    protected $taxClassRepository = null;
 
     /**
      * @var PriceCurrencyInterface
@@ -222,7 +219,6 @@ class Tax
      * @param InvoiceRepositoryInterface $invoiceRepository
      * @param OrderRepositoryInterface $orderRepository
      * @param StoreRepositoryInterface $storeRepository
-     * @param TaxClassRepositoryInterface $taxClassRepository
      * @param PriceCurrencyInterface $priceCurrency
      * @param TimezoneInterface $localeDate
      * @param Line $interactionLine
@@ -242,7 +238,6 @@ class Tax
         InvoiceRepositoryInterface $invoiceRepository,
         OrderRepositoryInterface $orderRepository,
         StoreRepositoryInterface $storeRepository,
-        TaxClassRepositoryInterface $taxClassRepository,
         PriceCurrencyInterface $priceCurrency,
         TimezoneInterface $localeDate,
         Line $interactionLine,
@@ -261,7 +256,6 @@ class Tax
         $this->invoiceRepository = $invoiceRepository;
         $this->orderRepository = $orderRepository;
         $this->storeRepository = $storeRepository;
-        $this->taxClassRepository = $taxClassRepository;
         $this->priceCurrency = $priceCurrency;
         $this->localeDate = $localeDate;
         $this->interactionLine = $interactionLine;
@@ -377,66 +371,7 @@ class Tax
      * TODO: Set up a config field for location_code to be passed along
      * TODO: Take calculate tax on shipping vs. billing address into account, this is a configuration field in default Magento, fall back if the selected one is missing
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
-     * @return array
      */
-    /* TODO: Remove this method since orders will never have tax calculated for them
-    protected function convertOrderToData(\Magento\Sales\Api\Data\OrderInterface $order)
-    {
-        $customerGroupId = $order->getCustomerGroupId();
-        if (!is_null($customerGroupId)) {
-            $taxClassId = $this->groupRepository->getById($customerGroupId)->getTaxClassId();
-            $taxClass = $this->taxClassRepository->get($taxClassId);
-        }
-
-        $lines = [];
-        foreach ($order->getItems() as $item) {
-            $line = $this->interactionLine->getLine($item);
-            if ($line) {
-                $lines[] = $line;
-            }
-        }
-
-        // Shipping Address not documented in the interface for some reason
-        // they do have a constant for it but not a method in the interface
-
-        try {
-            $address = $this->address->getAddress($order->getShippingAddress());
-        } catch (LocalizedException $e) {
-            return null;
-        }
-
-        $store = $order->getStore();
-        $currentDate = $this->getFormattedDate($store);
-        $docDate = $this->getFormattedDate($store, $order->getCreatedAt());
-
-        return [
-            'StoreId' => $store->getId(),
-            'Commit' => false,
-            'CurrencyCode' => $order->getOrderCurrencyCode(), // TODO: Make sure these all map correctly
-            'CustomerCode' => $this->getCustomerCode(
-                $order->getCustomerFirstname(),
-                $order->getCustomerEmail(),
-                $order->getCustomerId()
-            ),
-//            'CustomerUsageType' => null,//$taxClass->,
-            'DestinationAddress' => $address,
-            'Discount' => $order->getDiscountAmount(),
-            'DocCode' => $order->getIncrementId(),
-            'DocDate' => $docDate,
-            'DocType' => DocumentType::$PurchaseInvoice,
-            'ExchangeRate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
-            'ExchangeRateEffDate' => $currentDate,
-            'Lines' => $lines,
-//            'PaymentDate' => null,
-            'PurchaseOrderNumber' => $order->getIncrementId(),
-//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
-//            'SalespersonCode' => null,
-//            'TaxOverride' => null,
-        ];
-    }
-    */
 
     /**
      * Convert Tax Quote Details into data to be converted to a GetTax Request
@@ -452,11 +387,6 @@ class Tax
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Api\Data\CartInterface $quote
     ) {
-        $taxClassId = $quote->getCustomerTaxClassId();
-        if (!is_null($taxClassId)) {
-            $taxClass = $this->taxClassRepository->get($taxClassId);
-        }
-
         $lines = [];
 
         $items = $taxQuoteDetails->getItems();
@@ -524,9 +454,6 @@ class Tax
             'Lines' => $lines,
 //            'PaymentDate' => null,
             'PurchaseOrderNumber' => $quote->getReservedOrderId(),
-//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
-//            'SalespersonCode' => null,
-//            'TaxOverride' => null,
         ];
     }
 
@@ -677,8 +604,6 @@ class Tax
 //            'PaymentDate' => null,
             // TODO: Is this the appropriate value to set?
             'PurchaseOrderNumber' => $object->getIncrementId(),
-//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
-//            'SalespersonCode' => null,
         ];
 
         $data = array_merge(
