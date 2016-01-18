@@ -157,8 +157,8 @@ class Line
             'Amount' => $amount,
             'Discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'TaxIncluded' => false,
-            'Ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
-            'Ref2' => $this->config->getRef2($item->getStoreId()),
+            'Ref1' => $this->config->getRef1(), // TODO: Switch to getting values from buy request and put data on buy request
+            'Ref2' => $this->config->getRef2(),
         ];
     }
 

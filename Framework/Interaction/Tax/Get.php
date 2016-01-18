@@ -165,8 +165,6 @@ class Get
                 throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
             }
         } catch (\SoapFault $exception) {
-            // TODO: Has this been tested? The IDE isn't aware of faultstring or __getLastRequest/Response
-            // TODO: Details expected to exceed 255 characters should be put in the context array
             $message = "Exception: \n";
             if ($exception) {
                 $message .= $exception->faultstring;

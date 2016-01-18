@@ -326,7 +326,7 @@ class Config extends AbstractHelper
      * @param null $store
      * @return array
      */
-    public function getOriginAddress($store = null)
+    public function getOriginAddress($store)
     {
         return [
             'Line1' => $this->scopeConfig->getValue(
@@ -366,10 +366,10 @@ class Config extends AbstractHelper
      * Get Customer code format to pass to AvaTax API
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return mixed
      */
-    public function getCustomerCodeFormat($store = null)
+    public function getCustomerCodeFormat($store)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT,
@@ -389,25 +389,9 @@ class Config extends AbstractHelper
     protected function getClientName()
     {
         return substr($this->magentoProductMetadata->getName(), 0, 7) . ' ' . // "Magento" - 8 chars
-        substr($this->magentoProductMetadata->getVersion(), 0, 14) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
-        substr($this->magentoProductMetadata->getEdition(), 0, 10) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
-        'AvaTax ' . substr(AvaTaxAppInterface::APP_VERSION, 0, 7); // "AvaTax " & 1.x.x - 14 chars
-    }
-
-    /**
-     * Get Vat Number
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
-     * @return bool
-     */
-    public function getBusinessIdentificationNumber($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            Information::XML_PATH_STORE_INFO_VAT_NUMBER,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+            substr($this->magentoProductMetadata->getVersion(), 0, 14) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
+            substr($this->magentoProductMetadata->getEdition(), 0, 10) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
+            'AvaTax ' . substr(AvaTaxAppInterface::APP_VERSION, 0, 7); // "AvaTax " & 1.x.x - 14 chars
     }
 
     /**
@@ -494,10 +478,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for Shipping
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuShipping($store = null)
+    public function getSkuShipping($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_SHIPPING,
@@ -509,10 +493,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for Gift Wrap at the Order Level
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuGiftWrapOrder($store = null)
+    public function getSkuGiftWrapOrder($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_GIFT_WRAP_ORDER,
@@ -524,10 +508,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for Gift Wrap at the Item Level
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuShippingGiftWrapItem($store = null)
+    public function getSkuShippingGiftWrapItem($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_GIFT_WRAP_ITEM,
@@ -539,10 +523,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for Gift Wrap card
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuShippingGiftWrapCard($store = null)
+    public function getSkuShippingGiftWrapCard($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_GIFT_WRAP_CARD,
@@ -554,10 +538,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for positive adjustment
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuAdjustmentPositive($store = null)
+    public function getSkuAdjustmentPositive($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_ADJUSTMENT_POSITIVE,
@@ -569,10 +553,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for negative adjustment
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuAdjustmentNegative($store = null)
+    public function getSkuAdjustmentNegative($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_ADJUSTMENT_NEGATIVE,
@@ -584,10 +568,10 @@ class Config extends AbstractHelper
     /**
      * Get Location Code
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getLocationCode($store = null)
+    public function getLocationCode($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_LOCATION_CODE,
@@ -600,32 +584,22 @@ class Config extends AbstractHelper
      * Get ref1 configured attribute code
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getRef1($store = null)
+    public function getRef1()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_REF1,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_REF1);
     }
 
     /**
      * Get ref2 configured attribute code
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getRef2($store = null)
+    public function getRef2()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_REF2,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_REF2);
     }
 
     /**
@@ -647,10 +621,10 @@ class Config extends AbstractHelper
     /**
      * Get action to take when error occurs
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getErrorAction($store = null)
+    public function getErrorAction($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION,
@@ -662,11 +636,11 @@ class Config extends AbstractHelper
     /**
      * Return "disable checkout" error message based on the current area context
      *
-     * @param null $store
+     * @param $store
      * @return \Magento\Framework\Phrase
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function getErrorActionDisableCheckoutMessage($store = null)
+    public function getErrorActionDisableCheckoutMessage($store)
     {
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
             return __(
@@ -681,10 +655,10 @@ class Config extends AbstractHelper
     /**
      * Get "disable checkout" error message for frontend user
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    protected function getErrorActionDisableCheckoutMessageFrontend($store = null)
+    protected function getErrorActionDisableCheckoutMessageFrontend($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_FRONTEND,
@@ -696,10 +670,10 @@ class Config extends AbstractHelper
     /**
      * Get "disable checkout" error message for backend user
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    protected function getErrorActionDisableCheckoutMessageBackend($store = null)
+    protected function getErrorActionDisableCheckoutMessageBackend($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND,

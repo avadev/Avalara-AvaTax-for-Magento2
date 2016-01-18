@@ -26,7 +26,7 @@
                         <field id="tax_mode">3</field>
                     </depends>
                 </field>
-                <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label><![CDATA[<strong>Connection Settings</strong>]]></label>
                     <!-- Reference: https://github.com/magento/magento2/issues/2340
                     <depends>
@@ -49,7 +49,6 @@
                         <field id="live_mode">1</field>
                     </depends>
                 </field>
-                <!-- TODO: Change this to a password? -->
                 <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Production)</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -72,7 +71,6 @@
                         <field id="live_mode">0</field>
                     </depends>
                 </field>
-                <!-- TODO: Change this to a password? -->
                 <field id="development_license_key" translate="label" type="text" sortOrder="1070" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Development)</label>
                     <frontend_class>required-entry</frontend_class>
@@ -161,7 +159,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="ref1" translate="label comment" type="select" sortOrder="2090" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="ref1" translate="label comment" type="select" sortOrder="2090" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Attribute to send as ref1</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment>Select a text type product attribute to be sent to AvaTax as ref1. Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
@@ -169,7 +167,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="ref2" translate="label comment" type="select" sortOrder="2100" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="ref2" translate="label comment" type="select" sortOrder="2100" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Attribute to send as ref2</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment>Select a text type product attribute to be sent to AvaTax as ref1. Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
