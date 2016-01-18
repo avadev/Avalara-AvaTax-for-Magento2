@@ -482,7 +482,7 @@ class Processing
     }
 
     /**
-     * TODO: When failing a queue records we need to have some way to notify someone of the failure (like an email?)
+     * Set queue to failed
      *
      * @param Queue $queue
      * @param string $message
@@ -593,9 +593,6 @@ class Processing
     {
         /* @var $order \Magento\Sales\Api\Data\OrderInterface */
         $order = $this->orderRepository->get($orderId);
-
-        // TODO: remove extra debugging date time in comment as I was seeing all comments with the newest comment's date
-        $message .= "<br/>" . $this->dateTime->gmtDate() . " GMT";
 
         // create comment
         $orderStatusHistory = $this->orderStatusHistoryFactory->create();

@@ -3,6 +3,8 @@
 namespace ClassyLlama\AvaTax\Model\Message;
 
 use Magento\Framework\Notification\MessageInterface;
+use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Model\ResourceModel\Queue\CollectionFactory;
 
 /**
  * Notifications class
@@ -17,44 +19,51 @@ class QueueNotification implements MessageInterface
     protected $storeManager;
 
     /**
+     * @var Config
+     */
+    protected $avaTaxConfig;
+
+    /**
+     * @var CollectionFactory
+     */
+    protected $queueCollectionFactory;
+
+    /**
      * @var \Magento\Framework\UrlInterface
      */
     protected $urlBuilder;
 
     /**
-     * Tax configuration object
-     *
-     * @var \Magento\Tax\Model\Config
+     * @var int
      */
-    protected $taxConfig;
+    protected $statQueueCount;
 
-    /*
-     * Stores with invalid display settings
-     *
-     * @var array
+    /**
+     * @var string
      */
-    protected $storesWithInvalidDisplaySettings;
+    protected $statQueueLastCreatedAt;
 
-    /*
-     * Websites with invalid discount settings
-     *
-     * @var array
+    /**
+     * @var string
      */
-    protected $storesWithInvalidDiscountSettings;
+    protected $statQueueLastUpdatedAt;
 
     /**
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param Config $avaTaxConfig
+     * @param CollectionFactory $queueCollectionFactory
      * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param \Magento\Tax\Model\Config $taxConfig
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Tax\Model\Config $taxConfig
+        Config $avaTaxConfig,
+        CollectionFactory $queueCollectionFactory,
+        \Magento\Framework\UrlInterface $urlBuilder
     ) {
         $this->storeManager = $storeManager;
+        $this->avaTaxConfig = $avaTaxConfig;
+        $this->queueCollectionFactory = $queueCollectionFactory;
         $this->urlBuilder = $urlBuilder;
-        $this->taxConfig = $taxConfig;
     }
 
     /**
@@ -69,16 +78,49 @@ class QueueNotification implements MessageInterface
 
     /**
      * Check whether notification is displayed
-     * TODO: Checks settings to make sure there are no conflicts
-     * TODO: Checks queue to see if there are any items that have an excessive time pending/unsent
-     * TODO: Checks connectivity test to AvaTax services (ping) on admin save?
      *
      * @return bool
      */
     public function isDisplayed()
     {
-        //TODO: Logic for determining if notification should be displayed
-        return false;
+        // Check configuration to see if this should be evaluated further
+        if (
+            $this->avaTaxConfig->isModuleEnabled() == false ||
+            $this->avaTaxConfig->getTaxMode($this->storeManager->getDefaultStoreView()) !=
+                Config::TAX_MODE_ESTIMATE_AND_SUBMIT ||
+            $this->avaTaxConfig->getQueueAdminNotificationEnabled() == false
+        ) {
+            return false;
+        }
+
+        // Query the database to get some stats about the queue
+        $this->loadQueueStats();
+
+        // Determine if we need to notify the admin user
+        if ($this->statQueueCount > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Load the queue stats
+     */
+    public function loadQueueStats()
+    {
+        // check to see if we've already loaded the queue stats
+        if ($this->statQueueCount === null) {
+            $queueCollection = $this->queueCollectionFactory->create();
+
+            // get the stats from the collection
+            $queueStats = $queueCollection->getQueuePendingMoreThanADay();
+
+            // load the object properties with the stats
+            $this->statQueueCount = $queueStats[$queueCollection::SUMMARY_COUNT_FIELD_NAME];
+            $this->statQueueLastCreatedAt = $queueStats[$queueCollection::SUMMARY_LAST_CREATED_AT_FIELD_NAME];
+            $this->statQueueLastUpdatedAt = $queueStats[$queueCollection::SUMMARY_LAST_UPDATED_AT_FIELD_NAME];
+        }
     }
 
     /**
@@ -89,8 +131,23 @@ class QueueNotification implements MessageInterface
      */
     public function getText()
     {
-        //TODO: Create actual error/warning message
-        $messageDetails = 'Example error message for AvaTax module. ' . date(DATE_ATOM);
+        // Make sure we have the queue stats loaded
+        $this->loadQueueStats();
+
+        $lastProcessedAt = $this->statQueueLastUpdatedAt > $this->statQueueLastCreatedAt ?
+            $this->statQueueLastUpdatedAt : $this->statQueueLastCreatedAt;
+
+        $messageDetails = __('The AvaTax Queue has not been processed in the last 24 hours and may indicate a system ' .
+            'configuration issue for submitting order information to AvaTax for reporting purposes.<br />' .
+            '<a href="%1">Check the queue</a><br />' .
+            '<a href="%2">Check configuration settings</a><br />' .
+            'There are %3 document(s) needing to be submitted to AvaTax and the last time ' .
+            'any processing was attempted was at %4',
+            $this->urlBuilder->getUrl('avatax/queue'),
+            $this->urlBuilder->getUrl('admin/system_config/edit', ['section' => 'tax']),
+            $this->statQueueCount,
+            $lastProcessedAt
+        );
 
         return $messageDetails;
     }
@@ -102,9 +159,6 @@ class QueueNotification implements MessageInterface
      */
     public function getSeverity()
     {
-        //TODO: Determine if this should be critical or just a warning.
-        // Critical seems to show the message all the time at the top of the page,
-        // where I think warnings just show the flag.
-        return MessageInterface::SEVERITY_CRITICAL;
+        return MessageInterface::SEVERITY_MAJOR;
     }
 }

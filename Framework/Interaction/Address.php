@@ -387,24 +387,6 @@ class Address
     }
 
     /**
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param \AvaTax\ValidAddress $address
-     * @return array
-     */
-    public function convertAvaTaxValidAddressToArray(\AvaTax\ValidAddress $address)
-    {
-        return [
-            'Region' => $address->getRegion(),
-            'Country' => $address->getCountry(),
-            'Line1' => $address->getLine1(),
-            'Line2' => $address->getLine2(),
-            'Line3' => $address->getLine3(),
-            'PostalCode' => $address->getPostalCode(),
-            'City' => $address->getCity(),
-        ];
-    }
-
-    /**
      * Convert ValidAddress to QuoteAddressInterface
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
@@ -443,73 +425,6 @@ class Address
             $data[QuoteAddressInterface::KEY_REGION] = $region;
         }
         return $this->quoteAddressFactory->create(['data' => $data]);
-    }
-
-    /**
-     * Convert ValidAddress to OrderAddressInterface
-     * TODO: Remove this method if it ends up not getting used
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param \AvaTax\ValidAddress $address
-     * @param OrderAddressInterface $originalAddress
-     * @return null|OrderAddressInterface
-     */
-    public function convertAvaTaxValidAddressToOrderAddress(
-        \AvaTax\ValidAddress $address,
-        \Magento\Sales\Api\Data\OrderAddressInterface $originalAddress
-    ) {
-        $street = [];
-        if ($address->getLine1()) {
-            $street[] = $address->getLine1();
-        }
-        if ($address->getLine2()) {
-            $street[] = $address->getLine2();
-        }
-        if ($address->getLine3()) {
-            $street[] = $address->getLine3();
-        }
-        // Not using line 4, as it returns a concatenation of city, state, and zip (e.g., BAINBRIDGE IS WA 98110-2450)
-
-        $region = $this->getRegionByCode($address->getRegion());
-        if (is_null($region)) {
-            return null;
-        }
-
-        // Get data from original address so that information like name and telephone will be preserved
-        $data = array_merge($originalAddress->getData(), [
-            OrderAddressInterface::REGION => $region,
-            OrderAddressInterface::REGION_ID => $region->getId(),
-            OrderAddressInterface::COUNTRY_ID => $address->getCountry(),
-            OrderAddressInterface::STREET => $street,
-            OrderAddressInterface::POSTCODE => $address->getPostalCode(),
-            OrderAddressInterface::CITY => $address->getCity(),
-        ]);
-
-        return $this->orderAddressFactory->create(['data' => $data]);
-    }
-
-    /**
-     * Converts address model into AvaTax compatible data array
-     *
-     * 3 address types implement this interface with two of them extending AddressAbstract
-     * All three have the methods called in this method but since there is no comprehensive interface to rely on
-     * this could break in the future.
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param AddressModelInterface $address
-     * @return array
-     */
-    public function convertAddressModelToAvaTaxAddress(AddressModelInterface $address)
-    {
-        return [
-            'Line1' => $address->getStreetLine(1),
-            'Line2' => $address->getStreetLine(2),
-            'Line3' => $address->getStreetLine(3),
-            'City' => $address->getCity(),
-            'Region' => $this->getRegionCodeById($address->getRegionId()),
-            'PostalCode' => $address->getPostcode(),
-            'Country' => $address->getCountryId(),
-        ];
     }
 
     /**

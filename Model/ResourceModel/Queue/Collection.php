@@ -17,6 +17,7 @@ use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Framework\Stdlib\DateTime;
+use ClassyLlama\AvaTax\Model\Queue as QueueModel;
 
 class Collection extends AbstractCollection
 {
@@ -25,6 +26,7 @@ class Collection extends AbstractCollection
      */
     const SUMMARY_COUNT_FIELD_NAME = 'count';
     const SUMMARY_LAST_UPDATED_AT_FIELD_NAME = 'last_updated_at';
+    const SUMMARY_LAST_CREATED_AT_FIELD_NAME = 'last_created_at';
     /**#@-*/
 
     /**
@@ -150,5 +152,39 @@ class Collection extends AbstractCollection
         ]);
 
         return $connection->fetchOne($select);
+    }
+
+    /**
+     * Get stats from queue records that have been pending for more than a day
+     *
+     * @return array
+     */
+    public function getQueuePendingMoreThanADay()
+    {
+        $select = clone $this->getSelect();
+        $connection = $this->getConnection();
+
+        $countExpr = new \Zend_Db_Expr("COUNT(*)");
+        $createdAtExpr = new \Zend_Db_Expr('MAX(' . Queue::CREATED_AT_FIELD_NAME . ')');
+        $updatedAtExpr = new \Zend_Db_Expr('MAX(' . Queue::UPDATED_AT_FIELD_NAME . ')');
+
+        $select->reset(\Zend_DB_Select::COLUMNS);
+        $select->columns([
+            self::SUMMARY_COUNT_FIELD_NAME => $countExpr,
+            self::SUMMARY_LAST_CREATED_AT_FIELD_NAME => $createdAtExpr,
+            self::SUMMARY_LAST_UPDATED_AT_FIELD_NAME => $updatedAtExpr
+        ]);
+        $select->where(Queue::QUEUE_STATUS_FIELD_NAME . ' = ?', QueueModel::QUEUE_STATUS_PENDING);
+        $select->where("
+            (
+                " . Queue::CREATED_AT_FIELD_NAME . " < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY) AND
+                (
+                    " . Queue::UPDATED_AT_FIELD_NAME . " IS NULL OR
+                    " . Queue::UPDATED_AT_FIELD_NAME . " < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY)
+                )
+            )
+        ");
+
+        return $connection->fetchRow($select);
     }
 }

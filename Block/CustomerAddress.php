@@ -55,7 +55,7 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      * @return mixed
      */
     public function getChoice() {
-        return $this->config->allowUserToChooseAddress();
+        return $this->config->allowUserToChooseAddress($this->_storeManager->getStore());
     }
 
     /**
@@ -64,9 +64,13 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      */
     public function getInstructions() {
         if ($this->getChoice()) {
-            return json_encode($this->config->getAddressValidationInstructionsWithChoice());
+            return json_encode($this->config->getAddressValidationInstructionsWithChoice(
+                $this->_storeManager->getStore()
+            ));
         } else {
-            return json_encode($this->config->getAddressValidationInstructionsWithOutChoice());
+            return json_encode($this->config->getAddressValidationInstructionsWithOutChoice(
+                $this->_storeManager->getStore()
+            ));
         }
     }
 
@@ -75,7 +79,7 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      * @return string
      */
     public function getErrorInstructions() {
-        return json_encode($this->config->getAddressValidationErrorInstructions());
+        return json_encode($this->config->getAddressValidationErrorInstructions($this->_storeManager->getStore()));
     }
 
     /**
@@ -83,7 +87,7 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      * @return mixed
      */
     public function getCountriesEnabled() {
-        return $this->config->getAddressValidationCountriesEnabled();
+        return $this->config->getAddressValidationCountriesEnabled($this->_storeManager->getStore());
     }
 
     /**

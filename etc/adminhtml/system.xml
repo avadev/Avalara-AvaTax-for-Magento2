@@ -2,7 +2,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="tax">
-            <!-- TODO: Figure out how to make sure AvaTax module is handling translation of this/these group[s] and down. -->
             <group id="avatax" translate="label" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax Settings</label>
                 <field id="enabled" translate="label" type="select" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -26,7 +25,7 @@
                         <field id="tax_mode">3</field>
                     </depends>
                 </field>
-                <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label><![CDATA[<strong>Connection Settings</strong>]]></label>
                     <!-- Reference: https://github.com/magento/magento2/issues/2340
                     <depends>
@@ -49,8 +48,7 @@
                         <field id="live_mode">1</field>
                     </depends>
                 </field>
-                <!-- TODO: Change this to a password? -->
-                <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>License Key (Production)</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
@@ -72,8 +70,7 @@
                         <field id="live_mode">0</field>
                     </depends>
                 </field>
-                <!-- TODO: Change this to a password? -->
-                <field id="development_license_key" translate="label" type="text" sortOrder="1070" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_license_key" translate="label" type="text" sortOrder="1070" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>License Key (Development)</label>
                     <frontend_class>required-entry</frontend_class>
                     <depends>
@@ -161,7 +158,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="ref1" translate="label comment" type="select" sortOrder="2090" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="ref1" translate="label comment" type="select" sortOrder="2090" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Attribute to send as ref1</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment>Select a text type product attribute to be sent to AvaTax as ref1. Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
@@ -169,7 +166,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="ref2" translate="label comment" type="select" sortOrder="2100" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="ref2" translate="label comment" type="select" sortOrder="2100" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Attribute to send as ref2</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment>Select a text type product attribute to be sent to AvaTax as ref1. Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
@@ -180,7 +177,7 @@
                 <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="2110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Submit VAT Number to AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Set this to "Yes" if you want to send your customer's VAT tax numbers to AvaTax to affect tax calculation. If a customer address has a <strong>VAT Id</strong> stored on their Magento shipping address, it will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
+                    <comment><![CDATA[Set this to "Yes" if you want to send VAT tax numbers to AvaTax to affect tax calculation. If a guest or customer has a <strong>VAT number</strong> set on their Magento shipping address, it will be used. Otherwise the <strong>Tax/VAT Number</strong> attribute value from the customer record will be used. If a VAT number is not found, nothing will be sent. The VAT number will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -294,7 +291,7 @@
                     </depends>
                     <comment>Notice or Warning recommended for production use</comment>
                 </field>
-                <field id="logging_db_detail" translate="label" type="select" sortOrder="5520" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="logging_db_detail" translate="label" type="select" sortOrder="5520" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Database Log Detail</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
@@ -410,6 +407,15 @@
                         <field id="enabled">1</field>
                         <field id="queue_submission_enabled">1</field>
                     </depends>
+                </field>
+                <field id="queue_admin_notification_enabled" translate="label" type="select" sortOrder="5560" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Queue Admin Notification</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="queue_submission_enabled">1</field>
+                    </depends>
+                    <comment>A notification will be displayed at the top of any admin page if there are pending queue records waiting to be submitted to AvaTax but no attempts have been made in the last 24 hours to submit them.</comment>
                 </field>
             </group>
             <group id="classes">

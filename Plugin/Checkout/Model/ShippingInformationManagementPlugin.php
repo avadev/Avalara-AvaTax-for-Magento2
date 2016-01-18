@@ -147,7 +147,10 @@ class ShippingInformationManagementPlugin
 
         $customerAddressId = $shippingAddress->getCustomerAddressId();
 
-        $enabledAddressValidationCountries = explode(',', $this->config->getAddressValidationCountriesEnabled());
+        $enabledAddressValidationCountries = explode(
+            ',',
+            $this->config->getAddressValidationCountriesEnabled($storeId)
+        );
         if (!in_array($shippingAddress->getCountryId(), $enabledAddressValidationCountries)) {
             $shouldValidateAddress = false;
         }

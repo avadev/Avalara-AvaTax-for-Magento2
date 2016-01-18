@@ -107,6 +107,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME = 'tax/avatax/queue_complete_lifetime';
 
     const XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME = 'tax/avatax/queue_failed_lifetime';
+
+    const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
     /**#@-*/
 
     /**#@+
@@ -326,7 +328,7 @@ class Config extends AbstractHelper
      * @param null $store
      * @return array
      */
-    public function getOriginAddress($store = null)
+    public function getOriginAddress($store)
     {
         return [
             'Line1' => $this->scopeConfig->getValue(
@@ -366,10 +368,10 @@ class Config extends AbstractHelper
      * Get Customer code format to pass to AvaTax API
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return mixed
      */
-    public function getCustomerCodeFormat($store = null)
+    public function getCustomerCodeFormat($store)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT,
@@ -389,25 +391,9 @@ class Config extends AbstractHelper
     protected function getClientName()
     {
         return substr($this->magentoProductMetadata->getName(), 0, 7) . ' ' . // "Magento" - 8 chars
-        substr($this->magentoProductMetadata->getVersion(), 0, 14) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
-        substr($this->magentoProductMetadata->getEdition(), 0, 10) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
-        'AvaTax ' . substr(AvaTaxAppInterface::APP_VERSION, 0, 7); // "AvaTax " & 1.x.x - 14 chars
-    }
-
-    /**
-     * Get Vat Number
-     *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
-     * @return bool
-     */
-    public function getBusinessIdentificationNumber($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            Information::XML_PATH_STORE_INFO_VAT_NUMBER,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+            substr($this->magentoProductMetadata->getVersion(), 0, 14) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
+            substr($this->magentoProductMetadata->getEdition(), 0, 10) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
+            'AvaTax ' . substr(AvaTaxAppInterface::APP_VERSION, 0, 7); // "AvaTax " & 1.x.x - 14 chars
     }
 
     /**
@@ -494,10 +480,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for Shipping
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuShipping($store = null)
+    public function getSkuShipping($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_SHIPPING,
@@ -509,10 +495,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for Gift Wrap at the Order Level
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuGiftWrapOrder($store = null)
+    public function getSkuGiftWrapOrder($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_GIFT_WRAP_ORDER,
@@ -524,10 +510,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for Gift Wrap at the Item Level
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuShippingGiftWrapItem($store = null)
+    public function getSkuShippingGiftWrapItem($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_GIFT_WRAP_ITEM,
@@ -539,10 +525,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for Gift Wrap card
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuShippingGiftWrapCard($store = null)
+    public function getSkuShippingGiftWrapCard($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_GIFT_WRAP_CARD,
@@ -554,10 +540,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for positive adjustment
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuAdjustmentPositive($store = null)
+    public function getSkuAdjustmentPositive($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_ADJUSTMENT_POSITIVE,
@@ -569,10 +555,10 @@ class Config extends AbstractHelper
     /**
      * Get SKU for negative adjustment
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getSkuAdjustmentNegative($store = null)
+    public function getSkuAdjustmentNegative($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_ADJUSTMENT_NEGATIVE,
@@ -584,10 +570,10 @@ class Config extends AbstractHelper
     /**
      * Get Location Code
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getLocationCode($store = null)
+    public function getLocationCode($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SKU_LOCATION_CODE,
@@ -600,32 +586,22 @@ class Config extends AbstractHelper
      * Get ref1 configured attribute code
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getRef1($store = null)
+    public function getRef1()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_REF1,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_REF1);
     }
 
     /**
      * Get ref2 configured attribute code
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param null $store
      * @return string
      */
-    public function getRef2($store = null)
+    public function getRef2()
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_REF2,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_REF2);
     }
 
     /**
@@ -647,10 +623,10 @@ class Config extends AbstractHelper
     /**
      * Get action to take when error occurs
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getErrorAction($store = null)
+    public function getErrorAction($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION,
@@ -662,11 +638,11 @@ class Config extends AbstractHelper
     /**
      * Return "disable checkout" error message based on the current area context
      *
-     * @param null $store
+     * @param $store
      * @return \Magento\Framework\Phrase
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function getErrorActionDisableCheckoutMessage($store = null)
+    public function getErrorActionDisableCheckoutMessage($store)
     {
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
             return __(
@@ -681,10 +657,10 @@ class Config extends AbstractHelper
     /**
      * Get "disable checkout" error message for frontend user
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    protected function getErrorActionDisableCheckoutMessageFrontend($store = null)
+    protected function getErrorActionDisableCheckoutMessageFrontend($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_FRONTEND,
@@ -696,10 +672,10 @@ class Config extends AbstractHelper
     /**
      * Get "disable checkout" error message for backend user
      *
-     * @param null $store
+     * @param $store
      * @return string
      */
-    protected function getErrorActionDisableCheckoutMessageBackend($store = null)
+    protected function getErrorActionDisableCheckoutMessageBackend($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_BACKEND,
@@ -731,7 +707,7 @@ class Config extends AbstractHelper
      * @param null $store
      * @return mixed
      */
-    public function allowUserToChooseAddress($store = null)
+    public function allowUserToChooseAddress($store)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_METHOD,
@@ -744,10 +720,10 @@ class Config extends AbstractHelper
      * Instructions for the user if they have a choice between the original address and validated address
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getAddressValidationInstructionsWithChoice($store = null)
+    public function getAddressValidationInstructionsWithChoice($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITH_CHOICE,
@@ -760,10 +736,10 @@ class Config extends AbstractHelper
      * Instructions for the user if they do not have a choice between the original address and the validated address
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getAddressValidationInstructionsWithoutChoice($store = null)
+    public function getAddressValidationInstructionsWithoutChoice($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_INSTRUCTIONS_WITHOUT_CHOICE,
@@ -776,10 +752,10 @@ class Config extends AbstractHelper
      * Instructions for the user if there was an error in validating their address
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return string
      */
-    public function getAddressValidationErrorInstructions($store = null)
+    public function getAddressValidationErrorInstructions($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ERROR_INSTRUCTIONS,
@@ -792,10 +768,10 @@ class Config extends AbstractHelper
      * Returns which countries were enabled to validate the users address
      *
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
-     * @param null $store
+     * @param $store
      * @return mixed
      */
-    public function getAddressValidationCountriesEnabled($store = null)
+    public function getAddressValidationCountriesEnabled($store)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_COUNTRIES_ENABLED,
@@ -807,180 +783,130 @@ class Config extends AbstractHelper
     /**
      * Return configured log level
      *
-     * @param null $store
      * @return int
      */
-    public function getLogDbLevel($store = null)
+    public function getLogDbLevel()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_DB_LEVEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_DB_LEVEL);
     }
 
     /**
      * Return configured log detail
      *
-     * @param null $store
      * @return int
      */
-    public function getLogDbDetail($store = null)
+    public function getLogDbDetail()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_DB_DETAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_DB_DETAIL);
     }
 
     /**
      * Return configured log lifetime
      *
-     * @param null $store
      * @return int
      */
-    public function getLogDbLifetime($store = null)
+    public function getLogDbLifetime()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_DB_LIFETIME,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_DB_LIFETIME);
     }
 
     /**
      * Return if file logging is enabled
      *
-     * @param null $store
      * @return bool
      */
-    public function getLogFileEnabled($store = null)
+    public function getLogFileEnabled()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_ENABLED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_FILE_ENABLED);
     }
 
     /**
      * Return configured log mode
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileMode($store = null)
+    public function getLogFileMode()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_MODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_FILE_MODE);
     }
 
     /**
      * Return if built-in log file rotation is enabled
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileBuiltinRotateEnabled($store = null)
+    public function getLogFileBuiltinRotateEnabled()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_ENABLED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_ENABLED);
     }
 
     /**
      * Return the number of built-in log files to maintain in the log directory when rotating files
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileBuiltinRotateMaxFiles($store = null)
+    public function getLogFileBuiltinRotateMaxFiles()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_MAX_FILES,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_BUILTIN_ROTATE_MAX_FILES);
     }
 
     /**
      * Return configured log level
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileLevel($store = null)
+    public function getLogFileLevel()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_LEVEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_FILE_LEVEL);
     }
 
     /**
      * Return configured log detail
      *
-     * @param null $store
      * @return int
      */
-    public function getLogFileDetail($store = null)
+    public function getLogFileDetail()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LOG_FILE_DETAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_LOG_FILE_DETAIL);
     }
 
     /**
      * Return configured queue max retry attempts
      *
-     * @param null $store
      * @return int
      */
-    public function getQueueMaxRetryAttempts($store = null)
+    public function getQueueMaxRetryAttempts()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_MAX_RETRY_ATTEMPTS);
     }
 
     /**
      * Return configured queue complete lifetime
      *
-     * @param null $store
      * @return int
      */
-    public function getQueueCompleteLifetime($store = null)
+    public function getQueueCompleteLifetime()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME);
     }
 
     /**
      * Return configured queue failed lifetime
      *
-     * @param null $store
      * @return int
      */
-    public function getQueueFailedLifetime($store = null)
+    public function getQueueFailedLifetime()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME);
+    }
+
+    /**
+     * Return if queue admin notification is enabled
+     *
+     * @return int
+     */
+    public function getQueueAdminNotificationEnabled()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED);
     }
 }

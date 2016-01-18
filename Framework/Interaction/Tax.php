@@ -19,11 +19,13 @@ use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Store\Api\Data\StoreInterface;
-use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
+/**
+ * Class Tax
+ */
 class Tax
 {
     /**
@@ -85,11 +87,6 @@ class Tax
      * @var StoreRepositoryInterface
      */
     protected $storeRepository = null;
-
-    /**
-     * @var TaxClassRepositoryInterface
-     */
-    protected $taxClassRepository = null;
 
     /**
      * @var PriceCurrencyInterface
@@ -222,7 +219,6 @@ class Tax
      * @param InvoiceRepositoryInterface $invoiceRepository
      * @param OrderRepositoryInterface $orderRepository
      * @param StoreRepositoryInterface $storeRepository
-     * @param TaxClassRepositoryInterface $taxClassRepository
      * @param PriceCurrencyInterface $priceCurrency
      * @param TimezoneInterface $localeDate
      * @param Line $interactionLine
@@ -242,7 +238,6 @@ class Tax
         InvoiceRepositoryInterface $invoiceRepository,
         OrderRepositoryInterface $orderRepository,
         StoreRepositoryInterface $storeRepository,
-        TaxClassRepositoryInterface $taxClassRepository,
         PriceCurrencyInterface $priceCurrency,
         TimezoneInterface $localeDate,
         Line $interactionLine,
@@ -261,7 +256,6 @@ class Tax
         $this->invoiceRepository = $invoiceRepository;
         $this->orderRepository = $orderRepository;
         $this->storeRepository = $storeRepository;
-        $this->taxClassRepository = $taxClassRepository;
         $this->priceCurrency = $priceCurrency;
         $this->localeDate = $localeDate;
         $this->interactionLine = $interactionLine;
@@ -365,78 +359,10 @@ class Tax
 
     /**
      * Convert an order into data to be used in some kind of tax request
-     * TODO: Find out what happens if Business Identification Number is passed and we do not want to consider VAT.  Probably add config field to allow user to not consider VAT.  Hide the Business Identification Number field using depends node.
-     * TODO: Map config field of Business Identification Number to one in our module config.
-     * TODO: Use Tax Class to get customer usage code, once this functionality is implemented
-     * TODO: Make sure discount lines up proportionately with how Magento does it and if not, figure out if there is another way to do it.
-     * TODO: Account for non item based lines according to documentation and M1 module
      * TODO: Implement Payment Date on Invoice Conversion and on Credit Memo Conversion.  M1 version is doing this.
-     * TODO: Determine how to get parent increment id if one is set on order and set it on reference code
-     * TODO: Determine what circumstance tax override will need to be set and set in order in those cases
      * TODO: For salesperson_code do at least a config field's value and possible make it configurable to allow for multiple formats including: just the code, just the admin user's role, just the admin user's First Name & Last Name, just the admin users username, just the admin user's email address, or some combinations of the options
-     * TODO: Set up a config field for location_code to be passed along
-     * TODO: Take calculate tax on shipping vs. billing address into account, this is a configuration field in default Magento, fall back if the selected one is missing
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
-     * @return array
      */
-    /* TODO: Remove this method since orders will never have tax calculated for them
-    protected function convertOrderToData(\Magento\Sales\Api\Data\OrderInterface $order)
-    {
-        $customerGroupId = $order->getCustomerGroupId();
-        if (!is_null($customerGroupId)) {
-            $taxClassId = $this->groupRepository->getById($customerGroupId)->getTaxClassId();
-            $taxClass = $this->taxClassRepository->get($taxClassId);
-        }
-
-        $lines = [];
-        foreach ($order->getItems() as $item) {
-            $line = $this->interactionLine->getLine($item);
-            if ($line) {
-                $lines[] = $line;
-            }
-        }
-
-        // Shipping Address not documented in the interface for some reason
-        // they do have a constant for it but not a method in the interface
-
-        try {
-            $address = $this->address->getAddress($order->getShippingAddress());
-        } catch (LocalizedException $e) {
-            return null;
-        }
-
-        $store = $order->getStore();
-        $currentDate = $this->getFormattedDate($store);
-        $docDate = $this->getFormattedDate($store, $order->getCreatedAt());
-
-        return [
-            'StoreId' => $store->getId(),
-            'Commit' => false,
-            'CurrencyCode' => $order->getOrderCurrencyCode(), // TODO: Make sure these all map correctly
-            'CustomerCode' => $this->getCustomerCode(
-                $order->getCustomerFirstname(),
-                $order->getCustomerEmail(),
-                $order->getCustomerId()
-            ),
-//            'CustomerUsageType' => null,//$taxClass->,
-            'DestinationAddress' => $address,
-            'Discount' => $order->getDiscountAmount(),
-            'DocCode' => $order->getIncrementId(),
-            'DocDate' => $docDate,
-            'DocType' => DocumentType::$PurchaseInvoice,
-            'ExchangeRate' => $this->getExchangeRate($store, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
-            'ExchangeRateEffDate' => $currentDate,
-            'Lines' => $lines,
-//            'PaymentDate' => null,
-            'PurchaseOrderNumber' => $order->getIncrementId(),
-//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
-//            'SalespersonCode' => null,
-//            'TaxOverride' => null,
-        ];
-    }
-    */
 
     /**
      * Convert Tax Quote Details into data to be converted to a GetTax Request
@@ -452,11 +378,6 @@ class Tax
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Api\Data\CartInterface $quote
     ) {
-        $taxClassId = $quote->getCustomerTaxClassId();
-        if (!is_null($taxClassId)) {
-            $taxClass = $this->taxClassRepository->get($taxClassId);
-        }
-
         $lines = [];
 
         $items = $taxQuoteDetails->getItems();
@@ -524,9 +445,6 @@ class Tax
             'Lines' => $lines,
 //            'PaymentDate' => null,
             'PurchaseOrderNumber' => $quote->getReservedOrderId(),
-//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
-//            'SalespersonCode' => null,
-//            'TaxOverride' => null,
         ];
     }
 
@@ -553,7 +471,7 @@ class Tax
         $store = $quote->getStore();
         $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store, $shippingAddress),
+            $this->retrieveGetTaxRequestFields($store, $shippingAddress, $quote),
             $data
         );
 
@@ -619,7 +537,6 @@ class Tax
             }
         }
 
-        // TODO: Would be nice to use the service layer to get the shipping address somehow
         /** @var \Magento\Sales\Api\Data\OrderAddressInterface $address */
         if (!$order->getIsVirtual()) {
             $address = $order->getShippingAddress();
@@ -655,8 +572,6 @@ class Tax
             $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
-        // TODO: Fix for guest checkout when $customer is null
-        // TODO: You can't pass a null value to $this->taxClassHelper->getAvataxTaxCodeForCustomer()
         $customer = $this->getCustomerById($order->getCustomerId());
         $customerUsageType = $customer ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer) : null;
         $data = [
@@ -675,14 +590,11 @@ class Tax
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
 //            'PaymentDate' => null,
-            // TODO: Is this the appropriate value to set?
             'PurchaseOrderNumber' => $object->getIncrementId(),
-//            'ReferenceCode' => null, // Most likely only set on credit memos or order edits
-//            'SalespersonCode' => null,
         ];
 
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store, $address),
+            $this->retrieveGetTaxRequestFields($store, $address, $object),
             $data
         );
 
@@ -717,23 +629,24 @@ class Tax
     /**
      * Get details for GetTaxRequest
      *
-     * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
-     * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
-     *
      * @param \Magento\Store\Api\Data\StoreInterface $store
      * @param $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\OrderInterface $object
      * @return array
      * @throws LocalizedException
      */
-    protected function retrieveGetTaxRequestFields(StoreInterface $store, $address)
+    protected function retrieveGetTaxRequestFields(StoreInterface $store, $address, $object)
     {
-        $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
+        $customerId = $object->getCustomerId();
+        $customer = $this->getCustomerById(($customerId));
+
+        $storeId = $store->getId();
         if ($this->config->getLiveMode() == Config::API_PROFILE_NAME_PROD) {
             $companyCode = $this->config->getCompanyCode();
         } else {
             $companyCode = $this->config->getDevelopmentCompanyCode();
         }
-        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address);
+        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address, $customer);
         $locationCode = $this->config->getLocationCode($store);
         return [
             'BusinessIdentificationNo' => $businessIdentificationNumber,
@@ -741,7 +654,6 @@ class Tax
             'LocationCode' => $locationCode,
             'DetailLevel' => DetailLevel::$Diagnostic,
             'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
-            // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
         ];
     }
 
@@ -749,10 +661,14 @@ class Tax
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param $store
      * @param $address
+     * @param \Magento\Customer\Api\Data\CustomerInterface|null $customer
      * @return null
      */
-    protected function getBusinessIdentificationNumber($store, $address)
+    protected function getBusinessIdentificationNumber($store, $address, $customer)
     {
+        if ($customer && $customer->getTaxvat()) {
+            return $customer->getTaxvat();
+        }
         if ($this->config->getUseBusinessIdentificationNumber($store)) {
             return $address->getVatId();
         }
