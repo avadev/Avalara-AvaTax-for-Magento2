@@ -76,6 +76,7 @@ define([
                     $('body').trigger('processStart');
                     validateAddressRequest(this.baseUrl).done(function (response) {
                         addressModel.selectedAddress(addressModel.validAddress());
+                        form = $(form).find(self.addressValidationFormSelector);
                         validationResponseHandler.validationResponseHandler(response, settings, form);
                         self.toggleAddressToUse(form);
                         if (addressModel.isDifferent && addressModel.error() == null) {
