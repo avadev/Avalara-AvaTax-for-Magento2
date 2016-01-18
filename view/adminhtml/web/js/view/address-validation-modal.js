@@ -22,7 +22,7 @@ define([
 
     jQuery.widget('ClassyLlama_AvaTax.addressValidationButton', jQuery.mage.modal, {
         options: {
-            title: jQuery.mage.__('Verify Your Address'),
+            title: jQuery.mage.__('Verify Customer Address'),
             modalClass: 'validationModal',
             focus: '.validationModal .action-primary',
             responsive: true,
