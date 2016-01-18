@@ -903,15 +903,10 @@ class Config extends AbstractHelper
     /**
      * Return if queue admin notification is enabled
      *
-     * @param null $store
      * @return int
      */
-    public function getQueueAdminNotificationEnabled($store = null)
+    public function getQueueAdminNotificationEnabled()
     {
-        return $this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED);
     }
 }

@@ -110,8 +110,7 @@ class QueueNotification implements MessageInterface
     public function loadQueueStats()
     {
         // check to see if we've already loaded the queue stats
-        if ($this->statQueueCount === null)
-        {
+        if ($this->statQueueCount === null) {
             $queueCollection = $this->queueCollectionFactory->create();
 
             // get the stats from the collection
@@ -142,8 +141,8 @@ class QueueNotification implements MessageInterface
             'configuration issue for submitting order information to AvaTax for reporting purposes.<br />' .
             '<a href="%1">Check the queue</a><br />' .
             '<a href="%2">Check configuration settings</a><br />' .
-            'There are %3' . $this->statQueueCount . ' documents needing to be submitted to AvaTax and the last time ' .
-            'any processing was attempted was at %4' . $lastProcessedAt,
+            'There are %3 document(s) needing to be submitted to AvaTax and the last time ' .
+            'any processing was attempted was at %4',
             $this->urlBuilder->getUrl('avatax/queue'),
             $this->urlBuilder->getUrl('admin/system_config/edit', ['section' => 'tax']),
             $this->statQueueCount,
