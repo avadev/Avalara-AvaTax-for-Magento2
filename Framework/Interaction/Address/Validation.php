@@ -68,11 +68,11 @@ class Validation
         if ($validateResult->getResultCode() == SeverityLevel::$Success) {
             $validAddresses = $validateResult->getValidAddresses();
 
-                if (isset($validAddresses[0])) {
-                    $validAddress = $validAddresses[0];
-                } else {
-                    return null;
-                }
+            if (isset($validAddresses[0])) {
+                $validAddress = $validAddresses[0];
+            } else {
+                return null;
+            }
             // Convert data back to the type it was passed in as
             switch (true) {
                 case ($addressInput instanceof \Magento\Customer\Api\Data\AddressInterface):
