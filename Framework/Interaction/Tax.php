@@ -553,7 +553,7 @@ class Tax
         $store = $quote->getStore();
         $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store, $shippingAddress),
+            $this->retrieveGetTaxRequestFields($store, $shippingAddress, $quote),
             $data
         );
 
@@ -682,7 +682,7 @@ class Tax
         ];
 
         $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store, $address),
+            $this->retrieveGetTaxRequestFields($store, $address, $object),
             $data
         );
 
@@ -722,18 +722,22 @@ class Tax
      *
      * @param \Magento\Store\Api\Data\StoreInterface $store
      * @param $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\OrderInterface $object
      * @return array
      * @throws LocalizedException
      */
-    protected function retrieveGetTaxRequestFields(StoreInterface $store, $address)
+    protected function retrieveGetTaxRequestFields(StoreInterface $store, $address, $object)
     {
-        $storeId = $store->getId(); // TODO: Switch to using getScope() on the Magento\Framework\App\Config\ScopePool
+        $customerId = $object->getCustomerId();
+        $customer = $this->getCustomerById(($customerId));
+
+        $storeId = $store->getId();
         if ($this->config->getLiveMode() == Config::API_PROFILE_NAME_PROD) {
             $companyCode = $this->config->getCompanyCode();
         } else {
             $companyCode = $this->config->getDevelopmentCompanyCode();
         }
-        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address);
+        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address, $customer);
         $locationCode = $this->config->getLocationCode($store);
         return [
             'BusinessIdentificationNo' => $businessIdentificationNumber,
@@ -749,10 +753,14 @@ class Tax
      * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param $store
      * @param $address
+     * @param \Magento\Customer\Api\Data\CustomerInterface|null $customer
      * @return null
      */
-    protected function getBusinessIdentificationNumber($store, $address)
+    protected function getBusinessIdentificationNumber($store, $address, $customer)
     {
+        if ($customer && $customer->getTaxvat()) {
+            return $customer->getTaxvat();
+        }
         if ($this->config->getUseBusinessIdentificationNumber($store)) {
             return $address->getVatId();
         }
