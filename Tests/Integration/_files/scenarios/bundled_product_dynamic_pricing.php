@@ -115,7 +115,6 @@ $taxCalculationData['bundled_product_dynamic_pricing'] = [
             'base_shipping_amount' => 15,
             'shipping_incl_tax' => 31.80,
             'base_shipping_incl_tax' => 15.9,
-            // TODO: Should this contain a value?
             'shipping_taxable' => 0,
             'base_shipping_taxable' => 0,
             'shipping_tax_amount' => 1.8,

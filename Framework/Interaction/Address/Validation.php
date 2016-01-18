@@ -45,8 +45,7 @@ class Validation
     }
 
     /**
-     * Using test AvaTax file contents to do a sample validate test
-     * TODO: request or implement an interface for /AvaTax/Address and /AvaTax/ValidAddress since they can't extend because of SoapClient bug
+     * Validate address using AvaTax Address Validation API
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null

@@ -191,8 +191,6 @@ class Task
         $queueCollection->addCreatedAtBeforeFilter(86400);
         $queueCollection->addUpdatedAtBeforeFilter(86400);
 
-        // TODO: Check for bug where records are reset that are less than a day old
-
         // Reset each hung queued entity
         /** @var $queue Queue */
         foreach ($queueCollection as $queue) {
@@ -237,8 +235,6 @@ class Task
             ]
         );
     }
-
-    // TODO: Possibly refactor clearCompleteQueue() and clearFailedQueue() into a single method
 
     /**
      * Clear the queue of complete records based on config lifetime

@@ -80,8 +80,6 @@ class Get
         Tax $interactionTax,
         LineFactory $lineFactory,
         Config $config,
-        // TODO: Figure out why a factory for the interface isn't working:
-        //ClassyLlama\AvaTax\Api\Data\GetTaxResponseFactory $getTaxResponseFactory
         Get\ResponseFactory $getTaxResponseFactory,
         AvaTaxLogger $avaTaxLogger,
         TaxService $taxService

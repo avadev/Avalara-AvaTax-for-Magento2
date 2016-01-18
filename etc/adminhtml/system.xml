@@ -2,7 +2,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="tax">
-            <!-- TODO: Figure out how to make sure AvaTax module is handling translation of this/these group[s] and down. -->
             <group id="avatax" translate="label" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax Settings</label>
                 <field id="enabled" translate="label" type="select" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">

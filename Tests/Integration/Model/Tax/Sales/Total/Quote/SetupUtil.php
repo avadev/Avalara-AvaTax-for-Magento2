@@ -22,7 +22,6 @@ class SetupUtil
         Config::CONFIG_XML_PATH_APPLY_AFTER_DISCOUNT => '0',
         Config::CONFIG_XML_PATH_DISCOUNT_TAX => '0',
         Config::XML_PATH_ALGORITHM => Calculation::CALC_TOTAL_BASE,
-        //@TODO: add config for cross border trade
     ];
 
     const TAX_RATE_MI = 'tax_rate_mi';

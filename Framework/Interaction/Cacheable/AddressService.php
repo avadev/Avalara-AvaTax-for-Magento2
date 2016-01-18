@@ -56,7 +56,6 @@ class AddressService
 
     /**
      * Cache validated response
-     * TODO: Create cache clear item in admin
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param ValidateRequest $validateRequest

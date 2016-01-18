@@ -359,17 +359,8 @@ class Tax
 
     /**
      * Convert an order into data to be used in some kind of tax request
-     * TODO: Find out what happens if Business Identification Number is passed and we do not want to consider VAT.  Probably add config field to allow user to not consider VAT.  Hide the Business Identification Number field using depends node.
-     * TODO: Map config field of Business Identification Number to one in our module config.
-     * TODO: Use Tax Class to get customer usage code, once this functionality is implemented
-     * TODO: Make sure discount lines up proportionately with how Magento does it and if not, figure out if there is another way to do it.
-     * TODO: Account for non item based lines according to documentation and M1 module
      * TODO: Implement Payment Date on Invoice Conversion and on Credit Memo Conversion.  M1 version is doing this.
-     * TODO: Determine how to get parent increment id if one is set on order and set it on reference code
-     * TODO: Determine what circumstance tax override will need to be set and set in order in those cases
      * TODO: For salesperson_code do at least a config field's value and possible make it configurable to allow for multiple formats including: just the code, just the admin user's role, just the admin user's First Name & Last Name, just the admin users username, just the admin user's email address, or some combinations of the options
-     * TODO: Set up a config field for location_code to be passed along
-     * TODO: Take calculate tax on shipping vs. billing address into account, this is a configuration field in default Magento, fall back if the selected one is missing
      *
      */
 
@@ -546,7 +537,6 @@ class Tax
             }
         }
 
-        // TODO: Would be nice to use the service layer to get the shipping address somehow
         /** @var \Magento\Sales\Api\Data\OrderAddressInterface $address */
         if (!$order->getIsVirtual()) {
             $address = $order->getShippingAddress();
@@ -582,8 +572,6 @@ class Tax
             $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
-        // TODO: Fix for guest checkout when $customer is null
-        // TODO: You can't pass a null value to $this->taxClassHelper->getAvataxTaxCodeForCustomer()
         $customer = $this->getCustomerById($order->getCustomerId());
         $customerUsageType = $customer ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer) : null;
         $data = [
@@ -602,7 +590,6 @@ class Tax
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
 //            'PaymentDate' => null,
-            // TODO: Is this the appropriate value to set?
             'PurchaseOrderNumber' => $object->getIncrementId(),
         ];
 
@@ -642,9 +629,6 @@ class Tax
     /**
      * Get details for GetTaxRequest
      *
-     * Note: detail_level != Line, Tax, or Diagnostic will result in an error if getTaxLines is called on response.
-     * TODO: Switch detail_level to Tax once out of development.  Diagnostic is for development mode only and Line is the only other mode that provides enough info.  Check to see if M1 is using Line or Tax and then decide.
-     *
      * @param \Magento\Store\Api\Data\StoreInterface $store
      * @param $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface
      * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\OrderInterface $object
@@ -670,7 +654,6 @@ class Tax
             'LocationCode' => $locationCode,
             'DetailLevel' => DetailLevel::$Diagnostic,
             'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
-            // TODO: Create a graceful way of handling this address being missing and notifying admin user that they need to set up their shipping origin address
         ];
     }
 

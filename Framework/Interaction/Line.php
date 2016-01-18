@@ -245,8 +245,7 @@ class Line
     }
 
     /**
-     *
-     * TODO: Figure out if we need to account for Streamlined Sales Tax requirements for Description
+     * Get tax line object
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
