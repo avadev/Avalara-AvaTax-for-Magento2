@@ -443,6 +443,8 @@ class Tax
                 $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
+            // This level of detail is needed in order to receive lines back in response
+            'DetailLevel' => DetailLevel::$Line,
 //            'PaymentDate' => null,
             'PurchaseOrderNumber' => $quote->getReservedOrderId(),
         ];
@@ -589,6 +591,8 @@ class Tax
                 $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
+            // Only need document-level detail as we don't need lines in our response
+            'DetailLevel' => DetailLevel::$Document,
 //            'PaymentDate' => null,
             'PurchaseOrderNumber' => $object->getIncrementId(),
         ];
@@ -652,7 +656,6 @@ class Tax
             'BusinessIdentificationNo' => $businessIdentificationNumber,
             'CompanyCode' => $companyCode,
             'LocationCode' => $locationCode,
-            'DetailLevel' => DetailLevel::$Diagnostic,
             'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
         ];
     }
