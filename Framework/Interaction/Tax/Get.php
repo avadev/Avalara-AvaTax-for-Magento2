@@ -134,9 +134,6 @@ class Get
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                // TODO: If debug logging is on, log the extra debug info
-                //$this->extraDebug($getTaxRequest, $getTaxResult, $object);
-
                 // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
                 $avataxTaxAmount = abs($getTaxResult->getTotalTax());
                 $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
@@ -145,8 +142,6 @@ class Get
                 $response = $this->getTaxResponseFactory->create();
                 $response->setIsUnbalanced($unbalanced)
                     ->setBaseAvataxTaxAmount($avataxTaxAmount);
-
-//                return $this->extraDebug($getTaxRequest, $getTaxResult, $object) . var_export($response, true);
 
                 return $response;
             } else {
