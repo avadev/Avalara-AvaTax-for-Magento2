@@ -303,13 +303,13 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             ? $quoteDetailsItem->getExtensionAttributes()
             : $this->extensionFactory->create();
 
-        $taxCode = $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getProduct());
+        $product = $item->getProduct();
+        $taxCode = $this->taxClassHelper->getAvataxTaxCodeForProduct($product);
         $extensionAttribute->setAvataxItemCode($item->getSku());
         $extensionAttribute->setAvataxTaxCode($taxCode);
         $extensionAttribute->setAvataxDescription($item->getName());
-        // TODO: Implement logic for Ref1/Ref2
-        //$extensionAttribute->setAvataxRef1();
-        //$extensionAttribute->setAvataxRef2();
+        $extensionAttribute->setAvataxRef1($this->taxClassHelper->getRef1ForProduct($product));
+        $extensionAttribute->setAvataxRef2($this->taxClassHelper->getRef2ForProduct($product));
         $quoteDetailsItem->setExtensionAttributes($extensionAttribute);
 
         return $quoteDetailsItem;

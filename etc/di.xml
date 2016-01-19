@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="Magento\Catalog\Model\CustomOption\CustomOptionProcessor">
-        <plugin name="avatax_set_refs_on_buy_request" type="ClassyLlama\AvaTax\Model\Catalog\CustomOption\CustomOptionProcessor\Plugin" />
-    </type>
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagementPlugin" />
     </type>
@@ -18,6 +15,9 @@
     </type>
     <type name="Magento\Sales\Model\Spi\InvoiceResourceInterface">
         <plugin name="avatax_sales_spi_invoice_resource" type="ClassyLlama\AvaTax\Plugin\SalesSpiInvoiceResource" />
+    </type>
+    <type name="Magento\Quote\Model\Quote\Config">
+        <plugin name="avatax_quote_model_quote_config" type="ClassyLlama\AvaTax\Plugin\Quote\Model\Quote\Config" />
     </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
