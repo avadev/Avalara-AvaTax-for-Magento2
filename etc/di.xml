@@ -11,10 +11,10 @@
         <plugin name="avatax_tax_model_sales_total_quote_shipping" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Shipping" />
     </type>
     <type name="Magento\Sales\Model\Spi\CreditmemoResourceInterface">
-        <plugin name="avatax_sales_spi_creditmemo_resource" type="ClassyLlama\AvaTax\Plugin\SalesSpiCreditmemoResource" />
+        <plugin name="avatax_sales_spi_creditmemo_resource" type="ClassyLlama\AvaTax\Plugin\Sales\Model\Spi\CreditmemoResource" />
     </type>
     <type name="Magento\Sales\Model\Spi\InvoiceResourceInterface">
-        <plugin name="avatax_sales_spi_invoice_resource" type="ClassyLlama\AvaTax\Plugin\SalesSpiInvoiceResource" />
+        <plugin name="avatax_sales_spi_invoice_resource" type="ClassyLlama\AvaTax\Plugin\Sales\Model\Spi\InvoiceResource" />
     </type>
     <type name="Magento\Quote\Model\Quote\Config">
         <plugin name="avatax_quote_model_quote_config" type="ClassyLlama\AvaTax\Plugin\Quote\Model\Quote\Config" />
