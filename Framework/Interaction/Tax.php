@@ -301,8 +301,12 @@ class Tax
                     $name = $customer->getFirstname() . ' ' . $customer->getLastname();
                     $id = $customer->getId();
                 } else {
-                    // TODO: What happens with virtual orders?
-                    $name = $data->getShippingAddress()->getFirstname() . ' ' . $data->getShippingAddress()->getLastname();
+                    if (!$data->getIsVirtual()) {
+                        $address = $data->getShippingAddress();
+                    } else {
+                        $address = $data->getBillingAddress();
+                    }
+                    $name = $address->getFirstname() . ' ' . $address->getLastname();
                     if (!trim($name)) {
                         $name = Config::CUSTOMER_MISSING_NAME;
                     }
@@ -412,6 +416,8 @@ class Tax
 
         // Shipping Address not documented in the interface for some reason
         // they do have a constant for it but not a method in the interface
+        //
+        // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
         $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $address = $this->address->getAddress($shippingAddress);
 

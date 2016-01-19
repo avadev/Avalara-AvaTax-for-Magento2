@@ -159,11 +159,12 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return parent::collect($quote, $shippingAssignment, $total);
         }
 
+        // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
+        $postcode = $shippingAssignment->getShipping()->getAddress()->getPostcode();
         // If postcode is not present, then collect totals is being run from a context where customer has not submitted
         // their address, such as on the product listing, product detail, or cart page. Once the user enters their
         // postcode in the "Estimate Shipping & Tax" form on the cart page, or submits their shipping address in the
         // checkout, then a postcode will be present.
-        $postcode = $shippingAssignment->getShipping()->getAddress()->getPostcode();
         if (!$postcode) {
             return parent::collect($quote, $shippingAssignment, $total);
         }
@@ -242,6 +243,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      */
     protected function getTaxQuoteDetails($shippingAssignment, $total, $storeId, $useBaseCurrency)
     {
+        // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
         $address = $shippingAssignment->getShipping()->getAddress();
         //Setup taxable items
         $priceIncludesTax = $this->_config->priceIncludesTax($address->getQuote()->getStore());
