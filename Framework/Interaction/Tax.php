@@ -446,7 +446,6 @@ class Tax
             'Lines' => $lines,
             // This level of detail is needed in order to receive lines back in response
             'DetailLevel' => DetailLevel::$Line,
-//            'PaymentDate' => null,
             'PurchaseOrderNumber' => $quote->getReservedOrderId(),
         ];
     }
@@ -551,7 +550,7 @@ class Tax
         $store = $this->storeRepository->getById($object->getStoreId());
         $currentDate = $this->getFormattedDate($store);
 
-        $docDate = $this->getFormattedDate($store, $object->getCreatedAt());
+        $currentDate = $this->getFormattedDate($store, $object->getCreatedAt());
 
         $taxOverride = null;
         if ($object instanceof \Magento\Sales\Api\Data\InvoiceInterface) {
@@ -584,9 +583,9 @@ class Tax
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
             'CustomerUsageType' => $customerUsageType,
-            'DocCode' => $object->getIncrementId(),
             'DestinationAddress' => $avaTaxAddress,
-            'DocDate' => $docDate,
+            'DocCode' => $object->getIncrementId() . '123-' . rand(10000000,90000000000),
+            'DocDate' => $currentDate,
             'DocType' => $docType,
             'ExchangeRate' => $this->getExchangeRate($store,
                 $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
@@ -594,7 +593,7 @@ class Tax
             'Lines' => $lines,
             // Only need document-level detail as we don't need lines in our response
             'DetailLevel' => DetailLevel::$Document,
-//            'PaymentDate' => null,
+            'PaymentDate' => $currentDate,
             'PurchaseOrderNumber' => $object->getIncrementId(),
         ];
 
