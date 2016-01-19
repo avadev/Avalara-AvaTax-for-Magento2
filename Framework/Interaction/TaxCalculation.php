@@ -307,19 +307,100 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         /** @var  \Magento\Tax\Api\Data\AppliedTaxRateInterface[] $rateDataObjects */
         $rateDataObjects = [];
 
+        /**
+         * There are rare situations in which the Tax Summary from AvaTax will contain items that have the same TaxName,
+         * JurisCode, JurisName, and Rate. e.g., an order with shipping with VAT tax from Germany (example below).
+         * To account for this, we need to group rates by a combination of JurisCode and JurisName. Otherwise the same
+         * rate will get added twice. This is problematic for two reasons:
+         *     1. If a merchant has configured Magento to "Display Full Tax Summary" then the user will see the same
+         *        same rate with the same percentage displayed twice. This will be confusing.
+         *     2. When an order is placed, the \Magento\Tax\Model\Plugin\OrderSave::saveOrderTax method populates the
+         *        sales_order_tax[_item] tables with information based on the information contained in the Applied Taxes
+         *        array. Having duplicates rates will throw things off.
+         *
+         * 'TaxSummary' => ['TaxDetail' => [
+         *     // This rate was applied to shipping
+         *     0 => [
+         *         'JurisType' => 'State',
+         *         'JurisCode' => 'DE',
+         *         'TaxType' => 'Sales',
+         *         'Taxable' => '20',
+         *         'Rate' => '0.189995',
+         *         'Tax' => '3.8',
+         *         'JurisName' => 'GERMANY',
+         *         'TaxName' => 'Standard Rate',
+         *         'Country' => 'DE',
+         *         'Region' => 'DE',
+         *         'TaxCalculated' => '3.8',
+         *     ],
+         *     // This rate was applied to products
+         *     1 => [
+         *         'JurisType' => 'State',
+         *         'JurisCode' => 'DE',
+         *         'TaxType' => 'Sales',
+         *         'Base' => '150',
+         *         'Taxable' => '150',
+         *         'Rate' => '0.190000',
+         *         'Tax' => '28.5',
+         *         'JurisName' => 'GERMANY',
+         *         'TaxName' => 'Standard Rate',
+         *         'Country' => 'DE',
+         *         'Region' => 'DE',
+         *         'TaxCalculated' => '28.5',
+         *     ]
+         * ]]
+         */
+        $taxRatesByCode = [];
         /* @var \AvaTax\TaxDetail $row */
         foreach ($getTaxResult->getTaxSummary() as $key => $row) {
-            $ratePercent = (float)($row->getRate() * Tax::RATE_MULTIPLIER);
+            $arrayKey = $row->getJurisCode() . '_' . $row->getJurisName();
+
+            // Since the total percent is for display purposes only, round to 5 digits. Since the tax percent returned
+            // from AvaTax is not the actual tax rate, but the effective rate, rounding makes the presentation make more
+            // sense to the user. For example, a tax rate may be 19%, but AvaTax may return a value of 0.189995.
+            $roundedRate = round((float) $row->getRate(), 4);
+
+            $ratePercent = ($roundedRate * Tax::RATE_MULTIPLIER);
+            if (!isset($taxRatesByCode[$arrayKey])) {
+                $taxRatesByCode[$arrayKey] = [
+                    // In case jurisdiction codes are duplicated, prepending the $key ensures we have a unique ID
+                    'id' => $key . '_' . $row->getJurisCode(),
+                    'ratePercent' => $ratePercent,
+                    'taxName' => $row->getTaxName(),
+                    'jurisCode' => $row->getJurisCode(),
+                    // These two values will only be used in the conditional below
+                    'taxable' => (float)$row->getTaxable(),
+                    'tax' => (float)$row->getTax(),
+                ];
+            } elseif ($taxRatesByCode[$arrayKey]['ratePercent'] != $ratePercent) {
+                /**
+                 * There are rare situations in which a duplicate rate will have a slightly different percentage (see
+                 * example in DocBlock above). In these cases, we will just determine the "effective" rate" ourselves.
+                 */
+                $taxRatesByCode[$arrayKey]['taxable'] += (float)$row->getTaxable();
+                $taxRatesByCode[$arrayKey]['tax'] += (float)$row->getTax();
+                // Avoid division by 0
+                if ($taxRatesByCode[$arrayKey]['taxable'] > 0) {
+                    $blendedRate = $taxRatesByCode[$arrayKey]['tax'] / $taxRatesByCode[$arrayKey]['taxable'];
+                    $taxRatesByCode[$arrayKey]['ratePercent'] = $blendedRate;
+                }
+            }
+        }
+
+        foreach ($taxRatesByCode as $rowArray) {
+            $ratePercent = $rowArray['ratePercent'];
             $totalPercent += $ratePercent;
-            $taxNames[] = $row->getTaxName();
+            $taxCode = $rowArray['jurisCode'];
+            $taxName = $rowArray['taxName'];
+            $taxNames[] = $rowArray['taxName'];
             // In case jurisdiction codes are duplicated, prepending the $key ensures we have a unique ID
-            $id = $key . '_' . $row->getJurisCode();
+            $id = $rowArray['id'];
 
             // Skipped position, priority and rule_id
             $rateDataObjects[$id] = $this->appliedTaxRateDataObjectFactory->create()
                 ->setPercent($ratePercent)
-                ->setCode($row->getJurisCode())
-                ->setTitle($row->getTaxName());
+                ->setCode($taxCode)
+                ->setTitle($taxName);
         }
         $rateKey = implode(' - ', $taxNames);
 
