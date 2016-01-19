@@ -127,11 +127,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
     protected function verifyItem($item, $expectedItemData)
     {
         foreach ($expectedItemData as $key => $value) {
-            try {
-                $this->assertEquals($value, $item->getData($key), 'item ' . $key . ' is incorrect');
-            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-                $this->logError($e->getMessage());
-            }
+            $this->assertEquals($value, $item->getData($key), 'item ' . $key . ' is incorrect');
         }
 
         return $this;
@@ -147,11 +143,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
     protected function verifyAppliedTaxRate($appliedTaxRate, $expectedAppliedTaxRate)
     {
         foreach ($expectedAppliedTaxRate as $key => $value) {
-            try {
-                $this->assertEquals($value, $appliedTaxRate[$key], 'Applied tax rate ' . $key . ' is incorrect');
-            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-                $this->logError($e->getMessage());
-            }
+            $this->assertEquals($value, $appliedTaxRate[$key], 'Applied tax rate ' . $key . ' is incorrect');
         }
         return $this;
     }
@@ -171,11 +163,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
                     $this->verifyAppliedTaxRate($appliedTax['rates'][$index], $taxRate);
                 }
             } else {
-                try {
-                    $this->assertEquals($value, $appliedTax[$key], 'Applied tax ' . $key . ' is incorrect');
-                } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-                    $this->logError($e->getMessage());
-                }
+                $this->assertEquals($value, $appliedTax[$key], 'Applied tax ' . $key . ' is incorrect');
             }
         }
         return $this;
@@ -191,12 +179,8 @@ class TaxTest extends \PHPUnit_Framework_TestCase
     protected function verifyAppliedTaxes($appliedTaxes, $expectedAppliedTaxes)
     {
         foreach ($expectedAppliedTaxes as $taxRateKey => $expectedTaxRate) {
-            try {
-                $this->assertTrue(isset($appliedTaxes[$taxRateKey]), 'Missing tax rate ' . $taxRateKey);
-                $this->verifyAppliedTax($appliedTaxes[$taxRateKey], $expectedTaxRate);
-            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-                $this->logError($e->getMessage());
-            }
+            $this->assertTrue(isset($appliedTaxes[$taxRateKey]), 'Missing tax rate ' . $taxRateKey);
+            $this->verifyAppliedTax($appliedTaxes[$taxRateKey], $expectedTaxRate);
         }
         return $this;
     }
@@ -214,11 +198,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
             if ($key == 'applied_taxes') {
                 $this->verifyAppliedTaxes($quoteAddress->getAppliedTaxes(), $value);
             } else {
-                try {
-                    $this->assertEquals($value, $quoteAddress->getData($key), 'Quote address ' . $key . ' is incorrect');
-                } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-                    $this->logError($e->getMessage());
-                }
+                $this->assertEquals($value, $quoteAddress->getData($key), 'Quote address ' . $key . ' is incorrect');
             }
         }
 
@@ -436,26 +416,18 @@ class TaxTest extends \PHPUnit_Framework_TestCase
     protected function compareQuoteAddresses($nativeQuoteAddress, $avaTaxQuoteAddress)
     {
         foreach ($this->quoteAddressFieldsEnsureMatch as $value) {
-            try {
-                $this->assertEquals(
-                    $nativeQuoteAddress->getData($value),
-                    $avaTaxQuoteAddress->getData($value),
-                    'native/AvaTax calculation does not match for quote address field: ' . $value
-                );
-            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-                $this->logError($e->getMessage());
-            }
+            $this->assertEquals(
+                $nativeQuoteAddress->getData($value),
+                $avaTaxQuoteAddress->getData($value),
+                'native/AvaTax calculation does not match for quote address field: ' . $value
+            );
         }
         foreach ($this->quoteAddressFieldsEnsureDiff as $value) {
-            try {
-                $this->assertNotEquals(
-                    $nativeQuoteAddress->getData($value),
-                    $avaTaxQuoteAddress->getData($value),
-                    'native/AvaTax calculation matches (but shouldn\'t be) for quote address field: ' . $value
-                );
-            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-                $this->logError($e->getMessage());
-            }
+            $this->assertNotEquals(
+                $nativeQuoteAddress->getData($value),
+                $avaTaxQuoteAddress->getData($value),
+                'native/AvaTax calculation matches (but shouldn\'t be) for quote address field: ' . $value
+            );
         }
 
         return $this;
@@ -473,33 +445,14 @@ class TaxTest extends \PHPUnit_Framework_TestCase
         \Magento\Quote\Model\Quote\Item\AbstractItem $avaTaxItem
     ) {
         foreach ($this->quoteItemFieldsEnsureMatch as $value) {
-            try {
-                $this->assertEquals(
-                    $nativeItem->getData($value),
-                    $avaTaxItem->getData($value),
-                    'native/AvaTax calculation does not match for quote item field: ' . $value
-                );
-            } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-                $this->logError($this->getActualSkuForQuoteItem($nativeItem) . ' ' . $e->getMessage());
-            }
+            $this->assertEquals(
+                $nativeItem->getData($value),
+                $avaTaxItem->getData($value),
+                'native/AvaTax calculation does not match for quote item field: ' . $value
+            );
         }
 
         return $this;
-    }
-
-    /**
-     * TODO: Remove this method and remove all try/catch blocks so that any failed assertions register as failures
-     *
-     * @param $message
-     */
-    protected function logError($message)
-    {
-        throw new \PHPUnit_Framework_ExpectationFailedException('Test failed: ' . $message);
-        //file_put_contents(
-        //    BP . '/var/log/avatax_tests.log',
-        //    $message . PHP_EOL,
-        //    FILE_APPEND
-        //);
     }
 
     /**
