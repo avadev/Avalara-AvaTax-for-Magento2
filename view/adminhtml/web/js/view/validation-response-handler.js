@@ -15,6 +15,7 @@ define(
 
         return {
             validationResponseHandler: function (response, settings, form) {
+                addressModel.error(null);
                 if (typeof response !== 'undefined') {
                     if (typeof response === 'string') {
                         addressModel.error(response);

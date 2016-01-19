@@ -41,18 +41,24 @@ define([
                     click: function () {
                         if (addressModel.error() == null) {
                             addressValidationForm.updateFormFields(this.addressForm);
-                            if (this.addressType == 'billing'
-                                && addressModel.isDifferent()
-                                && jQuery('#order-shipping_same_as_billing').is(':checked')
-                                && addressModel.selectedAddress() == addressModel.validAddress()
-                            ) {
-                                // Update shipping address with billing newly validation billing information.
-                                // Need to use Prototype to trigger event since events are bound with Prototype and
-                                // jQuery.trigger() doesn't work. See AdminOrder.bindAddressFields for bind logic.
-                                $('order-billing_address_fields')
-                                    .select('input', 'select', 'textarea')
-                                    .first()
-                                    .simulate('change');
+                            if (addressModel.isDifferent() && addressModel.selectedAddress() == addressModel.validAddress()) {
+                                if (this.addressType == 'billing' && jQuery('#order-shipping_same_as_billing').is(':checked')) {
+                                    // Update shipping address with billing newly validation billing information.
+                                    // Need to use Prototype to trigger event since events are bound with Prototype and
+                                    // jQuery.trigger() doesn't work. See AdminOrder.bindAddressFields for bind logic.
+                                    $('order-billing_address_fields')
+                                        .select('input', 'select', 'textarea')
+                                        .first()
+                                        .simulate('change');
+                                }
+                                if (this.addressType == 'shipping') {
+                                    // A simulated change is also necessary when changes are made to the shipping
+                                    // address in order to update the available shipping methods.
+                                    $('order-shipping_address_fields')
+                                        .select('input', 'select', 'textarea')
+                                        .first()
+                                        .simulate('change');
+                                }
                             }
                         }
                         this.closeModal();
