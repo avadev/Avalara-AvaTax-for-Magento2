@@ -252,9 +252,10 @@ class Get
                 ]
             );
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
-        } catch (\Exception $e) {
-            $this->avaTaxLogger->error($e->getMessage());
-            throw $e;
+        } catch (\Exception $exception) {
+            $message = $exception->getMessage();
+            $this->avaTaxLogger->error($message);
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         }
     }
 

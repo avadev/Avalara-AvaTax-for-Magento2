@@ -55,7 +55,7 @@ define(
                     $(form).find(this.errorMessageContainerSelector + " " + this.originalAddressTextSelector).html(this.buildOriginalAddress(addressModel.originalAddress()));
                     $(form).find('.yesError').show();
                     $(form).find('.noError').hide();
-                    $(form).show();
+                    $(form).find(this.addressValidationFormSelector).show();
                     return;
                 } else {
                     $(form).find('.yesError').hide();

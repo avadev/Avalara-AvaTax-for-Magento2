@@ -27,6 +27,9 @@ define(
     ) {
         'use strict';
 
+        /** Set payment methods to collection */
+        paymentService.setPaymentMethods(methodConverter(window.checkoutConfig.paymentMethods));
+
         return Component.extend({
             defaults: {
                 template: 'ClassyLlama_AvaTax/ReviewPayment',
