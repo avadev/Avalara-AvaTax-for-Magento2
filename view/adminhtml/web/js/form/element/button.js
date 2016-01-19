@@ -68,7 +68,7 @@ define([
             var hasErrors = form.find('.admin__field-error:visible').length;
             if (!hasErrors) {
                 // Match numbers
-                var addressId = data.parentScope.match(/[0-9 -()+]+$/)[0];
+                var addressId = data.parentScope.split('.')[2];
                 var addressObject = $(form).serializeObject()['address'][addressId];
                 var inCountry = $.inArray(addressObject.country_id, settings.countriesEnabled.split(',')) >= 0;
                 if (inCountry) {
