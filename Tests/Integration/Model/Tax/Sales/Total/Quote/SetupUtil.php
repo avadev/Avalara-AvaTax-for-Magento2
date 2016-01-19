@@ -616,7 +616,6 @@ class SetupUtil
                 'value_index' => $option->getValue(),
             ];
 
-            // TODO: Add child price support?
             $associatedProductIds[] = $this->createSimpleProduct($childSku, $price, $taxClassId, $additionalAttributes)->getId();
         }
 

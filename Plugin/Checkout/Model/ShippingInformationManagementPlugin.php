@@ -131,6 +131,7 @@ class ShippingInformationManagementPlugin
             return $paymentDetails;
         }
 
+        // If quote is virtual, getShippingAddress will return billing address, so no need to check if quote is virtual
         $shippingAddress = $addressInformation->getShippingAddress();
 
         $shippingInformationExtension = $addressInformation->getExtensionAttributes();

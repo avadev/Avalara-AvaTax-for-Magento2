@@ -60,9 +60,11 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_SKU_LOCATION_CODE = 'tax/avatax/location_code';
 
-    const XML_PATH_AVATAX_REF1 = 'tax/avatax/ref1';
+    const XML_PATH_AVATAX_UPC_ATTRIBUTE = 'tax/avatax/upc_attribute';
 
-    const XML_PATH_AVATAX_REF2 = 'tax/avatax/ref2';
+    const XML_PATH_AVATAX_REF1_ATTRIBUTE = 'tax/avatax/ref1_attribute';
+
+    const XML_PATH_AVATAX_REF2_ATTRIBUTE = 'tax/avatax/ref2_attribute';
 
     const XML_PATH_AVATAX_USE_VAT = 'tax/avatax/use_business_identification_number';
 
@@ -583,14 +585,24 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Get UPC configured attribute code
+     *
+     * @return string
+     */
+    public function getUpcAttribute()
+    {
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_UPC_ATTRIBUTE);
+    }
+
+    /**
      * Get ref1 configured attribute code
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
-    public function getRef1()
+    public function getRef1Attribute()
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_REF1);
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_REF1_ATTRIBUTE);
     }
 
     /**
@@ -599,9 +611,9 @@ class Config extends AbstractHelper
      * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
-    public function getRef2()
+    public function getRef2Attribute()
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_REF2);
+        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_REF2_ATTRIBUTE);
     }
 
     /**

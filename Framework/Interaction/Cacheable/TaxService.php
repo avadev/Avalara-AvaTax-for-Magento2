@@ -94,13 +94,16 @@ class TaxService
             'result' => var_export($getTaxResult, true),
         ]);
 
-        $serializedGetTaxResult = serialize($getTaxResult);
-        $this->cache->save(
-            $serializedGetTaxResult,
-            $cacheKey,
-            [Config::AVATAX_CACHE_TAG],
-            self::CACHE_LIFETIME
-        );
+        // Only cache successful requests
+        if ($useCache && $getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+            $serializedGetTaxResult = serialize($getTaxResult);
+            $this->cache->save(
+                $serializedGetTaxResult,
+                $cacheKey,
+                [Config::AVATAX_CACHE_TAG],
+                self::CACHE_LIFETIME
+            );
+        }
         return $getTaxResult;
     }
 

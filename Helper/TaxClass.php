@@ -38,20 +38,28 @@ class TaxClass
     protected $customerGroupRepository;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\Config
+     */
+    protected $config;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
      * @param \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository
+     * @param \ClassyLlama\AvaTax\Helper\Config $config
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
-        \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository
+        \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository,
+        \ClassyLlama\AvaTax\Helper\Config $config
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->taxClassRepository = $taxClassRepository;
         $this->customerGroupRepository = $customerGroupRepository;
+        $this->config = $config;
     }
 
     /**
@@ -78,7 +86,38 @@ class TaxClass
      */
     public function getAvataxTaxCodeForProduct(\Magento\Catalog\Model\Product $product)
     {
+        if ($this->config->getUpcAttribute() && $product->getData($this->config->getUpcAttribute())) {
+            return $product->getData($this->config->getUpcAttribute());
+        }
         return $this->getAvaTaxTaxCode($product->getTaxClassId());
+    }
+
+    /**
+     * Get Ref1 code for product
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return mixed|null
+     */
+    public function getRef1ForProduct(\Magento\Catalog\Model\Product $product)
+    {
+        if ($this->config->getRef1Attribute() && $product->getData($this->config->getRef1Attribute())) {
+            return $product->getData($this->config->getRef1Attribute());
+        }
+        return null;
+    }
+
+    /**
+     * Get Ref2 code for product
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return mixed|null
+     */
+    public function getRef2ForProduct(\Magento\Catalog\Model\Product $product)
+    {
+        if ($this->config->getRef2Attribute() && $product->getData($this->config->getRef2Attribute())) {
+            return $product->getData($this->config->getRef2Attribute());
+        }
+        return null;
     }
 
     /**

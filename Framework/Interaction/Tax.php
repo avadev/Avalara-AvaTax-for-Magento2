@@ -301,8 +301,12 @@ class Tax
                     $name = $customer->getFirstname() . ' ' . $customer->getLastname();
                     $id = $customer->getId();
                 } else {
-                    // TODO: What happens with virtual orders?
-                    $name = $data->getShippingAddress()->getFirstname() . ' ' . $data->getShippingAddress()->getLastname();
+                    if (!$data->getIsVirtual()) {
+                        $address = $data->getShippingAddress();
+                    } else {
+                        $address = $data->getBillingAddress();
+                    }
+                    $name = $address->getFirstname() . ' ' . $address->getLastname();
                     if (!trim($name)) {
                         $name = Config::CUSTOMER_MISSING_NAME;
                     }
@@ -412,13 +416,10 @@ class Tax
 
         // Shipping Address not documented in the interface for some reason
         // they do have a constant for it but not a method in the interface
-        try {
-            $shippingAddress = $shippingAssignment->getShipping()->getAddress();
-            $address = $this->address->getAddress($shippingAddress);
-        } catch (LocalizedException $e) {
-            // TODO: Log this exception
-            return null;
-        }
+        //
+        // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
+        $shippingAddress = $shippingAssignment->getShipping()->getAddress();
+        $address = $this->address->getAddress($shippingAddress);
 
         $store = $this->storeRepository->getById($quote->getStoreId());
         $currentDate = $this->getFormattedDate($store);
@@ -443,7 +444,8 @@ class Tax
                 $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
-//            'PaymentDate' => null,
+            // This level of detail is needed in order to receive lines back in response
+            'DetailLevel' => DetailLevel::$Line,
             'PurchaseOrderNumber' => $quote->getReservedOrderId(),
         ];
     }
@@ -548,7 +550,7 @@ class Tax
         $store = $this->storeRepository->getById($object->getStoreId());
         $currentDate = $this->getFormattedDate($store);
 
-        $docDate = $this->getFormattedDate($store, $object->getCreatedAt());
+        $currentDate = $this->getFormattedDate($store, $object->getCreatedAt());
 
         $taxOverride = null;
         if ($object instanceof \Magento\Sales\Api\Data\InvoiceInterface) {
@@ -581,15 +583,17 @@ class Tax
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
             'CustomerUsageType' => $customerUsageType,
-            'DocCode' => $object->getIncrementId(),
             'DestinationAddress' => $avaTaxAddress,
-            'DocDate' => $docDate,
+            'DocCode' => $object->getIncrementId() . '123-' . rand(10000000,90000000000),
+            'DocDate' => $currentDate,
             'DocType' => $docType,
             'ExchangeRate' => $this->getExchangeRate($store,
                 $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
-//            'PaymentDate' => null,
+            // Only need document-level detail as we don't need lines in our response
+            'DetailLevel' => DetailLevel::$Document,
+            'PaymentDate' => $currentDate,
             'PurchaseOrderNumber' => $object->getIncrementId(),
         ];
 
@@ -652,7 +656,6 @@ class Tax
             'BusinessIdentificationNo' => $businessIdentificationNumber,
             'CompanyCode' => $companyCode,
             'LocationCode' => $locationCode,
-            'DetailLevel' => DetailLevel::$Diagnostic,
             'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
         ];
     }

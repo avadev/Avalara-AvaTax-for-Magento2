@@ -146,19 +146,20 @@ class Line
         if ($item->getQty() == 0 || $amount == 0) {
             return false;
         }
+        $product = $item->getOrderItem()->getProduct();
 
         return [
             'StoreId' => $item->getStoreId(),
             'No' => $this->getLineNumber(),
             'ItemCode' => $item->getSku(),
-            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getOrderItem()->getProduct()),
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product),
             'Description' => $item->getName(),
             'Qty' => $item->getQty(),
             'Amount' => $amount,
             'Discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'TaxIncluded' => false,
-            'Ref1' => $this->config->getRef1(), // TODO: Switch to getting values from buy request and put data on buy request
-            'Ref2' => $this->config->getRef2(),
+            'Ref1' => $this->taxClassHelper->getRef1ForProduct($product),
+            'Ref2' => $this->taxClassHelper->getRef2ForProduct($product),
         ];
     }
 
@@ -185,19 +186,20 @@ class Line
             return false;
         }
 
+        $product = $item->getOrderItem()->getProduct();
+
         return [
             'StoreId' => $item->getStoreId(),
             'No' => $this->getLineNumber(),
             'ItemCode' => $item->getSku(),
-            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($item->getOrderItem()->getProduct()),
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product),
             'Description' => $item->getName(),
             'Qty' => $item->getQty(),
             'Amount' => $amount,
             'Discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'TaxIncluded' => false,
-            'Ref1' => $this->config->getRef1($item->getStoreId()), // TODO: Switch to getting values from buy request and put data on buy request
-            'Ref2' => $this->config->getRef2($item->getStoreId()),
-//            'TaxOverride' => null,
+            'Ref1' => $this->taxClassHelper->getRef1ForProduct($product),
+            'Ref2' => $this->taxClassHelper->getRef2ForProduct($product),
         ];
     }
 
@@ -230,7 +232,6 @@ class Line
         $ref2 = $extensionAttributes ? $extensionAttributes->getAvataxRef2() : null;
 
         return [
-//            'StoreId' => $item->getStoreId(),
             'No' => $item->getCode(),
             'ItemCode' => $itemCode,
             'TaxCode' => $taxCode,

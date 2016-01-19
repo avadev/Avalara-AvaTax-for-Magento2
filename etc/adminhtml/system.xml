@@ -102,79 +102,31 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="sku_shipping" translate="label" type="text" sortOrder="2020" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Shipping SKU</label>
-                    <comment>The SKU sent to denote shipping costs.</comment>
-                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="sku_gift_wrap_order" translate="label" type="text" sortOrder="2030" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Gift Wrap Order SKU</label>
-                    <comment>The SKU sent AvaTax to denote gift wrap order costs.</comment>
-                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="sku_gift_wrap_item" translate="label" type="text" sortOrder="2040" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Gift Wrap Items SKU</label>
-                    <comment>The SKU sent AvaTax to denote gift wrap item costs.</comment>
-                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="sku_gift_wrap_card" translate="label" type="text" sortOrder="2050" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Gift Wrap Printed Card SKU</label>
-                    <comment>The SKU sent to denote gift wrap printed card costs.</comment>
-                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="sku_adjustment_positive" translate="label" type="text" sortOrder="2060" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Adjustment Refund Sku</label>
-                    <comment>The SKU sent to denote positive ajustments.</comment>
-                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="sku_adjustment_negative" translate="label" type="text" sortOrder="2070" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Adjustment Refund SKU</label>
-                    <comment>The SKU sent to denote negative ajustments.</comment>
-                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="location_code" translate="label" type="text" sortOrder="2080" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Location Code</label>
-                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
-                    <comment><![CDATA[Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="ref1" translate="label comment" type="select" sortOrder="2090" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Attribute to send as ref1</label>
+                <field id="upc_attribute" translate="label comment" type="select" sortOrder="2020" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>UPC Attribute to use as Tax Code</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
-                    <comment>Select a text type product attribute to be sent to AvaTax as ref1. Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
+                    <comment><![CDATA[Optional. The standard way to map Magento products to AvaTax Tax Codes is by using the <strong>STORES > Product Tax Classes</strong> page to create Magento Tax Classes that you then assign to products. However if you want to use a UPC product attribute as the AvaTax Tax Code, select which attribute above maps to your UPC attribute. If a UPC attribute is present on a product, it will be used as the AvaTax Tax Code. Otherwise the value will be determined by its Magento Tax Class.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="ref2" translate="label comment" type="select" sortOrder="2100" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Attribute to send as ref2</label>
+                <field id="ref1_attribute" translate="label comment" type="select" sortOrder="2030" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Ref1 Attribute</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
-                    <comment>Select a text type product attribute to be sent to AvaTax as ref1. Only the first 250 characters of this attribute will be sent to AvaTax.</comment>
+                    <comment><![CDATA[Optional. AvaTax allows you to pass arbitrary information into two reference fields for each line item. Select a text type product attribute to be sent to AvaTax in the <strong>Ref1</strong> field. Only the first 250 characters of this attribute will be sent to AvaTax.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="2110" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="ref2_attribute" translate="label comment" type="select" sortOrder="2040" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Ref2 Attribute</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
+                    <comment><![CDATA[Optional. AvaTax allows you to pass arbitrary information into two reference fields for each line item. Select a text type product attribute to be sent to AvaTax in the <strong>Ref2</strong> field. Only the first 250 characters of this attribute will be sent to AvaTax.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="2050" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Submit VAT Number to AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Set this to "Yes" if you want to send VAT tax numbers to AvaTax to affect tax calculation. If a guest or customer has a <strong>VAT number</strong> set on their Magento shipping address, it will be used. Otherwise the <strong>Tax/VAT Number</strong> attribute value from the customer record will be used. If a VAT number is not found, nothing will be sent. The VAT number will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
@@ -182,6 +134,63 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <field id="location_code" translate="label" type="text" sortOrder="2060" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Location Code</label>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+                    <comment><![CDATA[Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="sku_shipping" translate="label" type="text" sortOrder="2070" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Shipping SKU</label>
+                    <comment>The SKU sent to denote shipping costs.</comment>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="sku_gift_wrap_order" translate="label" type="text" sortOrder="2080" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Gift Wrap Order SKU</label>
+                    <comment>The SKU sent AvaTax to denote gift wrap order costs.</comment>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="sku_gift_wrap_item" translate="label" type="text" sortOrder="2090" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Gift Wrap Items SKU</label>
+                    <comment>The SKU sent AvaTax to denote gift wrap item costs.</comment>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="sku_gift_wrap_card" translate="label" type="text" sortOrder="2100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Gift Wrap Printed Card SKU</label>
+                    <comment>The SKU sent to denote gift wrap printed card costs.</comment>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="sku_adjustment_positive" translate="label" type="text" sortOrder="2110" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Adjustment Refund Sku</label>
+                    <comment>The SKU sent to denote positive ajustments.</comment>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="sku_adjustment_negative" translate="label" type="text" sortOrder="2120" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Adjustment Refund SKU</label>
+                    <comment>The SKU sent to denote negative ajustments.</comment>
+                    <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+
                 <field id="address_validation_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Address Validation Settings</strong>]]></label>
                     <!-- Reference: https://github.com/magento/magento2/issues/2340

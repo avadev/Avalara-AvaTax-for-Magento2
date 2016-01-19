@@ -134,9 +134,6 @@ class Get
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                // TODO: If debug logging is on, log the extra debug info
-                //$this->extraDebug($getTaxRequest, $getTaxResult, $object);
-
                 // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
                 $avataxTaxAmount = abs($getTaxResult->getTotalTax());
                 $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
@@ -145,8 +142,6 @@ class Get
                 $response = $this->getTaxResponseFactory->create();
                 $response->setIsUnbalanced($unbalanced)
                     ->setBaseAvataxTaxAmount($avataxTaxAmount);
-
-//                return $this->extraDebug($getTaxRequest, $getTaxResult, $object) . var_export($response, true);
 
                 return $response;
             } else {
@@ -191,6 +186,7 @@ class Get
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @return \Magento\Tax\Api\Data\TaxDetailsInterface[]
      * @throws \ClassyLlama\AvaTax\Exception\TaxCalculationException
+     * @throws \Exception
      */
     public function getTaxDetailsForQuote(
         \Magento\Quote\Model\Quote $quote,
@@ -199,26 +195,24 @@ class Get
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
         $taxService = $this->taxService;
-
-        // Total quantity of an item can be determined by multiplying parent * child quantity, so it's necessary
-        // to calculate total quantities on a list of all items
-        $this->taxCalculation->calculateTotalQuantities($taxQuoteDetails->getItems());
-        $this->taxCalculation->calculateTotalQuantities($baseTaxQuoteDetails->getItems());
-
-        // Taxes need to be calculated on the base prices/amounts, not the current currency prices. As a result of this,
-        // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
-        // calculated by multiplying the base tax rates * currency conversion rate.
-        /** @var $getTaxRequest GetTaxRequest */
-        $getTaxRequest = $this->interactionTax
-            ->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
-
-        if (is_null($getTaxRequest)) {
-            $message = __('$quote was empty or address was not valid so not running getTax request.');
-            $this->avaTaxLogger->warning($message);
-            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
-        }
-
         try {
+            // Total quantity of an item can be determined by multiplying parent * child quantity, so it's necessary
+            // to calculate total quantities on a list of all items
+            $this->taxCalculation->calculateTotalQuantities($taxQuoteDetails->getItems());
+            $this->taxCalculation->calculateTotalQuantities($baseTaxQuoteDetails->getItems());
+
+            // Taxes need to be calculated on the base prices/amounts, not the current currency prices. As a result of this,
+            // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
+            // calculated by multiplying the base tax rates * currency conversion rate.
+            /** @var $getTaxRequest GetTaxRequest */
+            $getTaxRequest = $this->interactionTax
+                ->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
+
+            if (is_null($getTaxRequest)) {
+                $message = __('$quote was empty or address was not valid so not running getTax request.');
+                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
+            }
+
             $getTaxResult = $taxService->getTax($getTaxRequest, true);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
 
@@ -258,10 +252,9 @@ class Get
                 ]
             );
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
-        } catch (\Exception $exception) {
-            $message = $exception->getMessage();
-            $this->avaTaxLogger->error($message);
-            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
+        } catch (\Exception $e) {
+            $this->avaTaxLogger->error($e->getMessage());
+            throw $e;
         }
     }
 
