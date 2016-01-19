@@ -362,13 +362,6 @@ class Tax
     }
 
     /**
-     * Convert an order into data to be used in some kind of tax request
-     * TODO: Implement Payment Date on Invoice Conversion and on Credit Memo Conversion.  M1 version is doing this.
-     * TODO: For salesperson_code do at least a config field's value and possible make it configurable to allow for multiple formats including: just the code, just the admin user's role, just the admin user's First Name & Last Name, just the admin users username, just the admin user's email address, or some combinations of the options
-     *
-     */
-
-    /**
      * Convert Tax Quote Details into data to be converted to a GetTax Request
      *
      * @author Jonathan Hodges <jonathan@classyllama.com>

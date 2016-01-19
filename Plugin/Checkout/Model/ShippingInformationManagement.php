@@ -7,7 +7,6 @@ use ClassyLlama\AvaTax\Framework\Interaction\Address\Validation as ValidationInt
 use ClassyLlama\AvaTax\Framework\Interaction\Address as AddressInteraction;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax;
-use Magento\Checkout\Model\ShippingInformationManagement;
 use Magento\Checkout\Api\Data\ShippingInformationInterface;
 use Magento\Checkout\Model\ShippingInformation;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -17,7 +16,10 @@ use Magento\Framework\DataObject\Copy;
 use Magento\Customer\Model\Address\Mapper;
 use Magento\Framework\Exception\LocalizedException;
 
-class ShippingInformationManagementPlugin
+/**
+ * Class ShippingInformationManagement
+ */
+class ShippingInformationManagement
 {
     /**
      * @var ValidationInteraction
@@ -110,7 +112,7 @@ class ShippingInformationManagementPlugin
     }
 
     public function aroundSaveAddressInformation(
-        ShippingInformationManagement $subject,
+        \Magento\Checkout\Model\ShippingInformationManagement $subject,
         \Closure $proceed,
         $cartId,
         ShippingInformationInterface $addressInformation

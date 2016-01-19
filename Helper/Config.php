@@ -114,18 +114,6 @@ class Config extends AbstractHelper
     /**#@-*/
 
     /**#@+
-     * Constants for shipping origin.
-     *
-     * These constants are missing from \Magento\Shipping\Model\Config. If they get added to the core in the future,
-     * refactor this code to use the core constants.
-     */
-    // TODO: Check status of this issue to see if we can reference core constants in the future: https://github.com/magento/magento2/issues/2269
-    const XML_PATH_SHIPPING_ORIGIN_STREET_LINE1 = 'shipping/origin/street_line1';
-
-    const XML_PATH_SHIPPING_ORIGIN_STREET_LINE2 = 'shipping/origin/street_line2';
-    /**#@-*/
-
-    /**#@+
      * Customer Code Format Options
      */
     const CUSTOMER_FORMAT_OPTION_EMAIL = 'email';
@@ -334,12 +322,13 @@ class Config extends AbstractHelper
     {
         return [
             'Line1' => $this->scopeConfig->getValue(
-                self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE1,
+                // Line1 and Line2 constants are missing from \Magento\Shipping\Model\Config, so using them from Shipment
+                \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
             'Line2' => $this->scopeConfig->getValue(
-                self::XML_PATH_SHIPPING_ORIGIN_STREET_LINE2,
+                \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),

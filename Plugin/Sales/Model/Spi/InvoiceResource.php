@@ -6,18 +6,21 @@
  * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
  */
 
-namespace ClassyLlama\AvaTax\Plugin;
+namespace ClassyLlama\AvaTax\Plugin\Sales\Model\Spi;
 
 use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Model\QueueFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
-use Magento\Sales\Api\Data\CreditmemoExtensionFactory;
+use Magento\Sales\Api\Data\InvoiceExtensionFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Sales\Model\Spi\CreditmemoResourceInterface;
+use Magento\Sales\Model\Spi\InvoiceResourceInterface;
 use Magento\Framework\Model\AbstractModel;
 
-class SalesSpiCreditmemoResource
+/**
+ * Class InvoiceResource
+ */
+class InvoiceResource
 {
     /**
      * @var AvaTaxLogger
@@ -30,9 +33,9 @@ class SalesSpiCreditmemoResource
     protected $avaTaxConfig;
 
     /**
-     * @var \Magento\Sales\Api\Data\CreditmemoExtensionFactory
+     * @var \Magento\Sales\Api\Data\InvoiceExtensionFactory
      */
-    protected $creditmemoExtensionFactory;
+    protected $invoiceExtensionFactory;
 
     /**
      * @var QueueFactory
@@ -45,38 +48,38 @@ class SalesSpiCreditmemoResource
     protected $dateTime;
 
     /**
-     * SalesSpiCreditmemoResource constructor.
+     * SalesSpiInvoiceResource constructor.
      * @param AvaTaxLogger $avaTaxLogger
      * @param Config $avaTaxConfig
-     * @param CreditmemoExtensionFactory $creditmemoExtensionFactory
+     * @param InvoiceExtensionFactory $invoiceExtensionFactory
      * @param QueueFactory $queueFactory
      * @param DateTime $dateTime
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
         Config $avaTaxConfig,
-        CreditmemoExtensionFactory $creditmemoExtensionFactory,
+        InvoiceExtensionFactory $invoiceExtensionFactory,
         QueueFactory $queueFactory,
         DateTime $dateTime
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
-        $this->creditmemoExtensionFactory = $creditmemoExtensionFactory;
+        $this->invoiceExtensionFactory = $invoiceExtensionFactory;
         $this->queueFactory = $queueFactory;
         $this->dateTime = $dateTime;
     }
 
     /**
-     * @param \Magento\Sales\Model\Spi\CreditmemoResourceInterface $subject
+     * @param \Magento\Sales\Model\Spi\InvoiceResourceInterface $subject
      * @param \Closure $proceed
      *
      *        I include both the extended AbstractModel and implemented Interface here for the IDE's benefit
-     * @param \Magento\Framework\Model\AbstractModel|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @return \Magento\Sales\Model\Spi\CreditmemoResourceInterface
+     * @param \Magento\Framework\Model\AbstractModel|\Magento\Sales\Api\Data\InvoiceInterface $entity
+     * @return \Magento\Sales\Model\Spi\InvoiceResourceInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     public function aroundSave(
-        CreditmemoResourceInterface $subject,
+        InvoiceResourceInterface $subject,
         \Closure $proceed,
         AbstractModel $entity
     ) {
@@ -121,7 +124,7 @@ class SalesSpiCreditmemoResource
             }
         }
 
-        /** @var \Magento\Sales\Model\Spi\CreditmemoResourceInterface $resultEntity */
+        /** @var \Magento\Sales\Model\Spi\InvoiceResourceInterface $resultEntity */
         $resultEntity = $proceed($entity);
 
         // Queue the entity to be sent to AvaTax
@@ -135,7 +138,7 @@ class SalesSpiCreditmemoResource
                 $queue = $this->queueFactory->create();
                 $queue->build(
                     $entity->getStoreId(),
-                    Queue::ENTITY_TYPE_CODE_CREDITMEMO,
+                    Queue::ENTITY_TYPE_CODE_INVOICE,
                     $entity->getEntityId(),
                     $entity->getIncrementId(),
                     Queue::QUEUE_STATUS_PENDING
@@ -146,7 +149,7 @@ class SalesSpiCreditmemoResource
                     __('Added entity to the queue'),
                     [ /* context */
                         'queue_id' => $queue->getId(),
-                        'entity_type_code' => Queue::ENTITY_TYPE_CODE_CREDITMEMO,
+                        'entity_type_code' => Queue::ENTITY_TYPE_CODE_INVOICE,
                         'entity_id' => $entity->getEntityId(),
                     ]
                 );
@@ -157,17 +160,18 @@ class SalesSpiCreditmemoResource
     }
 
     /**
-     * @param \Magento\Sales\Model\Spi\CreditmemoResourceInterface $subject
+     * @param \Magento\Sales\Model\Spi\InvoiceResourceInterface $subject
      * @param \Closure $proceed
      *
      *        Include both the extended AbstractModel and implemented Interface here for the IDE's benefit
-     * @param \Magento\Framework\Model\AbstractModel|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @param $value
-     * @param null $field
+     * @param \Magento\Framework\Model\AbstractModel|\Magento\Sales\Api\Data\InvoiceInterface $entity
+     * @param mixed $value
+     * @param string $field field to load by (defaults to model id)
      * @return \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function aroundLoad(
-        CreditmemoResourceInterface $subject,
+        InvoiceResourceInterface $subject,
         \Closure $proceed,
         AbstractModel $entity,
         $value,
@@ -188,7 +192,7 @@ class SalesSpiCreditmemoResource
                 // Get any existing extension attributes or create a new one
                 $entityExtension = $entity->getExtensionAttributes();
                 if (!$entityExtension) {
-                    $entityExtension = $this->creditmemoExtensionFactory->create();
+                    $entityExtension = $this->invoiceExtensionFactory->create();
                 }
 
                 // Set the attributes
