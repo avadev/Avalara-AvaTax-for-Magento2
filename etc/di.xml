@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
-        <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagementPlugin" />
+        <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
     </type>
     <preference for="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" type="ClassyLlama\AvaTax\Model\ValidAddressManagement" />
     <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
