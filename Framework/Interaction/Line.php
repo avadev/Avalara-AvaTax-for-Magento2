@@ -128,8 +128,6 @@ class Line
     /**
      * Return an array with relevant data from an invoice item
      *
-     * All TODOs in the doc block and the method body apply to all 4 conversion methods
-     *
      * @param \Magento\Sales\Api\Data\InvoiceItemInterface $item
      * @return array|bool
      */
