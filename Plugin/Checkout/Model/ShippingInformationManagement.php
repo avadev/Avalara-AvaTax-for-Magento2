@@ -74,7 +74,7 @@ class ShippingInformationManagement
     protected $coreRegistry;
 
     /**
-     * ShippingInformationManagementPlugin constructor
+     * ShippingInformationManagement constructor
      *
      * @param ValidationInteraction $validationInteraction
      * @param AddressInteraction $addressInteraction
