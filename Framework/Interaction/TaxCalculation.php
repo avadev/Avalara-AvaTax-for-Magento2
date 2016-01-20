@@ -229,10 +229,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          * @see \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxNotInPrice
          *
          * If the rate is 0, then this product doesn't have taxes applied and tax on discount shouldn't be calculated.
+         * If tax is 0, then item was tax-exempt for some reason and tax on discount shouldn't be calculated
          */
-        if ($taxLine->getRate() > 0) {
             $taxOnDiscountAmount =
             $taxOnDiscountAmount = $item->getDiscountAmount() * $taxLine->getRate();
+        if ($taxLine->getRate() > 0 && $tax > 0) {
             $taxOnDiscountAmount = $this->calculationTool->round($taxOnDiscountAmount);
             $rowTaxBeforeDiscount = $rowTax + $taxOnDiscountAmount;
         } else {
