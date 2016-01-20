@@ -13,7 +13,7 @@
                 <sku_gift_wrap_card>GwPrintedCard</sku_gift_wrap_card>
                 <sku_adjustment_positive>Adjustment</sku_adjustment_positive>
                 <sku_adjustment_negative>Adjustment</sku_adjustment_negative>
-                <error_action>1</error_action>
+                <error_action>2</error_action>
                 <error_action_disable_checkout_message_frontend>Unfortunately, we could not calculate tax for your order. Please try again with a different address or contact us to complete your order.</error_action_disable_checkout_message_frontend>
                 <error_action_disable_checkout_message_backend><![CDATA[There was an error getting tax rates from Avalara. Please see the <a href="%1">error log</a> for details.]]></error_action_disable_checkout_message_backend>
                 <address_validation_enabled>1</address_validation_enabled>
@@ -36,6 +36,7 @@
                 <queue_complete_lifetime>60</queue_complete_lifetime>
                 <queue_failed_lifetime>180</queue_failed_lifetime>
                 <queue_admin_notification_enabled>1</queue_admin_notification_enabled>
+                <queue_failure_notification_enabled>1</queue_failure_notification_enabled>
             </avatax>
         </tax>
     </default>

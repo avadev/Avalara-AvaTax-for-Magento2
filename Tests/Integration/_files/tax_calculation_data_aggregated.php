@@ -16,6 +16,8 @@ require_once __DIR__ . '/scenarios/bundled_product_dynamic_pricing.php';
 require_once __DIR__ . '/scenarios/bundled_product_fixed_pricing.php';
 require_once __DIR__ . '/scenarios/product_tax_classes.php';
 require_once __DIR__ . '/scenarios/customer_tax_class.php';
+require_once __DIR__ . '/scenarios/tax_before_discount_only_applies_to_taxable_amount.php';
+require_once __DIR__ . '/scenarios/tax_before_discount_applies_to_partial_taxable_amount.php';
 
 /**
  * TODO: Add tests for these scenarios:

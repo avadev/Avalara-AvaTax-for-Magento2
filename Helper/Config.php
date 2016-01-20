@@ -910,4 +910,14 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED);
     }
+
+    /**
+     * Return if queue failure notification is enabled
+     *
+     * @return int
+     */
+    public function getQueueFailureNotificationEnabled()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME);
+    }
 }
