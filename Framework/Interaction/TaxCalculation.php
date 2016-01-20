@@ -231,9 +231,30 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          * If the rate is 0, then this product doesn't have taxes applied and tax on discount shouldn't be calculated.
          * If tax is 0, then item was tax-exempt for some reason and tax on discount shouldn't be calculated
          */
-            $taxOnDiscountAmount =
-            $taxOnDiscountAmount = $item->getDiscountAmount() * $taxLine->getRate();
         if ($taxLine->getRate() > 0 && $tax > 0) {
+            /**
+             * Accurately calculating what AvaTax would have charged before discount requires checking to see if any
+             * of the tax amount is tax exempt. If so, we need to find out what percentage of the total amount AvaTax
+             * deemed as taxable and then use that percentage when calculating the discount amount. This partially
+             * taxable scenario can arise in a situation like this:
+             * @see https://help.avalara.com/kb/001/Why_is_freight_taxed_partially_on_my_sale
+             *
+             * To test this functionality, you can create a "Base Override" Tax Rule in the AvaTax admin to mark certain
+             * jurisdictions as partially taxable.
+             */
+            $taxableAmountPercentage = 1;
+            if ($taxLine->getExemption() > 0) {
+                // This value is the total amount sent to AvaTax for tax calculation, before AvaTax determined what
+                // portion of the amount is taxable
+                $totalAmount = ($taxLine->getTaxable() + $taxLine->getExemption());
+                // Avoid division by 0
+                if ($totalAmount != 0) {
+                    $taxableAmountPercentage = $taxLine->getTaxable() / $totalAmount;
+                }
+            }
+
+            $effectiveDiscountAmount = $taxableAmountPercentage * $item->getDiscountAmount();
+            $taxOnDiscountAmount = $effectiveDiscountAmount * $taxLine->getRate();
             $taxOnDiscountAmount = $this->calculationTool->round($taxOnDiscountAmount);
             $rowTaxBeforeDiscount = $rowTax + $taxOnDiscountAmount;
         } else {
