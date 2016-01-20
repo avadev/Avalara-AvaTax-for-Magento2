@@ -397,6 +397,15 @@
                     </depends>
                     <comment>A notification will be displayed at the top of any admin page if there are pending queue records waiting to be submitted to AvaTax but no attempts have been made in the last 24 hours to submit them.</comment>
                 </field>
+                <field id="queue_failure_notification_enabled" translate="label" type="select" sortOrder="5570" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Queue Failure Notification</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="queue_submission_enabled">1</field>
+                    </depends>
+                    <comment>A notification will be displayed at the top of any admin page if there are any failed queue records.</comment>
+                </field>
                 <field id="queue_max_retry_attempts" translate="label comment" type="text" sortOrder="6020" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Max Queue Retry Attempts</label>
                     <comment>Please enter a number 1 or greater in this field.</comment>

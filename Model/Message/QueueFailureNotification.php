@@ -9,7 +9,7 @@ use ClassyLlama\AvaTax\Model\ResourceModel\Queue\CollectionFactory;
 /**
  * Notifications class
  */
-class QueueNotification implements MessageInterface
+class QueueFailureNotification implements MessageInterface
 {
     /**
      * Store manager object
@@ -39,19 +39,14 @@ class QueueNotification implements MessageInterface
     protected $authorization;
 
     /**
+     * @var array
+     */
+    protected $queueFailureStats;
+
+    /**
      * @var int
      */
-    protected $statQueueCount;
-
-    /**
-     * @var string
-     */
-    protected $statQueueLastCreatedAt;
-
-    /**
-     * @var string
-     */
-    protected $statQueueLastUpdatedAt;
+    protected $queueFailureCount;
 
     /**
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
@@ -81,7 +76,9 @@ class QueueNotification implements MessageInterface
      */
     public function getIdentity()
     {
-        return md5('AVATAX_QUEUE_NOTIFICATION');
+        // Each week there are failures would introduce a new identity for the Message
+        // and prompt the admin user to acknowledge the notification.
+        return md5('AVATAX_QUEUE_FAILURE_' . implode(':', array_keys($this->getQueueFailureStats())));
     }
 
     /**
@@ -95,19 +92,19 @@ class QueueNotification implements MessageInterface
         if (
             $this->avaTaxConfig->isModuleEnabled() == false ||
             $this->avaTaxConfig->getTaxMode($this->storeManager->getDefaultStoreView()) !=
-                Config::TAX_MODE_ESTIMATE_AND_SUBMIT ||
-            $this->avaTaxConfig->getQueueAdminNotificationEnabled() == false
+            Config::TAX_MODE_ESTIMATE_AND_SUBMIT ||
+            $this->avaTaxConfig->getQueueFailureNotificationEnabled() == false
         ) {
             return false;
         }
 
         // Query the database to get some stats about the queue
-        $this->loadQueueStats();
+        $this->getQueueFailureStats();
 
         // Determine if we need to notify the admin user
         if (
             $this->authorization->isAllowed('ClassyLlama_AvaTax::manage_avatax') &&
-            $this->statQueueCount > 0
+            $this->queueFailureCount > 0
         ) {
             return true;
         } else {
@@ -118,20 +115,17 @@ class QueueNotification implements MessageInterface
     /**
      * Load the queue stats
      */
-    public function loadQueueStats()
+    public function getQueueFailureStats()
     {
         // check to see if we've already loaded the queue stats
-        if ($this->statQueueCount === null) {
+        if ($this->queueFailureStats === null) {
             $queueCollection = $this->queueCollectionFactory->create();
 
             // get the stats from the collection
-            $queueStats = $queueCollection->getQueuePendingMoreThanADay();
-
-            // load the object properties with the stats
-            $this->statQueueCount = $queueStats[$queueCollection::SUMMARY_COUNT_FIELD_NAME];
-            $this->statQueueLastCreatedAt = $queueStats[$queueCollection::SUMMARY_LAST_CREATED_AT_FIELD_NAME];
-            $this->statQueueLastUpdatedAt = $queueStats[$queueCollection::SUMMARY_LAST_UPDATED_AT_FIELD_NAME];
+            $this->queueFailureStats = $queueCollection->getQueueFailureStats();
+            $this->queueFailureCount = array_sum($this->queueFailureStats);
         }
+        return $this->queueFailureStats;
     }
 
     /**
@@ -143,21 +137,13 @@ class QueueNotification implements MessageInterface
     public function getText()
     {
         // Make sure we have the queue stats loaded
-        $this->loadQueueStats();
+        $this->getQueueFailureStats();
 
-        $lastProcessedAt = $this->statQueueLastUpdatedAt > $this->statQueueLastCreatedAt ?
-            $this->statQueueLastUpdatedAt : $this->statQueueLastCreatedAt;
-
-        $messageDetails = __('The AvaTax Queue has not been processed in the last 24 hours and may indicate a system ' .
-            'configuration issue for submitting order information to AvaTax for reporting purposes.<br />' .
-            '<a href="%1">Check the queue</a><br />' .
-            '<a href="%2">Check configuration settings</a><br />' .
-            'There are %3 document(s) needing to be submitted to AvaTax and the last time ' .
-            'any processing was attempted was at %4',
-            $this->urlBuilder->getUrl('avatax/queue'),
-            $this->urlBuilder->getUrl('admin/system_config/edit', ['section' => 'tax']),
-            $this->statQueueCount,
-            $lastProcessedAt
+        $messageDetails = __('The AvaTax Queue has %1 document(s) that failed during processing and were not ' .
+            'successfully sent to AvaTax<br />' .
+            '<a href="%2">Check the queue</a><br />',
+            $this->queueFailureCount,
+            $this->urlBuilder->getUrl('avatax/queue')
         );
 
         return $messageDetails;

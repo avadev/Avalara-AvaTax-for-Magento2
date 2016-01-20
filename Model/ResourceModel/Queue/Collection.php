@@ -27,6 +27,7 @@ class Collection extends AbstractCollection
     const SUMMARY_COUNT_FIELD_NAME = 'count';
     const SUMMARY_LAST_UPDATED_AT_FIELD_NAME = 'last_updated_at';
     const SUMMARY_LAST_CREATED_AT_FIELD_NAME = 'last_created_at';
+    const SUMMARY_YEAR_WEEK = 'year_week';
     /**#@-*/
 
     /**
@@ -186,5 +187,36 @@ class Collection extends AbstractCollection
         ");
 
         return $connection->fetchRow($select);
+    }
+
+    /**
+     * Get stats from queue records that have failed
+     *
+     * @return array
+     */
+    public function getQueueFailureStats()
+    {
+        $select = clone $this->getSelect();
+        $connection = $this->getConnection();
+
+        $yearWeekExpr = new \Zend_Db_Expr('YEARWEEK(' . Queue::CREATED_AT_FIELD_NAME . ')');
+        $countExpr = new \Zend_Db_Expr("COUNT(*)");
+
+        $select->reset(\Zend_DB_Select::COLUMNS);
+        $select->columns([
+            self::SUMMARY_YEAR_WEEK => $yearWeekExpr,
+            self::SUMMARY_COUNT_FIELD_NAME => $countExpr
+        ]);
+        $select->where(Queue::QUEUE_STATUS_FIELD_NAME . ' = ?', QueueModel::QUEUE_STATUS_FAILED);
+        $select->group('YEARWEEK(' . Queue::CREATED_AT_FIELD_NAME . ')');
+
+        $result = $connection->fetchAll($select);
+
+        $returnArray = [];
+        foreach ($result as $record) {
+            $returnArray[$record[self::SUMMARY_YEAR_WEEK]] = $record[self::SUMMARY_COUNT_FIELD_NAME];
+        }
+
+        return $returnArray;
     }
 }
