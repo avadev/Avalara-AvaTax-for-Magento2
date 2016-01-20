@@ -92,7 +92,7 @@ class QueueFailureNotification implements MessageInterface
         if (
             $this->avaTaxConfig->isModuleEnabled() == false ||
             $this->avaTaxConfig->getTaxMode($this->storeManager->getDefaultStoreView()) !=
-            Config::TAX_MODE_ESTIMATE_AND_SUBMIT ||
+                Config::TAX_MODE_ESTIMATE_AND_SUBMIT ||
             $this->avaTaxConfig->getQueueFailureNotificationEnabled() == false
         ) {
             return false;
