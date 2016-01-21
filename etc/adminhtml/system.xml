@@ -131,7 +131,7 @@
                     </depends>
                 </field>
                 <field id="upc_attribute" translate="label comment" type="select" sortOrder="3020" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>UPC Attribute to use as Tax Code</label>
+                    <label>UPC Attribute To Use As Tax Code</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment><![CDATA[Optional. The standard way to map Magento products to AvaTax Tax Codes is by using the <strong>STORES > Product Tax Classes</strong> page to create Magento Tax Classes that you then assign to products. However if you want to use a UPC product attribute as the AvaTax Tax Code, select which attribute above maps to your UPC attribute. If a UPC attribute is present on a product, it will be used as the AvaTax Tax Code. Otherwise the value will be determined by its Magento Tax Class.]]></comment>
                     <depends>
@@ -236,7 +236,7 @@
                     </depends>
                 </field>
                 <field id="address_validation_user_has_choice" translate="label comment" type="select" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow user to choose original (invalid) address</label>
+                    <label>Allow User To Choose Original (Invalid) Address</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Set this to "Yes" to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to "No", user will be required to use the validated address or update their original address.</comment>
                     <depends>
