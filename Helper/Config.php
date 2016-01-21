@@ -111,6 +111,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME = 'tax/avatax/queue_failed_lifetime';
 
     const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
+
+    const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
     /**#@-*/
 
     /**#@+
@@ -919,5 +921,10 @@ class Config extends AbstractHelper
     public function getQueueFailureNotificationEnabled()
     {
         return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME);
+    }
+
+    public function isNativeTaxRulesIgnored()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES);
     }
 }

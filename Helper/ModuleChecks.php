@@ -33,6 +33,11 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
     protected $avaTaxConfig;
 
     /**
+     * @var \Magento\Backend\Model\UrlInterface
+     */
+    protected $backendUrl;
+
+    /**
      * ModuleChecks constructor
      *
      * @param \Magento\Framework\App\Helper\Context $context
@@ -46,12 +51,14 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         TaxRuleRepositoryInterface $taxRuleRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        Config $avaTaxConfig
+        Config $avaTaxConfig,
+        \Magento\Backend\Model\UrlInterface $backendUrl
     ) {
         $this->storeManager = $storeManager;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->taxRuleRepository = $taxRuleRepository;
         $this->avaTaxConfig = $avaTaxConfig;
+        $this->backendUrl = $backendUrl;
         return parent::__construct($context);
     }
 
@@ -95,7 +102,7 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
         ) {
             $errors[] = __('In order for AvaTax tax calculation to work, you need to configure the <strong>Origin '
                 . 'Address</strong> on the <a href="%1">Shipping Settings page</a>.',
-                $this->_urlBuilder->getUrl('admin/system_config/edit', ['section' => 'shipping'])
+                $this->backendUrl->getUrl('admin/system_config/edit', ['section' => 'shipping'])
             );
         }
 
@@ -110,21 +117,25 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
     public function checkNativeTaxRules()
     {
         $errors = [];
-        $taxRules = $this->taxRuleRepository->getList($this->searchCriteriaBuilder->create());
         if ($this->avaTaxConfig->isModuleEnabled()
             && $this->avaTaxConfig->getTaxMode($this->storeManager->getDefaultStoreView())
                 != Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
-            && count($taxRules->getItems())
+            && !$this->avaTaxConfig->isNativeTaxRulesIgnored()
         ) {
-            $errors[] = __(
-                'You have %1 native Magento Tax Rule(s) configured. '
-                    . 'Please <a href="%2">review the tax rule(s)</a> and delete any that you do not specifically want enabled. '
-                    . 'You should only have rules setup if you want to use them as backup rules in case of AvaTax '
-                    . 'errors (see <a href="#row_tax_avatax_error_handling_header">Error Action setting</a>) '
-                    . 'or if you need to support VAT tax.',
-                count($taxRules->getItems()),
-                $this->_urlBuilder->getUrl('tax/rule')
-            );
+            $taxRules = $this->taxRuleRepository->getList($this->searchCriteriaBuilder->create());
+            if (count($taxRules->getItems())) {
+                $errors[] = __(
+                    'You have %1 native Magento Tax Rule(s) configured. '
+                        . 'Please <a href="%2">review the tax rule(s)</a> and delete any that you do not specifically want enabled. '
+                        . 'You should only have rules setup if you want to use them as backup rules in case of AvaTax '
+                        . 'errors (see <a href="#row_tax_avatax_error_handling_header">Error Action setting</a>) '
+                        . 'or if you need to support VAT tax. '
+                        . '<a href="%3">Ignore this notification</a>.',
+                    count($taxRules->getItems()),
+                    $this->backendUrl->getUrl('tax/rule'),
+                    $this->backendUrl->getUrl('avatax/tax/ignoreTaxRuleNotification')
+                );
+            }
         }
         return $errors;
     }
