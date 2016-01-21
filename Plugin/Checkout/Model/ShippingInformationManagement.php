@@ -169,6 +169,8 @@ class ShippingInformationManagement
         if ($shouldValidateAddress) {
             try {
                 $validAddress = $this->validationInteraction->validateAddress($shippingAddress);
+            } catch (AddressValidateException $e) {
+                $errorMessage = $e->getMessage();
             } catch (\SoapFault $e) {
                 // If there is a SoapFault, it will have already been logged, so just disable address validation, as we
                 // don't want to display SoapFault error message to user
