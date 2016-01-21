@@ -19,7 +19,7 @@
                 <field id="commit_submitted_transactions" translate="label" type="select" sortOrder="1004" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Commit Submitted Transactions</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Should transactions sent to AvaTax be committed? Only change to "No" if you have specific reason to do so.</comment>
+                    <comment><![CDATA[Should transactions sent to AvaTax be committed? Only change to <strong>No</strong> if you have specific reason to do so.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="tax_mode">3</field>
@@ -35,7 +35,7 @@
                 </field>
                 <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Mode</label>
-                    <comment><![CDATA[The mode you select will determine whether the <strong>Production</strong> or <strong>Development</strong> credentials will be used. You will get your Account Number, License Key, and Company Code from your AvaTax representative. If <strong>Production</strong> is selected, then https://avatax.avalara.net will be used as the API url. If <strong>Development</strong> is selected, then https://development.avalara.net will be used as the API url.]]></comment>
+                    <comment><![CDATA[The mode you select will determine whether the <strong>Production</strong> or <strong>Development</strong> credentials will be used. You will get your Account Number, License Key, and Company Code from your AvaTax representative. If <strong>Production</strong> is selected, then https://avatax.avalara.net will be used as the API url. If <strong>Development</strong> is selected, then https://development.avalara.net will be used as the API url.<br><br>When you save this page, if you have entered credentials below for the selected mode, the AvaTax API will be pinged to ensure the credentials are working.]]></comment>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
                     <depends>
                         <field id="enabled">1</field>
@@ -157,7 +157,7 @@
                 <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="3050" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Submit VAT Number to AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Set this to "Yes" if you want to send VAT tax numbers to AvaTax to affect tax calculation. If a guest or customer has a <strong>VAT number</strong> set on their Magento shipping address, it will be used. Otherwise the <strong>Tax/VAT Number</strong> attribute value from the customer record will be used. If a VAT number is not found, nothing will be sent. The VAT number will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
+                    <comment><![CDATA[Set this to <strong>Yes</strong> if you want to send VAT tax numbers to AvaTax to affect tax calculation. If a guest or customer has a <strong>VAT number</strong> set on their Magento shipping address, it will be used. Otherwise the <strong>Tax/VAT Number</strong> attribute value from the customer record will be used. If a VAT number is not found, nothing will be sent. The VAT number will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -235,16 +235,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="address_validation_user_has_choice" translate="label comment" type="select" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow User To Choose Original (Invalid) Address</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Set this to "Yes" to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to "No", user will be required to use the validated address or update their original address.</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                        <field id="address_validation_enabled">1</field>
-                    </depends>
-                </field>
-                <field id="address_validation_countries_enabled" translate="label comment" type="multiselect" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="address_validation_countries_enabled" translate="label comment" type="multiselect" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled Countries</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\AddressValidationCountries</source_model>
                     <comment>Select which countries to enable for address validation. AvaTax Address Validation currently only supports United States and Canada.</comment>
@@ -253,9 +244,18 @@
                         <field id="address_validation_enabled">1</field>
                     </depends>
                 </field>
+                <field id="address_validation_user_has_choice" translate="label comment" type="select" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allow User To Choose Original (Invalid) Address</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Set this to <strong>Yes</strong> to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to <strong>No</strong>, user will be required to use the validated address or update their original address.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="address_validation_enabled">1</field>
+                    </depends>
+                </field>
                 <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Address Validation Instructions With Choice</label>
-                    <comment><![CDATA[This text will be displayed to the user above the <strong>Suggested Address</strong> and <strong>Original Address</strong>.]]></comment>
+                    <label>Address Validation Instructions</label>
+                    <comment><![CDATA[When user progresses to the <strong>Review & Payments</strong> step of the checkout, this text will be displayed above the <strong>Suggested Address</strong> and <strong>Original Address</strong> checkboxes.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation_enabled">1</field>
@@ -263,8 +263,8 @@
                     </depends>
                 </field>
                 <field id="address_validation_instructions_without_choice" translate="label comment" type="textarea" sortOrder="4050" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Address Validation Instructions Without Choice</label>
-                    <comment>This text will be displayed to the user above the suggested address.</comment>
+                    <label>Address Validation Instructions</label>
+                    <comment><![CDATA[When user progresses to the <strong>Review & Payments</strong> step of the checkout, this text will be displayed above the suggested address.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation_enabled">1</field>
@@ -273,7 +273,7 @@
                 </field>
                 <field id="address_validation_error_instructions" translate="label comment" type="textarea" sortOrder="4060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Address Validation Error Instructions</label>
-                    <comment>This text will be displayed when there is an error in the address validation process. The element assigned the 'error-message' class will be filled with the error message summary returned by AvaTax.</comment>
+                    <comment>This text will be displayed when there is an error in the address validation process. The element assigned the "error-message" class will be filled with the error message summary returned by AvaTax.</comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation_enabled">1</field>
