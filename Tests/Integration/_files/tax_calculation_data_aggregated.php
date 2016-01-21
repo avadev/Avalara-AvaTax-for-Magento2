@@ -20,7 +20,7 @@ require_once __DIR__ . '/scenarios/tax_before_discount_only_applies_to_taxable_a
 require_once __DIR__ . '/scenarios/tax_before_discount_applies_to_partial_taxable_amount.php';
 
 /**
- * TODO: Add tests for these scenarios:
+ * It would be valuable to add tests to cover these scenarios:
  *
  * - Gift wrapping (quote, printed card, items)
  * - Virtual product with no shipping address

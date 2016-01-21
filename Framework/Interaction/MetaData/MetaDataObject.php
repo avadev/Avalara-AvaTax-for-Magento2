@@ -6,8 +6,14 @@ use Magento\Framework\Phrase;
 
 class MetaDataObject
 {
+    /**
+     * All name value
+     */
     const ALL_NAME = '*';
 
+    /**
+     * @var array
+     */
     protected $classMetaDataMap = [
         '\AvaTax\Address' => ['\ClassyLlama\AvaTax\Framework\Interaction\Address', 'validFields'],
         '\AvaTax\TaxOverride' => ['\ClassyLlama\AvaTax\Framework\Interaction\Tax', 'validTaxOverrideFields'],

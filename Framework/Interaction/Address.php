@@ -15,14 +15,12 @@ use AvaTax\AddressFactory;
 use AvaTax\AddressServiceSoapFactory;
 use AvaTax\AddressServiceSoap;
 use ClassyLlama\AvaTax\Helper\Config;
-use Magento\Customer\Model\Address\AddressModelInterface;
 use Magento\Directory\Model\Region;
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionCollectionFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
-
 
 class Address
 {
@@ -67,6 +65,16 @@ class Address
     protected $orderAddressFactory = null;
 
     /**
+     * @var null|DataObjectHelper
+     */
+    protected $dataObjectHelper = null;
+
+    /**
+     * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
+     */
+    protected $avaTaxLogger;
+
+    /**
      * @var AddressServiceSoap[]
      */
     protected $addressServiceSoap = [];
@@ -95,11 +103,6 @@ class Address
     ];
 
     /**
-     * @var null|DataObjectHelper
-     */
-    protected $dataObjectHelper = null;
-
-    /**
      * Address constructor.
      * @param Config $config
      * @param MetaDataObjectFactory $metaDataObjectFactory
@@ -110,6 +113,7 @@ class Address
      * @param QuoteAddressInterfaceFactory $quoteAddressFactory
      * @param OrderAddressInterfaceFactory $orderAddressFactory
      * @param DataObjectHelper $dataObjectHelper
+     * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      */
     public function __construct(
         Config $config,
@@ -120,7 +124,8 @@ class Address
         CustomerAddressInterfaceFactory $customerAddressFactory,
         QuoteAddressInterfaceFactory $quoteAddressFactory,
         OrderAddressInterfaceFactory $orderAddressFactory,
-        DataObjectHelper $dataObjectHelper
+        DataObjectHelper $dataObjectHelper,
+        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
     ) {
         $this->config = $config;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
@@ -131,6 +136,7 @@ class Address
         $this->quoteAddressFactory = $quoteAddressFactory;
         $this->orderAddressFactory = $orderAddressFactory;
         $this->dataObjectHelper = $dataObjectHelper;
+        $this->avaTaxLogger = $avaTaxLogger;
     }
 
     /**
@@ -189,7 +195,16 @@ class Address
             unset($data['RegionId']);
         }
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (MetaData\ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating address: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+            // Rethrow exception as if internal validation fails, don't send address to AvaTax
+            throw $e;
+        }
+
         $address = $this->addressFactory->create();
         return $this->populateAddress($data, $address);
     }

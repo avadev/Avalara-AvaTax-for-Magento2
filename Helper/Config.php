@@ -111,6 +111,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME = 'tax/avatax/queue_failed_lifetime';
 
     const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
+
+    const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
     /**#@-*/
 
     /**#@+
@@ -207,6 +209,11 @@ class Config extends AbstractHelper
     protected $taxClassRepository = null;
 
     /**
+     * @var \Magento\Backend\Model\UrlInterface
+     */
+    protected $backendUrl;
+
+    /**
      * Class constructor
      *
      * @param Context $context
@@ -214,18 +221,21 @@ class Config extends AbstractHelper
      * @param ATConfigFactory $avaTaxConfigFactory
      * @param State $appState
      * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param \Magento\Backend\Model\UrlInterface $backendUrl
      */
     public function __construct(
         Context $context,
         ProductMetadataInterface $magentoProductMetadata,
         ATConfigFactory $avaTaxConfigFactory,
         State $appState,
-        TaxClassRepositoryInterface $taxClassRepository
+        TaxClassRepositoryInterface $taxClassRepository,
+        \Magento\Backend\Model\UrlInterface $backendUrl
     ) {
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
+        $this->backendUrl = $backendUrl;
         parent::__construct($context);
         $this->createAvaTaxProfile();
     }
@@ -648,7 +658,8 @@ class Config extends AbstractHelper
         if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
             return __(
                 $this->getErrorActionDisableCheckoutMessageBackend($store),
-                $this->_urlBuilder->getUrl('avatax/log')
+                $this->backendUrl->getUrl('admin/system_config/edit', ['section' => 'tax']),
+                $this->backendUrl->getUrl('avatax/log')
             );
         } else {
             return __($this->getErrorActionDisableCheckoutMessageFrontend($store));
@@ -919,5 +930,10 @@ class Config extends AbstractHelper
     public function getQueueFailureNotificationEnabled()
     {
         return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME);
+    }
+
+    public function isNativeTaxRulesIgnored()
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES);
     }
 }
