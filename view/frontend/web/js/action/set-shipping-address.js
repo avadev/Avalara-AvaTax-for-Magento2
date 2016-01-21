@@ -28,9 +28,9 @@ define(
             var payload;
 
             if (validSelected) {
-                updateAddress(addressModel.validAddress());
+                updateAddress(addressModel.validAddress(), false);
             } else {
-                updateAddress(addressModel.originalAddress());
+                updateAddress(addressModel.originalAddress(), false);
             }
 
             payload = {
