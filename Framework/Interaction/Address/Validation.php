@@ -30,6 +30,11 @@ class Validation
     protected $validateRequestFactory = null;
 
     /**
+     * Error message to use when response does not contain error messages
+     */
+    const GENERIC_VALIDATION_MESSAGE = 'An unknown address validation error occurred';
+
+    /**
      * @param Address $interactionAddress
      * @param AddressService $addressService
      * @param ValidateRequestFactory $validateRequestFactory
@@ -93,7 +98,11 @@ class Validation
 
             return $validAddress;
         } else {
-            throw new AddressValidateException(__($validateResult->getMessages()[0]->getSummary()));
+            $firstMessage = array_shift($validateResult->getMessages());
+            $message = $firstMessage instanceof \AvaTax\Message
+                ? $firstMessage->getSummary()
+                : self::GENERIC_VALIDATION_MESSAGE;
+            throw new AddressValidateException(__($message));
         }
     }
 }
