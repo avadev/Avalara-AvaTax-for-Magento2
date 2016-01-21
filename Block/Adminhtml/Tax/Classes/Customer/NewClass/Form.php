@@ -26,7 +26,7 @@ class Form extends Base\NewClass\Form
             [
                 'name' => 'avatax_code',
                 'label' => __('AvaTax Customer Usage Type'),
-                'note' => 'Optional. The AvaTax <strong>Customer Usage Type</strong> (or <strong>Entity Use Code</strong>). Refer to the AvaTax documentation for more information.',
+                'note' => __('Optional. The AvaTax <strong>Customer Usage Type</strong> (or <strong>Entity Use Code</strong>). Refer to the <a href="%1" target="_blank">AvaTax documentation</a> for more information.', 'https://help.avalara.com/kb/001/What_are_the_exemption_reasons_for_each_Entity_Use_Code_used_for_Avalara_AvaTax%3F'),
                 'values' => $this->avaTaxCustomerUsageType->toOptionArray()
             ]
         );
