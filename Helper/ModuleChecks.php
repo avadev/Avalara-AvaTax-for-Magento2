@@ -65,10 +65,10 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
         $errors = array();
         $errors = array_merge(
             $errors,
-            $this->checkOriginAddress(),
-            $this->checkNativeTaxRules(),
             $this->checkSoapSupport(),
-            $this->checkSslSupport()
+            $this->checkSslSupport(),
+            $this->checkOriginAddress(),
+            $this->checkNativeTaxRules()
         );
 
         return $errors;

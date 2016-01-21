@@ -127,6 +127,12 @@ class ConfigSaveObserver implements ObserverInterface
                 foreach ($result->getMessages() as $messages) {
                     $message .= $messages->getName() . ': ' . $messages->getSummary() . "\n";
                 }
+            } elseif (is_object($result) && $result->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+                $this->messageManager->addSuccess(
+                    __('Successfully connected to AvaTax using the '
+                        . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>', $type
+                    )
+                );
             }
         } catch (\Exception $exception) {
             $message = $exception->getMessage();
