@@ -74,6 +74,11 @@ class ShippingInformationManagement
     protected $coreRegistry;
 
     /**
+     * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
+     */
+    protected $avaTaxLogger;
+
+    /**
      * ShippingInformationManagement constructor
      *
      * @param ValidationInteraction $validationInteraction
@@ -86,6 +91,7 @@ class ShippingInformationManagement
      * @param Mapper $addressMapper
      * @param Config $config
      * @param \Magento\Framework\Registry $coreRegistry
+     * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      */
     public function __construct(
         ValidationInteraction $validationInteraction,
@@ -97,7 +103,8 @@ class ShippingInformationManagement
         Copy $objectCopyService,
         Mapper $addressMapper,
         Config $config,
-        \Magento\Framework\Registry $coreRegistry
+        \Magento\Framework\Registry $coreRegistry,
+        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
     ) {
         $this->validationInteraction = $validationInteraction;
         $this->addressInteraction = $addressInteraction;
@@ -109,6 +116,7 @@ class ShippingInformationManagement
         $this->addressMapper = $addressMapper;
         $this->config = $config;
         $this->coreRegistry = $coreRegistry;
+        $this->avaTaxLogger = $avaTaxLogger;
     }
 
     public function aroundSaveAddressInformation(
@@ -161,11 +169,15 @@ class ShippingInformationManagement
         if ($shouldValidateAddress) {
             try {
                 $validAddress = $this->validationInteraction->validateAddress($shippingAddress);
-            } catch (AddressValidateException $e) {
-                $errorMessage = $e->getMessage();
             } catch (\SoapFault $e) {
                 // If there is a SoapFault, it will have already been logged, so just disable address validation, as we
                 // don't want to display SoapFault error message to user
+                $shouldValidateAddress = false;
+            } catch (\Exception $e) {
+                $this->avaTaxLogger->error(
+                    'Error in validating address in aroundSaveAddressInformation: ' . $e->getMessage()
+                );
+                // Continue without address validation
                 $shouldValidateAddress = false;
             }
         }
@@ -177,17 +189,32 @@ class ShippingInformationManagement
             $quoteAddress = $shippingAddress;
         }
 
-        if ($customerAddressId) {
-            // Update the customer address
-            $customerAddress = $this->customerAddressRepository->getById($customerAddressId);
-            $mergedCustomerAddress = $this->addressInteraction->copyQuoteAddressToCustomerAddress(
-                $quoteAddress,
-                $customerAddress
-            );
-            $this->customerAddressRepository->save($mergedCustomerAddress);
-        } else {
-            // Update the shipping address
-            $addressInformation->setShippingAddress($quoteAddress);
+        try {
+            /*
+             * Regardless of whether address was validated by AvaTax, if the address is a customer address then we need
+             * to save that address on the customer record. The reason for this is that when a user is on the "Review
+             * & Payments" step and they are selecting between "Valid" and "Original" address options, the selected
+             * address information is submitted to this API so that the customer address is updated and tax
+             * calculation is affected accordingly.
+             */
+            if ($customerAddressId) {
+                // Update the customer address
+                $customerAddress = $this->customerAddressRepository->getById($customerAddressId);
+                $mergedCustomerAddress = $this->addressInteraction->copyQuoteAddressToCustomerAddress(
+                    $quoteAddress,
+                    $customerAddress
+                );
+                $this->customerAddressRepository->save($mergedCustomerAddress);
+            } else {
+                // Update the shipping address
+                $addressInformation->setShippingAddress($quoteAddress);
+            }
+        } catch (\Exception $e) {
+            // There may be scenarios in which the above address updating may fail, in which case we should just do
+            // nothing
+            $this->avaTaxLogger->error('Error in saving address: ' . $e->getMessage());
+            // Continue without address validation
+            $shouldValidateAddress = false;
         }
 
         $returnValue = $proceed($cartId, $addressInformation);
