@@ -22,6 +22,7 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 
 /**
  * Class Tax
@@ -42,6 +43,11 @@ class Tax
      * @var \ClassyLlama\AvaTax\Helper\TaxClass
      */
     protected $taxClassHelper;
+
+    /**
+     * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
+     */
+    protected $avaTaxLogger;
 
     /**
      * @var MetaData\MetaDataObject
@@ -210,6 +216,7 @@ class Tax
      * @param Address $address
      * @param Config $config
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param TaxServiceSoapFactory $taxServiceSoapFactory
      * @param GetTaxRequestFactory $getTaxRequestFactory
@@ -229,6 +236,7 @@ class Tax
         Address $address,
         Config $config,
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
+        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
         MetaDataObjectFactory $metaDataObjectFactory,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
@@ -247,6 +255,7 @@ class Tax
         $this->address = $address;
         $this->config = $config;
         $this->taxClassHelper = $taxClassHelper;
+        $this->avaTaxLogger = $avaTaxLogger;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
@@ -470,7 +479,13 @@ class Tax
             $data
         );
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating data: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
 
         /** @var $getTaxRequest GetTaxRequest */
         $getTaxRequest = $this->getTaxRequestFactory->create();
@@ -595,7 +610,13 @@ class Tax
             $data
         );
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating data: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
 
         /** @var $getTaxRequest GetTaxRequest */
         $getTaxRequest = $this->getTaxRequestFactory->create();

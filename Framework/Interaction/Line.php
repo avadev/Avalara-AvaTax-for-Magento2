@@ -6,6 +6,7 @@ use AvaTax\LineFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 
 class Line
 {
@@ -18,6 +19,11 @@ class Line
      * @var \ClassyLlama\AvaTax\Helper\TaxClass
      */
     protected $taxClassHelper;
+
+    /**
+     * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
+     */
+    protected $avaTaxLogger;
 
     /**
      * @var LineFactory
@@ -107,6 +113,7 @@ class Line
      *
      * @param Config $config
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param LineFactory $lineFactory
      * @param ResourceProduct $resourceProduct
@@ -114,12 +121,14 @@ class Line
     public function __construct(
         Config $config,
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
+        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
         MetaDataObjectFactory $metaDataObjectFactory,
         LineFactory $lineFactory,
         ResourceProduct $resourceProduct
     ) {
         $this->config = $config;
         $this->taxClassHelper = $taxClassHelper;
+        $this->avaTaxLogger = $avaTaxLogger;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->lineFactory = $lineFactory;
         $this->resourceProduct = $resourceProduct;
@@ -271,7 +280,13 @@ class Line
             return null;
         }
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -312,7 +327,13 @@ class Line
             'Discounted' => false,
         ];
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -353,7 +374,13 @@ class Line
         ];
 
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -396,7 +423,13 @@ class Line
             'Discounted' => false,
         ];
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -435,7 +468,13 @@ class Line
             'Discounted' => false,
         ];
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -473,7 +512,13 @@ class Line
             'TaxIncluded' => true
         ];
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
@@ -508,7 +553,13 @@ class Line
             'TaxIncluded' => true
         ];
 
-        $data = $this->metaDataObject->validateData($data);
+        try {
+            $data = $this->metaDataObject->validateData($data);
+        } catch (ValidationException $e) {
+            $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
+                'data' => var_export($data, true)
+            ]);
+        }
         /** @var $line \AvaTax\Line */
         $line = $this->lineFactory->create();
 
