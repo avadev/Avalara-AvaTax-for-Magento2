@@ -1,4 +1,17 @@
 <?php
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\MetaData;
 
@@ -21,7 +34,6 @@ class ArrayType extends MetaDataAbstract
      * Valid for string and array types
      * Returns true if length is valid for this object type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param int $length
      * @return bool
      * @throws LocalizedException
@@ -45,7 +57,6 @@ class ArrayType extends MetaDataAbstract
      * Valid for integer, string, double (float)
      * Returns true if valid options is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param array $validOptions
      * @return boolean
      */
@@ -59,7 +70,6 @@ class ArrayType extends MetaDataAbstract
      * Valid only on array and object types
      * Returns true if children are valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param MetaDataObject $subtype
      * @return bool
      */
@@ -74,7 +84,6 @@ class ArrayType extends MetaDataAbstract
      * If your data can be converted to an array, please do so explicitly before passing in
      * because automated array conversion will not be attempted since it can have unexpected results.
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
      * @return mixed
      * @throws LocalizedException
@@ -116,7 +125,6 @@ class ArrayType extends MetaDataAbstract
     /**
      * Returns the the string version of this array
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $value
      * @return mixed
      */

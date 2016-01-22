@@ -1,14 +1,25 @@
 <?php
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
 
 namespace ClassyLlama\AvaTax\Block;
 
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\View\Element\Template\Context;
-use Magento\Framework\UrlInterface;
 
 class CustomerAddress extends \Magento\Framework\View\Element\Template
 {
-
     /**
      * Validate address path
      */
@@ -35,7 +46,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return string
      */
     public function getStoreCode() {
@@ -43,7 +53,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return mixed
      */
     public function isValidationEnabled() {
@@ -51,7 +60,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return mixed
      */
     public function getChoice() {
@@ -59,7 +67,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return string
      */
     public function getInstructions() {
@@ -75,7 +82,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return string
      */
     public function getErrorInstructions() {
@@ -83,7 +89,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return mixed
      */
     public function getCountriesEnabled() {
@@ -91,7 +96,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return string
      */
     public function getBaseUrl() {

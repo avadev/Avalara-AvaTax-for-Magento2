@@ -1,9 +1,16 @@
 <?php
 /**
- * @category    ClassyLlama
- * @package     AvaTax
- * @author      Matt Johnson <matt.johnson@classyllama.com>
- * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace ClassyLlama\AvaTax\Model\Logger;
@@ -54,7 +61,6 @@ class DbHandler extends AbstractHandler
     /**
      * Checking config a value, and conditionally adding extra processors to the handler
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $processors
      */
     protected function addExtraProcessors(array $processors) {
@@ -69,7 +75,6 @@ class DbHandler extends AbstractHandler
      *
      * Uses the admin configuration settings to determine if the record should be handled
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return Boolean
      */
@@ -99,7 +104,6 @@ class DbHandler extends AbstractHandler
     /**
      * Writes the log to the database by utilizing the Log model
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param $record array
      * @return void
      */
@@ -143,7 +147,6 @@ class DbHandler extends AbstractHandler
      * If the record contains a context key
      * export the variable contents and return it
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return string
      */
@@ -160,7 +163,6 @@ class DbHandler extends AbstractHandler
      * If the record contains a extra key in the context
      * export the variable contents, return it, and remove the element from the context array
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return string
      */
@@ -177,7 +179,6 @@ class DbHandler extends AbstractHandler
      * If the record contains a request key in the context
      * return it, and remove the element from the context array
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return string
      */
@@ -195,7 +196,6 @@ class DbHandler extends AbstractHandler
      * If the record contains a result key in the context
      * return it, and remove the element from the context array
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param array $record
      * @return string
      */

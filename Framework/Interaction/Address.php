@@ -1,4 +1,17 @@
 <?php
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
@@ -142,7 +155,6 @@ class Address
     /**
      * Get address service by type and cache instances by type to avoid duplicate instantiation
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param string $type
      * @return AddressServiceSoap
      */
@@ -166,7 +178,6 @@ class Address
      * Magento/CustomerCustomAttributes/etc/adminhtml/system.xml.  As a result not currently doing anything with this.
      * Likely no special consideration since the code is already sending all addresses (up to 3) to AvaTax if present.
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array
      * @return \AvaTax\Address
      * @throws LocalizedException
@@ -212,7 +223,6 @@ class Address
     /**
      * Converts Customer address into AvaTax compatible data array
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Customer\Api\Data\AddressInterface $address
      * @return array
      */
@@ -234,7 +244,6 @@ class Address
     /**
      * Converts Quote address into AvaTax compatible data array
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Quote\Api\Data\AddressInterface $address
      * @return array
      */
@@ -256,7 +265,6 @@ class Address
     /**
      * Converts Order address into AvaTax compatible data array
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Sales\Api\Data\OrderAddressInterface $address
      * @return array
      */
@@ -285,7 +293,6 @@ class Address
      * to be validated once. To do this, the quote address must be converted to a customer address so the validated
      * address can be saved to the quote address.
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param QuoteAddressInterface $quoteAddress
      * @param CustomerAddressInterface $customerAddress
      * @return null|CustomerAddressInterface
@@ -324,7 +331,6 @@ class Address
      * This method is necessary because a customer address does not have a getData() method to retrieve all the address
      * fields.
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param CustomerAddressInterface $customerAddress
      * @return array
      */
@@ -360,7 +366,6 @@ class Address
     /**
      * Convert ValidAddress to CustomerAddressInterface
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \AvaTax\ValidAddress $address
      * @param CustomerAddressInterface $originalAddress
      * @return null|CustomerAddressInterface
@@ -404,7 +409,6 @@ class Address
     /**
      * Convert ValidAddress to QuoteAddressInterface
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \AvaTax\ValidAddress $address
      * @param QuoteAddressInterface $originalAddress
      * @return QuoteAddressInterface
@@ -445,7 +449,6 @@ class Address
     /**
      * Return region code by id
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $regionId
      * @return string|null
      * @throws LocalizedException
@@ -472,7 +475,6 @@ class Address
     /**
      * Return region by code and if no region is found
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $regionCode
      * @return \Magento\Framework\DataObject|null
      */

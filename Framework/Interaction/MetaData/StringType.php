@@ -1,4 +1,17 @@
 <?php
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\MetaData;
 
@@ -19,7 +32,6 @@ class StringType extends MetaDataAbstract
     /**
      * Set length of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param int $length
      * @return boolean
      * @throws LocalizedException
@@ -43,7 +55,6 @@ class StringType extends MetaDataAbstract
      * Valid for string type
      * Returns true if format is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param string $format
      * @return bool
      * @throws LocalizedException
@@ -60,7 +71,6 @@ class StringType extends MetaDataAbstract
     /**
      * Pass in a value and get the validated value back
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
      * @return mixed
      * @throws ValidationException
@@ -78,7 +88,6 @@ class StringType extends MetaDataAbstract
     /**
      * Validate length and trim if necessary
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $value
      * @return string
      */
@@ -95,7 +104,6 @@ class StringType extends MetaDataAbstract
     /**
      * Validate format
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $value
      * @return mixed
      * @throws ValidationException
