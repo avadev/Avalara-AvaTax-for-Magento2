@@ -59,7 +59,7 @@ define([
             var self = this;
             var settings = {
                 validationEnabled: this.validationEnabled,
-                hasChoice: this.choice,
+                hasChoice: 1,
                 countriesEnabled: this.countriesEnabled,
                 errorInstructions: this.errorInstructions,
                 validationFormSelector: this.addressValidationFormSelector

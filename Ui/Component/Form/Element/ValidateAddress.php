@@ -94,7 +94,6 @@ class ValidateAddress extends AbstractComponent
         $store = $this->storeManager->getStore();
         $config['validationEnabled'] = $this->config->isAddressValidationEnabled($store);
         $hasChoice = $this->config->allowUserToChooseAddress($store);
-        $config['choice'] = $hasChoice;
         if ($hasChoice) {
             $instructions = $this->config->getAddressValidationInstructionsWithChoice($store);
         } else {

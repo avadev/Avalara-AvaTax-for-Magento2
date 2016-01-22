@@ -247,7 +247,7 @@
                 <field id="address_validation_user_has_choice" translate="label comment" type="select" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Allow User To Choose Original (Invalid) Address</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Set this to <strong>Yes</strong> to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to <strong>No</strong>, user will be required to use the validated address or update their original address.]]></comment>
+                    <comment><![CDATA[Set this to <strong>Yes</strong> to allow the user to choose between the the original and validated addresses (valid address will be selected by default). If set to <strong>No</strong>, user will be required to use the validated address or update their original address. This setting is ignored in the backend and the user will always have a choice.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation_enabled">1</field>

@@ -15,6 +15,7 @@ define([
             template: 'ClassyLlama_AvaTax/form/element/adminValidateAddress'
         },
         baseTemplate: 'ClassyLlama_AvaTax/baseValidateAddress',
+        choice: 1,
 
         initialize: function () {
             this._super()
