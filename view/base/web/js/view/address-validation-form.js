@@ -178,37 +178,31 @@ define(
             },
 
             updateFormFields: function (form) {
-                $(form).find("input[name*='street']").each(function (index) {
+                var field = 'street';
+                $(form).find("input[name*=" + field + "]").each(function (index) {
                     var street;
-                    if (index < addressModel.selectedAddress().street.length) {
-                        street = $(form).find("input[name*='street']").eq(index);
+                    if (index < addressModel.selectedAddress()[field].length) {
+                        street = $(form).find("input[name*=" + field + "]").eq(index);
                     } else {
-                        street = $(form).find("input[name*='street']").eq(index).attr('value', '');
+                        street = $(form).find("input[name*=" + field + "]").eq(index).attr('value', '');
                     }
 
-                    if (street.val() !== addressModel.selectedAddress().street[index]) {
-                        $(street).attr('value', addressModel.selectedAddress().street[index]).trigger('change');
+                    if (street.val() !== addressModel.selectedAddress()[field][index]) {
+                        $(street).attr('value', addressModel.selectedAddress()[field][index]).trigger('change');
                     }
                 });
 
-                var region = $(form).find("input[name*='region']");
-                if (region.val() !== addressModel.selectedAddress().region) {
-                    $(region).attr('value', addressModel.selectedAddress().region).trigger('change');
-                }
+                this.updateFieldValue(form, 'city');
+                this.updateFieldValue(form, 'region');
+                this.updateFieldValue(form, 'region_id');
+                this.updateFieldValue(form, 'country_id');
+                this.updateFieldValue(form, 'postcode');
+            },
 
-                var region_id = $(form).find("*:input[name*='region_id']");
-                if (region_id.val() !== addressModel.selectedAddress().region_id) {
-                    $(region_id).attr('value', addressModel.selectedAddress().region_id).trigger('change');
-                }
-
-                var country_id = $(form).find("*:input[name*='country_id']");
-                if (country_id.val() !== addressModel.selectedAddress().country_id) {
-                    $(country_id).attr('value', addressModel.selectedAddress().country_id).trigger('change');
-                }
-
-                var postcode = $(form).find("input[name*='postcode']");
-                if (postcode.val() !== addressModel.selectedAddress().postcode) {
-                    $(postcode).attr('value', addressModel.selectedAddress().postcode).trigger('change');
+            updateFieldValue: function (form, field) {
+                var fieldElement = $(form).find("input[name*=" + field + "]");
+                if (fieldElement.val() !== addressModel.selectedAddress()[field]) {
+                    $(fieldElement).attr('value', addressModel.selectedAddress()[field]).trigger('change');
                 }
             },
 

@@ -42,7 +42,7 @@ define(
                     $(this.options.validateAddressContainerSelector + ' *').fadeIn();
                     this.toggleAddressToUse();
                     if (typeof response.extension_attributes.valid_address !== 'undefined') {
-                        updateAddress(response.extension_attributes.valid_address);
+                        updateAddress(response.extension_attributes.valid_address, true);
                         addressModel.validAddress(response.extension_attributes.valid_address);
                     }
                     addressModel.originalAddress(response.extension_attributes.original_address);

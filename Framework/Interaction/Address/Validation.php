@@ -109,7 +109,8 @@ class Validation
 
             return $validAddress;
         } else {
-            $firstMessage = array_shift($validateResult->getMessages());
+            $messages = $validateResult->getMessages();
+            $firstMessage = array_shift($messages);
             $message = $firstMessage instanceof \AvaTax\Message
                 ? $firstMessage->getSummary()
                 : self::GENERIC_VALIDATION_MESSAGE;
