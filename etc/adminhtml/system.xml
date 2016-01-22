@@ -19,7 +19,7 @@
         <section id="tax">
             <group id="avatax" translate="label" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax Settings</label>
-                <comment><![CDATA[For complete and up-to-date documentation, please visit <a href="http://www.classyllama.com/documentation/extensions/avatax-magento-2" target="_blank">www.classyllama.com/documentation/extensions/avatax-magento-2</a>.</p>
+                <comment><![CDATA[For complete and up-to-date documentation, please visit <a href="http://www.classyllama.com/documentation/extensions/avatax-magento-2-module" target="_blank">www.classyllama.com/documentation/extensions/avatax-magento-2-module</a>.</p>
                     ]]></comment>
                 <field id="enabled" translate="label" type="select" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable AvaTax</label>
