@@ -179,7 +179,6 @@ class Get
     /**
      * Convert quote/order/invoice/creditmemo to the AvaTax object and request tax from the Get Tax API
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails

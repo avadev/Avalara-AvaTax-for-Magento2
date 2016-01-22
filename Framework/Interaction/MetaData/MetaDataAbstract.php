@@ -76,7 +76,6 @@ abstract class MetaDataAbstract
     /**
      * Get type of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getType()
@@ -87,7 +86,6 @@ abstract class MetaDataAbstract
     /**
      * Get length of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return int|null
      */
     public function getLength()
@@ -100,7 +98,6 @@ abstract class MetaDataAbstract
      * Valid for string and array types
      * Returns true if length is valid for this object type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param int $length
      * @return boolean
      */
@@ -112,7 +109,6 @@ abstract class MetaDataAbstract
     /**
      * Get whether this property is required
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return boolean
      */
     public function getRequired()
@@ -123,7 +119,6 @@ abstract class MetaDataAbstract
     /**
      * Set whether this property is required
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param boolean
      * @return boolean
      */
@@ -136,7 +131,6 @@ abstract class MetaDataAbstract
     /**
      * Get format of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getFormat()
@@ -149,7 +143,6 @@ abstract class MetaDataAbstract
      * Valid for string type
      * Returns true if format is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param string $format
      * @return boolean
      */
@@ -161,7 +154,6 @@ abstract class MetaDataAbstract
     /**
      * Get valid options of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return array
      */
     public function getOptions()
@@ -174,7 +166,6 @@ abstract class MetaDataAbstract
      * Valid for integer, string, double (float)
      * Returns true if valid options is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param array $validOptions
      * @return boolean
      * @throws LocalizedException
@@ -202,7 +193,6 @@ abstract class MetaDataAbstract
     /**
      * Get class of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getClass()
@@ -215,7 +205,6 @@ abstract class MetaDataAbstract
      * Valid only on object type
      * Returns true if class is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param string $class
      * @return boolean
      */
@@ -227,7 +216,6 @@ abstract class MetaDataAbstract
     /**
      * Get children metadata objects of this metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return MetaDataObject
      */
     public function getSubtype()
@@ -240,7 +228,6 @@ abstract class MetaDataAbstract
      * Valid only on array and object types
      * Returns true if children are valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param MetaDataObject $subtype
      * @return bool
      */
@@ -252,7 +239,6 @@ abstract class MetaDataAbstract
     /**
      * Get whether to use in cache key of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return boolean
      */
     public function getUseInCacheKey()
@@ -263,7 +249,6 @@ abstract class MetaDataAbstract
     /**
      * Set whether to use in cache key of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param boolean $useInCacheKey
      * @return boolean
      */
@@ -276,7 +261,6 @@ abstract class MetaDataAbstract
     /**
      * Get name of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getName()
@@ -287,7 +271,6 @@ abstract class MetaDataAbstract
     /**
      * Pass in a value and get the validated value back
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
      * @return mixed
      * @throws LocalizedException
@@ -300,7 +283,6 @@ abstract class MetaDataAbstract
     /**
      * Validate whether value is one of required options
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
      * @return mixed $value
      * @throws ValidationException
@@ -326,7 +308,6 @@ abstract class MetaDataAbstract
     /**
      * Validates type and converts it if can
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $value
      * @return mixed
      * @throws ValidationException
@@ -351,7 +332,6 @@ abstract class MetaDataAbstract
     /**
      * Returns the cacheable portion of the string version of this object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $value
      * @return mixed
      */

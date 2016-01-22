@@ -70,7 +70,6 @@ class TaxService
     /**
      * Cache validated response
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param GetTaxRequest $getTaxRequest
      * @return GetTaxResult
      * @throws LocalizedException
@@ -110,7 +109,6 @@ class TaxService
     /**
      * Create cache key by calling specified methods and concatenating and hashing
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $object
      * @return string
      * @throws LocalizedException
@@ -123,7 +121,6 @@ class TaxService
     /**
      * Pass all undefined method calls through to Tax Service
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $name
      * @param array $arguments
      * @return mixed

@@ -65,7 +65,6 @@ class Validation extends Action
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return \Magento\Customer\Api\Data\AddressInterface|string
      */
     public function execute()

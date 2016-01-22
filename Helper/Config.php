@@ -243,7 +243,6 @@ class Config extends AbstractHelper
     /**
      * Create a development profile and a production profile
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      */
     protected function createAvaTaxProfile()
     {
@@ -324,7 +323,6 @@ class Config extends AbstractHelper
     /**
      * Return origin address
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param null $store
      * @return array
      */
@@ -368,7 +366,6 @@ class Config extends AbstractHelper
     /**
      * Get Customer code format to pass to AvaTax API
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $store
      * @return mixed
      */
@@ -386,7 +383,6 @@ class Config extends AbstractHelper
      * Format: Magento 2.x Community - AvaTax 1.0.0
      * Limited to 50 characters to comply with API requirements
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     protected function getClientName()
@@ -402,7 +398,6 @@ class Config extends AbstractHelper
      *
      * Must be configured at default level as it is difficult to pass store in all contexts this is used
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return bool
      */
     public function getLiveMode()
@@ -415,7 +410,6 @@ class Config extends AbstractHelper
     /**
      * Get account number from config
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getAccountNumber()
@@ -426,7 +420,6 @@ class Config extends AbstractHelper
     /**
      * Get license key from config
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getLicenseKey()
@@ -437,7 +430,6 @@ class Config extends AbstractHelper
     /**
      * Get company code from config
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getCompanyCode()
@@ -448,7 +440,6 @@ class Config extends AbstractHelper
     /**
      * Get development account number from config
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getDevelopmentAccountNumber()
@@ -459,7 +450,6 @@ class Config extends AbstractHelper
     /**
      * Get development license key from config
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getDevelopmentLicenseKey()
@@ -470,7 +460,6 @@ class Config extends AbstractHelper
     /**
      * Get development company code from config
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getDevelopmentCompanyCode()
@@ -596,7 +585,6 @@ class Config extends AbstractHelper
     /**
      * Get ref1 configured attribute code
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getRef1Attribute()
@@ -607,7 +595,6 @@ class Config extends AbstractHelper
     /**
      * Get ref2 configured attribute code
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return string
      */
     public function getRef2Attribute()
@@ -618,7 +605,6 @@ class Config extends AbstractHelper
     /**
      * Get whether should use Business Identification Number (VAT)
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $store
      * @return string
      */
@@ -699,7 +685,6 @@ class Config extends AbstractHelper
     /**
      * Return if address validation is enabled
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param null $store
      * @return mixed
      */
@@ -715,7 +700,6 @@ class Config extends AbstractHelper
     /**
      * Returns if user is allowed to choose between the original address and the validated address
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param null $store
      * @return mixed
      */
@@ -731,7 +715,6 @@ class Config extends AbstractHelper
     /**
      * Instructions for the user if they have a choice between the original address and validated address
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param $store
      * @return string
      */
@@ -747,7 +730,6 @@ class Config extends AbstractHelper
     /**
      * Instructions for the user if they do not have a choice between the original address and the validated address
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param $store
      * @return string
      */
@@ -763,7 +745,6 @@ class Config extends AbstractHelper
     /**
      * Instructions for the user if there was an error in validating their address
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param $store
      * @return string
      */
@@ -779,7 +760,6 @@ class Config extends AbstractHelper
     /**
      * Returns which countries were enabled to validate the users address
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param $store
      * @return mixed
      */

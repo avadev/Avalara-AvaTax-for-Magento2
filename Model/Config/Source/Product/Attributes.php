@@ -51,7 +51,6 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
     /**
      * Returns attributes
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return \Magento\Catalog\Api\Data\ProductAttributeInterface[]
      */
     protected function getAttributes()

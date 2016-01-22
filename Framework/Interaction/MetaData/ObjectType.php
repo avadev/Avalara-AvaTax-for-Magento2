@@ -22,7 +22,6 @@ class ObjectType extends MetaDataAbstract
      * Valid for integer, string, double (float)
      * Returns true if valid options is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param array $validOptions
      * @return boolean
      */
@@ -36,7 +35,6 @@ class ObjectType extends MetaDataAbstract
      * Valid only on array and object types
      * Returns true if children are valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param MetaDataObject $subtype
      * @return bool
      */
@@ -51,7 +49,6 @@ class ObjectType extends MetaDataAbstract
      * Valid only on object type
      * Returns true if class is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param string $class
      * @return bool
      * @throws LocalizedException
@@ -69,7 +66,6 @@ class ObjectType extends MetaDataAbstract
     /**
      * Pass in a value and get the validated value back
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
      * @return mixed
      * @throws ValidationException
@@ -100,7 +96,6 @@ class ObjectType extends MetaDataAbstract
     /**
      * Returns the cacheable portion of the string version of this object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $value
      * @return mixed
      * @internal param $data

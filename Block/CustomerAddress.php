@@ -35,7 +35,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return string
      */
     public function getStoreCode() {
@@ -43,7 +42,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return mixed
      */
     public function isValidationEnabled() {
@@ -51,7 +49,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return mixed
      */
     public function getChoice() {
@@ -59,7 +56,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return string
      */
     public function getInstructions() {
@@ -75,7 +71,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return string
      */
     public function getErrorInstructions() {
@@ -83,7 +78,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return mixed
      */
     public function getCountriesEnabled() {
@@ -91,7 +85,6 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @return string
      */
     public function getBaseUrl() {

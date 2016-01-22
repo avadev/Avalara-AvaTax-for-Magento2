@@ -43,7 +43,6 @@ class Get extends Action\Action
     /**
      * Test various getTax types
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @return Controller\Result\Raw
      */
     public function execute()

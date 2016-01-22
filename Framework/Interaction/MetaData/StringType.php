@@ -19,7 +19,6 @@ class StringType extends MetaDataAbstract
     /**
      * Set length of metadata object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param int $length
      * @return boolean
      * @throws LocalizedException
@@ -43,7 +42,6 @@ class StringType extends MetaDataAbstract
      * Valid for string type
      * Returns true if format is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param string $format
      * @return bool
      * @throws LocalizedException
@@ -60,7 +58,6 @@ class StringType extends MetaDataAbstract
     /**
      * Pass in a value and get the validated value back
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
      * @return mixed
      * @throws ValidationException
@@ -78,7 +75,6 @@ class StringType extends MetaDataAbstract
     /**
      * Validate length and trim if necessary
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $value
      * @return string
      */
@@ -95,7 +91,6 @@ class StringType extends MetaDataAbstract
     /**
      * Validate format
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $value
      * @return mixed
      * @throws ValidationException

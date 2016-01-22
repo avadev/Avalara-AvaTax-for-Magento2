@@ -4,7 +4,6 @@
  *
  * @category    ClassyLlama
  * @package     AvaTax
- * @author      Erik Hansen <erik@classyllama.com>
  * @copyright   Copyright (c) 2015 Erik Hansen & Classy Llama Studios, LLC
  */
 

@@ -133,7 +133,6 @@ class MetaDataObject
     /**
      * Validates an array of values according to the initializing rules
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
      * @return array
      * @throws ValidationException
@@ -172,7 +171,6 @@ class MetaDataObject
     /**
      * Returns an hashed cache key representing a combination of all relevant data on the object as defined by metadata
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param array $data
      * @return string
      */
@@ -200,7 +198,6 @@ class MetaDataObject
     /**
      * Returns an hashed cache key representing a combination of all relevant data on the object as defined by metadata
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $object
      * @return string
      */

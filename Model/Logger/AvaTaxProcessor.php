@@ -2,7 +2,6 @@
 /**
  * @category    ClassyLlama
  * @package     AvaTax
- * @author      Matt Johnson <matt.johnson@classyllama.com>
  * @copyright   Copyright (c) 2016 Matt Johnson & Classy Llama Studios, LLC
  */
 
@@ -32,7 +31,6 @@ class AvaTaxProcessor
     /**
      * Retrieves the current Store ID from Magento and adds it to the record
      *
-     * @author Matt Johnson <matt.johnson@classyllama.com>
      * @param  array $record
      * @return array
      */

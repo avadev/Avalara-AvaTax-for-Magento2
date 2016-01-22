@@ -44,7 +44,6 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
      * because the config fields must be accessed from PHP, the most efficient method of setting the config node values
      * is with PHP as the following code does.
      *
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param array $jsLayout
      * @return array
      */

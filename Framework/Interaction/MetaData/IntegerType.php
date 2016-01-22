@@ -18,7 +18,6 @@ class IntegerType extends MetaDataAbstract
     /**
      * Pass in a value and get the validated value back
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
      * @return mixed
      * @throws ValidationException

@@ -255,7 +255,6 @@ class Line
     /**
      * Get tax line object
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $data
      * @return \AvaTax\Line|null|bool
      */

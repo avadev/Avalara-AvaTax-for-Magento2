@@ -275,7 +275,6 @@ class Tax
     /**
      * Get tax service by type and cache instances by type to avoid duplicate instantiation
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param null $type
      * @return TaxServiceSoap
      */
@@ -351,7 +350,6 @@ class Tax
     /**
      * Return the exchange rate between base currency and destination currency code
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $scope
      * @param string $baseCurrencyCode
      * @param string $convertCurrencyCode
@@ -373,7 +371,6 @@ class Tax
     /**
      * Convert Tax Quote Details into data to be converted to a GetTax Request
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @param \Magento\Quote\Api\Data\CartInterface $quote
@@ -675,7 +672,6 @@ class Tax
     }
 
     /**
-     * @author Nathan Toombs <nathan.toombs@classyllama.com>
      * @param $store
      * @param $address
      * @param \Magento\Customer\Api\Data\CustomerInterface|null $customer

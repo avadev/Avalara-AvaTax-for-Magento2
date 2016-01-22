@@ -20,7 +20,6 @@ class BooleanType extends MetaDataAbstract
      * Valid for integer, string, double (float)
      * Returns true if valid options is valid for this type and false if not
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param array $validOptions
      * @return boolean
      */
@@ -32,7 +31,6 @@ class BooleanType extends MetaDataAbstract
     /**
      * Pass in a value and get the validated value back
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param mixed $value
      * @return mixed
      * @throws ValidationException

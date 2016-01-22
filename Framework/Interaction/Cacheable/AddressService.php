@@ -57,7 +57,6 @@ class AddressService
     /**
      * Cache validated response
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param ValidateRequest $validateRequest
      * @return ValidateResult
      * @throws \SoapFault
@@ -114,7 +113,6 @@ class AddressService
     /**
      * Create cache key by calling specified methods and concatenating and hashing
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $object
      * @return string
      * @throws LocalizedException
@@ -127,7 +125,6 @@ class AddressService
     /**
      * Pass all undefined method calls through to AddressService
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param $name
      * @param array $arguments
      * @return mixed

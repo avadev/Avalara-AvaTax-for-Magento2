@@ -25,7 +25,6 @@ class Config
     /**
      * Append attributes to the list of attributes loaded on the quote_items collection
      *
-     * @author Jonathan Hodges <jonathan@classyllama.com>
      * @param QuoteConfig $config
      * @param $attributes
      * @return array
