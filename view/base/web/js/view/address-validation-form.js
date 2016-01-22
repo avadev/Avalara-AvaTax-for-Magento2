@@ -41,6 +41,7 @@ define(
             selectedAddressClass: 'selected',
             addressValidationFormSelector: '.validateAddressForm',
             validationForm: '#co-validate-form',
+            validateButton: '.validateButton',
 
             bindTemplate: function (containerSelector, config, templateName) {
                 var template = $("<div class='" + this.addressValidationFormSelector.replace('.', '') + "' data-bind=\"template: { name: '" + templateName + "', data: data }\"/>");
@@ -215,6 +216,17 @@ define(
                     }
                 }
                 return n;
+            },
+
+            validationMessage: function (form, message, isSuccessMessage) {
+                var validationMessageClass = 'admin__avatax-address-validation-message';
+                if ($(form).find("."+validationMessageClass).length > 0) {
+                    $(form).find("."+validationMessageClass).remove();
+                }
+                if (message != null) {
+                    var status = isSuccessMessage ? "success" : "error";
+                    $(form).find(this.validateButton).after('<span class="' + validationMessageClass + ' ' + status + '">' + $.mage.__(message) + '</span>');
+                }
             },
 
             reset: function (form) {
