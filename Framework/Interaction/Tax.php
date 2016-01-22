@@ -4,8 +4,9 @@
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Open Software License (OSL 3.0), a
- * copy of which is available through the world-wide-web at this URL:
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
  * @copyright  Copyright (c) 2016 Avalara, Inc.
@@ -577,6 +578,7 @@ class Tax
 
             $invoice = $this->getInvoice($object->getInvoiceId());
             // If a Creditmemo was generated for an invoice, use the created_at value from the invoice
+            // TODO: Implement same logic from M1 extension: All credit memos will use the date of the order's first invoice to calculate the amount of tax to refund.
             if ($invoice) {
                 $taxCalculationDate = $this->getFormattedDate($store, $invoice->getCreatedAt());
             } else {
