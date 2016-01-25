@@ -85,31 +85,36 @@ define([
                 var addressObject = $(form).serializeObject()['address'][addressId];
                 var inCountry = $.inArray(addressObject.country_id, settings.countriesEnabled.split(',')) >= 0;
                 if (inCountry) {
-                    addressModel.resetValues();
                     addressModel.originalAddress(addressObject);
                     $('body').trigger('processStart');
                     validateAddressRequest(this.baseUrl).done(function (response) {
                         addressModel.selectedAddress(addressModel.validAddress());
                         validationResponseHandler.validationResponseHandler(response, settings, form);
                         self.toggleAddressToUse(form);
-                        if (addressModel.isDifferent() && addressModel.error() == null) {
+                        if (addressModel.isDifferent && addressModel.error() == null) {
                             addressValidationForm.updateFormFields(form);
-                            addressValidationForm.validationMessage(form, "Success: This address has been validated.", true);
-                        } else if (!addressModel.isDifferent() && addressModel.error() != null) {
-                            addressValidationForm.validationMessage(form, "Error: This address could not be validated.", false);
                         }
                         jQuery('body').trigger('processStop');
                     }).fail(function () {
-                        addressValidationForm.validationMessage(form, "Error: The address could not be validated as entered. Please make sure all required fields have values and contain properly formatted values.", false);
+                        alert({
+                            title: $.mage.__('Error'),
+                            content: $.mage.__('The address could not be validated as entered. Please make sure all required fields have values and contain properly formatted values.')
+                        });
                         $('body').trigger('processStop');
                     });
                 } else {
                     $(form).find(this.addressValidationFormSelector).hide();
-                    addressValidationForm.validationMessage(form, "Error: Address validation is not enabled for the country you selected.", false);
+                    alert({
+                        title: $.mage.__('Error'),
+                        content: $.mage.__('Address validation is not enabled for the country you selected.')
+                    });
                 }
             } else {
                 $(form).find(this.addressValidationFormSelector).hide();
-                addressValidationForm.validationMessage(form, "Error: Please fix the form validation errors and try again.", false);
+                alert({
+                    title: $.mage.__('Error'),
+                    content: $.mage.__('Please fix the form validation errors above and try again.')
+                });
             }
         },
 

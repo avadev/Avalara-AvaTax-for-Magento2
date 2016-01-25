@@ -37,7 +37,10 @@ define(
                     }
                     addressValidationForm.fillValidateForm(form, settings);
                     if (addressModel.error() == null && !addressModel.isDifferent()) {
-                        addressValidationForm.validationMessage(form, "Success: This address is already valid.", true);
+                        alert({
+                            title: $.mage.__('Success'),
+                            content: $.mage.__('This address is already valid.')
+                        });
                     }
                 }
             }
