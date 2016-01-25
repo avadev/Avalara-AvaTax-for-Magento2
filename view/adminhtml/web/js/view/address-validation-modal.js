@@ -77,7 +77,8 @@ define([
                         this.closeModal();
                     }
                 }
-            ]
+            ],
+            hasChoice: 1
         },
         validationButtonContainer: ".validateAddressButton",
         validationContainer: '.validationModal .modal-content > div',
