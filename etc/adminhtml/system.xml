@@ -66,7 +66,6 @@
                 </field>
                 <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>License Key (Production)</label>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
