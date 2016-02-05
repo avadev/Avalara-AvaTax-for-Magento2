@@ -134,9 +134,16 @@ class InvoiceResource
         /** @var \Magento\Sales\Model\Spi\InvoiceResourceInterface $resultEntity */
         $resultEntity = $proceed($entity);
 
+        /** @var \Magento\Sales\Model\Order $order */
+        $order = $entity->getOrder();
+        $isVirtual = $order->getIsVirtual();
+        $address = $isVirtual ? $entity->getBillingAddress() : $entity->getShippingAddress();
+        $storeId = $entity->getStoreId();
+
         // Queue the entity to be sent to AvaTax
         if ($this->avaTaxConfig->isModuleEnabled($entity->getStoreId())
             && $this->avaTaxConfig->getTaxMode($entity->getStoreId()) == Config::TAX_MODE_ESTIMATE_AND_SUBMIT
+            && $this->avaTaxConfig->isAddressTaxable($address, $storeId)
         ) {
 
             // Add this entity to the avatax processing queue if this is a new entity

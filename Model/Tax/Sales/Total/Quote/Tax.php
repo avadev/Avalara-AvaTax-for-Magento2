@@ -154,18 +154,22 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         ShippingAssignmentInterface $shippingAssignment,
         Address\Total $total
     ) {
+        // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
+        $address = $shippingAssignment->getShipping()->getAddress();
+
         $storeId = $quote->getStoreId();
         // This will allow a merchant to configure default tax settings for their site using Magento's core tax
         // calculation and AvaTax's calculation will only kick in during cart/checkout. This is useful for countries
         // where merchants are required to display prices including tax (such as some countries that charge VAT tax).
         if (!$this->config->isModuleEnabled($storeId)
             || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+            || !$this->config->isAddressTaxable($address, $storeId)
         ) {
             return parent::collect($quote, $shippingAssignment, $total);
         }
 
-        // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
-        $postcode = $shippingAssignment->getShipping()->getAddress()->getPostcode();
+
+        $postcode = $address->getPostcode();
         // If postcode is not present, then collect totals is being run from a context where customer has not submitted
         // their address, such as on the product listing, product detail, or cart page. Once the user enters their
         // postcode in the "Estimate Shipping & Tax" form on the cart page, or submits their shipping address in the
@@ -299,6 +303,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $storeId = $item->getStore()->getId();
         if (!$this->config->isModuleEnabled($storeId)
             || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+            // While it would be idea to check $this->config->isAddressTaxable, we don't have the address in this
+            // scope, so it's not possible to do so. However since all this method is doing is adding extension
+            // attribute data, it's ok if this method runs even if tax is not being calculated for this item
         ) {
             return $quoteDetailsItem;
         }
@@ -396,6 +403,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $storeId = $item->getStore()->getId();
         if (!$this->config->isModuleEnabled($storeId)
             || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+            // While it would be idea to check $this->config->isAddressTaxable, we don't have the address in this
+            // scope, so it's not possible to do so. However since all this method is doing is adding extension
+            // attribute data, it's ok if this method runs even if tax is not being calculated for this item
         ) {
             return $itemDataObjects;
         }
@@ -440,6 +450,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $storeId = $address->getQuote()->getStore()->getId();
         if (!$this->config->isModuleEnabled($storeId)
             || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+            || !$this->config->isAddressTaxable($address, $storeId)
         ) {
             return $itemDataObjects;
         }
