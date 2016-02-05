@@ -56,8 +56,11 @@ class Shipping
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
         $storeId = $quote->getStoreId();
+        // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
+        $address = $shippingAssignment->getShipping()->getAddress();
         if (!$this->config->isModuleEnabled($storeId)
             || $this->config->getTaxMode($storeId) == Config::TAX_MODE_NO_ESTIMATE_OR_SUBMIT
+            || !$this->config->isAddressTaxable($address, $storeId)
         ) {
             return $proceed($quote, $shippingAssignment, $total);
         }

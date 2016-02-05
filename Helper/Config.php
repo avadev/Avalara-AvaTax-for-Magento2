@@ -41,6 +41,12 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_COMMIT_SUBMITTED_TRANSACTIONS = 'tax/avatax/commit_submitted_transactions';
 
+    const XML_PATH_AVATAX_TAX_CALCULATION_COUNTRIES_ENABLED = 'tax/avatax/tax_calculation_countries_enabled';
+
+    const XML_PATH_AVATAX_FILTER_TAX_BY_REGION = 'tax/avatax/filter_tax_by_region';
+
+    const XML_PATH_AVATAX_REGION_FILTER_LIST = 'tax/avatax/region_filter_list';
+
     const XML_PATH_AVATAX_LIVE_MODE = 'tax/avatax/live_mode';
 
     const XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER = 'tax/avatax/production_account_number';
@@ -125,6 +131,11 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
     /**#@-*/
+
+    /**
+     * List of countries that are enabled by default
+     */
+    const TAX_CALCULATION_COUNTRIES_DEFAULT = ['US', 'CA'];
 
     /**#@+
      * Customer Code Format Options
@@ -329,6 +340,74 @@ class Config extends AbstractHelper
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * @param $store
+     * @param $scopeType
+     * @return mixed
+     */
+    public function getTaxCalculationCountriesEnabled($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_TAX_CALCULATION_COUNTRIES_ENABLED,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * @param $store
+     * @return mixed
+     */
+    protected function getFilterTaxByRegion($store)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_FILTER_TAX_BY_REGION,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * @param $store
+     * @return mixed
+     */
+    protected function getRegionFilterList($store)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_REGION_FILTER_LIST,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Determine whether address is taxable, based on either country or region
+     *
+     * @param \Magento\Framework\DataObject $address
+     * @param $storeId
+     * @return bool
+     */
+    public function isAddressTaxable(\Magento\Framework\DataObject $address, $storeId)
+    {
+        $isTaxable = true;
+        // Filtering just by country (not region)
+        if (!$this->getFilterTaxByRegion($storeId)) {
+            $countryFilters = explode(',', $this->getTaxCalculationCountriesEnabled($storeId));
+            $countryId = $address->getCountryId();
+            if (!in_array($countryId, $countryFilters)) {
+                $isTaxable = false;
+            }
+        // Filtering by region within countries
+        } else {
+            $regionFilters = explode(',', $this->getRegionFilterList($storeId));
+            $entityId = $address->getRegionId() ?: $address->getCountryId();
+            if (!in_array($entityId, $regionFilters)) {
+                $isTaxable = false;
+            }
+        }
+        return $isTaxable;
     }
 
     /**

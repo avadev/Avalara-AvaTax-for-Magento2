@@ -15,21 +15,14 @@
 
 namespace ClassyLlama\AvaTax\Model\Config\Source;
 
-use Magento\Framework\Option\ArrayInterface;
-
-class LogFileMode implements ArrayInterface
+class TaxCalculationCountries extends \Magento\Directory\Model\Config\Source\Country
 {
-    const COMBINED = 1;
-    const SEPARATE = 2;
-
     /**
      * @return array
      */
     public function toOptionArray()
     {
-        return [
-            ['value' => self::COMBINED, 'label' => __('Combined With Magento Log Files')],
-            ['value' => self::SEPARATE, 'label' => __('Separate AvaTax Log File')],
-        ];
+        // Make US and CA show at top of list
+        return parent::toOptionArray(true, \ClassyLlama\AvaTax\Helper\Config::TAX_CALCULATION_COUNTRIES_DEFAULT);
     }
 }
