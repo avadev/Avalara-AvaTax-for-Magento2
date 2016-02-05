@@ -28,8 +28,8 @@ class LogFileMode implements ArrayInterface
     public function toOptionArray()
     {
         return [
-            ['value' => 1, 'label' => __('Combined With Magento Log Files')],
-            ['value' => 2, 'label' => __('Separate AvaTax Log File')],
+            ['value' => self::COMBINED, 'label' => __('Combined With Magento Log Files')],
+            ['value' => self::SEPARATE, 'label' => __('Separate AvaTax Log File')],
         ];
     }
 }
