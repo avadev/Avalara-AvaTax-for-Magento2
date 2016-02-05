@@ -1,3 +1,8 @@
+### 0.1.7 (2016-02-05)
+
+* Add ability to filter tax calculation by country or region
+* Fix compilation error
+
 ### 0.1.6 (2016-02-03)
 
 * Fix access when using production credentials
