@@ -25,6 +25,14 @@
                     <label>Enable AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="tax_settings_header" translate="label" type="label" sortOrder="1001" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Tax Calculation Settings</strong>]]></label>
+                    <!-- Reference: https://github.com/magento/magento2/issues/2340
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    -->
+                </field>
                 <field id="tax_mode" translate="label" type="select" sortOrder="1002" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Tax Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxMode</source_model>
@@ -40,6 +48,35 @@
                     <depends>
                         <field id="enabled">1</field>
                         <field id="tax_mode">3</field>
+                    </depends>
+                </field>
+                <field id="tax_calculation_countries_enabled" translate="label comment" type="multiselect" sortOrder="1005" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Taxable Countries</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxCalculationCountries</source_model>
+                    <!--<source_model>Magento\Directory\Model\Config\Source\Country</source_model>-->
+                    <comment><![CDATA[Select which countries to enable for tax calculation (address verification countries are <a href="#row_tax_avatax_address_validation_header">configured below</a>).]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="tax_mode" negative="1">1</field>
+                    </depends>
+                </field>
+                <field id="filter_tax_by_region" translate="label" type="select" sortOrder="1006" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Filter Tax Calculation By Region</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so, as filtering tax calculation by region may complicate report reconciliation. Non-nexus tax requests are not counted as billable transactions, so filtering by region does not reduce costs.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="tax_mode" negative="1">1</field>
+                    </depends>
+                </field>
+                <field id="region_filter_list" translate="label" type="multiselect" sortOrder="1007" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled Regions</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\RegionFilterList</source_model>
+                    <comment><![CDATA[Select regions where you want AvaTax tax calculation to apply. Unselected regions will use native Magento tax calculation. If you change the selection of the <strong>Taxable Countries</strong> field, you must save this page for this region list to update.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="tax_mode" negative="1">1</field>
+                        <field id="filter_tax_by_region">1</field>
                     </depends>
                 </field>
                 <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="0" showInStore="0">
@@ -66,7 +103,6 @@
                 </field>
                 <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>License Key (Production)</label>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

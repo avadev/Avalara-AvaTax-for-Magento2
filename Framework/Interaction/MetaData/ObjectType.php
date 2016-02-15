@@ -15,7 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\MetaData;
 
-use Magento\Framework\Config\Dom\ValidationException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 
