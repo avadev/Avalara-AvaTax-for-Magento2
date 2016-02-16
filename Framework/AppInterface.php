@@ -18,7 +18,7 @@ namespace ClassyLlama\AvaTax\Framework;
 interface AppInterface
 {
     /**
-     * If this is updated it must also be updated in etc/module.xml in the config->module@setup_version attribute
+     * If this is updated it must also be updated in etc/module.xml in the config->module@setup_version attribute and and composer.json
      */
-    const APP_VERSION = '0.1.4';
+    const APP_VERSION = '0.1.8';
 }

@@ -1,3 +1,8 @@
+### 0.1.8 (2016-02-15)
+
+* Change UPC logic to send UPC in ItemCode field
+* Add readme for integration tests
+
 ### 0.1.7 (2016-02-05)
 
 * Add ability to filter tax calculation by country or region
