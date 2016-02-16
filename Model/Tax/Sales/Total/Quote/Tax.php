@@ -317,7 +317,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 
         $product = $item->getProduct();
         $taxCode = $this->taxClassHelper->getAvataxTaxCodeForProduct($product);
-        $extensionAttribute->setAvataxItemCode($item->getSku());
+        $itemCode = $this->taxClassHelper->getItemCodeOverride($product);
+        if (!$itemCode) {
+            $itemCode = $item->getSku();
+        }
+        $extensionAttribute->setAvataxItemCode($itemCode);
         $extensionAttribute->setAvataxTaxCode($taxCode);
         $extensionAttribute->setAvataxDescription($item->getName());
         $extensionAttribute->setAvataxRef1($this->taxClassHelper->getRef1ForProduct($product));

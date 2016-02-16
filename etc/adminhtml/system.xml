@@ -184,9 +184,9 @@
                     </depends>
                 </field>
                 <field id="upc_attribute" translate="label comment" type="select" sortOrder="3020" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>UPC Attribute To Use As Tax Code</label>
+                    <label>UPC Attribute To Use As Item Code</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
-                    <comment><![CDATA[Optional. The standard way to map Magento products to AvaTax Tax Codes is by using the <strong>STORES > Product Tax Classes</strong> page to create Magento Tax Classes that you then assign to products. However if you want to use a UPC product attribute as the AvaTax Tax Code, select which attribute above maps to your UPC attribute. If a UPC attribute is present on a product, it will be used as the AvaTax Tax Code. Otherwise the value will be determined by its Magento Tax Class.]]></comment>
+                    <comment><![CDATA[Optional. By default, this extension sends the Magento product SKU to the AvaTax <strong>ItemCode</strong> field. However if you want to use a UPC product attribute as the AvaTax ItemCode, select which attribute above maps to your UPC attribute. If a UPC attribute is present on a product, it will be used as the AvaTax ItemCode and will be prepended with "UPC: ". Otherwise the product's SKU will be sent. Sending the UPC in the ItemCode field will allow you to bypass the Avalara Tax Code selection and mapping in your product record. The UPC, when sent in the ItemCode field, maps directly to the Avalara Product Tax Code so you don’t have to map those codes separately.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

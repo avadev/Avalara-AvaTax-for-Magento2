@@ -28,6 +28,8 @@ class TaxClass
      */
     const SHIPPING_LINE_AVATAX_TAX_CODE = 'FR020100';
 
+    const UPC_FORMAT = 'UPC: %s';
+
     /**
      * Gift wrapping tax class
      *
@@ -99,10 +101,24 @@ class TaxClass
      */
     public function getAvataxTaxCodeForProduct(\Magento\Catalog\Model\Product $product)
     {
-        if ($this->config->getUpcAttribute() && $product->getData($this->config->getUpcAttribute())) {
-            return $product->getData($this->config->getUpcAttribute());
-        }
         return $this->getAvaTaxTaxCode($product->getTaxClassId());
+    }
+
+    /**
+     * Get AvaTax ItemCode for product if UPC is configured and product contains UPC
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return null|string
+     */
+    public function getItemCodeOverride(\Magento\Catalog\Model\Product $product)
+    {
+        if ($this->config->getUpcAttribute() && $product->getData($this->config->getUpcAttribute())) {
+            $upcCode = $product->getData($this->config->getUpcAttribute());
+            if ($upcCode) {
+                return sprintf(self::UPC_FORMAT, $upcCode);
+            }
+        }
+        return null;
     }
 
     /**

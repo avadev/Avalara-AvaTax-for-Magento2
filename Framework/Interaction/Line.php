@@ -168,10 +168,15 @@ class Line
         }
         $product = $item->getOrderItem()->getProduct();
 
+        $itemCode = $this->taxClassHelper->getItemCodeOverride($product);
+        if (!$itemCode) {
+            $itemCode = $item->getSku();
+        }
+
         return [
             'StoreId' => $item->getStoreId(),
             'No' => $this->getLineNumber(),
-            'ItemCode' => $item->getSku(),
+            'ItemCode' => $itemCode,
             'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product),
             'Description' => $item->getName(),
             'Qty' => $item->getQty(),
@@ -208,10 +213,15 @@ class Line
 
         $product = $item->getOrderItem()->getProduct();
 
+        $itemCode = $this->taxClassHelper->getItemCodeOverride($product);
+        if (!$itemCode) {
+            $itemCode = $item->getSku();
+        }
+
         return [
             'StoreId' => $item->getStoreId(),
             'No' => $this->getLineNumber(),
-            'ItemCode' => $item->getSku(),
+            'ItemCode' => $itemCode,
             'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product),
             'Description' => $item->getName(),
             'Qty' => $item->getQty(),
