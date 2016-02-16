@@ -13,7 +13,7 @@
  */
 define([
     'jquery',
-    'Magento_UI/js/form/element/abstract'
+    'Magento_Ui/js/form/element/abstract'
 ], function (
     $,
     Abstract
