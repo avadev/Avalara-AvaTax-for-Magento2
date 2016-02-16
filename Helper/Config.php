@@ -537,11 +537,16 @@ class Config extends AbstractHelper
     /**
      * Get company code from config
      *
+     * @param $store
      * @return string
      */
-    public function getCompanyCode()
+    public function getCompanyCode($store)
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE);
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**
@@ -579,11 +584,16 @@ class Config extends AbstractHelper
     /**
      * Get development company code from config
      *
+     * @param $store
      * @return string
      */
-    public function getDevelopmentCompanyCode()
+    public function getDevelopmentCompanyCode($store)
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE);
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**

@@ -107,7 +107,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Company Code (Production)</label>
                     <frontend_class>validate-length maximum-length-25</frontend_class>
                     <comment>This can be found in your AvaTax Dashboard. This may be different from the actual company name.</comment>
@@ -127,7 +127,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Company Code (Development)</label>
                     <frontend_class>validate-length maximum-length-25</frontend_class>
                     <comment>This can be found in your AvaTax Dashboard. This may be different from the actual company name.</comment>

@@ -677,9 +677,9 @@ class Tax
 
         $storeId = $store->getId();
         if ($this->config->getLiveMode() == Config::API_PROFILE_NAME_PROD) {
-            $companyCode = $this->config->getCompanyCode();
+            $companyCode = $this->config->getCompanyCode($storeId);
         } else {
-            $companyCode = $this->config->getDevelopmentCompanyCode();
+            $companyCode = $this->config->getDevelopmentCompanyCode($storeId);
         }
         $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address, $customer);
         $locationCode = $this->config->getLocationCode($store);
