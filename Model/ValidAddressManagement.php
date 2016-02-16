@@ -43,11 +43,12 @@ class ValidAddressManagement implements ValidAddressManagementInterface
 
     /**
      * @param \Magento\Customer\Api\Data\AddressInterface $address
+     * @param $storeId
      * @return \Magento\Customer\Api\Data\AddressInterface|string
      */
-    public function saveValidAddress(AddressInterface $address) {
+    public function saveValidAddress(AddressInterface $address, $storeId) {
         try {
-            return $this->validationInteraction->validateAddress($address);
+            return $this->validationInteraction->validateAddress($address, $storeId);
         } catch (\SoapFault $e) {
             return 'Connection Error: ' . $e->getMessage();
         } catch (\Exception $e) {

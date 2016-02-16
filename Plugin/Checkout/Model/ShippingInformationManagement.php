@@ -181,7 +181,7 @@ class ShippingInformationManagement
 
         if ($shouldValidateAddress) {
             try {
-                $validAddress = $this->validationInteraction->validateAddress($shippingAddress);
+                $validAddress = $this->validationInteraction->validateAddress($shippingAddress, $storeId);
             } catch (AddressValidateException $e) {
                 $errorMessage = $e->getMessage();
             } catch (\SoapFault $e) {

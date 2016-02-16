@@ -70,10 +70,18 @@ class ConfigSaveObserver implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        /** @var \Magento\Store\Model\Store $store */
-        $store = $observer->getStore();
+        if ($observer->getStore()) {
+            $scopeId = $observer->getStore();
+            $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        } elseif ($observer->getWebsite()) {
+            $scopeId = $observer->getWebsite();
+            $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE;
+        } else {
+            $scopeId = \Magento\Store\Model\Store::DEFAULT_STORE_ID;
+            $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        }
 
-        foreach ($this->getErrors($store) as $error) {
+        foreach ($this->getErrors($scopeId, $scopeType) as $error) {
             $this->messageManager->addError($error);
         }
 
@@ -87,15 +95,16 @@ class ConfigSaveObserver implements ObserverInterface
     /**
      * Get all errors that should display when tax config is saved
      *
-     * @param $store
+     * @param $scopeId
+     * @param $scopeType
      * @return array
      */
-    protected function getErrors($store)
+    protected function getErrors($scopeId, $scopeType)
     {
         $errors = array();
         $errors = array_merge(
             $errors,
-            $this->sendPing($store)
+            $this->sendPing($scopeId, $scopeType)
         );
 
         return $errors;
@@ -123,20 +132,21 @@ class ConfigSaveObserver implements ObserverInterface
     /**
      * Ping AvaTax using configured live/production mode
      *
-     * @param $store
+     * @param $scopeId
+     * @param $scopeType
      * @return array
      */
-    protected function sendPing($store)
+    protected function sendPing($scopeId, $scopeType)
     {
         $errors = [];
-        if (!$this->config->isModuleEnabled($store)) {
+        if (!$this->config->isModuleEnabled($scopeId, $scopeType)) {
             return $errors;
         }
 
         $message = '';
         $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         try {
-            $result = $this->interactionTax->getTaxService($type)->ping();
+            $result = $this->interactionTax->getTaxService($type, $scopeId, $scopeType)->ping();
             if (is_object($result) && $result->getResultCode() != \AvaTax\SeverityLevel::$Success) {
                 foreach ($result->getMessages() as $messages) {
                     $message .= $messages->getName() . ': ' . $messages->getSummary() . "\n";

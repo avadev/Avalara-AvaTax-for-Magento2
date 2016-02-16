@@ -289,14 +289,20 @@ class Tax
      * Get tax service by type and cache instances by type to avoid duplicate instantiation
      *
      * @param null $type
+     * @param $storeId
+     * @param $scopeType
      * @return TaxServiceSoap
      */
-    public function getTaxService($type = null)
-    {
+    public function getTaxService(
+        $type = null,
+        $storeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    ) {
         if (is_null($type)) {
             $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         }
         if (!isset($this->taxServiceSoap[$type])) {
+            $this->config->createAvaTaxProfile($storeId, $scopeType);
             $this->taxServiceSoap[$type] =
                 $this->taxServiceSoapFactory->create(['configurationName' => $type]);
         }
@@ -671,9 +677,9 @@ class Tax
 
         $storeId = $store->getId();
         if ($this->config->getLiveMode() == Config::API_PROFILE_NAME_PROD) {
-            $companyCode = $this->config->getCompanyCode();
+            $companyCode = $this->config->getCompanyCode($storeId);
         } else {
-            $companyCode = $this->config->getDevelopmentCompanyCode();
+            $companyCode = $this->config->getDevelopmentCompanyCode($storeId);
         }
         $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address, $customer);
         $locationCode = $this->config->getLocationCode($store);

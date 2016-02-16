@@ -91,7 +91,7 @@ define([
                         addressModel.selectedAddress(addressModel.validAddress());
                         validationResponseHandler.validationResponseHandler(response, settings, form);
                         self.toggleAddressToUse(form);
-                        if (addressModel.isDifferent && addressModel.error() == null) {
+                        if (addressModel.isDifferent() && addressModel.error() == null) {
                             addressValidationForm.updateFormFields(form);
                         }
                         jQuery('body').trigger('processStop');

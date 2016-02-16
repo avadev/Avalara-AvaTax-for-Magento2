@@ -66,11 +66,12 @@ class Validation
      * Validate address using AvaTax Address Validation API
      *
      * @param array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
+     * @param $storeId
      * @return array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
      * @throws AddressValidateException
      * @throws LocalizedException
      */
-    public function validateAddress($addressInput)
+    public function validateAddress($addressInput, $storeId)
     {
         $returnCoordinates = 1;
         $validateRequest = $this->validateRequestFactory->create(
@@ -80,7 +81,7 @@ class Validation
                 'coordinates' => $returnCoordinates,
             ]
         );
-        $validateResult = $this->addressService->validate($validateRequest);
+        $validateResult = $this->addressService->validate($validateRequest, $storeId);
 
         if ($validateResult->getResultCode() == SeverityLevel::$Success) {
             $validAddresses = $validateResult->getValidAddresses();

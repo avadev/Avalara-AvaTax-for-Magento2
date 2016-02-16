@@ -105,7 +105,10 @@ class Validation extends Action
             '\Magento\Customer\Api\Data\AddressInterface'
         );
 
-        $addressValidationResponse = $this->validAddressManagement->saveValidAddress($addressDataObject);
+        $addressValidationResponse = $this->validAddressManagement->saveValidAddress(
+            $addressDataObject,
+            \Magento\Store\Model\Store::DEFAULT_STORE_ID
+        );
         $resultJson = $this->resultJsonFactory->create();
         if (!is_string($addressValidationResponse)) {
             $resultJson->setData([

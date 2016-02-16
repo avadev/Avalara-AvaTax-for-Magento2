@@ -1,3 +1,10 @@
+### 0.1.9 (2016-02-18)
+
+* Add ability to configure Account Number and License Key at store view scope
+* Add ability to configure Company Code at store view scope
+* Fix issue where certain SOAP exceptions were not being logged
+* Fix issue Address Validation bugs
+
 ### 0.1.8 (2016-02-15)
 
 * Change UPC logic to send UPC in ItemCode field

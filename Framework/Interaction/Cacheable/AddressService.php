@@ -71,12 +71,13 @@ class AddressService
      * Cache validated response
      *
      * @param ValidateRequest $validateRequest
+     * @param $storeId
      * @return ValidateResult
      * @throws \SoapFault
      */
-    public function validate(ValidateRequest $validateRequest)
+    public function validate(ValidateRequest $validateRequest, $storeId)
     {
-        $addressCacheKey = $this->getCacheKey($validateRequest->getAddress());
+        $addressCacheKey = $this->getCacheKey($validateRequest->getAddress()) . $storeId;
         $validateResult = @unserialize($this->cache->load($addressCacheKey));
 
         if ($validateResult instanceof ValidateResult) {
@@ -88,13 +89,13 @@ class AddressService
             return $validateResult;
         }
 
-        $addressService = $this->interactionAddress->getAddressService($this->type);
-        $validateResult = $addressService->validate($validateRequest);
-
-        $serializedValidateResult = serialize($validateResult);
-        $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
-
         try {
+            $addressService = $this->interactionAddress->getAddressService($this->type, $storeId);
+            $validateResult = $addressService->validate($validateRequest);
+
+            $serializedValidateResult = serialize($validateResult);
+            $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
+
             $validAddress =
                 isset($validateResult->getValidAddresses()[0]) ? $validateResult->getValidAddresses()[0] : null;
             $validAddressCacheKey = $this->getCacheKey($validAddress);

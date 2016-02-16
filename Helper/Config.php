@@ -259,55 +259,60 @@ class Config extends AbstractHelper
         $this->taxClassRepository = $taxClassRepository;
         $this->backendUrl = $backendUrl;
         parent::__construct($context);
-        $this->createAvaTaxProfile();
     }
 
     /**
-     * Create a development profile and a production profile
+     * Create a profile based on the store ID
      *
+     * @param $storeId
+     * @param $scopeType
      */
-    protected function createAvaTaxProfile()
+    public function createAvaTaxProfile($storeId, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        $this->avaTaxConfigFactory->create(
-            [
-                'name' => self::API_PROFILE_NAME_DEV,
-                'values' => [
-                    'url'       => self::API_URL_DEV,
-                    'account'   => $this->getDevelopmentAccountNumber(),
-                    'license'   => $this->getDevelopmentLicenseKey(),
-                    'trace'     => true,
-                    'client' => $this->getClientName(),
-                    'name' => self::API_PROFILE_NAME_DEV,
-                ],
-            ]
-        );
-
-        $this->avaTaxConfigFactory->create(
-            [
-                'name' => self::API_PROFILE_NAME_PROD,
-                'values' => [
-                    'url'       => self::API_URL_PROD,
-                    'account'   => $this->getAccountNumber(),
-                    'license'   => $this->getLicenseKey(),
-                    'trace'     => false,
-                    'client' => $this->getClientName(),
+        if ($this->getLiveMode()) {
+            $this->avaTaxConfigFactory->create(
+                [
                     'name' => self::API_PROFILE_NAME_PROD,
-                ],
-            ]
-        );
+                    'values' => [
+                        'url'       => self::API_URL_PROD,
+                        'account'   => $this->getAccountNumber($storeId, $scopeType),
+                        'license'   => $this->getLicenseKey($storeId, $scopeType),
+                        'trace'     => false,
+                        'client' => $this->getClientName(),
+                        'name' => self::API_PROFILE_NAME_PROD,
+                    ],
+                ]
+            );
+        } else {
+            $this->avaTaxConfigFactory->create(
+                [
+                    'name' => self::API_PROFILE_NAME_DEV,
+                    'values' => [
+                        'url'       => self::API_URL_DEV,
+                        'account'   => $this->getDevelopmentAccountNumber($storeId, $scopeType),
+                        'license'   => $this->getDevelopmentLicenseKey($storeId, $scopeType),
+                        'trace'     => true,
+                        'client' => $this->getClientName(),
+                        'name' => self::API_PROFILE_NAME_DEV,
+                    ],
+                ]
+            );
+        }
+
     }
 
     /**
      * Return whether module is enabled
      *
      * @param null $store
+     * @param $scopeType
      * @return mixed
      */
-    public function isModuleEnabled($store = null)
+    public function isModuleEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_MODULE_ENABLED,
-            ScopeInterface::SCOPE_STORE,
+            $scopeType,
             $store
         );
     }
@@ -500,61 +505,95 @@ class Config extends AbstractHelper
     /**
      * Get account number from config
      *
+     * @param $store
+     * @param $scopeType
      * @return string
      */
-    public function getAccountNumber()
+    public function getAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER);
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
+            $scopeType,
+            $store
+        );
     }
 
     /**
      * Get license key from config
      *
+     * @param $store
+     * @param $scopeType
      * @return string
      */
-    public function getLicenseKey()
+    public function getLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY);
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
+            $scopeType,
+            $store
+        );
     }
 
     /**
      * Get company code from config
      *
+     * @param $store
      * @return string
      */
-    public function getCompanyCode()
+    public function getCompanyCode($store)
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE);
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**
      * Get development account number from config
      *
+     * @param $store
+     * @param $scopeType
      * @return string
      */
-    public function getDevelopmentAccountNumber()
+    public function getDevelopmentAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER);
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
+            $scopeType,
+            $store
+        );
     }
 
     /**
      * Get development license key from config
      *
+     * @param $store
+     * @param $scopeType
      * @return string
      */
-    public function getDevelopmentLicenseKey()
+    public function getDevelopmentLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY);
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
+            $scopeType,
+            $store
+        );
     }
 
     /**
      * Get development company code from config
      *
+     * @param $store
      * @return string
      */
-    public function getDevelopmentCompanyCode()
+    public function getDevelopmentCompanyCode($store)
     {
-        return (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE);
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**

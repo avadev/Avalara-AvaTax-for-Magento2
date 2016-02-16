@@ -84,12 +84,14 @@ class TaxService
      * Cache validated response
      *
      * @param GetTaxRequest $getTaxRequest
+     * @param $storeId
+     * @param bool $useCache
      * @return GetTaxResult
      * @throws LocalizedException
      */
-    public function getTax(GetTaxRequest $getTaxRequest, $useCache = false)
+    public function getTax(GetTaxRequest $getTaxRequest, $storeId, $useCache = false)
     {
-        $cacheKey = $this->getCacheKey($getTaxRequest);
+        $cacheKey = $this->getCacheKey($getTaxRequest) . $storeId;
         $getTaxResult = @unserialize($this->cache->load($cacheKey));
 
         if ($getTaxResult instanceof GetTaxResult && $useCache) {
@@ -100,7 +102,7 @@ class TaxService
             return $getTaxResult;
         }
 
-        $getTaxResult = $this->taxInteraction->getTaxService($this->type)->getTax($getTaxRequest);
+        $getTaxResult = $this->taxInteraction->getTaxService($this->type, $storeId)->getTax($getTaxRequest);
         $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from SOAP.', [
             'request' => var_export($getTaxRequest, true),
             'result' => var_export($getTaxResult, true),
