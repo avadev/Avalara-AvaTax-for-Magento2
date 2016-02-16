@@ -89,13 +89,13 @@ class AddressService
             return $validateResult;
         }
 
-        $validateResult = $addressService->validate($validateRequest);
-            $addressService = $this->interactionAddress->getAddressService($this->type, $storeId);
-
-        $serializedValidateResult = serialize($validateResult);
-        $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
-
         try {
+            $addressService = $this->interactionAddress->getAddressService($this->type, $storeId);
+            $validateResult = $addressService->validate($validateRequest);
+
+            $serializedValidateResult = serialize($validateResult);
+            $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
+
             $validAddress =
                 isset($validateResult->getValidAddresses()[0]) ? $validateResult->getValidAddresses()[0] : null;
             $validAddressCacheKey = $this->getCacheKey($validAddress);
