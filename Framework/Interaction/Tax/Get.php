@@ -116,6 +116,7 @@ class Get
      */
     public function processSalesObject($object)
     {
+        $storeId = $object->getStoreId();
         $taxService = $this->taxService;
         try {
             /** @var $getTaxRequest GetTaxRequest */
@@ -145,7 +146,7 @@ class Get
         }
 
         try {
-            $getTaxResult = $taxService->getTax($getTaxRequest);
+            $getTaxResult = $taxService->getTax($getTaxRequest, $storeId);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
                 // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
                 $avataxTaxAmount = abs($getTaxResult->getTotalTax());
@@ -206,6 +207,7 @@ class Get
         \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
+        $storeId = $quote->getStoreId();
         $taxService = $this->taxService;
         try {
             // Total quantity of an item can be determined by multiplying parent * child quantity, so it's necessary
@@ -225,7 +227,7 @@ class Get
                 throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
             }
 
-            $getTaxResult = $taxService->getTax($getTaxRequest, true);
+            $getTaxResult = $taxService->getTax($getTaxRequest, $storeId, true);
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
 
                 $store = $quote->getStore();

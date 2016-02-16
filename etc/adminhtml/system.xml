@@ -87,7 +87,7 @@
                     </depends>
                     -->
                 </field>
-                <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mode</label>
                     <comment><![CDATA[The mode you select will determine whether the <strong>Production</strong> or <strong>Development</strong> credentials will be used. You will get your Account Number, License Key, and Company Code from your AvaTax representative. If <strong>Production</strong> is selected, then https://avatax.avalara.net will be used as the API url. If <strong>Development</strong> is selected, then https://development.avalara.net will be used as the API url.<br><br>When you save this page, if you have entered credentials below for the selected mode, the AvaTax API will be pinged to ensure the credentials are working.]]></comment>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
@@ -95,13 +95,13 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Account Number (Production)</label>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Production)</label>
                     <depends>
                         <field id="enabled">1</field>
@@ -115,13 +115,13 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Account Number (Development)</label>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="development_license_key" translate="label" type="text" sortOrder="1070" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="development_license_key" translate="label" type="text" sortOrder="1070" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Development)</label>
                     <depends>
                         <field id="enabled">1</field>
