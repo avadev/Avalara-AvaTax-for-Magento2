@@ -16,7 +16,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <!-- If the setup_version attribute is updated it must also be updated in the ClassyLlama\AvaTax\Framework\AppInterface::APP_VERSION constant and composer.json -->
-    <module name="ClassyLlama_AvaTax" setup_version="0.1.9">
+    <module name="ClassyLlama_AvaTax" setup_version="0.1.10">
         <sequence>
             <module name="Magento_Checkout"/>
             <module name="Magento_Customer"/>

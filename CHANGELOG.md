@@ -1,4 +1,8 @@
-### 0.1.9 (2016-02-18)
+### 0.1.10 (2016-02-17)
+
+* Fix DI compilation error
+
+### 0.1.9 (2016-02-16)
 
 * Add ability to configure Account Number and License Key at store view scope
 * Add ability to configure Company Code at store view scope
