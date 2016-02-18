@@ -42,9 +42,7 @@ class ValidAddressManagement implements ValidAddressManagementInterface
     }
 
     /**
-     * @param \Magento\Customer\Api\Data\AddressInterface $address
-     * @param $storeId
-     * @return \Magento\Customer\Api\Data\AddressInterface|string
+     * {@inheritDoc}
      */
     public function saveValidAddress(AddressInterface $address, $storeId) {
         try {
