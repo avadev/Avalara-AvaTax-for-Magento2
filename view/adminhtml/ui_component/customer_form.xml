@@ -24,6 +24,8 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/form/element/button</item>
+                    <!-- Display beneath any custom attributes added by Magento_CustomerCustomAttributes (EE only) -->
+                    <item name="sortOrder" xsi:type="string">10000</item>
                 </item>
             </argument>
         </container>
@@ -31,6 +33,8 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/form/element/validationForm</item>
+                    <!-- Display beneath any custom attributes added by Magento_CustomerCustomAttributes (EE only) -->
+                    <item name="sortOrder" xsi:type="string">10001</item>
                 </item>
             </argument>
         </container>
