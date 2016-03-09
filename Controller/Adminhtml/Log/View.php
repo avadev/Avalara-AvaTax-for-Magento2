@@ -21,7 +21,7 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Registry;
-use Magento\Support\Model\DataFormatter;
+use ClassyLlama\AvaTax\Model\DataFormatter;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
@@ -40,7 +40,7 @@ class View extends Log
     protected $coreRegistry;
 
     /**
-     * @var \Magento\Support\Model\DataFormatter
+     * @var \ClassyLlama\AvaTax\Model\DataFormatter
      */
     protected $dataFormatter;
 
@@ -48,7 +48,7 @@ class View extends Log
      * @param \Magento\Backend\App\Action\Context $context
      * @param \ClassyLlama\AvaTax\Model\LogFactory $logFactory
      * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Support\Model\DataFormatter $dataFormatter
+     * @param \ClassyLlama\AvaTax\Model\DataFormatter $dataFormatter
      */
     public function __construct(
         Context $context,
