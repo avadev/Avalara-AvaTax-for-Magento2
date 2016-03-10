@@ -1,3 +1,8 @@
+### 0.1.11 (2016-03-09)
+
+* Fix DI compilation error on Magento Community
+* Display admin address validation beneath custom address attributes on Magento Enterprise
+
 ### 0.1.10 (2016-02-17)
 
 * Fix DI compilation error
