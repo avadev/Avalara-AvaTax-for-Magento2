@@ -21,7 +21,6 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Registry;
-use ClassyLlama\AvaTax\Model\DataFormatter;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
@@ -40,25 +39,17 @@ class View extends Log
     protected $coreRegistry;
 
     /**
-     * @var \ClassyLlama\AvaTax\Model\DataFormatter
-     */
-    protected $dataFormatter;
-
-    /**
      * @param \Magento\Backend\App\Action\Context $context
      * @param \ClassyLlama\AvaTax\Model\LogFactory $logFactory
      * @param \Magento\Framework\Registry $coreRegistry
-     * @param \ClassyLlama\AvaTax\Model\DataFormatter $dataFormatter
      */
     public function __construct(
         Context $context,
         LogFactory $logFactory,
-        Registry $coreRegistry,
-        DataFormatter $dataFormatter
+        Registry $coreRegistry
     ) {
         $this->logFactory = $logFactory;
         $this->coreRegistry = $coreRegistry;
-        $this->dataFormatter = $dataFormatter;
         parent::__construct($context);
     }
 
@@ -86,9 +77,7 @@ class View extends Log
             /** @var Page $pageResult */
             $pageResult = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
             $pageResult->setActiveMenu('ClassyLlama_AvaTax::avatax_log');
-            $pageResult->getConfig()->getTitle()->prepend(
-                $dateString . ' ' . $this->dataFormatter->getSinceTimeString($dateString)
-            );
+            $pageResult->getConfig()->getTitle()->prepend($dateString);
             return $pageResult;
         } catch (LocalizedException $e) {
             $this->messageManager->addError($e);

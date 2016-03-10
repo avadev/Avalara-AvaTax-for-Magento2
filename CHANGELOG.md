@@ -1,3 +1,7 @@
+### 0.1.12 (2016-03-09)
+
+* Simplify log view page
+
 ### 0.1.11 (2016-03-09)
 
 * Fix DI compilation error on Magento Community
