@@ -34,6 +34,7 @@ use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionColl
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use \Magento\Framework\Api\CustomAttributesDataInterface;
 
 class Address
 {
@@ -319,12 +320,27 @@ class Address
         }
 
         $customerAddressData = array_merge($customerAddressData, $customerAddressDataWithRegion);
+
+        // Per Github issue #4, the \Magento\Framework\Api\DataObjectHelper::_setDataValues method chokes on the
+        // custom_attributes array, so remove it and set it after the data has been mapped
+        $customAttributes = false;
+        if (isset($customerAddressData[CustomAttributesDataInterface::CUSTOM_ATTRIBUTES])
+            && is_array($customerAddressData[CustomAttributesDataInterface::CUSTOM_ATTRIBUTES])
+        ) {
+            $customAttributes = $customerAddressData[CustomAttributesDataInterface::CUSTOM_ATTRIBUTES];
+            unset($customerAddressData[CustomAttributesDataInterface::CUSTOM_ATTRIBUTES]);
+        }
+
         $addressDataObject = $this->customerAddressFactory->create();
         $this->dataObjectHelper->populateWithArray(
             $addressDataObject,
             $customerAddressData,
             '\Magento\Customer\Api\Data\AddressInterface'
         );
+
+        if ($customAttributes) {
+            $addressDataObject->setCustomAttributes($customAttributes);
+        }
 
         return $addressDataObject;
     }
