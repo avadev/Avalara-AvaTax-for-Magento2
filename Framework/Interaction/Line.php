@@ -173,11 +173,13 @@ class Line
             $itemCode = $item->getSku();
         }
 
+        $storeId = $item->getStoreId();
+
         return [
-            'StoreId' => $item->getStoreId(),
+            'StoreId' => $storeId,
             'No' => $this->getLineNumber(),
             'ItemCode' => $itemCode,
-            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product),
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product, $storeId),
             'Description' => $item->getName(),
             'Qty' => $item->getQty(),
             'Amount' => $amount,
@@ -218,11 +220,13 @@ class Line
             $itemCode = $item->getSku();
         }
 
+        $storeId = $item->getStoreId();
+
         return [
-            'StoreId' => $item->getStoreId(),
+            'StoreId' => $storeId,
             'No' => $this->getLineNumber(),
             'ItemCode' => $itemCode,
-            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product),
+            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product, $storeId),
             'Description' => $item->getName(),
             'Qty' => $item->getQty(),
             'Amount' => $amount,
