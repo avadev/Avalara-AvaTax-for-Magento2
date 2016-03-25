@@ -1,3 +1,7 @@
+### 0.1.13 (2016-03-25)
+
+* Add AvaTax Code to Gift Card products on Magento Enterprise
+
 ### 0.1.12 (2016-03-09)
 
 * Simplify log view page
