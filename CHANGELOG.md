@@ -1,3 +1,8 @@
+### 0.1.14 (2016-03-30)
+
+* Fix issue where tax_amount is incorrectly calculated when multiple rates are in use
+* Fix issue where saving customer address on frontend resulted in error
+
 ### 0.1.13 (2016-03-25)
 
 * Add AvaTax Code to Gift Card products on Magento Enterprise
