@@ -27,6 +27,17 @@ The following scenarios are tested:
 * Discounts
 * Tax on shipping
 
+# AvaTax Admin Configuration
+
+The integration tests assume the following information has been configured in the AvaTax admin:
+
+1. These tax jurisdictions have been setup:
+    * Michigan (it has a 6% flat sales tax)
+    * San Diego, California (we've used the San Diego Zoo: 2920 Zoo Dr, San Diego CA 92101, US)
+    * Tennessee (it has a 9.25% flat sales tax)
+2. A "D0000000" Tax Code has been created and an associated Tax Rule has been created that marks that Tax Code as tax exempt for the Michigan tax jurisdiction.
+3. A "Base Override" Tax Rule has been created that changes Tennessee tax to 77% of the taxable amount
+
 # Running Integration Tests
 
 Follow these steps to run the integration tests:

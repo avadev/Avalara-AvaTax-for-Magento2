@@ -16,7 +16,6 @@
 namespace ClassyLlama\AvaTax\Model;
 
 use ClassyLlama\AvaTax\Api\ValidAddressManagementInterface;
-use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address\Validation as ValidationInteraction;
 use Magento\Customer\Api\Data\AddressInterface;
 
@@ -32,19 +31,33 @@ class ValidAddressManagement implements ValidAddressManagementInterface
     protected $validationInteraction = null;
 
     /**
+     * Store manager
+     *
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * ValidAddressManagement constructor.
      * @param ValidationInteraction $validationInteraction
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
     public function __construct(
-        ValidationInteraction $validationInteraction
+        ValidationInteraction $validationInteraction,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->validationInteraction = $validationInteraction;
+        $this->storeManager = $storeManager;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function saveValidAddress(AddressInterface $address, $storeId) {
+    public function saveValidAddress(AddressInterface $address, $storeId = null) {
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
+
         try {
             return $this->validationInteraction->validateAddress($address, $storeId);
         } catch (\SoapFault $e) {
