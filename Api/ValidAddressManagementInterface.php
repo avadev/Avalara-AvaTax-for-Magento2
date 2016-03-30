@@ -26,5 +26,5 @@ interface ValidAddressManagementInterface
      * @param $storeId
      * @return \Magento\Customer\Api\Data\AddressInterface|string
      */
-    public function saveValidAddress(\Magento\Customer\Api\Data\AddressInterface $address, $storeId);
+    public function saveValidAddress(\Magento\Customer\Api\Data\AddressInterface $address, $storeId = null);
 }
