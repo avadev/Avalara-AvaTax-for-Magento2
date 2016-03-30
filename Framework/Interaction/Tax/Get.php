@@ -231,10 +231,18 @@ class Get
             if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
 
                 $store = $quote->getStore();
-                $taxDetails =
-                    $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
                 $baseTaxDetails =
                     $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
+                /**
+                 * If quote is using a currency other than the base currency, calculate tax details for both quote
+                 * currency and base currency. Otherwise use the same tax details object.
+                 */
+                if ($quote->getBaseCurrencyCode() != $quote->getQuoteCurrencyCode()) {
+                    $taxDetails =
+                        $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
+                } else {
+                    $taxDetails = $baseTaxDetails;
+                }
 
                 return [
                     self::KEY_TAX_DETAILS => $taxDetails,
