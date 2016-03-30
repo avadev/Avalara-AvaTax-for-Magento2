@@ -348,7 +348,7 @@
                     </depends>
                     <comment><![CDATA[<strong>Warning</strong> is recommended for production use.]]></comment>
                 </field>
-                <field id="logging_db_detail" translate="label" type="select" sortOrder="5520" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="logging_db_detail" translate="label" type="select" sortOrder="5020" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Database Log Detail</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
