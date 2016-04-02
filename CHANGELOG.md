@@ -1,3 +1,7 @@
+### 0.1.15 (2016-04-01)
+
+* Add support for PHP 7
+
 ### 0.1.14 (2016-03-30)
 
 * Fix issue where tax_amount is incorrectly calculated when multiple rates are in use
