@@ -23,6 +23,6 @@ class TaxCalculationCountries extends \Magento\Directory\Model\Config\Source\Cou
     public function toOptionArray()
     {
         // Make US and CA show at top of list
-        return parent::toOptionArray(true, \ClassyLlama\AvaTax\Helper\Config::TAX_CALCULATION_COUNTRIES_DEFAULT);
+        return parent::toOptionArray(true, \ClassyLlama\AvaTax\Helper\Config::$taxCalculationCountriesDefault);
     }
 }
