@@ -135,7 +135,7 @@ class Config extends AbstractHelper
     /**
      * List of countries that are enabled by default
      */
-    const TAX_CALCULATION_COUNTRIES_DEFAULT = ['US', 'CA'];
+    static public $taxCalculationCountriesDefault = ['US', 'CA'];
 
     /**#@+
      * Customer Code Format Options
