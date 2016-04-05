@@ -1,3 +1,7 @@
+### 0.1.16 (2016-04-05)
+
+* Add support for PHP 5.5
+
 ### 0.1.15 (2016-04-01)
 
 * Add support for PHP 7
