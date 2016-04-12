@@ -457,7 +457,7 @@ class Tax
             'DestinationAddress' => $address,
             'DocCode' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'DocDate' => $docDate,
-            'DocType' => DocumentType::$PurchaseOrder,
+            'DocType' => DocumentType::$SalesOrder,
             'ExchangeRate' => $this->getExchangeRate($store,
                 $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
             'ExchangeRateEffDate' => $currentDate,

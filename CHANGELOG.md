@@ -1,3 +1,9 @@
+### 0.2.0 (2016-04-12)
+
+* Fix issue where tax calculation was not accurate for certain merchant accounts
+    * Changed DocType for cart/checkout tax calculation from PurchaseOrder to SalesOrder
+    * PurchaseOrder is intended to be used for "consumer use tax" calculation rather than "sales tax" calculation
+
 ### 0.1.16 (2016-04-05)
 
 * Add support for PHP 5.5
