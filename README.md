@@ -9,3 +9,7 @@ Agile, successful companies focus on their core business and outsource complex, 
 # Automated Tests
 
 This extension contains integration tests to verify the extension's functionality. These tests should only need to be run by developers maintaining this extension. Instructions for running tests can be found [here](https://github.com/classyllama/ClassyLlama_AvaTax/blob/master/Tests/README.md).
+
+# License
+
+This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0
