@@ -1,3 +1,9 @@
+### 0.2.1 (2016-05-16)
+
+* Fix issue where manual module installation causes DI compilation error
+* Add Magento_Tax as a module dependency (from @james481)
+* Add license
+
 ### 0.2.0 (2016-04-12)
 
 * Fix issue where tax calculation was not accurate for certain merchant accounts
