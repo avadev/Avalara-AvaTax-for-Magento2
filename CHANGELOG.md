@@ -1,3 +1,7 @@
+### 0.2.2 (2016-05-17)
+
+* Fix DI compilation error
+
 ### 0.2.1 (2016-05-16)
 
 * Fix issue where manual module installation causes DI compilation error
