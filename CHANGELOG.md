@@ -1,3 +1,7 @@
+### 0.2.3 (2016-05-31)
+
+* Fix "$serverData must be an array or object implementing ArrayAccess" error when single tenant compilation was in use
+
 ### 0.2.2 (2016-05-17)
 
 * Fix DI compilation error
