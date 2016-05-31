@@ -42,19 +42,17 @@ class DbHandler extends AbstractHandler
     /**
      * @param LogFactory $logFactory
      * @param Config $avaTaxConfig
-     * @param IntrospectionProcessor $introspectionProcessor
-     * @param WebProcessor $webProcessor
      */
     public function __construct(
         LogFactory $logFactory,
-        Config $avaTaxConfig,
-        IntrospectionProcessor $introspectionProcessor,
-        WebProcessor $webProcessor
+        Config $avaTaxConfig
     ) {
         $this->logFactory = $logFactory;
         $this->avaTaxConfig = $avaTaxConfig;
         parent::__construct(Logger::DEBUG, true);
         $this->setFormatter(new LineFormatter(null, null, true));
+        $introspectionProcessor = new IntrospectionProcessor();
+        $webProcessor = new WebProcessor();
         $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
     }
 
