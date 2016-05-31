@@ -56,8 +56,6 @@ class FileHandler extends System
      * @param Exception $exceptionHandler
      * @param System $systemHandler
      * @param Config $avaTaxConfig
-     * @param IntrospectionProcessor $introspectionProcessor
-     * @param WebProcessor $webProcessor
      * @param null $filePath
      */
     public function __construct(
@@ -65,8 +63,6 @@ class FileHandler extends System
         Exception $exceptionHandler,
         System $systemHandler,
         Config $avaTaxConfig,
-        IntrospectionProcessor $introspectionProcessor,
-        WebProcessor $webProcessor,
         $filePath = null
     ) {
         $this->avaTaxConfig = $avaTaxConfig;
@@ -75,6 +71,8 @@ class FileHandler extends System
 
         // Set our custom formatter so that the context and extra parts of the record will print on multiple lines
         $this->setFormatter(new FileFormatter());
+        $introspectionProcessor = new IntrospectionProcessor();
+        $webProcessor = new WebProcessor();
         $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
         $this->initializeRotatingLogs($filePath);
     }
