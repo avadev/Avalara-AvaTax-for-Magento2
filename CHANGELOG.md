@@ -1,3 +1,7 @@
+### 0.2.4 (2016-06-09)
+
+* Fix 'Class "storeId" does not exist' error when loading the Swagger page: /rest/default/schema (Github issue #19)
+
 ### 0.2.3 (2016-05-31)
 
 * Fix "$serverData must be an array or object implementing ArrayAccess" error when single tenant compilation was in use
