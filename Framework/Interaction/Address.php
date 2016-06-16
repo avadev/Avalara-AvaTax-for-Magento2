@@ -404,7 +404,7 @@ class Address
         }
         // Not using line 4, as it returns a concatenation of city, state, and zip (e.g., BAINBRIDGE IS WA 98110-2450)
 
-        $region = $this->getRegionByCode($address->getRegion());
+        $region = $this->getRegionByCodeAndCountry($address->getRegion(), $address->getCountry());
         if (is_null($region)) {
             return null;
         }
@@ -456,7 +456,7 @@ class Address
             QuoteAddressInterface::KEY_CITY => $address->getCity(),
         ]);
 
-        $region = $this->getRegionByCode($address->getRegion());
+        $region = $this->getRegionByCodeAndCountry($address->getRegion(), $address->getCountry());
         if (!is_null($region)) {
             $data[QuoteAddressInterface::KEY_REGION_ID] = $region->getId();
             $data[QuoteAddressInterface::KEY_REGION] = $region;
@@ -496,12 +496,12 @@ class Address
      * @param $regionCode
      * @return \Magento\Framework\DataObject|null
      */
-    protected function getRegionByCode($regionCode)
+    protected function getRegionByCodeAndCountry($regionCode, $countryCode)
     {
 
         /* @var $region \Magento\Framework\DataObject */
         foreach ($this->regionCollection as $region) {
-            if ($region->getCode() == $regionCode) {
+            if ($region->getCode() == $regionCode && $region->getCountryId() == $countryCode) {
                 return $region;
             }
         }
