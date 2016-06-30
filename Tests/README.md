@@ -46,8 +46,8 @@ Follow these steps to run the integration tests:
 
     1. Update the `dev/tests/integration/etc/install-config-mysql.php.dist` file with your MySQL credentials.
 
-1. You'll need an AvaTax development account setup with the rules specified in `Tests/Integration/credentials.php.dist`
+1. You'll need an AvaTax development account setup with the rules specified in `vendor/classyllama/module-avatax/Tests/Integration/credentials.php.dist`
 
-    1. Copy the `Tests/Integration/credentials.php.dist` file to `Tests/Integration/credentials.php` and update the "Company Code", "Account Number", and "License Key"
+    1. Copy the `vendor/classyllama/module-avatax/Tests/Integration/credentials.php.dist` file to `vendor/classyllama/module-avatax/Tests/Integration/credentials.php` and update the "Company Code", "Account Number", and "License Key" values
 
-1. Run the integration tests using this command: `vendor/bin/phpunit --debug -c vendor/classyllama/module-avatax/Tests/Integration/phpunit.xml`
+1. Run the integration tests using this command: `vendor/bin/phpunit --debug -c <PATH_TO_INSTALL>/vendor/classyllama/module-avatax/Tests/Integration/phpunit.xml`
