@@ -16,11 +16,7 @@ define(
         'jquery',
         'ko',
         'mageUtils',
-        'ClassyLlama_AvaTax/js/model/address-model',
-        // This dependency will commonly already be loaded by Magento_Ui/js/core/app, however the load order is not
-        // guaranteed, so we must require this dependency so that the custom Magento templateEngine is set before
-        // ko.applyBindings is called in this file.
-        'Magento_Ui/js/lib/ko/initialize'
+        'ClassyLlama_AvaTax/js/model/address-model'
     ],
     function (
         $,
