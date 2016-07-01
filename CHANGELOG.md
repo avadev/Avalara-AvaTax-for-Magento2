@@ -1,3 +1,9 @@
+### 0.3.0 (2016-06-30)
+
+* Add support for Magento 2.1 (and drop support for Magento 2.0.x)
+* Fix to address region lookup when validating addresses (from @curtisTAG)
+* Add API for address validation (from @james481). See https://github.com/classyllama/ClassyLlama_AvaTax/pull/15
+
 ### 0.2.4 (2016-06-09)
 
 * Fix 'Class "storeId" does not exist' error when loading the Swagger page: /rest/default/schema (Github issue #19)
