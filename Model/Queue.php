@@ -83,6 +83,12 @@ class Queue extends AbstractModel
     protected $eavConfig;
 
     /**
+     * A boolean flag to determine whether record has been sent to AvaTax
+     * @var bool
+     */
+    protected $hasRecordBeenSentToAvaTax = false;
+
+    /**
      * Queue constructor.
      * @param Context $context
      * @param Registry $registry
@@ -168,5 +174,25 @@ class Queue extends AbstractModel
         $this->setIncrementId($incrementId);
         $this->setQueueStatus($queueStatus);
         $this->setAttempts(0);
+    }
+
+    /**
+     * Set whether record has been sent to AvaTax
+     *
+     * @param $hasBeenSent
+     */
+    public function setHasRecordBeenSentToAvaTax($hasBeenSent)
+    {
+        $this->hasRecordBeenSentToAvaTax = $hasBeenSent;
+    }
+
+    /**
+     * Set whether record has been sent to AvaTax
+     *
+     * @return bool
+     */
+    public function getHasRecordBeenSentToAvaTax()
+    {
+        return $this->hasRecordBeenSentToAvaTax;
     }
 }

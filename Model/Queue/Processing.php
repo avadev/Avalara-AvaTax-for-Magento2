@@ -326,19 +326,21 @@ class Processing
     {
         try {
             $processSalesResponse = $this->interactionGetTax->processSalesObject($entity);
-
+            $queue->setHasRecordBeenSentToAvaTax(true);
         } catch (\Exception $e) {
 
             $message = '';
             if ($e instanceof \ClassyLlama\AvaTax\Exception\TaxCalculationException) {
-                $message .= __('An error occurred when attempting to send %1 #%2 to AvaTax.',
+                $message .= __('An error occurred when attempting to send %1 #%2 to AvaTax. Error: %3',
                     ucfirst($queue->getEntityTypeCode()),
-                    $entity->getIncrementId()
+                    $entity->getIncrementId(),
+                    $e->getMessage()
                 );
             } else {
-                $message .= __('An unexpected exception occurred when attempting to send %1 #%2 to AvaTax.',
+                $message .= __('An unexpected exception occurred when attempting to send %1 #%2 to AvaTax. Error: %3',
                     ucfirst($queue->getEntityTypeCode()),
-                    $entity->getIncrementId()
+                    $entity->getIncrementId(),
+                    $e->getMessage()
                 );
             }
 
