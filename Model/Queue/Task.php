@@ -169,16 +169,39 @@ class Task
 
                 // Increment error count statistic
                 $this->errorCount++;
-                $this->errorMessages[] = $e->getMessage();
+                $previousException = $e->getPrevious();
+                $errorMessage = $e->getMessage();
+                if ($previousException instanceof \Exception) {
+                    $errorMessage .= " \nPREVIOUS ERROR: \n" . $previousException->getMessage();
+                }
+
+                // If record has been sent to AvaTax, immediately mark as failure
+                // to prevent duplicate records from being sent. This situation is likely to occur
+                // when associated record (invoice or credit memo) is unable to be saved.
+                if ($queue->getHasRecordBeenSentToAvaTax()) {
+                    $errorMessage = 'Record was sent to AvaTax, but error occurred after sending record: '
+                        . $errorMessage;
+                    // update queue record with new processing status
+                    $queue->setQueueStatus(Queue::QUEUE_STATUS_FAILED)
+                        ->setMessage($errorMessage)
+                        ->save();
+                }
+
+                $this->errorMessages[] = $errorMessage;
             }
+        }
+
+        $context = [
+            'error_count' => $this->errorCount,
+            'process_count' => $this->processCount
+        ];
+        if ($this->getErrorCount() > 0) {
+            $context['error_messages'] = implode("\n", $this->getErrorMessages());
         }
 
         $this->avaTaxLogger->debug(
             __('Finished queue processing'),
-            [ /* context */
-                'error_count' => $this->errorCount,
-                'process_count' => $this->processCount
-            ]
+            $context
         );
     }
 
