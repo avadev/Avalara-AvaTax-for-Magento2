@@ -1,3 +1,7 @@
+### 0.3.1 (2016-06-30)
+
+* Fix issue where invoice/credit memo may be mistakenly sent to AvaTax multiple times. See https://github.com/classyllama/ClassyLlama_AvaTax/issues/24
+
 ### 0.3.0 (2016-06-30)
 
 * Add support for Magento 2.1 (and drop support for Magento 2.0.x)
