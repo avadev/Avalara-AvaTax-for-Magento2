@@ -170,7 +170,7 @@ class MetaDataObject
         foreach ($this->requiredRules as $requiredRule) {
             if (!array_key_exists($requiredRule->getName(), $validatedData) ||
                 empty($validatedData[$requiredRule->getName()])) {
-                throw new ValidationException(__(
+                throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(__(
                     '%1 is a required field and was either not passed in or did not pass validation.',
                     [
                         $requiredRule->getName()
