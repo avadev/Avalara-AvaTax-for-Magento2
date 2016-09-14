@@ -1,3 +1,10 @@
+### 0.3.2 (2016-09-14)
+
+* Use store view-specific TaxCodes for invoice/credit memos [#34](https://github.com/classyllama/ClassyLlama_AvaTax/issues/34)
+* Fix potential tax inaccuracy when order/invoice are created on different dates [#33](https://github.com/classyllama/ClassyLlama_AvaTax/issues/33)
+* Fix issue where saving "un-verifiable" customer address results in error [#27](https://github.com/classyllama/ClassyLlama_AvaTax/issues/27) 
+* Fix validation errors flagged by Magento Marketplace
+
 ### 0.3.1 (2016-06-30)
 
 * Fix issue where invoice/credit memo may be mistakenly sent to AvaTax multiple times. See https://github.com/classyllama/ClassyLlama_AvaTax/issues/24
