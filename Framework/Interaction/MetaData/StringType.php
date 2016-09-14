@@ -113,10 +113,12 @@ class StringType extends MetaDataAbstract
         $format = $this->getFormat();
         if (!empty($format) &&
             !preg_match($this->getFormat(), $value)) {
-            throw new ValidationException(__('AvaTax requires %1 field to match the regex: "%2"', [
-                $this->getName(),
-                $this->getFormat(),
-            ]));
+            throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(
+                __('AvaTax requires %1 field to match the regex: "%2"', [
+                    $this->getName(),
+                    $this->getFormat(),
+                ]
+            ));
         }
 
         return $value;

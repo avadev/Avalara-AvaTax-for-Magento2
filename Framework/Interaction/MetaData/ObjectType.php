@@ -86,14 +86,16 @@ class ObjectType extends MetaDataAbstract
     {
         if ($this->getType() != getType($value)) {
             if ($this->getRequired()) {
-                throw new ValidationException(__('The value you passed in is not an object.'));
+                throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(
+                    __('The value you passed in is not an object.')
+                );
             }
             $value = null;
         }
 
         $class = $this->getClass();
         if (!is_null($value) && !($value instanceof $class)) {
-            throw new ValidationException(__(
+            throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(__(
                 'The object you passed in is of type %1 and is required to be of type %2.',
                 [
                     get_class($value),

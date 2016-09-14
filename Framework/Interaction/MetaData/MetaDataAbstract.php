@@ -305,7 +305,7 @@ abstract class MetaDataAbstract
         // Make sure the value is a valid option if options are set
         if (!empty($this->getOptions()) && !in_array($value, $this->getOptions())) {
             if ($this->getRequired()) {
-                throw new ValidationException(__(
+                throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(__(
                     'The value you passed in is not one of the valid options.  Valid Options are: %1',
                     [
                         print_r($this->getOptions(), true)
@@ -332,10 +332,12 @@ abstract class MetaDataAbstract
             try {
                 settype($value, $this->getType());
             } catch (\Exception $e) {
-                throw new ValidationException(__('Could not convert "%1" to a "%2"', [
-                    $this->getName(),
-                    $this->getType(),
-                ]));
+                throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(
+                    __('Could not convert "%1" to a "%2"', [
+                       $this->getName(),
+                      $this->getType(),
+                    ]
+                ));
             }
         }
 

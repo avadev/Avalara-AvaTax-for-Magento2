@@ -92,7 +92,7 @@ class ArrayType extends MetaDataAbstract
     {
         if ($this->getType() != getType($value)) {
             if ($this->getRequired()) {
-                throw new ValidationException(__(
+                throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(__(
                     'The value you passed in is not an array. ' .
                     'If your data can be converted to an array, please do so explicitly before passing it in ' .
                     'because automated array conversion will not be attempted since it can have unexpected results.'
@@ -108,7 +108,7 @@ class ArrayType extends MetaDataAbstract
 
         // If the length exceeds the maximum allowed length, throw an exception
         if ($this->getLength() > 0 && count($value) > $this->getLength()) {
-            throw new ValidationException(__(
+            throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(__(
                 'You attempted to pass data to the AvaTax API with the key of %1,' . '
                          with a length of %2, the max allowed length is %3.',
                 [

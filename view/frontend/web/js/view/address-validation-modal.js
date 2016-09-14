@@ -47,7 +47,9 @@ define([
                     text: $.mage.__('Save Address'),
                     class: 'action-primary action primary',
                     click: function () {
-                        addressValidationForm.updateFormFields(this.formSelector);
+                        if (addressModel.isDifferent()) {
+                            addressValidationForm.updateFormFields(this.formSelector);
+                        }
                         this.closeModal();
                         $(this.formSelector).off('submit');
                         $(this.formSelector).submit();

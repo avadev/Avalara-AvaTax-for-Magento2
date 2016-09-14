@@ -213,6 +213,11 @@ class Tax
     const AVATAX_CREDITMEMO_OVERRIDE_REASON = 'Adjustment for return';
 
     /**
+     * Reason for AvaTax override for invoice to specify tax date
+     */
+    const AVATAX_INVOICE_OVERRIDE_REASON = 'TaxDate reflects Order Date (not Magento invoice date)';
+
+    /**
      * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
      * convert AvaTax rate to Magento's rate
      */
@@ -522,8 +527,8 @@ class Tax
 
         $lines = [];
         $items = $object->getItems();
-
-
+        
+        $this->taxClassHelper->populateCorrectTaxClasses($items, $object->getStoreId());
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($items as $item) {
             $line = $this->interactionLine->getLine($item);
@@ -572,19 +577,28 @@ class Tax
         $avaTaxAddress = $this->address->getAddress($address);
 
         $store = $this->storeRepository->getById($object->getStoreId());
-        $currentDate = $this->getFormattedDate($store);
 
         $currentDate = $this->getFormattedDate($store, $object->getCreatedAt());
 
         $taxOverride = null;
         if ($object instanceof \Magento\Sales\Api\Data\InvoiceInterface) {
             $docType = DocumentType::$SalesInvoice;
+
+            if ($this->areTimesDifferentDays($order->getCreatedAt(), $object->getCreatedAt(), $object->getStoreId())) {
+                $taxCalculationDate = $this->getFormattedDate($store, $order->getCreatedAt());
+
+                // Set the tax date for calculation
+                $taxOverride = $this->taxOverrideFactory->create();
+                $taxOverride->setTaxDate($taxCalculationDate);
+                $taxOverride->setTaxOverrideType(\AvaTax\TaxOverrideType::$TaxDate);
+                $taxOverride->setTaxAmount(0.00);
+                $taxOverride->setReason(self::AVATAX_INVOICE_OVERRIDE_REASON);
+            }
         } else {
             $docType = DocumentType::$ReturnInvoice;
 
             $invoice = $this->getInvoice($object->getInvoiceId());
             // If a Creditmemo was generated for an invoice, use the created_at value from the invoice
-            // TODO: Implement same logic from M1 extension: All credit memos will use the date of the order's first invoice to calculate the amount of tax to refund.
             if ($invoice) {
                 $taxCalculationDate = $this->getFormattedDate($store, $invoice->getCreatedAt());
             } else {
@@ -741,5 +755,28 @@ class Tax
         $date = new \DateTime($time, new \DateTimeZone($this->localeDate->getDefaultTimezone()));
         $date->setTimezone(new \DateTimeZone($timezone));
         return $date->format(self::AVATAX_DATE_FORMAT);
+    }
+
+    /**
+     * Check whether timestamps are from different days
+     *
+     * @param $timeA
+     * @param $timeB
+     * @param $storeId
+     * @return bool
+     */
+    protected function areTimesDifferentDays($timeA, $timeB, $storeId)
+    {
+        if (!$timeA || !$timeB) {
+            return true;
+        }
+
+        $timezone = $this->localeDate->getConfigTimezone(null, $storeId);
+        $dateA = new \DateTime($timeA, new \DateTimeZone($this->localeDate->getDefaultTimezone()));
+        $dateA->setTimezone(new \DateTimeZone($timezone));
+        $dateB = new \DateTime($timeB, new \DateTimeZone($this->localeDate->getDefaultTimezone()));
+        $dateB->setTimezone(new \DateTimeZone($timezone));
+
+        return $dateA->format('Y-m-d') != $dateB->format('Y-m-d');
     }
 }
