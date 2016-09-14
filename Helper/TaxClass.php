@@ -66,23 +66,31 @@ class TaxClass
     protected $config;
 
     /**
+     * @var \Magento\Catalog\Model\ProductFactory
+     */
+    protected $productFactory;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
      * @param \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository
      * @param \ClassyLlama\AvaTax\Helper\Config $config
+     * @param \Magento\Catalog\Model\ProductFactory $productFactory
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
         \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository,
-        \ClassyLlama\AvaTax\Helper\Config $config
+        \ClassyLlama\AvaTax\Helper\Config $config,
+        \Magento\Catalog\Model\ProductFactory $productFactory
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->taxClassRepository = $taxClassRepository;
         $this->customerGroupRepository = $customerGroupRepository;
         $this->config = $config;
+        $this->productFactory = $productFactory;
     }
 
     /**
@@ -206,5 +214,48 @@ class TaxClass
             return null;
         }
         return $this->getAvaTaxTaxCode($taxClassId);
+    }
+
+    /**
+     * Populate correct tax class IDs on products that are loaded from an order item collection
+     *
+     * When a product is loaded from the context of an order item, a Magento bug/quirk causes the product to get loaded
+     * at the global configuration scope, rather than the scope of the order/order item. See this Github isue for
+     * more context: https://github.com/classyllama/ClassyLlama_AvaTax/issues/34
+     *
+     * @param $items \Magento\Sales\Api\Data\InvoiceItemInterface[]|\Magento\Sales\Api\Data\CreditmemoItemInterface[]
+     * @param $storeId
+     */
+    public function populateCorrectTaxClasses($items, $storeId)
+    {
+        $productIds = [];
+        foreach ($items as $item) {
+            if ($item->getParentItem()) {
+                continue;
+            }
+            $productIds[] = $item->getOrderItem()->getProduct()->getId();
+        }
+
+        // Loading products via a collection rather than a repository as it's not possible to load a repository with
+        // a store view scope applied. See http://magento.stackexchange.com/q/91278/2142
+        $products = $this->productFactory->create()->getCollection()
+            ->addAttributeToSelect('tax_class_id')
+            ->addStoreFilter($storeId)
+            ->addFieldToFilter('entity_id', ['in' => $productIds]);
+
+        $productsById = [];
+        foreach ($products as $product) {
+            $productsById[$product->getId()] = $product;
+        }
+
+        foreach ($items as $item) {
+            $productId = $item->getOrderItem()->getProduct()->getId();
+            if (isset($productsById[$productId])) {
+                $productWithCorrectTaxClassId = $productsById[$productId];
+                if ($productWithCorrectTaxClassId->getTaxClassId()) {
+                    $item->getOrderItem()->getProduct()->setTaxClassId($productWithCorrectTaxClassId->getTaxClassId());
+                }
+            }
+        }
     }
 }

@@ -527,8 +527,8 @@ class Tax
 
         $lines = [];
         $items = $object->getItems();
-
-
+        
+        $this->taxClassHelper->populateCorrectTaxClasses($items, $object->getStoreId());
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($items as $item) {
             $line = $this->interactionLine->getLine($item);
