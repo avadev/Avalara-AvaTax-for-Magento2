@@ -180,7 +180,7 @@ class Tax
         'LocationCode' => ['type' => 'string', 'length' => 50],
         'OriginAddress' => ['type' => 'object', 'class' => '\AvaTax\Address'],
         'PaymentDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
-        'PurchaseOrderNumber' => ['type' => 'string', 'length' => 50],
+        'PurchaseOrderNo' => ['type' => 'string', 'length' => 50],
         'ReferenceCode' => ['type' => 'string', 'length' => 50],
         'SalespersonCode' => ['type' => 'string', 'length' => 25],
         'TaxOverride' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
@@ -469,7 +469,7 @@ class Tax
             'Lines' => $lines,
             // This level of detail is needed in order to receive lines back in response
             'DetailLevel' => DetailLevel::$Line,
-            'PurchaseOrderNumber' => $quote->getReservedOrderId(),
+            'PurchaseOrderNo' => $quote->getReservedOrderId(),
         ];
     }
 
@@ -633,7 +633,7 @@ class Tax
             // Only need document-level detail as we don't need lines in our response
             'DetailLevel' => DetailLevel::$Document,
             'PaymentDate' => $currentDate,
-            'PurchaseOrderNumber' => $object->getIncrementId(),
+            'PurchaseOrderNo' => $object->getIncrementId(),
         ];
 
         $data = array_merge(

@@ -1,3 +1,7 @@
+### 0.3.3 (2016-11-09)
+
+* Fix issue where Magento order number was not being sent to AvaTax in the PurchaseOrderNo field [#38](https://github.com/classyllama/ClassyLlama_AvaTax/issues/38) (from @expandlab)
+
 ### 0.3.2 (2016-09-14)
 
 * Use store view-specific TaxCodes for invoice/credit memos [#34](https://github.com/classyllama/ClassyLlama_AvaTax/issues/34)
