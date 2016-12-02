@@ -57,6 +57,16 @@ class Refund
                 $avataxDataChanges = true;
             }
 
+            /**
+             * Rather than looping through all attributes and checking for changes other than the
+             * avatax fields, we will explicity check the fields used by the processRelations() methods
+             * that way it will minimally impact any customizations made by any 3rd party modules
+             * that would affect the credit memo. One of the problems with checking all attributes
+             * is that fields like 'items' which is an object can show up as indicating a change when
+             * checked specifically, as would likely other attributes that are stored as objects rather
+             * that primative values. Also there are attributes like 'updated_at' that change each time.
+             */
+
             // Check to see if dataHasChangedFor various fields used by processRelations()
             //  $subject->prepareOrder()
             //  $subject->prepareInvoice()
