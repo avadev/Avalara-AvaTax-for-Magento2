@@ -36,6 +36,7 @@ use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
+use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 
 /**
  * Class Tax
@@ -432,6 +433,29 @@ class Tax
             } else {
                 $line = $this->interactionLine->getLine($item);
                 if ($line) {
+
+                    /**
+                     * The Magento Core does not have the necessary details in the QuoteDetailsItem
+                     * which are returned from the call to getItems() above in order to determine if
+                     * the shipping type item has a discount or not as it is built differently than other
+                     * product type items that include a discountAmount with the item. We can however
+                     * determine this by examining the ShipmentAssignment that happens to store the
+                     * details of the shipping calculation that occurred earlier in other collect totals.
+                     */
+
+                    // Check if we should adjust for a shipping discount amount
+                    if ($this->isShippingDiscountAmountAdjustmentNeeded($shippingAssignment, $item, $line)) {
+
+                        // Get the shipping discount amount from the address
+                        $shippingDiscountAmount = $shippingAssignment->getShipping()->getAddress()->getShippingDiscountAmount();
+
+                        // Recalculate the line amount with the shipping discount amount included
+                        $amountAfterDiscount = ($item->getUnitPrice() * $item->getQuantity()) - $shippingDiscountAmount;
+
+                        // Adjust the line amount
+                        $line->setAmount($amountAfterDiscount);
+                    }
+
                     $lines[] = $line;
                 }
             }
@@ -471,6 +495,52 @@ class Tax
             'DetailLevel' => DetailLevel::$Line,
             'PurchaseOrderNo' => $quote->getReservedOrderId(),
         ];
+    }
+
+    /**
+     * Determine if item is a shipping type and a shipping discount amount exists on the address
+     *
+     * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
+     * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item
+     * @param \AvaTax\Line|null|bool $line
+     * @return bool
+     */
+    protected function isShippingDiscountAmountAdjustmentNeeded (
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item,
+        $line
+    ) {
+        /**
+         * When a cart discount is applied and is allowed to apply to the shipping amount
+         * the QuoteDetailsItem does not include the discount amount for inclusion in tax caluclations
+         *
+         * The shipping discount amount does exist on the shipping address so we can check for
+         * the existance of this specific type of QuoteDetailItem and the presence of a discount
+         */
+
+        if (
+            $line instanceof \AvaTax\Line
+            && $item->getType() == CommonTaxCollector::ITEM_TYPE_SHIPPING
+            && $item->getDiscountAmount() == null
+            && ($item->getUnitPrice() * $item->getQuantity()) > 0
+            && $line->getAmount() == ($item->getUnitPrice() * $item->getQuantity())
+        ) {
+            // The item is a shipping type detail item that does not already include a discount amount
+
+            // Check for a shipping discount amount on the shipping address
+            if (
+                $shippingAssignment->getShipping()
+                && $shippingAssignment->getShipping()->getAddress()
+                && $shippingAssignment->getShipping()->getAddress()->getShippingDiscountAmount()
+                && $shippingAssignment->getShipping()->getAddress()->getShippingDiscountAmount()
+                    <= ($item->getUnitPrice() * $item->getQuantity())
+            ) {
+                // The shipping discount amount appears to exist and should be adjusted for
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

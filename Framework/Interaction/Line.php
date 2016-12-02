@@ -331,11 +331,27 @@ class Line
     public function getShippingLine($data, $credit)
     {
         $shippingAmount = $data->getBaseShippingAmount();
+        $discounted = false;
 
         // If shipping rate doesn't have cost associated with it, do nothing
         if ($shippingAmount <= 0) {
             return false;
         }
+
+        // Check the order to see if a shipping discount amount exists
+        // and the shipping amount on the invoice|creditmemo matches the shipping amount on the order
+        // then subtract the discount amount from the shipping amount and if 0 return false
+        $shippingDiscountAmount = $data->getOrder()->getShippingDiscountAmount();
+        $orderShippingAmount = $data->getOrder()->getShippingAmount();
+        if (
+            $shippingDiscountAmount > 0
+            && $shippingAmount == $orderShippingAmount
+            && $shippingAmount - $shippingDiscountAmount >= 0
+        ) {
+            $shippingAmount = $shippingAmount - $shippingDiscountAmount;
+            $discounted = true;
+        }
+
 
         if ($credit) {
             $shippingAmount *= -1;
@@ -350,7 +366,7 @@ class Line
             'Description' => self::SHIPPING_LINE_DESCRIPTION,
             'Qty' => 1,
             'Amount' => $shippingAmount,
-            'Discounted' => false,
+            'Discounted' => $discounted,
         ];
 
         try {
