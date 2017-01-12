@@ -163,7 +163,7 @@ class Line
         // from taxable amount
         $amount = $item->getBaseRowTotal() - $item->getBaseDiscountAmount();
 
-        if ($item->getQty() == 0 || $amount == 0) {
+        if ($item->getQty() == 0) {
             return false;
         }
         $product = $item->getOrderItem()->getProduct();
@@ -209,7 +209,7 @@ class Line
         // Credit memo amounts need to be sent to AvaTax as negative numbers
         $amount *= -1;
 
-        if ($item->getQty() == 0 || $amount == 0) {
+        if ($item->getQty() == 0) {
             return false;
         }
 
