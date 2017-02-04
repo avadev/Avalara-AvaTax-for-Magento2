@@ -10,6 +10,10 @@ Agile, successful companies focus on their core business and outsource complex, 
 
 This extension contains integration tests to verify the extension's functionality. These tests should only need to be run by developers maintaining this extension. Instructions for running tests can be found [here](https://github.com/classyllama/ClassyLlama_AvaTax/blob/master/Tests/README.md).
 
+# Magento Version Support
+
+As of version 0.3.0 of this extension, this extension supported Magento 2.1.x (Community and Enterprise). Suppport for Magento 2.0.x was dropped as of version 0.3.0. See [this page](https://github.com/classyllama/ClassyLlama_AvaTax/releases) for a list of all releases.
+
 # License
 
 This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0
