@@ -1,3 +1,9 @@
+### 0.3.4 (2017-02-04)
+
+* Fix issue where refunding an online credit memo would result in duplicate refund amounts being set on order and order status changing [#36](https://github.com/classyllama/ClassyLlama_AvaTax/issues/36) and [#40](https://github.com/classyllama/ClassyLlama_AvaTax/issues/40)
+* Fix issue where tax is calculated for $0 carts [#39](https://github.com/classyllama/ClassyLlama_AvaTax/issues/39)
+* Fix error when invoice with a single $0 item is sent to AvaTax [#46](https://github.com/classyllama/ClassyLlama_AvaTax/issues/46)
+
 ### 0.3.3 (2016-11-09)
 
 * Fix issue where Magento order number was not being sent to AvaTax in the PurchaseOrderNo field [#38](https://github.com/classyllama/ClassyLlama_AvaTax/issues/38) (from @expandlab)
