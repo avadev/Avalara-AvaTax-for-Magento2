@@ -39,8 +39,6 @@
     </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
-    <preference for="ClassyLlama\AvaTax\Api\Data\CreditmemoInterface" type="ClassyLlama\AvaTax\Model\Creditmemo" />
-    <preference for="ClassyLlama\AvaTax\Api\Data\InvoiceInterface" type="ClassyLlama\AvaTax\Model\Invoice" />
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
