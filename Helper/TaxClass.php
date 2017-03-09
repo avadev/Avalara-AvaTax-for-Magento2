@@ -29,6 +29,11 @@ class TaxClass
     const SHIPPING_LINE_AVATAX_TAX_CODE = 'FR020100';
 
     /**
+     * Avatax gift certificate tax code
+     */
+    const GIFT_CARD_LINE_AVATAX_TAX_CODE = 'PG050000';
+
+    /**
      * UPC Format
      */
     const UPC_FORMAT = 'UPC: %s';
@@ -119,7 +124,7 @@ class TaxClass
     public function getAvataxTaxCodeForProduct(\Magento\Catalog\Model\Product $product, $storeId)
     {
         if ($product->getTypeId() == self::PRODUCT_TYPE_GIFTCARD) {
-            return $this->getAvataxTaxCodeForGiftOptions($storeId);
+            return self::GIFT_CARD_LINE_AVATAX_TAX_CODE;
         } else {
             return $this->getAvaTaxTaxCode($product->getTaxClassId());
         }
