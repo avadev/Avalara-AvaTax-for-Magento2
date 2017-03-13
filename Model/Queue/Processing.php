@@ -181,7 +181,7 @@ class Processing
         $processSalesResponse = $this->processWithAvaTax($queue, $entity);
 
         // Create AvaTax record with entity's values
-        $this->processAvaTaxRecord($entity, $processSalesResponse);
+        $this->saveAvaTaxRecord($entity, $processSalesResponse);
 
         // Update the queue record status
         // and add comment to order
@@ -395,7 +395,7 @@ class Processing
      * @param \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse
      * @throws \Exception
      */
-    protected function processAvaTaxRecord(
+    protected function saveAvaTaxRecord(
         $entity,
         GetTaxResponseInterface $processSalesResponse
     )
@@ -477,71 +477,6 @@ class Processing
         if ($avataxIsUnbalancedToSave || $baseAvataxTaxAmountToSave) {
             // Save the AvaTax entry
             $avaTaxRecord->save();
-        }
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @param \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse
-     * @throws \Exception
-     */
-    protected function updateAdditionalEntityAttributes(
-        $entity,
-        GetTaxResponseInterface $processSalesResponse
-    ) {
-        $entityExtension = $entity->getExtensionAttributes();
-        if ($entityExtension == null) {
-            $entityExtension = $this->getEntityExtensionInterface($entity);
-        }
-        // check to see if the AvataxIsUnbalanced is already set on this entity
-        $avataxIsUnbalancedToSave = false;
-        if ($entityExtension->getAvataxIsUnbalanced() === null) {
-            $entityExtension->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
-            $avataxIsUnbalancedToSave = true;
-        } else {
-            // check to see if any existing value is different from the new value
-            if ($processSalesResponse->getIsUnbalanced() <> $entityExtension->getAvataxIsUnbalanced()) {
-                // Log the warning
-                $this->avaTaxLogger->warning(
-                    __('When processing an entity in the queue there was an existing AvataxIsUnbalanced and ' .
-                        'the new value was different than the old one. The old value was overwritten.'),
-                    [ /* context */
-                        'old_is_unbalanced' => $entityExtension->getAvataxIsUnbalanced(),
-                        'new_is_unbalanced' => $processSalesResponse->getIsUnbalanced(),
-                    ]
-                );
-                $entityExtension->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
-                $avataxIsUnbalancedToSave = true;
-            }
-        }
-        // check to see if the BaseAvataxTaxAmount is already set on this entity
-        $baseAvataxTaxAmountToSave = false;
-        if ($entityExtension->getBaseAvataxTaxAmount() === null) {
-            $entityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
-            $baseAvataxTaxAmountToSave = true;
-        } else {
-            // check to see if any existing value is different from the new value
-            if ($processSalesResponse->getBaseAvataxTaxAmount() <> $entityExtension->getBaseAvataxTaxAmount()) {
-                // Log the warning
-                $this->avaTaxLogger->warning(
-                    __('When processing an entity in the queue there was an existing BaseAvataxTaxAmount and ' .
-                        'the new value was different than the old one. The old value was overwritten.'),
-                    [ /* context */
-                        'old_base_avatax_tax_amount' => $entityExtension->getBaseAvataxTaxAmount(),
-                        'new_base_avatax_tax_amount' => $processSalesResponse->getBaseAvataxTaxAmount(),
-                    ]
-                );
-                $entityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
-                $baseAvataxTaxAmountToSave = true;
-            }
-        }
-        // save the ExtensionAttributes on the entity object
-        if ($avataxIsUnbalancedToSave || $baseAvataxTaxAmountToSave) {
-            $entity->setExtensionAttributes($entityExtension);
-            // get the repository for this entity type
-            $entityRepository = $this->getEntityRepository($entity);
-            // save the entity object using the repository
-            $entityRepository->save($entity);
         }
     }
 

@@ -266,7 +266,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ->setComment('AvaTax Sales Credit Memo Table');
             $setup->getConnection()->createTable($table);
         }
-
         $setup->endSetup();
     }
 }
