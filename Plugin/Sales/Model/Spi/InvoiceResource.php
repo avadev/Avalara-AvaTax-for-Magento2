@@ -166,7 +166,7 @@ class InvoiceResource
         /** @var \Magento\Framework\Model\ResourceModel\Db\AbstractDb $resultEntity */
         $resultEntity = $proceed($entity, $value, $field);
 
-        // Load AvaTax extension attributes
+        // Load AvaTax record into extension attributes
         if ($this->avaTaxConfig->isModuleEnabled($entity->getStoreId())) {
 
             // Get the AvaTax record

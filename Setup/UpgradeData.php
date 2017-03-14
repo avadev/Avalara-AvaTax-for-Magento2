@@ -17,13 +17,6 @@ use ClassyLlama\AvaTax\Model\CreditMemoFactory;
 
 class UpgradeData implements UpgradeDataInterface
 {
-    /**#@+
-     * Field Names
-     */
-    const AVATAX_IS_UNBALANCED_FIELD_NAME = 'avatax_is_unbalanced';
-    const BASE_AVATAX_TAX_AMOUNT_FIELD_NAME = 'base_avatax_tax_amount';
-    /**#@-*/
-
     /**
      * @var InvoiceRepositoryInterface
      */
@@ -71,15 +64,24 @@ class UpgradeData implements UpgradeDataInterface
         $this->avataxCreditMemoFactory = $avataxCreditMemoFactory;
     }
 
+    /**
+     * Upgrade scripts
+     *
+     * @param ModuleDataSetupInterface $setup
+     * @param ModuleContextInterface $context
+     */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context) {
         $setup->startSetup();
         if (version_compare($context->getVersion(), '0.4.0', '<' )) {
+            // Copy AvaTax data from Invoice and Credit Memo tables to AvaTax tables
+            // Set a filter to only retrieve records with a base_avatax_tax_amount value set
             $criteria = $this->searchCriteriaBuilder
-                ->addFilter(self::BASE_AVATAX_TAX_AMOUNT_FIELD_NAME, '', 'neq')
+                ->addFilter('base_avatax_tax_amount', '', 'neq')
                 ->create();
             $invoiceResult = $this->invoiceRepository->getList($criteria);
             $invoices = $invoiceResult->getItems();
             foreach($invoices as $invoice) {
+                // Loop through retrieved invoices, creating AvaTax records
                 $avaTaxRecord = $this->avataxInvoiceFactory->create();
                 $avaTaxRecord->setData('parent_id', $invoice->getId());
                 $avaTaxRecord->setData('is_unbalanced', $invoice->getData('avatax_is_unbalanced'));
@@ -89,6 +91,7 @@ class UpgradeData implements UpgradeDataInterface
             $creditmemoResult = $this->creditmemoRepository->getList($criteria);
             $creditmemos = $creditmemoResult->getItems();
             foreach($creditmemos as $creditmemo) {
+                // Loop through retrieved credit memos, creating AvaTax records
                 $avaTaxRecord = $this->avataxCreditMemoFactory->create();
                 $avaTaxRecord->setData('parent_id', $creditmemo->getId());
                 $avaTaxRecord->setData('is_unbalanced', $creditmemo->getData('avatax_is_unbalanced'));

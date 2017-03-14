@@ -17,11 +17,18 @@ class CreditMemo
         $this->_init('ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo');
     }
 
+    /**
+     * @return array
+     */
     public function getIdentities()
     {
         return [self::CACHE_TAG . '_' . $this->getId()];
     }
 
+    /**
+     * @param $creditMemoId
+     * @return $this
+     */
     public function loadByParentId($creditMemoId){
         if(!$creditMemoId){
             $creditMemoId = $this->getId();

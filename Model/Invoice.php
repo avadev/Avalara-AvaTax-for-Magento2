@@ -17,11 +17,18 @@ class Invoice
         $this->_init('ClassyLlama\AvaTax\Model\ResourceModel\Invoice');
     }
 
+    /**
+     * @return array
+     */
     public function getIdentities()
     {
         return [self::CACHE_TAG . '_' . $this->getId()];
     }
 
+    /**
+     * @param $invoiceId
+     * @return $this
+     */
     public function loadByParentId($invoiceId)
     {
         if(!$invoiceId){

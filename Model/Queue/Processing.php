@@ -68,7 +68,7 @@ class Processing
     protected $invoiceRepository;
 
     /**
-     * @var InvoiceRepositoryInterface
+     * @var CreditmemoRepositoryInterface
      */
     protected $creditMemoRepository;
 
@@ -180,7 +180,7 @@ class Processing
         // Process entity with AvaTax
         $processSalesResponse = $this->processWithAvaTax($queue, $entity);
 
-        // Create AvaTax record with entity's values
+        // Create AvaTax record
         $this->saveAvaTaxRecord($entity, $processSalesResponse);
 
         // Update the queue record status
@@ -400,20 +400,7 @@ class Processing
         GetTaxResponseInterface $processSalesResponse
     )
     {
-        if ($entity->getEntityType() === Queue::ENTITY_TYPE_CODE_INVOICE) {
-            /** @var Invoice $avaTaxRecord */
-            $avaTaxRecord = $this->avataxInvoiceFactory->create();
-        } elseif ($entity->getEntityType() === Queue::ENTITY_TYPE_CODE_CREDITMEMO) {
-            /** @var CreditMemo $avaTaxRecord */
-            $avaTaxRecord = $this->avataxCreditMemoFactory->create();
-        } else {
-            // We don't know what entity type this is
-            throw new \Exception(
-                __('Processing was attempted on a queue record whose entity type is not supported: %1',
-                    $entity->getEntityType()
-                )
-            );
-        }
+        $avaTaxRecord = $this->createAvataxEntity($entity);
         // Load existing AvaTax entry for this entity, if exists
         $avaTaxRecord->loadByParentId($entity->getId());
 
@@ -482,51 +469,21 @@ class Processing
 
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @return \Magento\Sales\Api\Data\InvoiceExtension|\Magento\Sales\Api\Data\CreditmemoExtension
+     * @return CreditMemo|Invoice
      * @throws \Exception
      */
-    protected function getEntityExtensionInterface($entity)
+    protected function createAvataxEntity($entity)
     {
         if ($entity instanceof InvoiceInterface) {
-            return $this->invoiceExtensionFactory->create();
+            /** @var Invoice $avaTaxRecord */
+            $avaTaxRecord = $this->avataxInvoiceFactory->create();
+            return $avaTaxRecord;
         } elseif ($entity instanceof CreditmemoInterface) {
-            return $this->creditmemoExtensionFactory->create();
+            /** @var CreditMemo $avaTaxRecord */
+            $avaTaxRecord = $this->avataxCreditMemoFactory->create();
+            return $avaTaxRecord;
         } else {
-            $message = __('Did not receive a valid entity instance to determine the extension to return');
-            throw new \Exception($message);
-        }
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @return \Magento\Eav\Model\Entity\Type
-     * @throws \Exception
-     */
-    protected function getEntityType($entity)
-    {
-        if ($entity instanceof InvoiceInterface) {
-            return $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_INVOICE);
-        } elseif ($entity instanceof CreditmemoInterface) {
-            return $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_CREDITMEMO);
-        } else {
-            $message = __('Did not receive a valid entity instance to determine the entity type to return');
-            throw new \Exception($message);
-        }
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @return \Magento\Sales\Api\InvoiceRepositoryInterface|\Magento\Sales\Api\CreditmemoRepositoryInterface
-     * @throws \Exception
-     */
-    protected function getEntityRepository($entity)
-    {
-        if ($entity instanceof InvoiceInterface) {
-            return $this->invoiceRepository;
-        } elseif ($entity instanceof CreditmemoInterface) {
-            return $this->creditmemoRepository;
-        } else {
-            $message = __('Did not receive a valid entity instance to determine the repository type to return');
+            $message = __('Did not receive a valid entity instance to determine the factory type to return');
             throw new \Exception($message);
         }
     }

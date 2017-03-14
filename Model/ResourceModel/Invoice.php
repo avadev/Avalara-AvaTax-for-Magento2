@@ -13,11 +13,17 @@ class Invoice extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $this->_init('avatax_sales_invoice', 'entity_id');
     }
 
+    /**
+     * Load AvaTax invoice record using parent invoice Id
+     *
+     * @param $invoiceId
+     * @return string
+     */
     public function loadByParentId($invoiceId){
         $table = $this->getMainTable();
         $where = $this->getConnection()->quoteInto("parent_id = ?", $invoiceId);
         $sql = $this->getConnection()->select()->from($table,array('entity_id'))->where($where);
-        $id = $this->getConnection()->fetchOne($sql);
-        return $id;
+        $record = $this->getConnection()->fetchOne($sql);
+        return $record;
     }
 }

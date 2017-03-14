@@ -13,11 +13,17 @@ class CreditMemo extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $this->_init('avatax_sales_creditmemo', 'entity_id');
     }
 
+    /**
+     * Load AvaTax credit memo record using parent credit memo Id
+     *
+     * @param $creditMemoId
+     * @return string
+     */
     public function loadByParentId($creditMemoId){
         $table = $this->getMainTable();
         $where = $this->getConnection()->quoteInto("parent_id = ?", $creditMemoId);
         $sql = $this->getConnection()->select()->from($table,array('entity_id'))->where($where);
-        $id = $this->getConnection()->fetchOne($sql);
-        return $id;
+        $record = $this->getConnection()->fetchOne($sql);
+        return $record;
     }
 }
