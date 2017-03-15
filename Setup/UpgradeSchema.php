@@ -31,60 +31,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
-        if (version_compare($context->getVersion(), '0.1.3', '<')) {
-            // Add column to invoice and credit memo tables for avatax responses
-            $setup->getConnection()->addColumn(
-                $setup->getTable('sales_invoice'),
-                'avatax_is_unbalanced',
-                [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-                    'length' => 1,
-                    'nullable' => true,
-                    'default' => null,
-                    'unsigned' => true,
-                    'comment' => 'Is Unbalanced In Relation To AvaTax Calculated Tax Amount'
-                ]
-            );
-            $setup->getConnection()->addColumn(
-                $setup->getTable('sales_creditmemo'),
-                'avatax_is_unbalanced',
-                [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
-                    'length' => 1,
-                    'nullable' => true,
-                    'default' => null,
-                    'unsigned' => true,
-                    'comment' => 'Is Unbalanced In Relation To AvaTax Calculated Tax Amount'
-                ]
-            );
-
-            $setup->getConnection()->addColumn(
-                $setup->getTable('sales_invoice'),
-                'base_avatax_tax_amount',
-                [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
-                    'length' => '12,4',
-                    'nullable' => true,
-                    'default' => null,
-                    'unsigned' => false,
-                    'comment' => 'Base AvaTax Calculated Tax Amount'
-                ]
-            );
-
-            $setup->getConnection()->addColumn(
-                $setup->getTable('sales_creditmemo'),
-                'base_avatax_tax_amount',
-                [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
-                    'length' => '12,4',
-                    'nullable' => true,
-                    'default' => null,
-                    'unsigned' => false,
-                    'comment' => 'Base AvaTax Calculated Tax Amount'
-                ]
-            );
-        }
-
         if (version_compare($context->getVersion(), '0.1.4', '<')) {
             /**
              * Add "avatax_code" column to tax_class table
@@ -104,6 +50,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         if (version_compare($context->getVersion(), '0.4.0', '<')) {
+            /** As a part of the upgrade process for this revision, data is migrated from the sales_invoice and
+             * sales_creditmemo tables into the newly created tables above.  After the data migration, the previously
+             * mentioned tables are altered to drop the now-unused columns in each (base_avatax_tax_amount and
+             * avatax_is_unbalanced). @see \ClassyLlama\AvaTax\Setup\UpgradeData for this logic.
+             */
+
             /**
              * Create table 'avatax_sales_invoice'
              */
@@ -179,7 +131,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'parent_id',
                     $setup->getTable('sales_invoice'),
                     'entity_id',
-                    Table::ACTION_CASCADE,
                     Table::ACTION_CASCADE
                 )
                 ->setComment('AvaTax Sales Invoice Table');
@@ -260,7 +211,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'parent_id',
                     $setup->getTable('sales_creditmemo'),
                     'entity_id',
-                    Table::ACTION_CASCADE,
                     Table::ACTION_CASCADE
                 )
                 ->setComment('AvaTax Sales Credit Memo Table');

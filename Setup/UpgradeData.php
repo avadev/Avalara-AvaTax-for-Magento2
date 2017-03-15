@@ -9,61 +9,9 @@ namespace ClassyLlama\AvaTax\Setup;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
-use Magento\Sales\Api\CreditmemoRepositoryInterface;
-use Magento\Framework\Api\SearchCriteriaBuilder;
-use ClassyLlama\AvaTax\Model\InvoiceFactory;
-use ClassyLlama\AvaTax\Model\CreditMemoFactory;
 
 class UpgradeData implements UpgradeDataInterface
 {
-    /**
-     * @var InvoiceRepositoryInterface
-     */
-    protected $invoiceRepository;
-
-    /**
-     * @var CreditmemoRepositoryInterface
-     */
-    protected $creditmemoRepository;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    protected $searchCriteriaBuilder;
-
-    /**
-     * @var InvoiceFactory
-     */
-    protected $avataxInvoiceFactory;
-
-    /**
-     * @var CreditMemoFactory
-     */
-    protected $avataxCreditMemoFactory;
-
-    /**
-     * UpgradeData constructor.
-     * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param CreditmemoRepositoryInterface $creditmemoRepository
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param InvoiceFactory $avataxInvoiceFactory
-     * @param CreditMemoFactory $avataxCreditMemoFactory
-     */
-    public function __construct(
-        InvoiceRepositoryInterface $invoiceRepository,
-        CreditmemoRepositoryInterface $creditmemoRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        InvoiceFactory $avataxInvoiceFactory,
-        CreditMemoFactory $avataxCreditMemoFactory
-    ) {
-        $this->invoiceRepository = $invoiceRepository;
-        $this->creditmemoRepository = $creditmemoRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->avataxInvoiceFactory = $avataxInvoiceFactory;
-        $this->avataxCreditMemoFactory = $avataxCreditMemoFactory;
-    }
-
     /**
      * Upgrade scripts
      *
@@ -73,30 +21,87 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context) {
         $setup->startSetup();
         if (version_compare($context->getVersion(), '0.4.0', '<' )) {
-            // Copy AvaTax data from Invoice and Credit Memo tables to AvaTax tables
-            // Set a filter to only retrieve records with a base_avatax_tax_amount value set
-            $criteria = $this->searchCriteriaBuilder
-                ->addFilter('base_avatax_tax_amount', '', 'neq')
-                ->create();
-            $invoiceResult = $this->invoiceRepository->getList($criteria);
-            $invoices = $invoiceResult->getItems();
-            foreach($invoices as $invoice) {
-                // Loop through retrieved invoices, creating AvaTax records
-                $avaTaxRecord = $this->avataxInvoiceFactory->create();
-                $avaTaxRecord->setData('parent_id', $invoice->getId());
-                $avaTaxRecord->setData('is_unbalanced', $invoice->getData('avatax_is_unbalanced'));
-                $avaTaxRecord->setData('base_avatax_tax_amount', $invoice->getBaseAvataxTaxAmount());
-                $avaTaxRecord->save();
+
+            // Only copy data and drop columns from "sales_invoice" if the columns exist
+            if (
+                $setup->getConnection()->tableColumnExists('sales_invoice', 'avatax_is_unbalanced')
+                && $setup->getConnection()->tableColumnExists('sales_invoice', 'base_avatax_tax_amount')
+            ) {
+                // Copy any existing AvaTax data from core Invoice table into new AvaTax Invoice table
+                $select = $setup->getConnection()->select()
+                    ->from(
+                        $setup->getTable('sales_invoice'),
+                        [
+                            'entity_id',
+                            'avatax_is_unbalanced',
+                            'base_avatax_tax_amount'
+                        ])
+                    ->where('base_avatax_tax_amount IS NOT NULL OR avatax_is_unbalanced IS NOT NULL');
+                $select = $setup->getConnection()->insertFromSelect(
+                    $select,
+                    $setup->getTable('avatax_sales_invoice'),
+                    [
+                        'parent_id',
+                        'is_unbalanced',
+                        'base_avatax_tax_amount'
+                    ]
+                );
+                $setup->getConnection()->query($select);
+
+                // Drop "avatax_is_unbalanced" column from "sales_invoice" table
+                $setup->getConnection()
+                    ->dropColumn(
+                        $setup->getTable('sales_invoice'),
+                        'avatax_is_unbalanced'
+                    );
+
+                // Drop "base_avatax_tax_amount" column from "sales_invoice" table
+                $setup->getConnection()
+                    ->dropColumn(
+                        $setup->getTable('sales_invoice'),
+                        'base_avatax_tax_amount'
+                    );
             }
-            $creditmemoResult = $this->creditmemoRepository->getList($criteria);
-            $creditmemos = $creditmemoResult->getItems();
-            foreach($creditmemos as $creditmemo) {
-                // Loop through retrieved credit memos, creating AvaTax records
-                $avaTaxRecord = $this->avataxCreditMemoFactory->create();
-                $avaTaxRecord->setData('parent_id', $creditmemo->getId());
-                $avaTaxRecord->setData('is_unbalanced', $creditmemo->getData('avatax_is_unbalanced'));
-                $avaTaxRecord->setData('base_avatax_tax_amount', $creditmemo->getBaseAvataxTaxAmount());
-                $avaTaxRecord->save();
+
+            // Only copy data and drop columns from "sales_creditmemo" if the columns exist
+            if (
+                $setup->getConnection()->tableColumnExists('sales_creditmemo', 'avatax_is_unbalanced')
+                && $setup->getConnection()->tableColumnExists('sales_creditmemo', 'base_avatax_tax_amount')
+            ) {
+                // Copy any existing AvaTax data from core Credit Memo table into new AvaTax Credit Memo table
+                $select = $setup->getConnection()->select()
+                    ->from(
+                        $setup->getTable('sales_creditmemo'),
+                        [
+                            'entity_id',
+                            'avatax_is_unbalanced',
+                            'base_avatax_tax_amount'
+                        ])
+                    ->where('base_avatax_tax_amount IS NOT NULL OR avatax_is_unbalanced IS NOT NULL');
+                $select = $setup->getConnection()->insertFromSelect(
+                    $select,
+                    $setup->getTable('avatax_sales_creditmemo'),
+                    [
+                        'parent_id',
+                        'is_unbalanced',
+                        'base_avatax_tax_amount'
+                    ]
+                );
+                $setup->getConnection()->query($select);
+
+                // Drop "avatax_is_unbalanced" column from "sales_creditmemo" table
+                $setup->getConnection()
+                    ->dropColumn(
+                        $setup->getTable('sales_creditmemo'),
+                        'avatax_is_unbalanced'
+                    );
+
+                // Drop "base_avatax_tax_amount" column from "sales_creditmemo" table
+                $setup->getConnection()
+                    ->dropColumn(
+                        $setup->getTable('sales_creditmemo'),
+                        'base_avatax_tax_amount'
+                    );
             }
         }
         $setup->endSetup();

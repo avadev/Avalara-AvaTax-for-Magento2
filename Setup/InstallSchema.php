@@ -19,6 +19,7 @@ use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\DB\Ddl\Table;
 
 /**
  * @codeCoverageIgnore
@@ -268,6 +269,166 @@ class InstallSchema implements InstallSchemaInterface
             )
             ->setComment('AvaTax Queue Table');
         $installer->getConnection()->createTable($table);
+
+        /**
+         * Create table 'avatax_sales_invoice'
+         */
+        $table = $setup->getConnection()
+            ->newTable(
+                $setup->getTable('avatax_sales_invoice')
+            )
+            ->addColumn(
+                'entity_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                [
+                    'nullable' => false,
+                    'identity' => true,
+                    'primary' => true
+                ],
+                'Entity ID'
+            )
+            ->addColumn(
+                'parent_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                10,
+                [
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Sales Invoice ID'
+            )
+            ->addColumn(
+                'is_unbalanced',
+                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                1,
+                [
+                    'nullable' => true,
+                    'default' => null,
+                    'unsigned' => true,
+                ],
+                'Is Unbalanced In Relation To AvaTax Calculated Tax Amount'
+            )
+            ->addColumn(
+                'base_avatax_tax_amount',
+                \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                '12,4',
+                [
+                    'nullable' => true,
+                    'default' => null,
+                    'unsigned' => false,
+                ],
+                'Base AvaTax Calculated Tax Amount'
+            )
+            ->addIndex(
+                $setup->getIdxName(
+                    'avatax_sales_invoice',
+                    [
+                        'entity_id',
+                        'parent_id'
+                    ],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX
+                ),
+                [
+                    'entity_id',
+                    'parent_id'
+                ],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX]
+            )
+            ->addForeignKey(
+                $setup->getFkName(
+                    'avatax_sales_invoice_parent_id_sales_invoice_entity_id',
+                    'parent_id',
+                    'sales_invoice',
+                    'entity_id'
+                ),
+                'parent_id',
+                $setup->getTable('sales_invoice'),
+                'entity_id',
+                Table::ACTION_CASCADE
+            )
+            ->setComment('AvaTax Sales Invoice Table');
+        $setup->getConnection()->createTable($table);
+
+        /**
+         * Create table 'avatax_sales_creditmemo'
+         */
+        $table = $setup->getConnection()
+            ->newTable(
+                $setup->getTable('avatax_sales_creditmemo')
+            )
+            ->addColumn(
+                'entity_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                [
+                    'nullable' => false,
+                    'identity' => true,
+                    'primary' => true
+                ],
+                'Entity ID'
+            )
+            ->addColumn(
+                'parent_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                10,
+                [
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Sales Credit Memo ID'
+            )
+            ->addColumn(
+                'is_unbalanced',
+                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                1,
+                [
+                    'nullable' => true,
+                    'default' => null,
+                    'unsigned' => true,
+                ],
+                'Is Unbalanced In Relation To AvaTax Calculated Tax Amount'
+            )
+            ->addColumn(
+                'base_avatax_tax_amount',
+                \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                '12,4',
+                [
+                    'nullable' => true,
+                    'default' => null,
+                    'unsigned' => false,
+                ],
+                'Base AvaTax Calculated Tax Amount'
+            )
+            ->addIndex(
+                $setup->getIdxName(
+                    'avatax_sales_creditmemo',
+                    [
+                        'entity_id',
+                        'parent_id'
+                    ],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX
+                ),
+                [
+                    'entity_id',
+                    'parent_id'
+                ],
+                ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX]
+            )
+            ->addForeignKey(
+                $setup->getFkName(
+                    'avatax_sales_creditmemo_parent_id_sales_creditmemo_entity_id',
+                    'parent_id',
+                    'sales_creditmemo',
+                    'entity_id'
+                ),
+                'parent_id',
+                $setup->getTable('sales_creditmemo'),
+                'entity_id',
+                Table::ACTION_CASCADE
+            )
+            ->setComment('AvaTax Sales Credit Memo Table');
+        $setup->getConnection()->createTable($table);
 
         $installer->endSetup();
     }
