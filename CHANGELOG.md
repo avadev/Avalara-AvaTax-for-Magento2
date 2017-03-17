@@ -1,8 +1,12 @@
-### 0.4.0 (2017-03-14)
+### 1.0.0 (2017-03-17)
 
-* Add code to create new database tables dedicated to storing AvaTax data
-* Add code to migrate existing data from AvaTax columns on sales_invoice and sales_creditmemo tables to new tables
-* Refactor code to store AvaTax data in new tables instead of attaching to entities
+* Add code to create new database tables dedicated to storing AvaTax data [#47](https://github.com/classyllama/ClassyLlama_AvaTax/issues/47) and [#40](https://github.com/classyllama/ClassyLlama_AvaTax/issues/40)
+    * Add code to migrate existing data from AvaTax columns on sales_invoice and sales_creditmemo tables to new tables
+    * Add code to remove existing AvaTax columns after migrating data
+    * Refactor code to store AvaTax data in new tables instead of attaching to entities
+* Add support for [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html) [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54)
+    * Refactor code to create AvaTax tables in the 'sales' database when running in split database mode
+    * Reference issue [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54) for additonal notes
 
 ### 0.3.4 (2017-02-04)
 
