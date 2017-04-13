@@ -24,6 +24,7 @@ use Magento\Sales\Api\Data\CreditmemoExtensionFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Model\Spi\CreditmemoResourceInterface;
 use Magento\Framework\Model\AbstractModel;
+use \ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo as CreditMemoResourceModel;
 
 /**
  * Class CreditmemoResource
@@ -170,9 +171,9 @@ class CreditmemoResource
 
             // Get the AvaTax record
             /** @var CreditMemo $avataxRecord */
-            $avataxRecord = $this->avataxCreditMemo->loadByParentId($entity->getId());
-            $avataxIsUnbalanced = $avataxRecord->getData('is_unbalanced');
-            $baseAvataxTaxAmount = $avataxRecord->getData('base_avatax_tax_amount');
+            $avataxRecord = $this->avataxCreditMemo->load($entity->getId(), CreditMemoResourceModel::PARENT_ID_FIELD_NAME);
+            $avataxIsUnbalanced = $avataxRecord->getIsUnbalanced();
+            $baseAvataxTaxAmount = $avataxRecord->getBaseAvataxTaxAmount();
 
             // Check the AvaTax Entity to see if we need to add extension attributes
             if ($avataxIsUnbalanced !== null || $baseAvataxTaxAmount !== null) {

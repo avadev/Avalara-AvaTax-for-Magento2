@@ -402,53 +402,51 @@ class Processing
     {
         $avaTaxRecord = $this->createAvataxEntity($entity);
         // Load existing AvaTax entry for this entity, if exists
-        $avaTaxRecord->loadByParentId($entity->getId());
+        $avaTaxRecord->load($entity->getId(), 'parent_id');
 
-        if ($avaTaxRecord->getData('parent_id')) {
+        if ($avaTaxRecord->getParentId()) {
             // Record exists, compare existing values to new
 
             // Check to see if isUnbalanced is already set on this entity
             $avataxIsUnbalancedToSave = false;
-            if ($avaTaxRecord->getData('is_unbalanced') == null) {
-                $avaTaxRecord->setData('is_unbalanced', $processSalesResponse->getIsUnbalanced());
+            if ($avaTaxRecord->getIsUnbalanced() == null) {
+                $avaTaxRecord->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
                 $avataxIsUnbalancedToSave = true;
             } else {
                 // check to see if any existing value is different from the new value
-                if ($processSalesResponse->getIsUnbalanced() <> $avaTaxRecord->getData('is_unbalanced')) {
+                if ($processSalesResponse->getIsUnbalanced() <> $avaTaxRecord->getIsUnbalanced()) {
                     // Log the warning
                     $this->avaTaxLogger->warning(
                         __('When processing an entity in the queue there was an existing AvataxIsUnbalanced and ' .
                             'the new value was different than the old one. The old value was overwritten.'),
                         [ /* context */
-                            'old_is_unbalanced' => $avaTaxRecord->getData('is_unbalanced'),
+                            'old_is_unbalanced' => $avaTaxRecord->getIsUnbalanced(),
                             'new_is_unbalanced' => $processSalesResponse->getIsUnbalanced(),
                         ]
                     );
-                    $avaTaxRecord->setData('is_unbalanced', $processSalesResponse->getIsUnbalanced());
+                    $avaTaxRecord->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
                     $avataxIsUnbalancedToSave = true;
                 }
             }
 
             // Check to see if the BaseAvataxTaxAmount is already set on this entity
             $baseAvataxTaxAmountToSave = false;
-            if ($avaTaxRecord->getData('base_avatax_tax_amount') == null) {
-                $avaTaxRecord->setData('base_avatax_tax_amount', $processSalesResponse->getBaseAvataxTaxAmount());
+            if ($avaTaxRecord->getBaseAvataxTaxAmount() == null) {
+                $avaTaxRecord->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
                 $baseAvataxTaxAmountToSave = true;
             } else {
                 // Check to see if any existing value is different from the new value
-                if (
-                    $processSalesResponse->getBaseAvataxTaxAmount() <> $avaTaxRecord->getData('base_avatax_tax_amount')
-                ) {
+                if ($processSalesResponse->getBaseAvataxTaxAmount() <> $avaTaxRecord->getBaseAvataxTaxAmount()) {
                     // Log the warning
                     $this->avaTaxLogger->warning(
                         __('When processing an entity in the queue there was an existing BaseAvataxTaxAmount and ' .
                             'the new value was different than the old one. The old value was overwritten.'),
                         [ /* context */
-                            'old_base_avatax_tax_amount' => $avaTaxRecord->getData('base_avatax_tax_amount'),
+                            'old_base_avatax_tax_amount' => $avaTaxRecord->getBaseAvataxTaxAmount(),
                             'new_base_avatax_tax_amount' => $processSalesResponse->getBaseAvataxTaxAmount(),
                         ]
                     );
-                    $avaTaxRecord->setData('base_avatax_tax_amount', $processSalesResponse->getBaseAvataxTaxAmount());
+                    $avaTaxRecord->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
                     $baseAvataxTaxAmountToSave = true;
                 }
             }
@@ -456,9 +454,9 @@ class Processing
             // No entry exists for entity ID, add data to entry and set store flags to true
             $avataxIsUnbalancedToSave = true;
             $baseAvataxTaxAmountToSave = true;
-            $avaTaxRecord->setData('parent_id', $entity->getId());
-            $avaTaxRecord->setData('is_unbalanced', $processSalesResponse->getIsUnbalanced());
-            $avaTaxRecord->setData('base_avatax_tax_amount', $processSalesResponse->getBaseAvataxTaxAmount());
+            $avaTaxRecord->setParentId($entity->getId());
+            $avaTaxRecord->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
+            $avaTaxRecord->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
         }
 
         if ($avataxIsUnbalancedToSave || $baseAvataxTaxAmountToSave) {
