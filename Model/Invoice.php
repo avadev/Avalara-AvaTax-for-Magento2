@@ -7,7 +7,7 @@
 namespace ClassyLlama\AvaTax\Model;
 
 /**
- * CreditMemo
+ * Invoice
  *
  * @method int getParentId() getParentId()
  * @method string getIsUnbalanced() getIsUnbalanced()
