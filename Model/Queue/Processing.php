@@ -36,6 +36,8 @@ use Magento\Sales\Api\Data\InvoiceExtensionFactory;
 use Magento\Sales\Api\Data\CreditmemoExtensionFactory;
 use Magento\Eav\Model\Config as EavConfig;
 use Magento\Framework\Exception\NoSuchEntityException;
+use ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo as CreditMemoResourceModel;
+use ClassyLlama\AvaTax\Model\ResourceModel\Invoice as InvoiceResourceModel;
 
 /**
  * Queue Processing
@@ -400,9 +402,8 @@ class Processing
         GetTaxResponseInterface $processSalesResponse
     )
     {
-        $avaTaxRecord = $this->createAvataxEntity($entity);
-        // Load existing AvaTax entry for this entity, if exists
-        $avaTaxRecord->load($entity->getId(), 'parent_id');
+        // Get the associated AvataxEntity record (related to extension attributes) for this entity type
+        $avaTaxRecord = $this->getAvataxEntity($entity);
 
         if ($avaTaxRecord->getParentId()) {
             // Record exists, compare existing values to new
@@ -470,15 +471,23 @@ class Processing
      * @return CreditMemo|Invoice
      * @throws \Exception
      */
-    protected function createAvataxEntity($entity)
+    protected function getAvataxEntity($entity)
     {
         if ($entity instanceof InvoiceInterface) {
             /** @var Invoice $avaTaxRecord */
             $avaTaxRecord = $this->avataxInvoiceFactory->create();
+
+            // Load existing AvaTax entry for this entity, if exists
+            $avaTaxRecord->load($entity->getId(), InvoiceResourceModel::PARENT_ID_FIELD_NAME);
+
             return $avaTaxRecord;
         } elseif ($entity instanceof CreditmemoInterface) {
             /** @var CreditMemo $avaTaxRecord */
             $avaTaxRecord = $this->avataxCreditMemoFactory->create();
+
+            // Load existing AvaTax entry for this entity, if exists
+            $avaTaxRecord->load($entity->getId(), CreditMemoResourceModel::PARENT_ID_FIELD_NAME);
+
             return $avaTaxRecord;
         } else {
             $message = __('Did not receive a valid entity instance to determine the factory type to return');

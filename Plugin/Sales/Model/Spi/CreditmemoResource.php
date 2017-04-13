@@ -24,7 +24,7 @@ use Magento\Sales\Api\Data\CreditmemoExtensionFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Model\Spi\CreditmemoResourceInterface;
 use Magento\Framework\Model\AbstractModel;
-use \ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo as CreditMemoResourceModel;
+use ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo as CreditMemoResourceModel;
 
 /**
  * Class CreditmemoResource

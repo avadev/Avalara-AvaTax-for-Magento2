@@ -24,7 +24,7 @@ use Magento\Sales\Api\Data\InvoiceExtensionFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Model\Spi\InvoiceResourceInterface;
 use Magento\Framework\Model\AbstractModel;
-use \ClassyLlama\AvaTax\Model\ResourceModel\Invoice as InvoiceResourceModel;
+use ClassyLlama\AvaTax\Model\ResourceModel\Invoice as InvoiceResourceModel;
 
 /**
  * Class InvoiceResource
