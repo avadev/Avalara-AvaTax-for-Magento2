@@ -488,6 +488,9 @@
                 <field id="shipping_tax_class">
                     <comment>This setting will be ignored if AvaTax is enabled, as shipping Tax Code is hard-coded as FR020100 and AvaTax will determine whether tax applies to an order.</comment>
                 </field>
+                <field id="wrapping_tax_class">
+                    <comment>This setting applies only to gift wrapping options, not Gift Cards; if AvaTax is enabled, the Gift Card Tax Code is hard-coded as PG050000 and AvaTax will determine whether tax applies to an order for a Gift Card.</comment>
+                </field>
             </group>
             <group id="calculation">
                 <field id="algorithm">

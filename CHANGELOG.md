@@ -4,6 +4,10 @@
 * Add code to migrate existing data from AvaTax columns on sales_invoice and sales_creditmemo tables to new tables
 * Refactor code to store AvaTax data in new tables instead of attaching to entities
 
+### 0.3.5 (2017-03-17)
+
+* Fix issue where gift card purchases are taxed [#53](https://github.com/classyllama/ClassyLlama_AvaTax/issues/53)
+
 ### 0.3.4 (2017-02-04)
 
 * Fix issue where refunding an online credit memo would result in duplicate refund amounts being set on order and order status changing [#36](https://github.com/classyllama/ClassyLlama_AvaTax/issues/36) and [#40](https://github.com/classyllama/ClassyLlama_AvaTax/issues/40)
