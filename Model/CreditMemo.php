@@ -6,6 +6,16 @@
 
 namespace ClassyLlama\AvaTax\Model;
 
+/**
+ * CreditMemo
+ *
+ * @method int getParentId() getParentId()
+ * @method string getIsUnbalanced() getIsUnbalanced()
+ * @method float getBaseAvataxTaxAmount() getBaseAvataxTaxAmount()
+ * @method CreditMemo setParentId() setParentId(int $parentId)
+ * @method CreditMemo setIsUnbalanced() setIsUnbalanced(string $isUnbalanced)
+ * @method CreditMemo setBaseAvataxTaxAmount() setBaseAvataxTaxAmount(float $baseAvataxTaxAmount)
+ */
 class CreditMemo
     extends \Magento\Framework\Model\AbstractModel
     implements \Magento\Framework\DataObject\IdentityInterface
@@ -23,17 +33,5 @@ class CreditMemo
     public function getIdentities()
     {
         return [self::CACHE_TAG . '_' . $this->getId()];
-    }
-
-    /**
-     * @param $creditMemoId
-     * @return $this
-     */
-    public function loadByParentId($creditMemoId){
-        if(!$creditMemoId){
-            $creditMemoId = $this->getId();
-        }
-        $id = $this->getResource()->loadByParentId($creditMemoId);
-        return $this->load($id);
     }
 }

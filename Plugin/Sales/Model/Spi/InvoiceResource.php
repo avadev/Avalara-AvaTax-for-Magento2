@@ -24,6 +24,7 @@ use Magento\Sales\Api\Data\InvoiceExtensionFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Model\Spi\InvoiceResourceInterface;
 use Magento\Framework\Model\AbstractModel;
+use ClassyLlama\AvaTax\Model\ResourceModel\Invoice as InvoiceResourceModel;
 
 /**
  * Class InvoiceResource
@@ -171,9 +172,9 @@ class InvoiceResource
 
             // Get the AvaTax record
             /** @var Invoice $invoice */
-            $avataxRecord = $this->avataxInvoice->loadByParentId($entity->getId());
-            $avataxIsUnbalanced = $avataxRecord->getData('is_unbalanced');
-            $baseAvataxTaxAmount = $avataxRecord->getData('base_avatax_tax_amount');
+            $avataxRecord = $this->avataxInvoice->load($entity->getId(), InvoiceResourceModel::PARENT_ID_FIELD_NAME);
+            $avataxIsUnbalanced = $avataxRecord->getIsUnbalanced();
+            $baseAvataxTaxAmount = $avataxRecord->getBaseAvataxTaxAmount();
 
             // Check the AvaTax Entity to see if we need to add extension attributes
             if ($avataxIsUnbalanced !== null || $baseAvataxTaxAmount !== null) {
