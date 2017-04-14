@@ -42,7 +42,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             /**
              * Add "avatax_code" column to tax_class table
              */
-            $setup->getConnection(self::$connectionName)
+            $setup->getConnection()
                 ->addColumn(
                     $setup->getTable('tax_class'),
                     'avatax_code',
