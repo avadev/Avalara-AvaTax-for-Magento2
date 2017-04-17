@@ -36,7 +36,7 @@ class UpgradeData implements UpgradeDataInterface
                             'avatax_is_unbalanced',
                             'base_avatax_tax_amount'
                         ])
-                    ->where('(base_avatax_tax_amount IS NOT NULL AND base_avatax_tax_amount <> 0) OR (avatax_is_unbalanced IS NOT NULL AND avatax_is_unbalanced <> 0)');
+                    ->where('base_avatax_tax_amount IS NOT NULL OR avatax_is_unbalanced IS NOT NULL');
                 $select = $setup->getConnection()->insertFromSelect(
                     $select,
                     $setup->getTable('avatax_sales_invoice'),
@@ -77,7 +77,7 @@ class UpgradeData implements UpgradeDataInterface
                             'avatax_is_unbalanced',
                             'base_avatax_tax_amount'
                         ])
-                    ->where('(base_avatax_tax_amount IS NOT NULL AND base_avatax_tax_amount <> 0) OR (avatax_is_unbalanced IS NOT NULL AND avatax_is_unbalanced <> 0)');
+                    ->where('base_avatax_tax_amount IS NOT NULL OR avatax_is_unbalanced IS NOT NULL');
                 $select = $setup->getConnection()->insertFromSelect(
                     $select,
                     $setup->getTable('avatax_sales_creditmemo'),
