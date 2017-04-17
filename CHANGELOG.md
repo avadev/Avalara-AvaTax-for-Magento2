@@ -3,6 +3,11 @@
 * Add code to create new database tables dedicated to storing AvaTax data
 * Add code to migrate existing data from AvaTax columns on sales_invoice and sales_creditmemo tables to new tables
 * Refactor code to store AvaTax data in new tables instead of attaching to entities
+* Previous versions of this extension added two fields to the native Magento invoice and credit memo tables. When this extension
+  changed the values of these two fields, it would save the invoice/credit memo. This caused multiple issues (see [#24](https://github.com/classyllama/ClassyLlama_AvaTax/issues/24), [#29](https://github.com/classyllama/ClassyLlama_AvaTax/issues/29), [#36](https://github.com/classyllama/ClassyLlama_AvaTax/issues/36), [#40](https://github.com/classyllama/ClassyLlama_AvaTax/issues/40), and [#47](https://github.com/classyllama/ClassyLlama_AvaTax/issues/47)). 
+  Rather than continuing to try and fix the underlying Magento issues that were triggered by saving these objects, we have moved
+  the fields to separate database tables (avatax_sales_creditmemo and avatax_sales_invoice). This release includes that refactor and 
+  fixes issue [#47](https://github.com/classyllama/ClassyLlama_AvaTax/issues/47). Specific changes:
 
 ### 0.3.5 (2017-03-17)
 
