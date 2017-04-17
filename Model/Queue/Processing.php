@@ -20,6 +20,10 @@ use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get;
 use ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface;
+use ClassyLlama\AvaTax\Model\Invoice;
+use ClassyLlama\AvaTax\Model\InvoiceFactory;
+use ClassyLlama\AvaTax\Model\CreditMemo;
+use ClassyLlama\AvaTax\Model\CreditMemoFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
@@ -32,6 +36,8 @@ use Magento\Sales\Api\Data\InvoiceExtensionFactory;
 use Magento\Sales\Api\Data\CreditmemoExtensionFactory;
 use Magento\Eav\Model\Config as EavConfig;
 use Magento\Framework\Exception\NoSuchEntityException;
+use ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo as CreditMemoResourceModel;
+use ClassyLlama\AvaTax\Model\ResourceModel\Invoice as InvoiceResourceModel;
 
 /**
  * Queue Processing
@@ -64,9 +70,9 @@ class Processing
     protected $invoiceRepository;
 
     /**
-     * @var InvoiceRepositoryInterface
+     * @var CreditmemoRepositoryInterface
      */
-    protected $creditmemoRepository;
+    protected $creditMemoRepository;
 
     /**
      * @var OrderRepositoryInterface
@@ -91,12 +97,22 @@ class Processing
     /**
      * @var CreditmemoExtensionFactory
      */
-    protected $creditmemoExtensionFactory;
+    protected $creditMemoExtensionFactory;
 
     /**
      * @var EavConfig
      */
     protected $eavConfig;
+
+    /**
+     * @var InvoiceFactory
+     */
+    protected $avataxInvoiceFactory;
+
+    /**
+     * @var CreditMemoFactory
+     */
+    protected $avataxCreditMemoFactory;
 
     /**
      * Processing constructor.
@@ -105,13 +121,15 @@ class Processing
      * @param Get $interactionGetTax
      * @param DateTime $dateTime
      * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param CreditmemoRepositoryInterface $creditmemoRepository
+     * @param CreditMemoRepositoryInterface $creditmemoRepository
      * @param OrderRepositoryInterface $orderRepository
      * @param OrderManagementInterface $orderManagement
      * @param OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory
      * @param InvoiceExtensionFactory $invoiceExtensionFactory
      * @param CreditmemoExtensionFactory $creditmemoExtensionFactory
      * @param EavConfig $eavConfig
+     * @param InvoiceFactory $avataxInvoiceFactory
+     * @param CreditMemoFactory $avataxCreditMemoFactory
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
@@ -125,7 +143,9 @@ class Processing
         OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory,
         InvoiceExtensionFactory $invoiceExtensionFactory,
         CreditmemoExtensionFactory $creditmemoExtensionFactory,
-        EavConfig $eavConfig
+        EavConfig $eavConfig,
+        InvoiceFactory $avataxInvoiceFactory,
+        CreditMemoFactory $avataxCreditMemoFactory
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
@@ -139,6 +159,8 @@ class Processing
         $this->invoiceExtensionFactory = $invoiceExtensionFactory;
         $this->creditmemoExtensionFactory = $creditmemoExtensionFactory;
         $this->eavConfig = $eavConfig;
+        $this->avataxInvoiceFactory = $avataxInvoiceFactory;
+        $this->avataxCreditMemoFactory = $avataxCreditMemoFactory;
     }
 
     /**
@@ -160,8 +182,8 @@ class Processing
         // Process entity with AvaTax
         $processSalesResponse = $this->processWithAvaTax($queue, $entity);
 
-        // update invoice with additional fields
-        $this->updateAdditionalEntityAttributes($entity, $processSalesResponse);
+        // Create AvaTax record
+        $this->saveAvaTaxRecord($entity, $processSalesResponse);
 
         // Update the queue record status
         // and add comment to order
@@ -373,119 +395,102 @@ class Processing
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
      * @param \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface $processSalesResponse
+     * @throws \Exception
      */
-    protected function updateAdditionalEntityAttributes(
+    protected function saveAvaTaxRecord(
         $entity,
         GetTaxResponseInterface $processSalesResponse
-    ) {
-        $entityExtension = $entity->getExtensionAttributes();
-        if ($entityExtension == null) {
-            $entityExtension = $this->getEntityExtensionInterface($entity);
-        }
+    )
+    {
+        // Get the associated AvataxEntity record (related to extension attributes) for this entity type
+        $avaTaxRecord = $this->getAvataxEntity($entity);
 
-        // check to see if the AvataxIsUnbalanced is already set on this entity
-        $avataxIsUnbalancedToSave = false;
-        if ($entityExtension->getAvataxIsUnbalanced() === null) {
-            $entityExtension->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
-            $avataxIsUnbalancedToSave = true;
-        } else {
-            // check to see if any existing value is different from the new value
-            if ($processSalesResponse->getIsUnbalanced() <> $entityExtension->getAvataxIsUnbalanced()) {
-                // Log the warning
-                $this->avaTaxLogger->warning(
-                    __('When processing an entity in the queue there was an existing AvataxIsUnbalanced and ' .
-                    'the new value was different than the old one. The old value was overwritten.'),
-                    [ /* context */
-                        'old_is_unbalanced' => $entityExtension->getAvataxIsUnbalanced(),
-                        'new_is_unbalanced' => $processSalesResponse->getIsUnbalanced(),
-                    ]
-                );
-                $entityExtension->setAvataxIsUnbalanced($processSalesResponse->getIsUnbalanced());
+        if ($avaTaxRecord->getParentId()) {
+            // Record exists, compare existing values to new
+
+            // Check to see if isUnbalanced is already set on this entity
+            $avataxIsUnbalancedToSave = false;
+            if ($avaTaxRecord->getIsUnbalanced() == null) {
+                $avaTaxRecord->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
                 $avataxIsUnbalancedToSave = true;
+            } else {
+                // check to see if any existing value is different from the new value
+                if ($processSalesResponse->getIsUnbalanced() <> $avaTaxRecord->getIsUnbalanced()) {
+                    // Log the warning
+                    $this->avaTaxLogger->warning(
+                        __('When processing an entity in the queue there was an existing AvataxIsUnbalanced and ' .
+                            'the new value was different than the old one. The old value was overwritten.'),
+                        [ /* context */
+                            'old_is_unbalanced' => $avaTaxRecord->getIsUnbalanced(),
+                            'new_is_unbalanced' => $processSalesResponse->getIsUnbalanced(),
+                        ]
+                    );
+                    $avaTaxRecord->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
+                    $avataxIsUnbalancedToSave = true;
+                }
             }
-        }
 
-        // check to see if the BaseAvataxTaxAmount is already set on this entity
-        $baseAvataxTaxAmountToSave = false;
-        if ($entityExtension->getBaseAvataxTaxAmount() === null) {
-            $entityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
-            $baseAvataxTaxAmountToSave = true;
-        } else {
-            // check to see if any existing value is different from the new value
-            if ($processSalesResponse->getBaseAvataxTaxAmount() <> $entityExtension->getBaseAvataxTaxAmount()) {
-                // Log the warning
-                $this->avaTaxLogger->warning(
-                    __('When processing an entity in the queue there was an existing BaseAvataxTaxAmount and ' .
-                    'the new value was different than the old one. The old value was overwritten.'),
-                    [ /* context */
-                        'old_base_avatax_tax_amount' => $entityExtension->getBaseAvataxTaxAmount(),
-                        'new_base_avatax_tax_amount' => $processSalesResponse->getBaseAvataxTaxAmount(),
-                    ]
-                );
-                $entityExtension->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
+            // Check to see if the BaseAvataxTaxAmount is already set on this entity
+            $baseAvataxTaxAmountToSave = false;
+            if ($avaTaxRecord->getBaseAvataxTaxAmount() == null) {
+                $avaTaxRecord->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
                 $baseAvataxTaxAmountToSave = true;
+            } else {
+                // Check to see if any existing value is different from the new value
+                if ($processSalesResponse->getBaseAvataxTaxAmount() <> $avaTaxRecord->getBaseAvataxTaxAmount()) {
+                    // Log the warning
+                    $this->avaTaxLogger->warning(
+                        __('When processing an entity in the queue there was an existing BaseAvataxTaxAmount and ' .
+                            'the new value was different than the old one. The old value was overwritten.'),
+                        [ /* context */
+                            'old_base_avatax_tax_amount' => $avaTaxRecord->getBaseAvataxTaxAmount(),
+                            'new_base_avatax_tax_amount' => $processSalesResponse->getBaseAvataxTaxAmount(),
+                        ]
+                    );
+                    $avaTaxRecord->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
+                    $baseAvataxTaxAmountToSave = true;
+                }
             }
+        } else {
+            // No entry exists for entity ID, add data to entry and set store flags to true
+            $avataxIsUnbalancedToSave = true;
+            $baseAvataxTaxAmountToSave = true;
+            $avaTaxRecord->setParentId($entity->getId());
+            $avaTaxRecord->setIsUnbalanced($processSalesResponse->getIsUnbalanced());
+            $avaTaxRecord->setBaseAvataxTaxAmount($processSalesResponse->getBaseAvataxTaxAmount());
         }
 
-        // save the ExtensionAttributes on the entity object
         if ($avataxIsUnbalancedToSave || $baseAvataxTaxAmountToSave) {
-            $entity->setExtensionAttributes($entityExtension);
-
-            // get the repository for this entity type
-            $entityRepository = $this->getEntityRepository($entity);
-
-            // save the entity object using the repository
-            $entityRepository->save($entity);
+            // Save the AvaTax entry
+            $avaTaxRecord->save();
         }
     }
 
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @return \Magento\Sales\Api\Data\InvoiceExtension|\Magento\Sales\Api\Data\CreditmemoExtension
+     * @return CreditMemo|Invoice
      * @throws \Exception
      */
-    protected function getEntityExtensionInterface($entity)
+    protected function getAvataxEntity($entity)
     {
         if ($entity instanceof InvoiceInterface) {
-            return $this->invoiceExtensionFactory->create();
-        } elseif ($entity instanceof CreditmemoInterface) {
-            return $this->creditmemoExtensionFactory->create();
-        } else {
-            $message = __('Did not receive a valid entity instance to determine the extension to return');
-            throw new \Exception($message);
-        }
-    }
+            /** @var Invoice $avaTaxRecord */
+            $avaTaxRecord = $this->avataxInvoiceFactory->create();
 
-    /**
-     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @return \Magento\Eav\Model\Entity\Type
-     * @throws \Exception
-     */
-    protected function getEntityType($entity)
-    {
-        if ($entity instanceof InvoiceInterface) {
-            return $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_INVOICE);
-        } elseif ($entity instanceof CreditmemoInterface) {
-            return $this->eavConfig->getEntityType(Queue::ENTITY_TYPE_CODE_CREDITMEMO);
-        } else {
-            $message = __('Did not receive a valid entity instance to determine the entity type to return');
-            throw new \Exception($message);
-        }
-    }
+            // Load existing AvaTax entry for this entity, if exists
+            $avaTaxRecord->load($entity->getId(), InvoiceResourceModel::PARENT_ID_FIELD_NAME);
 
-    /**
-     * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $entity
-     * @return \Magento\Sales\Api\InvoiceRepositoryInterface|\Magento\Sales\Api\CreditmemoRepositoryInterface
-     * @throws \Exception
-     */
-    protected function getEntityRepository($entity)
-    {
-        if ($entity instanceof InvoiceInterface) {
-            return $this->invoiceRepository;
+            return $avaTaxRecord;
         } elseif ($entity instanceof CreditmemoInterface) {
-            return $this->creditmemoRepository;
+            /** @var CreditMemo $avaTaxRecord */
+            $avaTaxRecord = $this->avataxCreditMemoFactory->create();
+
+            // Load existing AvaTax entry for this entity, if exists
+            $avaTaxRecord->load($entity->getId(), CreditMemoResourceModel::PARENT_ID_FIELD_NAME);
+
+            return $avaTaxRecord;
         } else {
-            $message = __('Did not receive a valid entity instance to determine the repository type to return');
+            $message = __('Did not receive a valid entity instance to determine the factory type to return');
             throw new \Exception($message);
         }
     }
