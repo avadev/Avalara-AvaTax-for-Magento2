@@ -1,3 +1,7 @@
+### 1.0.1 (2017-04-18)
+
+* Revise error when no credentials are set for the chosen mode to instead display as a warning with more verbosity [#60](https://github.com/classyllama/ClassyLlama_AvaTax/issues/60)
+    
 ### 1.0.0 (2017-04-14)
 
 * Add support for [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html) [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54)
