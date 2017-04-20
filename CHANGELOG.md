@@ -1,3 +1,20 @@
+### 1.0.0 (2017-04-14)
+
+* Add support for [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html) [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54)
+    * Refactor code to create AvaTax tables in the 'sales' database when running in split database mode
+    * Reference issue [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54) for additional notes and details
+
+### 0.4.0 (2017-03-14)
+
+* Add code to create new database tables dedicated to storing AvaTax data
+* Add code to migrate existing data from AvaTax columns on sales_invoice and sales_creditmemo tables to new tables
+* Refactor code to store AvaTax data in new tables instead of attaching to entities
+* Previous versions of this extension added two fields to the native Magento invoice and credit memo tables. When this extension
+  changed the values of these two fields, it would save the invoice/credit memo. This caused multiple issues (see [#24](https://github.com/classyllama/ClassyLlama_AvaTax/issues/24), [#29](https://github.com/classyllama/ClassyLlama_AvaTax/issues/29), [#36](https://github.com/classyllama/ClassyLlama_AvaTax/issues/36), [#40](https://github.com/classyllama/ClassyLlama_AvaTax/issues/40), and [#47](https://github.com/classyllama/ClassyLlama_AvaTax/issues/47)). 
+  Rather than continuing to try and fix the underlying Magento issues that were triggered by saving these objects, we have moved
+  the fields to separate database tables (avatax_sales_creditmemo and avatax_sales_invoice). This release includes that refactor and 
+  fixes issue [#47](https://github.com/classyllama/ClassyLlama_AvaTax/issues/47). Specific changes:
+
 ### 0.3.5 (2017-03-17)
 
 * Fix issue where gift card purchases are taxed [#53](https://github.com/classyllama/ClassyLlama_AvaTax/issues/53)

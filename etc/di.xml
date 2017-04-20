@@ -34,13 +34,8 @@
     <type name="Magento\Quote\Model\Quote\Config">
         <plugin name="avatax_quote_model_quote_config" type="ClassyLlama\AvaTax\Plugin\Quote\Model\Quote\Config" />
     </type>
-    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Relation\Refund">
-        <plugin name="avatax_sales_resourcemodel_order_creditmemo_relation_refund" type="ClassyLlama\AvaTax\Plugin\Sales\Model\ResourceModel\Order\Creditmemo\Relation\Refund" />
-    </type>
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
-    <preference for="ClassyLlama\AvaTax\Api\Data\CreditmemoInterface" type="ClassyLlama\AvaTax\Model\Creditmemo" />
-    <preference for="ClassyLlama\AvaTax\Api\Data\InvoiceInterface" type="ClassyLlama\AvaTax\Model\Invoice" />
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
@@ -98,6 +93,32 @@
                 <item name="1" xsi:type="string">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
                 <item name="2" xsi:type="string">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
             </argument>
+        </arguments>
+    </type>
+    <!--
+    /**
+     * The following code will rewrite the connection name to connect to 'sales' database on split database install;
+     * falls back to default for a conventional install
+     */
+     -->
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Invoice">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Log">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Queue">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
         </arguments>
     </type>
 </config>
