@@ -145,27 +145,66 @@ class ConfigSaveObserver implements ObserverInterface
 
         $message = '';
         $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
-        try {
-            $result = $this->interactionTax->getTaxService($type, $scopeId, $scopeType)->ping();
-            if (is_object($result) && $result->getResultCode() != \AvaTax\SeverityLevel::$Success) {
-                foreach ($result->getMessages() as $messages) {
-                    $message .= $messages->getName() . ': ' . $messages->getSummary() . "\n";
+        if ($this->checkCredentialsForMode($scopeId, $scopeType, $type)) {
+            try {
+                $result = $this->interactionTax->getTaxService($type, $scopeId, $scopeType)->ping();
+                if (is_object($result) && $result->getResultCode() != \AvaTax\SeverityLevel::$Success) {
+                    foreach ($result->getMessages() as $messages) {
+                        $message .= $messages->getName() . ': ' . $messages->getSummary() . "\n";
+                    }
+                } elseif (is_object($result) && $result->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+                    $this->messageManager->addSuccess(
+                        __('Successfully connected to AvaTax using the '
+                            . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>', $type
+                        )
+                    );
                 }
-            } elseif (is_object($result) && $result->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                $this->messageManager->addSuccess(
-                    __('Successfully connected to AvaTax using the '
-                        . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>', $type
-                    )
-                );
+            } catch (\Exception $exception) {
+                $message = $exception->getMessage();
             }
-        } catch (\Exception $exception) {
-            $message = $exception->getMessage();
-        }
 
-        if ($message) {
-            $errors[] = __('Error connecting to AvaTax using the '
-                . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>: %2', $type, $message);
+            if ($message) {
+                $errors[] = __('Error connecting to AvaTax using the '
+                    . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>: %2', $type, $message);
+            }
         }
         return $errors;
+    }
+
+
+
+    /**
+     * Check that credentials have been set for the supplied mode
+     *
+     * @param $scopeId
+     * @param $scopeType
+     * @param $mode
+     * @return bool
+     */
+    protected function checkCredentialsForMode($scopeId, $scopeType, $mode)
+    {
+        // Check that credentials have been set for whichever mode has been chosen
+        if ($mode == Config::API_PROFILE_NAME_PROD) {
+            if (
+                $this->config->getAccountNumber($scopeId, $scopeType) != ''
+                && $this->config->getLicenseKey($scopeId, $scopeType) != ''
+                && $this->config->getCompanyCode($scopeId) != ''
+            ) {
+                return true;
+            }
+        } else {
+            if (
+                $this->config->getDevelopmentAccountNumber($scopeId, $scopeType) != ''
+                && $this->config->getDevelopmentLicenseKey($scopeId, $scopeType) != ''
+                && $this->config->getDevelopmentCompanyCode($scopeId) != ''
+            ) {
+                return true;
+            }
+        }
+        // One or more of the supplied mode's credentials is blank
+        $this->messageManager->addWarningMessage(
+            __('The AvaTax extension is set to "%1" mode, but %2 credentials are incomplete.', $mode, strtolower($mode))
+        );
+        return false;
     }
 }

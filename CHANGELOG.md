@@ -1,3 +1,7 @@
+### 1.0.1 (2017-04-18)
+
+* Revise error when no credentials are set for the chosen mode to instead display as a warning with more verbosity [#60](https://github.com/classyllama/ClassyLlama_AvaTax/issues/60)
+    
 ### 1.0.0 (2017-04-14)
 
 * Add support for [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html) [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54)
@@ -13,7 +17,7 @@
   changed the values of these two fields, it would save the invoice/credit memo. This caused multiple issues (see [#24](https://github.com/classyllama/ClassyLlama_AvaTax/issues/24), [#29](https://github.com/classyllama/ClassyLlama_AvaTax/issues/29), [#36](https://github.com/classyllama/ClassyLlama_AvaTax/issues/36), [#40](https://github.com/classyllama/ClassyLlama_AvaTax/issues/40), and [#47](https://github.com/classyllama/ClassyLlama_AvaTax/issues/47)). 
   Rather than continuing to try and fix the underlying Magento issues that were triggered by saving these objects, we have moved
   the fields to separate database tables (avatax_sales_creditmemo and avatax_sales_invoice). This release includes that refactor and 
-  fixes issue [#47](https://github.com/classyllama/ClassyLlama_AvaTax/issues/47). Specific changes:
+  fixes issue [#47](https://github.com/classyllama/ClassyLlama_AvaTax/issues/47).
 
 ### 0.3.5 (2017-03-17)
 
