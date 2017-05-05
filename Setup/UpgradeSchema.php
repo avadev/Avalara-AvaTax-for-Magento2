@@ -26,6 +26,13 @@ use Magento\Framework\DB\Ddl\Table;
 class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**
+     * Define connection name to connect to 'sales' database on split database install; falls back to default for a
+     * conventional install
+     * @var string
+     */
+    private static $connectionName = 'sales';
+
+    /**
      * {@inheritdoc}
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
@@ -49,7 +56,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
         }
 
-        if (version_compare($context->getVersion(), '0.4.0', '<')) {
+        if (version_compare($context->getVersion(), '1.0.0', '<')) {
             /** As a part of the upgrade process for this revision, data is migrated from the sales_invoice and
              * sales_creditmemo tables into the newly created tables above.  After the data migration, the previously
              * mentioned tables are altered to drop the now-unused columns in each (base_avatax_tax_amount and
@@ -59,7 +66,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             /**
              * Create table 'avatax_sales_invoice'
              */
-            $table = $setup->getConnection()
+            $table = $setup->getConnection(self::$connectionName)
                 ->newTable(
                     $setup->getTable('avatax_sales_invoice')
                 )
@@ -134,12 +141,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     Table::ACTION_CASCADE
                 )
                 ->setComment('AvaTax Sales Invoice Table');
-            $setup->getConnection()->createTable($table);
+            $setup->getConnection(self::$connectionName)->createTable($table);
 
             /**
              * Create table 'avatax_sales_creditmemo'
              */
-            $table = $setup->getConnection()
+            $table = $setup->getConnection(self::$connectionName)
                 ->newTable(
                     $setup->getTable('avatax_sales_creditmemo')
                 )
@@ -214,7 +221,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     Table::ACTION_CASCADE
                 )
                 ->setComment('AvaTax Sales Credit Memo Table');
-            $setup->getConnection()->createTable($table);
+            $setup->getConnection(self::$connectionName)->createTable($table);
         }
         $setup->endSetup();
     }

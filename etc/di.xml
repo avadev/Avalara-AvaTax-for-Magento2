@@ -95,4 +95,30 @@
             </argument>
         </arguments>
     </type>
+    <!--
+    /**
+     * The following code will rewrite the connection name to connect to 'sales' database on split database install;
+     * falls back to default for a conventional install
+     */
+     -->
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Invoice">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Log">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\ResourceModel\Queue">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
 </config>

@@ -27,6 +27,13 @@ use Magento\Framework\DB\Ddl\Table;
 class InstallSchema implements InstallSchemaInterface
 {
     /**
+     * Define connection name to connect to 'sales' database on split database install; falls back to default for a
+     * conventional install
+     * @var string
+     */
+    private static $connectionName = 'sales';
+
+    /**
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
@@ -38,7 +45,7 @@ class InstallSchema implements InstallSchemaInterface
         /**
          * Create table 'avatax_log'
          */
-        $table = $installer->getConnection()
+        $table = $installer->getConnection(self::$connectionName)
             ->newTable(
                 $installer->getTable('avatax_log')
             )
@@ -134,12 +141,12 @@ class InstallSchema implements InstallSchemaInterface
                 ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_INDEX]
             )
             ->setComment('AvaTax Log Table');
-        $installer->getConnection()->createTable($table);
+        $installer->getConnection(self::$connectionName)->createTable($table);
 
         /**
          * Create table 'avatax_queue'
          */
-        $table = $installer->getConnection()
+        $table = $installer->getConnection(self::$connectionName)
             ->newTable(
                 $installer->getTable('avatax_queue')
             )
@@ -268,12 +275,12 @@ class InstallSchema implements InstallSchemaInterface
                 ]
             )
             ->setComment('AvaTax Queue Table');
-        $installer->getConnection()->createTable($table);
+        $installer->getConnection(self::$connectionName)->createTable($table);
 
         /**
          * Create table 'avatax_sales_invoice'
          */
-        $table = $setup->getConnection()
+        $table = $setup->getConnection(self::$connectionName)
             ->newTable(
                 $setup->getTable('avatax_sales_invoice')
             )
@@ -348,12 +355,12 @@ class InstallSchema implements InstallSchemaInterface
                 Table::ACTION_CASCADE
             )
             ->setComment('AvaTax Sales Invoice Table');
-        $setup->getConnection()->createTable($table);
+        $setup->getConnection(self::$connectionName)->createTable($table);
 
         /**
          * Create table 'avatax_sales_creditmemo'
          */
-        $table = $setup->getConnection()
+        $table = $setup->getConnection(self::$connectionName)
             ->newTable(
                 $setup->getTable('avatax_sales_creditmemo')
             )
@@ -428,7 +435,7 @@ class InstallSchema implements InstallSchemaInterface
                 Table::ACTION_CASCADE
             )
             ->setComment('AvaTax Sales Credit Memo Table');
-        $setup->getConnection()->createTable($table);
+        $setup->getConnection(self::$connectionName)->createTable($table);
 
         $installer->endSetup();
     }
