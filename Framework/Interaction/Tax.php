@@ -685,6 +685,15 @@ class Tax
 
         $customer = $this->getCustomerById($order->getCustomerId());
         $customerUsageType = $customer ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer) : null;
+
+        $orderIncrementId = '';
+        try {
+            $order = $this->orderRepository->get($object->getOrderId());
+            $orderIncrementId = $order->getIncrementId();
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            // Do nothing
+        }
+
         $data = [
             'StoreId' => $store->getId(),
             'Commit' => $this->config->getCommitSubmittedTransactions($store),
@@ -704,6 +713,7 @@ class Tax
             'DetailLevel' => DetailLevel::$Document,
             'PaymentDate' => $currentDate,
             'PurchaseOrderNo' => $object->getIncrementId(),
+            'ReferenceCode' => $orderIncrementId,
         ];
 
         $data = array_merge(

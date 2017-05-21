@@ -1,3 +1,7 @@
+### 1.0.2 (2017-05-19)
+
+* Add code to send Magento Order Number to Avalara as "Reference Code" attribute
+
 ### 1.0.1 (2017-04-18)
 
 * Revise error when no credentials are set for the chosen mode to instead display as a warning with more verbosity [#60](https://github.com/classyllama/ClassyLlama_AvaTax/issues/60)
