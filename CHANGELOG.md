@@ -1,6 +1,6 @@
 ### 1.0.2 (2017-05-19)
 
-* Add code to send Magento Order Number to Avalara as "Reference Code" attribute
+* Add code to send Magento Order Number to Avalara as "Reference Code" attribute. See [documentation](https://www.classyllama.com/documentation/extensions/avatax-magento-2-module#sales-numbers) for details.
 
 ### 1.0.1 (2017-04-18)
 
