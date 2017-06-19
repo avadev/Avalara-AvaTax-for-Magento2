@@ -1,3 +1,7 @@
+### 1.0.3 (2017-06-19)
+
+* Refactor code to utilize Mode config setting at a store view level [#68](https://github.com/classyllama/ClassyLlama_AvaTax/issues/60)
+
 ### 1.0.2 (2017-05-19)
 
 * Add code to send Magento Order Number to Avalara as "Reference Code" attribute. See [documentation](https://www.classyllama.com/documentation/extensions/avatax-magento-2-module#sales-numbers) for details.
