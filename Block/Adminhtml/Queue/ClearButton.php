@@ -49,7 +49,7 @@ class ClearButton implements ButtonProviderInterface
     {
         $message = __(
             'This will clear any completed queued transmissions that have already been sent to AvaTax. ' .
-            'This will also clear any failed transmissions that are older then the lifetime set in configuration. ' .
+            'This will also clear any failed transmissions that are older than the lifetime set in configuration. ' .
             'Any failed transmissions will need to be manually adjusted and entered into AvaTax directly. ' .
             'Do you want to continue?'
         );

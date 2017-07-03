@@ -48,7 +48,7 @@ class ClearButton implements ButtonProviderInterface
     public function getButtonData()
     {
         $message = __(
-            'This will clear any logs that are older then the lifetime set in configuration. ' .
+            'This will clear any logs that are older than the lifetime set in configuration. ' .
             'Do you want to continue?'
         );
         return [
