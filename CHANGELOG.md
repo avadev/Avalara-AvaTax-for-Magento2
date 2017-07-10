@@ -1,3 +1,7 @@
+### 1.1.1 (2017-06-19)
+
+* Refactor code to utilize Mode config setting at a store view level [#68](https://github.com/classyllama/ClassyLlama_AvaTax/issues/60)
+
 ### 1.1.0 (2017-04-27)
 
 * Add support for global tax calculation using the IsSellerImporterOfRecord parameter in the Avalara API [#57](https://github.com/classyllama/ClassyLlama_AvaTax/issues/57)
