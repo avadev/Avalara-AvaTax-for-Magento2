@@ -271,7 +271,7 @@ class Config extends AbstractHelper
      */
     public function createAvaTaxProfile($storeId, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        if ($this->getLiveMode()) {
+        if ($this->getLiveMode($storeId)) {
             $this->avaTaxConfigFactory->create(
                 [
                     'name' => self::API_PROFILE_NAME_PROD,
@@ -495,12 +495,16 @@ class Config extends AbstractHelper
      *
      * Must be configured at default level as it is difficult to pass store in all contexts this is used
      *
+     * @param $store
+     * @param string $scopeType
      * @return bool
      */
-    public function getLiveMode()
+    public function getLiveMode($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return (bool)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_LIVE_MODE
+            self::XML_PATH_AVATAX_LIVE_MODE,
+            $scopeType,
+            $store
         );
     }
 

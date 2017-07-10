@@ -144,7 +144,7 @@ class ConfigSaveObserver implements ObserverInterface
         }
 
         $message = '';
-        $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
+        $type = $this->config->getLiveMode($scopeId, $scopeType) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         if ($this->checkCredentialsForMode($scopeId, $scopeType, $type)) {
             try {
                 $result = $this->interactionTax->getTaxService($type, $scopeId, $scopeType)->ping();
