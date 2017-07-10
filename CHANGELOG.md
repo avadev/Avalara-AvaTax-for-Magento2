@@ -1,6 +1,6 @@
 ### 1.1.1 (2017-06-19)
 
-* Refactor code to utilize Mode config setting at a store view level [#68](https://github.com/classyllama/ClassyLlama_AvaTax/issues/60)
+* Refactor code to utilize Mode config setting at a store view level [#68](https://github.com/classyllama/ClassyLlama_AvaTax/issues/68)
 
 ### 1.1.0 (2017-04-27)
 
