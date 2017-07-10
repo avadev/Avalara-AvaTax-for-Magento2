@@ -163,7 +163,7 @@ class Address
     public function getAddressService($type = null, $storeId = null)
     {
         if (is_null($type)) {
-            $type = $this->config->getLiveMode() ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
+            $type = $this->config->getLiveMode($storeId) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         }
         if (!isset($this->addressServiceSoap[$type])) {
             $this->config->createAvaTaxProfile($storeId);
