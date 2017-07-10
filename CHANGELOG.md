@@ -1,3 +1,7 @@
+### 1.1.2 (2017-07-10)
+
+* Refactor code to accommodate installations with table prefixes [#67](https://github.com/classyllama/ClassyLlama_AvaTax/issues/67)
+
 ### 1.1.1 (2017-06-19)
 
 * Refactor code to utilize Mode config setting at a store view level [#68](https://github.com/classyllama/ClassyLlama_AvaTax/issues/68)
