@@ -1,6 +1,11 @@
-### 1.0.3 (2017-06-19)
+### 1.1.1 (2017-06-19)
 
 * Refactor code to utilize Mode config setting at a store view level [#68](https://github.com/classyllama/ClassyLlama_AvaTax/issues/60)
+
+### 1.1.0 (2017-04-27)
+
+* Add support for global tax calculation using the IsSellerImporterOfRecord parameter in the Avalara API [#57](https://github.com/classyllama/ClassyLlama_AvaTax/issues/57)
+    * More information regarding how this parameter is utilized can be found in the [AvaTax Extension documentation](https://www.classyllama.com/documentation/extensions/avatax-magento-2-module#importer_of_record).
 
 ### 1.0.2 (2017-05-19)
 

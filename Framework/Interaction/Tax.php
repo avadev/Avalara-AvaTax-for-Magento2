@@ -185,6 +185,7 @@ class Tax
         'ReferenceCode' => ['type' => 'string', 'length' => 50],
         'SalespersonCode' => ['type' => 'string', 'length' => 25],
         'TaxOverride' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
+        'IsSellerImporterOfRecord' => ['type' => 'boolean'],
     ];
 
     public static $validTaxOverrideFields = [
@@ -494,6 +495,11 @@ class Tax
             // This level of detail is needed in order to receive lines back in response
             'DetailLevel' => DetailLevel::$Line,
             'PurchaseOrderNo' => $quote->getReservedOrderId(),
+            'IsSellerImporterOfRecord' => $this->config->isSellerImporterOfRecord(
+                $this->config->getOriginAddress($store),
+                $address,
+                $store
+            ),
         ];
     }
 
@@ -714,6 +720,11 @@ class Tax
             'PaymentDate' => $currentDate,
             'PurchaseOrderNo' => $object->getIncrementId(),
             'ReferenceCode' => $orderIncrementId,
+            'IsSellerImporterOfRecord' => $this->config->isSellerImporterOfRecord(
+                $this->config->getOriginAddress($store),
+                $avaTaxAddress,
+                $store
+            ),
         ];
 
         $data = array_merge(

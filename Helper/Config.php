@@ -130,6 +130,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
 
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
+
+    const XML_PATH_AVATAX_ADMIN_IS_SELLER_IMPORTER_OF_RECORD = 'tax/avatax/is_seller_importer_of_record';
     /**#@-*/
 
     /**
@@ -1048,5 +1050,25 @@ class Config extends AbstractHelper
     public function isNativeTaxRulesIgnored()
     {
         return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES);
+    }
+
+    /**
+     * Determine whether to set IsSellerImportOfRecord flag
+     *
+     * @param array $originAddress
+     * @param \AvaTax\Address $destAddress
+     * @param $storeId
+     * @return bool
+     */
+    public function isSellerImporterOfRecord($originAddress, $destAddress, $storeId)
+    {
+        $isSellerImporterOfRecord = true;
+        $countryFilters = explode(',', $this->getTaxCalculationCountriesEnabled($storeId));
+        $originCountryId = (isset($originAddress['Country']) ? $originAddress['Country'] : false);
+        $destCountryId = $destAddress->getCountry();
+        if ($destCountryId == $originCountryId || !in_array($destCountryId, $countryFilters)) {
+            $isSellerImporterOfRecord = false;
+        }
+        return $isSellerImporterOfRecord;
     }
 }
