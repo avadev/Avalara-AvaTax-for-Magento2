@@ -1,3 +1,7 @@
+### 1.1.3 (2017-07-28)
+
+* Refactor code to remove XSS vulnerability [#74](https://github.com/classyllama/ClassyLlama_AvaTax/issues/74)
+
 ### 1.1.2 (2017-07-10)
 
 * Refactor code to accommodate installations with table prefixes [#67](https://github.com/classyllama/ClassyLlama_AvaTax/issues/67)

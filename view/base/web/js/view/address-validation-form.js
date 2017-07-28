@@ -94,7 +94,7 @@ define(
                 var result = "";
 
                 // Name
-                result += originalAddress.firstname + " " + originalAddress.lastname + "<br/>";
+                result += this.encodeHtml(originalAddress.firstname + " " + originalAddress.lastname) + "<br/>";
 
                 // Streets
                 var maxStreets = 3;
@@ -125,28 +125,30 @@ define(
             buildOriginalAddress: function (originalAddress) {
                 var result = "";
 
+                var parent = this;
+
                 // Name
-                result += originalAddress.firstname + " " + originalAddress.lastname + "<br/>";
+                result += this.encodeHtml(originalAddress.firstname + " " + originalAddress.lastname) + "<br/>";
 
                 // Streets
                 $.each(originalAddress.street, function (index, value) {
                     if (value !== "") {
-                        result += value + "<br/>";
+                        result += parent.encodeHtml(value) + "<br/>";
                     }
                 });
 
                 // City
-                result += originalAddress.city + ", ";
+                result += this.encodeHtml(originalAddress.city) + ", ";
 
                 // State - The region_code isn't used for customer addresses
                 if (typeof originalAddress.region_code !== 'undefined') {
-                    result += originalAddress.region_code + " ";
+                    result += this.encodeHtml(originalAddress.region_code) + " ";
                 } else {
-                    result += originalAddress.region + " ";
+                    result += this.encodeHtml(originalAddress.region) + " ";
                 }
 
                 // Postal code
-                result += originalAddress.postcode;
+                result += this.encodeHtml(originalAddress.postcode);
 
                 return result;
             },
@@ -204,6 +206,8 @@ define(
             },
 
             diffAddressField: function (o, n) {
+                o = this.encodeHtml(o);
+                n = this.encodeHtml(n);
                 if(o !== n) {
                     addressModel.isDifferent(true);
                     if (n.length) {
@@ -223,6 +227,14 @@ define(
                 $(form).find(this.originalAddressRadioSelector).parents(this.addressOptionSelector).removeClass(this.selectedAddressClass);
                 $(form).find(this.validAddressRadioSelector).parents(this.addressOptionSelector).addClass(this.selectedAddressClass);
                 $(form).find(this.addressValidationFormSelector).hide();
+            },
+
+            encodeHtml: function(str) {
+                // This function will escape the contents of the provided string
+                // Sourced from http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/#the-best-way-to-escape-html-in-javascript
+                var div = document.createElement('div');
+                div.appendChild(document.createTextNode(str));
+                return div.innerHTML;
             }
         }
     }
