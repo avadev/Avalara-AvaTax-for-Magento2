@@ -94,7 +94,7 @@ define(
                 var result = "";
 
                 // Name
-                result += this.encodeHTML(originalAddress.firstname + " " + originalAddress.lastname) + "<br/>";
+                result += this.encodeHtml(originalAddress.firstname + " " + originalAddress.lastname) + "<br/>";
 
                 // Streets
                 var maxStreets = 3;
@@ -229,8 +229,12 @@ define(
                 $(form).find(this.addressValidationFormSelector).hide();
             },
 
-            encodeHtml: function(s) {
-                return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            encodeHtml: function(str) {
+                // This function will escape the contents of the provided string
+                // Sourced from http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/#the-best-way-to-escape-html-in-javascript
+                var div = document.createElement('div');
+                div.appendChild(document.createTextNode(str));
+                return div.innerHTML;
             }
         }
     }
