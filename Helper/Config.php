@@ -433,7 +433,7 @@ class Config extends AbstractHelper
                 $store
             ),
             'Line2' => $this->scopeConfig->getValue(
-                \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
+                \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS2,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
