@@ -26,6 +26,18 @@
         }
     }
 </script>
+<script>
+    require([
+        'mage/url'
+    ], function(url) {
+        <?php
+        // Set baseUrl so that the urlBuilder JS module has access to it
+        // Calling getUrl instead of getBaseUrl as the latter has been overridden in
+        // \ClassyLlama\AvaTax\Block\CustomerAddress to return a different url
+        ?>
+        return url.setBaseUrl('<?php /* @escapeNotVerified */ echo $block->getUrl();?>');
+    })
+</script>
 <script type="text/javascript">
     window.avaTaxStoreCode = "<?= $this->getStoreCode() ?>";
 </script>
