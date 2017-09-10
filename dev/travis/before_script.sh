@@ -13,6 +13,7 @@ cd "magento-ce"
 
 # require the classyllama extension to make it usable (autoloading)
 echo "==> Requiring classyllama/module-avatax from the dev-$TRAVIS_BRANCH branch"
+composer config repositories.erikhansen/module-avatax git https://github.com/erikhansen/ClassyLlama_AvaTax.git
 composer require "classyllama/module-avatax:dev-$TRAVIS_BRANCH"
 
 echo "==> Installing Magento 2"
