@@ -23,7 +23,8 @@ php bin/magento setup:install -q --admin-user="admin" --admin-password="123123q"
 echo "==> Copying the current build to the Magento 2 installation."
 # Output current directory for debugging purposes
 ls -lha ./
-cp -R ../module-avatax/* vendor/classyllama/module-avatax/
+ls -lha ./vendor
+#cp -R ../module-avatax/* vendor/classyllama/module-avatax/
 
 # enable the extension, do other relevant mage tasks.
 echo "==> Enable extension, do mage tasks..."
