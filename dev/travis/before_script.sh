@@ -23,7 +23,7 @@ php bin/magento setup:install -q --admin-user="admin" --admin-password="123123q"
 echo "==> Copying the current build to the Magento 2 installation."
 # Output current directory for debugging purposes
 ls -lha ./
-ls -lha ./vendor
+ls -lha ../
 #cp -R ../module-avatax/* vendor/classyllama/module-avatax/
 
 # enable the extension, do other relevant mage tasks.
@@ -118,6 +118,14 @@ for test_suite in ${test_suites[@]}; do
             ;;
     esac
 done
+
+cp ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php.dist vendor/classyllama/module-avatax/Tests/Integration/credentials.php
+perl -pi -e "s/EXAMPLE_COMPANY_CODE/$AVATAX_COMPANY_CODE/g" ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
+perl -pi -e "s/EXAMPLE_ACCOUNT_NUMBER/$AVATAX_ACCOUNT_NUMBER/g" ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
+perl -pi -e "s/EXAMPLE_LICENSE_KEY/$AVATAX_LICENSE_KEY/g" ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
+cat ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
+
+./vendor/bin/phpunit --debug -c ./vendor/classyllama/module-avatax/Tests/Integration/phpunit.xml
 
 # go into the actual cloned repo to do make preparations for the EQP tests.
 echo "==> Doing preparations for EQP tests."
