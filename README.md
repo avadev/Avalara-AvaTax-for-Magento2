@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/classyllama/ClassyLlama_AvaTax.svg?branch=develop)](https://travis-ci.org/classyllama/ClassyLlama_AvaTax)
+
 # Extension User Guide
 
 Find installation and configuration instructions here: [www.classyllama.com/documentation/extensions/avatax-magento-2-module](http://www.classyllama.com/documentation/extensions/avatax-magento-2-module).
