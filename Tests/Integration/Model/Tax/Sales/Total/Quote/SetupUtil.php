@@ -639,6 +639,29 @@ class SetupUtil
             $product = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create('Magento\Catalog\Model\Product');
         }
 
+        /** @var Factory $optionsFactory */
+        $optionsFactory = $this->objectManager->create(
+            \Magento\ConfigurableProduct\Helper\Product\Options\Factory::class
+        );
+
+        $configurableAttributesData = [
+            [
+                'attribute_id' => $attribute->getId(),
+                'code' => $attribute->getAttributeCode(),
+                'label' => 'test',
+                'position' => '0',
+                'values' => $attributeValues,
+            ],
+        ];
+
+        $configurableOptions = $optionsFactory->create($configurableAttributesData);
+
+        $extensionConfigurableAttributes = $product->getExtensionAttributes();
+        $extensionConfigurableAttributes->setConfigurableProductOptions($configurableOptions);
+        $extensionConfigurableAttributes->setConfigurableProductLinks($associatedProductIds);
+
+        $product->setExtensionAttributes($extensionConfigurableAttributes);
+
         $product->setTypeId(\Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE)
             ->setAttributeSetId(4)
             ->setWebsiteIds([1])
@@ -647,19 +670,13 @@ class SetupUtil
             ->setTaxClassId($taxClassId)
             ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
             ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
-            ->setStockData(['use_config_manage_stock' => 1, 'is_in_stock' => 1])
-            ->setAssociatedProductIds($associatedProductIds)
-            ->setConfigurableAttributesData(
-                [
-                    [
-                        'attribute_id' => $attribute->getId(),
-                        'attribute_code' => $attribute->getAttributeCode(),
-                        'frontend_label' => 'test',
-                        'values' => $attributeValues,
-                    ],
-                ]
-            )
-            ->save();
+            ->setStockData(['use_config_manage_stock' => 1, 'is_in_stock' => 1]);
+
+        /** @var ProductRepositoryInterface $productRepository */
+        $productRepository = $this->objectManager->create(
+            \Magento\Catalog\Api\ProductRepositoryInterface::class
+        );
+        $productRepository->save($product);
 
         $this->products[$sku] = $product;
 
