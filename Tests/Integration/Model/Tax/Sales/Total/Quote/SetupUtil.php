@@ -614,6 +614,7 @@ class SetupUtil
 
         $associatedProductIds = [];
         $attributeValues = [];
+        $additionalAttributes = [];
         $i = 1;
         foreach ($options as $option) {
             $taxClassName = self::PRODUCT_TAX_CLASS_1;
@@ -661,6 +662,11 @@ class SetupUtil
         $extensionConfigurableAttributes->setConfigurableProductLinks($associatedProductIds);
 
         $product->setExtensionAttributes($extensionConfigurableAttributes);
+
+        // Set attribute value on configurable product to avoid error
+        foreach ($additionalAttributes as $key => $value) {
+            $product->setData($key, $value);
+        }
 
         $product->setTypeId(\Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE)
             ->setAttributeSetId(4)
