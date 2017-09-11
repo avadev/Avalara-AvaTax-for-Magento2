@@ -125,7 +125,8 @@ perl -pi -e "s/EXAMPLE_ACCOUNT_NUMBER/$AVATAX_ACCOUNT_NUMBER/g" ./vendor/classyl
 perl -pi -e "s/EXAMPLE_LICENSE_KEY/$AVATAX_LICENSE_KEY/g" ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
 cat ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
 
-./vendor/bin/phpunit --debug -c ./vendor/classyllama/module-avatax/Tests/Integration/phpunit.xml
+echo $(pwd)
+./vendor/bin/phpunit --debug -c $(pwd)/vendor/classyllama/module-avatax/Tests/Integration/phpunit.xml
 
 # go into the actual cloned repo to do make preparations for the EQP tests.
 echo "==> Doing preparations for EQP tests."
