@@ -21,16 +21,13 @@ mysql -uroot -e 'CREATE DATABASE magento2;'
 php bin/magento setup:install -q --admin-user="admin" --admin-password="123123q" --admin-email="admin@example.com" --admin-firstname="John" --admin-lastname="Doe" --db-name="magento2"
 
 echo "==> Copying the current build to the Magento 2 installation."
-# Output current directory for debugging purposes
-ls -lha ./
-ls -lha ../
 #cp -R ../module-avatax/* vendor/classyllama/module-avatax/
 
 # enable the extension, do other relevant mage tasks.
 echo "==> Enable extension, do mage tasks..."
 php bin/magento module:enable ClassyLlama_AvaTax
-php bin/magento setup:upgrade
-php bin/magento cache:flush
+php bin/magento -q setup:upgrade
+php bin/magento -q cache:flush
 php bin/magento setup:di:compile
 
 # definition for the test suites
@@ -123,7 +120,6 @@ cp ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php.dist ven
 perl -pi -e "s/EXAMPLE_COMPANY_CODE/$AVATAX_COMPANY_CODE/g" ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
 perl -pi -e "s/EXAMPLE_ACCOUNT_NUMBER/$AVATAX_ACCOUNT_NUMBER/g" ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
 perl -pi -e "s/EXAMPLE_LICENSE_KEY/$AVATAX_LICENSE_KEY/g" ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
-cat ./vendor/classyllama/module-avatax/Tests/Integration/credentials.php
 
 echo $(pwd)
 ./vendor/bin/phpunit --debug -c $(pwd)/vendor/classyllama/module-avatax/Tests/Integration/phpunit.xml
