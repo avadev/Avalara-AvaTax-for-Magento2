@@ -8,7 +8,7 @@ mkdir -p "$HOME/.php-cs-fixer"
 # go into the parent folder and pull a full magento 2 ce project, to do all tests.
 echo "==> Installing Magento 2 CE (Version $magento) over composer create-project ..."
 cd ..
-composer create-project "magento/community-edition:$magento" magento-ce
+composer create-project --stability rc --repository-url=https://repo.magento.com/ "magento/project-community-edition:$magento" magento-ce
 cd "magento-ce"
 
 # require the classyllama extension to make it usable (autoloading)

@@ -20,13 +20,13 @@ env:
   global:
     - INTEGRATION_SETS=3
   matrix:
-    - magento=2.0.13
-    - magento=2.1.8
+    - magento=2.1.*
+    - magento=2.2.*
 matrix:
   fast_finish: true
   exclude:
     - php: 5.6
-      env: magento=2.1.8
+      env: magento=2.2.*
 cache:
   directories:
     - $HOME/.composer/cache
