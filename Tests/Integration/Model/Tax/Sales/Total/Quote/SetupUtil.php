@@ -849,8 +849,42 @@ class SetupUtil
             ->setPrice($price)
             ->setTaxClassId($taxClassId)
             ->setBundleOptionsData($bundleOptionsData)
-            ->setBundleSelectionsData($bundleSelectionsData)
-            ->save();
+            ->setBundleSelectionsData($bundleSelectionsData);
+
+        $productRepository = $objectManager->create('Magento\Catalog\Api\ProductRepositoryInterface');
+
+        if ($product->getBundleOptionsData()) {
+            $options = [];
+            foreach ($product->getBundleOptionsData() as $key => $optionData) {
+                if (!(bool)$optionData['delete']) {
+                    $option = $objectManager->create('Magento\Bundle\Api\Data\OptionInterfaceFactory')
+                        ->create(['data' => $optionData]);
+                    $option->setSku($product->getSku());
+                    $option->setOptionId(null);
+
+                    $links = [];
+                    $bundleLinks = $product->getBundleSelectionsData();
+                    if (!empty($bundleLinks[$key])) {
+                        foreach ($bundleLinks[$key] as $linkData) {
+                            if (!(bool)$linkData['delete']) {
+                                $link = $objectManager->create('Magento\Bundle\Api\Data\LinkInterfaceFactory')
+                                    ->create(['data' => $linkData]);
+                                $linkProduct = $productRepository->getById($linkData['product_id']);
+                                $link->setSku($linkProduct->getSku());
+                                $link->setQty($linkData['selection_qty']);
+                                $links[] = $link;
+                            }
+                        }
+                        $option->setProductLinks($links);
+                        $options[] = $option;
+                    }
+                }
+            }
+            $extension = $product->getExtensionAttributes();
+            $extension->setBundleProductOptions($options);
+            $product->setExtensionAttributes($extension);
+        }
+        $product->save();
 
         $this->products[$sku] = $product;
 
