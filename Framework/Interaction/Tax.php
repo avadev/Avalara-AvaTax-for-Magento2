@@ -601,6 +601,12 @@ class Tax
     public function getGetTaxRequestForSalesObject($object) {
         $order = $this->orderRepository->get($object->getOrderId());
 
+        // Create an array of visible products on the order being processed
+        $visibleItems = $order->getAllVisibleItems();
+        foreach ($visibleItems as $item) {
+            $visibleItemsArray[$item->getProductID()] = $item;
+        }
+
         $lines = [];
         $items = $object->getItems();
         
@@ -608,7 +614,8 @@ class Tax
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($items as $item) {
             $line = $this->interactionLine->getLine($item);
-            if ($line) {
+            // Only add this line to the request only if it is defined and if its item is in the visible items array
+            if ($line && isset($visibleItemsArray[$item->getProductId()])) {
                 $lines[] = $line;
             }
         }
