@@ -394,8 +394,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                     'id' => $key . '_' . $row->getJurisCode(),
                     'ratePercent' => $ratePercent,
                     'taxName' => $row->getTaxName(),
-                    // Prepend a string to the juris code to prevent false positives on comparison (e.g. '053' == '53)
-                    'jurisCode' => 'AVATAX-' . $row->getJurisCode(),
+                    'jurisCode' => $row->getJurisCode(),
                     // These two values will only be used in the conditional below
                     'taxable' => (float)$row->getTaxable(),
                     'tax' => (float)$row->getTax(),
