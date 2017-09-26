@@ -1,7 +1,13 @@
+### 1.2.0 (2017-09-21)
+
+* Refactor code to prepend 'AVATAX-' to jurisdiction tax code on all tax responses [#81](https://github.com/classyllama/ClassyLlama_AvaTax/issues/81)
+    * This change will be reflected on the native Magento sales tax report and is for future tax requests only; it does
+      not update existing tax results stored in Magento.
+
 ### 1.1.4 (2017-08-31)
 
-* Refactor code to correctly use origin address line 2 [#76](https://github.com/classyllama/ClassyLlama_AvaTax/pull/76)
-* Add JS to define baseUrl with correct value for address validation [#80](https://github.com/classyllama/ClassyLlama_AvaTax/pull/80)
+* Refactor code to correctly use origin address line 2 [#77](https://github.com/classyllama/ClassyLlama_AvaTax/issues/77)
+* Add JS to define baseUrl with correct value for address validation [#79](https://github.com/classyllama/ClassyLlama_AvaTax/issues/79)
 
 ### 1.1.3 (2017-07-28)
 
