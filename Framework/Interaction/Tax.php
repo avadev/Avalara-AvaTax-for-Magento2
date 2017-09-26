@@ -601,10 +601,13 @@ class Tax
     public function getGetTaxRequestForSalesObject($object) {
         $order = $this->orderRepository->get($object->getOrderId());
 
-        // Create an array of visible products on the order being processed
-        $visibleItems = $order->getAllVisibleItems();
-        foreach ($visibleItems as $item) {
-            $visibleItemsArray[$item->getProductID()] = $item;
+        // Create an array of items for the order being processed
+        $orderItems = $order->getAllItems();
+        foreach ($orderItems as $item) {
+            if (!$this->isProductCalculated($item)) {
+                // Don't add configurable products to the array
+                $orderItemsArray[$item->getProductID()] = $item;
+            }
         }
 
         $lines = [];
@@ -613,10 +616,12 @@ class Tax
         $this->taxClassHelper->populateCorrectTaxClasses($items, $object->getStoreId());
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($items as $item) {
-            $line = $this->interactionLine->getLine($item);
-            // Only add this line to the request only if it is defined and if its item is in the visible items array
-            if ($line && isset($visibleItemsArray[$item->getProductId()])) {
-                $lines[] = $line;
+            // Only add this item if it is in the order items array
+            if (isset($orderItemsArray[$item->getProductId()])) {
+                $line = $this->interactionLine->getLine($item);
+                if ($line) {
+                    $lines[] = $line;
+                }
             }
         }
 
@@ -876,5 +881,23 @@ class Tax
         $dateB->setTimezone(new \DateTimeZone($timezone));
 
         return $dateA->format('Y-m-d') != $dateB->format('Y-m-d');
+    }
+
+    /**
+     * Return whether product is calculated or not
+     *
+     * @param $item
+     * @return bool
+     */
+    protected function isProductCalculated($item) {
+        if (method_exists($item, 'isChildrenCalculated') && method_exists($item, 'getParentItem')) {
+            if ($item->isChildrenCalculated() && !$item->getParentItem()) {
+                return true;
+            }
+            if (!$item->isChildrenCalculated() && $item->getParentItem()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
