@@ -12,6 +12,8 @@ This extension contains integration tests to verify the extension's functionalit
 
 # Magento Version Support
 
+Support for Magento 2.2.x has not yet been tested, but is available via the `issues/85` branch. Please report any issues related to [Magento 2.2.x compatibility](https://github.com/classyllama/ClassyLlama_AvaTax/issues/85) in the corresponding [issue page](https://github.com/classyllama/ClassyLlama_AvaTax/issues/85). 
+
 As of version 0.3.0 of this extension, this extension supported Magento 2.1.x (Community and Enterprise). Support for Magento 2.0.x was dropped as of version 0.3.0. See [this page](https://github.com/classyllama/ClassyLlama_AvaTax/releases) for a list of all releases.
 
 As of version 1.0.0 of this extension, this extension supports [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html). Reference issue [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54) for additional notes and details.
