@@ -1,3 +1,7 @@
+### 1.2.1 (2017-10-15)
+
+* Refactor code to exclude configurable products from Avalara submission [#78](https://github.com/classyllama/ClassyLlama_AvaTax/issues/78)
+      
 ### 1.2.0 (2017-09-21)
 
 * Refactor code to prepend 'AVATAX-' to jurisdiction tax code on all tax responses [#81](https://github.com/classyllama/ClassyLlama_AvaTax/issues/81)
