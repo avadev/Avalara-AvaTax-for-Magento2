@@ -4,7 +4,7 @@
     "version": "1.2.1",
     "license": "OSL-3.0",
     "require": {
-        "magento/framework": "^100.1.0|^101.0.0",
+        "magento/framework": "^100.1.0|101.0.*",
         "avalara/avatax": "^15.5.2.0"
     },
     "autoload": {
