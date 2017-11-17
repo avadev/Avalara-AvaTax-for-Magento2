@@ -39,4 +39,27 @@
         <attribute code="avatax_is_unbalanced" type="string" />
         <attribute code="base_avatax_tax_amount" type="string" />
     </extension_attributes>
+    <extension_attributes for="Magento\Tax\Api\Data\AppliedTaxRateInterface">
+        <attribute code="rate_percent" type="float" />
+        <attribute code="tax_name" type="string" />
+        <attribute code="juris_code" type="string" />
+        <attribute code="taxable" type="float" />
+        <attribute code="tax" type="float" />
+    </extension_attributes>
+
+    <!--
+    /**
+     * Add and redefine extension attributes to display tax summary information on frontend
+     * See https://github.com/classyllama/ClassyLlama_AvaTax/issues/70 for details
+     */
+     -->
+    <!-- // BEGIN EDIT -->
+    <extension_attributes for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface">
+        <attribute code="tax" type="float" />
+    </extension_attributes>
+    <!--Redefine existing extension attribute to use new interface-->
+    <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
+        <attribute code="tax_grandtotal_details" type="ClassyLlama\AvaTax\Api\Data\GrandTotalDetailsInterface[]" />
+    </extension_attributes>
+    <!-- // END EDIT -->
 </config>
