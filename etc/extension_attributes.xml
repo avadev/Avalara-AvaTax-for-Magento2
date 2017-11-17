@@ -53,7 +53,6 @@
      * See https://github.com/classyllama/ClassyLlama_AvaTax/issues/70 for details
      */
      -->
-    <!-- // BEGIN EDIT -->
     <extension_attributes for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface">
         <attribute code="tax" type="float" />
     </extension_attributes>
@@ -61,5 +60,5 @@
     <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
         <attribute code="tax_grandtotal_details" type="ClassyLlama\AvaTax\Api\Data\GrandTotalDetailsInterface[]" />
     </extension_attributes>
-    <!-- // END EDIT -->
+    
 </config>

@@ -35,10 +35,10 @@ class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetails
     ) {
         $this->grandTotalRatesExtensionFactory = $grandTotalRatesExtensionFactory;
         parent::__construct(
-        $detailsFactory,
-        $ratesFactory,
-        $totalSegmentExtensionFactory,
-        $taxConfig
+            $detailsFactory,
+            $ratesFactory,
+            $totalSegmentExtensionFactory,
+            $taxConfig
         );
     }
     // END EDIT
