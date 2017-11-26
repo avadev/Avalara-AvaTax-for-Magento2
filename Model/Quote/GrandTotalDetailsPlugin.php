@@ -25,11 +25,6 @@ class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetails
     protected $ratesFactory;
 
     /**
-     * @var \ReflectionClass
-     */
-    protected $reflectionClass;
-
-    /**
      * @param \Magento\Tax\Api\Data\GrandTotalDetailsInterfaceFactory $detailsFactory
      * @param \Magento\Tax\Api\Data\GrandTotalRatesInterfaceFactory $ratesFactory
      * @param \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory

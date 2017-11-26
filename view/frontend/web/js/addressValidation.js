@@ -1,8 +1,7 @@
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @category    ClassyLlama
+ * @copyright   Copyright (c) 2017 Classy Llama Studios, LLC
  */
-
 define([
     'jquery',
     'jquery/ui',
