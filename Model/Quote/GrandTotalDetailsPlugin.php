@@ -20,26 +20,51 @@ class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetails
     protected $grandTotalRatesExtensionFactory;
 
     /**
+     * @var \Magento\Tax\Api\Data\GrandTotalRatesInterfaceFactory
+     */
+    protected $ratesFactory;
+
+    /**
      * @param \Magento\Tax\Api\Data\GrandTotalDetailsInterfaceFactory $detailsFactory
      * @param \Magento\Tax\Api\Data\GrandTotalRatesInterfaceFactory $ratesFactory
      * @param \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory
      * @param \Magento\Tax\Model\Config $taxConfig
      * @param \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory
+     * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      */
     public function __construct(
         \Magento\Tax\Api\Data\GrandTotalDetailsInterfaceFactory $detailsFactory,
         \Magento\Tax\Api\Data\GrandTotalRatesInterfaceFactory $ratesFactory,
         \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory,
         \Magento\Tax\Model\Config $taxConfig,
-        \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory
+        \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory,
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata
     ) {
         $this->grandTotalRatesExtensionFactory = $grandTotalRatesExtensionFactory;
-        parent::__construct(
-            $detailsFactory,
-            $ratesFactory,
-            $totalSegmentExtensionFactory,
-            $taxConfig
-        );
+        $this->ratesFactory = $ratesFactory;
+        // Retrieve Magento version number
+        $version = explode('.', $productMetadata->getVersion());
+        if (isset($version[1]) && $version[1] > 1) {
+            // Beginning with Magento 2.2 we need to include an additional parameter in the call to parent construct;
+            // this class did not exist prior to 2.2, so it must be loaded with ObjectManager instead of DI
+            $serializer = \Magento\Framework\App\ObjectManager::getInstance()
+                ->create('\Magento\Framework\Serialize\Serializer\Json');
+            parent::__construct(
+                $detailsFactory,
+                $ratesFactory,
+                $totalSegmentExtensionFactory,
+                $taxConfig,
+                $serializer
+            );
+        } else {
+            // Leaving original construct call for backwards compatibility with Magento 2.1
+            parent::__construct(
+                $detailsFactory,
+                $ratesFactory,
+                $totalSegmentExtensionFactory,
+                $taxConfig
+            );
+        }
     }
     // END EDIT
 
