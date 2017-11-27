@@ -17,6 +17,8 @@ var config = {
         '*': {
             "Magento_Checkout/js/model/shipping-save-processor/default": 'ClassyLlama_AvaTax/js/model/shipping-save-processor/default',
             "Magento_Checkout/js/model/shipping-save-processor/gift-registry": 'ClassyLlama_AvaTax/js/model/shipping-save-processor/gift-registry',
+            "Magento_Tax/template/checkout/cart/totals/tax": 'ClassyLlama_AvaTax/template/checkout/cart/totals/tax',
+            "Magento_Tax/template/checkout/summary/tax": 'ClassyLlama_AvaTax/template/checkout/summary/tax'
         }
     }
 };

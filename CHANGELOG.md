@@ -1,3 +1,7 @@
+### 1.2.2 (2017-11-27)
+
+* Refactor code to display verbose tax summary [#70](https://github.com/classyllama/ClassyLlama_AvaTax/issues/70)
+
 ### 1.2.1 (2017-10-15)
 
 * Refactor code to exclude configurable products from Avalara submission [#78](https://github.com/classyllama/ClassyLlama_AvaTax/issues/78)
