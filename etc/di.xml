@@ -34,6 +34,20 @@
     <type name="Magento\Quote\Model\Quote\Config">
         <plugin name="avatax_quote_model_quote_config" type="ClassyLlama\AvaTax\Plugin\Quote\Model\Quote\Config" />
     </type>
+
+    <!--
+    /**
+     * Add plugin and preferences to display tax summary information on frontend
+     * See https://github.com/classyllama/ClassyLlama_AvaTax/issues/70 for details
+     */
+     -->
+    <type name="Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector">
+        <plugin name="avatax_quote_tax_collector" type="ClassyLlama\AvaTax\Plugin\Sales\Total\Quote\CommonTaxCollector" />
+    </type>
+    <preference for="Magento\Tax\Model\Quote\GrandTotalDetailsPlugin" type="ClassyLlama\AvaTax\Model\Quote\GrandTotalDetailsPlugin" />
+    <preference for="Magento\Tax\Api\Data\GrandTotalRatesInterface" type="ClassyLlama\AvaTax\Model\Tax\Calculation\GrandTotalRates" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface" type="ClassyLlama\AvaTax\Model\Tax\Calculation\GrandTotalRates" />
+
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
