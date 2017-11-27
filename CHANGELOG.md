@@ -1,3 +1,7 @@
+### 1.2.4 (2017-11-27)
+
+* Fix bug that prevents DI compilation [#85](https://github.com/classyllama/ClassyLlama_AvaTax/issues/85)
+
 ### 1.2.3 (2017-11-27)
 
 * Refactor code for compatibility with Magento 2.2 [#85](https://github.com/classyllama/ClassyLlama_AvaTax/issues/85)
