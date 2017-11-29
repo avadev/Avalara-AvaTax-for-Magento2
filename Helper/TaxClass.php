@@ -238,7 +238,7 @@ class TaxClass
             if ($item->getParentItem()) {
                 continue;
             }
-            $productIds[] = $item->getOrderItem()->getProduct()->getId();
+            $productIds[] = $item->getOrderItem()->getProductId();
         }
 
         // Loading products via a collection rather than a repository as it's not possible to load a repository with
