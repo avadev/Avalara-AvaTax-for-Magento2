@@ -29,7 +29,6 @@ if (\class_exists('\Magento\Framework\Serialize\Serializer\Json')) {
          * @param \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory
          * @param \Magento\Tax\Model\Config $taxConfig
          * @param \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory
-         * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
          * @param \Magento\Framework\Serialize\Serializer\Json $serializer
          */
         public function __construct(
@@ -38,7 +37,6 @@ if (\class_exists('\Magento\Framework\Serialize\Serializer\Json')) {
             \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory,
             \Magento\Tax\Model\Config $taxConfig,
             \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory,
-            \Magento\Framework\App\ProductMetadataInterface $productMetadata,
             \Magento\Framework\Serialize\Serializer\Json $serializer
         )
         {
@@ -74,15 +72,13 @@ if (\class_exists('\Magento\Framework\Serialize\Serializer\Json')) {
          * @param \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory
          * @param \Magento\Tax\Model\Config $taxConfig
          * @param \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory
-         * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
          */
         public function __construct(
             \Magento\Tax\Api\Data\GrandTotalDetailsInterfaceFactory $detailsFactory,
             \Magento\Tax\Api\Data\GrandTotalRatesInterfaceFactory $ratesFactory,
             \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory,
             \Magento\Tax\Model\Config $taxConfig,
-            \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory,
-            \Magento\Framework\App\ProductMetadataInterface $productMetadata
+            \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory
         )
         {
             $this->grandTotalRatesExtensionFactory = $grandTotalRatesExtensionFactory;
