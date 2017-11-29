@@ -1,3 +1,7 @@
+### 1.2.5 (2017-11-29)
+
+* Fix error when processing queue for some invoices [#94](https://github.com/classyllama/ClassyLlama_AvaTax/issues/94)
+
 ### 1.2.4 (2017-11-27)
 
 * Fix bug that prevents DI compilation [#85](https://github.com/classyllama/ClassyLlama_AvaTax/issues/85)
