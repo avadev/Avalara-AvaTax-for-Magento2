@@ -35,12 +35,19 @@ class CommonTaxCollector
 
             $rates = [];
             foreach ($rateDataObjects as $rateDataObject) {
+                // BEGIN EDIT
+                // Determine whether or not tax has been set as an extension attribute
+                if ($rateDataObject->getExtensionAttributes() && $rateDataObject->getExtensionAttributes()->getTax()) {
+                    $tax = $rateDataObject->getExtensionAttributes()->getTax();
+                } else {
+                    $tax = null;
+                }
                 $rates[] = [
                     'percent' => $rateDataObject->getPercent(),
                     'code' => $rateDataObject->getCode(),
                     'title' => $rateDataObject->getTitle(),
-                    // BEGIN EDIT - Add extension attributes array to rates array
-                    'extension_attributes' => ['tax' => $rateDataObject->getExtensionAttributes()->getTax()]
+                    // Add extension attributes array to rates array and set tax amount
+                    'extension_attributes' => ['tax' => $tax]
                     // END EDIT
                 ];
             }
