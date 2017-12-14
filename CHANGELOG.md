@@ -1,3 +1,7 @@
+### 1.2.7 (2017-12-14)
+
+* Refactor code to remove abstract class for conditionally loading new class in parent constructor
+
 ### 1.2.6 (2017-12-03)
 
 * Fix error when AvaTax extension has not set tax value as extension attribute [#93](https://github.com/classyllama/ClassyLlama_AvaTax/issues/93)
