@@ -49,8 +49,9 @@ class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetails
         $this->ratesFactory = $ratesFactory;
         $this->objectManager = $objectManager;
         if (\class_exists('\Magento\Framework\Serialize\Serializer\Json')) {
-            // Beginning with Magento 2.2 we need to include an additional parameter in the call to parent construct
-            $this->loadParentWithJson
+            // Beginning with Magento 2.2 we need to include additional parameter(s) in the call to parent construct
+            // with class(es) that didn't previously exist
+            $this->loadParentConstructor
             (
                 $detailsFactory,
                 $ratesFactory,
@@ -59,7 +60,7 @@ class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetails
             );
         } else {
             // Leaving legacy call for backwards compatibility with Magento 2.1.x
-            $this->loadParentWithoutJson
+            $this->loadLegacyParentConstructor
             (
                 $detailsFactory,
                 $ratesFactory,
@@ -106,14 +107,14 @@ class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetails
     }
 
     /**
-     * Call through to parent constructor with additional parameter; Magento 2.2.x
+     * Call through to parent constructor with additional parameter(s); Magento 2.2.x
      *
      * @param $detailsFactory
      * @param $ratesFactory
      * @param $totalSegmentExtensionFactory
      * @param $taxConfig
      */
-    protected function loadParentWithJson
+    protected function loadParentConstructor
     (
         $detailsFactory,
         $ratesFactory,
@@ -133,14 +134,14 @@ class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetails
     }
 
     /**
-     * Call through to parent constructor without additional parameter; Magento 2.1.x
+     * Call through to parent constructor without additional parameter(s); Magento 2.1.x
      *
      * @param $detailsFactory
      * @param $ratesFactory
      * @param $totalSegmentExtensionFactory
      * @param $taxConfig
      */
-    protected function loadParentWithoutJson
+    protected function loadLegacyParentConstructor
     (
         $detailsFactory,
         $ratesFactory,
