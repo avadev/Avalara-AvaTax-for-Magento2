@@ -6,12 +6,69 @@
 
 namespace ClassyLlama\AvaTax\Model\Quote;
 
-class GrandTotalDetailsPlugin extends GrandTotalDetailsPluginAbstract
+class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetailsPlugin
 {
     /**
      * Define constant for tax amount array key
      */
     const KEY_TAX = 'tax';
+
+    /**
+     * @var \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory
+     */
+    protected $grandTotalRatesExtensionFactory;
+
+    /**
+     * @var \Magento\Tax\Api\Data\GrandTotalRatesInterfaceFactory
+     */
+    protected $ratesFactory;
+
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
+     * @param \Magento\Tax\Api\Data\GrandTotalDetailsInterfaceFactory $detailsFactory
+     * @param \Magento\Tax\Api\Data\GrandTotalRatesInterfaceFactory $ratesFactory
+     * @param \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory
+     * @param \Magento\Tax\Model\Config $taxConfig
+     * @param \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     */
+    public function __construct(
+        \Magento\Tax\Api\Data\GrandTotalDetailsInterfaceFactory $detailsFactory,
+        \Magento\Tax\Api\Data\GrandTotalRatesInterfaceFactory $ratesFactory,
+        \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory,
+        \Magento\Tax\Model\Config $taxConfig,
+        \ClassyLlama\AvaTax\Api\Data\GrandTotalRatesExtensionFactory $grandTotalRatesExtensionFactory,
+        \Magento\Framework\ObjectManagerInterface $objectManager
+    )
+    {
+        $this->grandTotalRatesExtensionFactory = $grandTotalRatesExtensionFactory;
+        $this->ratesFactory = $ratesFactory;
+        $this->objectManager = $objectManager;
+        if (\class_exists('\Magento\Framework\Serialize\Serializer\Json')) {
+            // Beginning with Magento 2.2 we need to include additional parameter(s) in the call to parent construct
+            // with class(es) that didn't previously exist
+            $this->loadParentConstructor
+            (
+                $detailsFactory,
+                $ratesFactory,
+                $totalSegmentExtensionFactory,
+                $taxConfig
+            );
+        } else {
+            // Leaving legacy call for backwards compatibility with Magento 2.1.x
+            $this->loadLegacyParentConstructor
+            (
+                $detailsFactory,
+                $ratesFactory,
+                $totalSegmentExtensionFactory,
+                $taxConfig
+            );
+        }
+    }
 
     /**
      * @param array $rates
@@ -47,5 +104,56 @@ class GrandTotalDetailsPlugin extends GrandTotalDetailsPluginAbstract
             return $rate[\Magento\Framework\Api\ExtensibleDataInterface::EXTENSION_ATTRIBUTES_KEY][self::KEY_TAX];
         }
         return false;
+    }
+
+    /**
+     * Call through to parent constructor with additional parameter(s); Magento 2.2.x
+     *
+     * @param $detailsFactory
+     * @param $ratesFactory
+     * @param $totalSegmentExtensionFactory
+     * @param $taxConfig
+     */
+    protected function loadParentConstructor
+    (
+        $detailsFactory,
+        $ratesFactory,
+        $totalSegmentExtensionFactory,
+        $taxConfig
+    ) {
+        // Load new class(es) via object manager to retain backwards compatibility
+        $serializer = $this->objectManager->create('\Magento\Framework\Serialize\Serializer\Json');
+        // Call parent constructor with added parameter(s)
+        parent::__construct(
+            $detailsFactory,
+            $ratesFactory,
+            $totalSegmentExtensionFactory,
+            $taxConfig,
+            $serializer
+        );
+    }
+
+    /**
+     * Call through to parent constructor without additional parameter(s); Magento 2.1.x
+     *
+     * @param $detailsFactory
+     * @param $ratesFactory
+     * @param $totalSegmentExtensionFactory
+     * @param $taxConfig
+     */
+    protected function loadLegacyParentConstructor
+    (
+        $detailsFactory,
+        $ratesFactory,
+        $totalSegmentExtensionFactory,
+        $taxConfig
+    ) {
+        // Call parent constructor
+        parent::__construct(
+            $detailsFactory,
+            $ratesFactory,
+            $totalSegmentExtensionFactory,
+            $taxConfig
+        );
     }
 }
