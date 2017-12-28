@@ -324,12 +324,16 @@ class Tax
      */
     protected function getCustomerCode($data)
     {
-        switch ($this->config->getCustomerCodeFormat($data->getStoreId())) {
+        // Retrieve the customer code configuration value
+        $customerCode = $this->config->getCustomerCodeFormat($data->getStoreId());
+        switch ($customerCode) {
             case Config::CUSTOMER_FORMAT_OPTION_EMAIL:
+                // Use email address
                 $email = $data->getCustomerEmail();
                 return $email ?: Config::CUSTOMER_MISSING_EMAIL;
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_NAME_ID:
+                // Use name and ID
                 $customer = $this->getCustomerById($data->getCustomerId());
                 if ($customer && $customer->getId()) {
                     $name = $customer->getFirstname() . ' ' . $customer->getLastname();
@@ -349,8 +353,25 @@ class Tax
                 return sprintf(Config::CUSTOMER_FORMAT_NAME_ID, $name, $id);
                 break;
             case Config::CUSTOMER_FORMAT_OPTION_ID:
-            default:
+                // Use customer ID
                 return $data->getCustomerId() ?: strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $data->getId();
+                break;
+            default:
+                // Use custom customer attribute
+                if (!$data->getCustomerId()) {
+                    // This is a guest so no attribute value exists and neither does a customer ID
+                    return strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $data->getId();
+                }
+                // Retrieve customer by ID
+                $customer = $this->getCustomerById($data->getCustomerId());
+                // Retrieve attribute using provided attribute code
+                $attribute = $customer->getCustomAttribute($customerCode);
+                if (!is_null($attribute)) {
+                    // Customer has value defined for provided attribute code
+                    return $attribute->getValue();
+                }
+                // No value set for provided attribute code, but this is not a guest so use customer ID
+                return $data->getCustomerId();
                 break;
         }
     }
