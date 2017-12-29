@@ -1,3 +1,7 @@
+### 1.3.0 (2017-12-29)
+
+* Add the ability to use any custom customer attribute as customer code [#99](https://github.com/classyllama/ClassyLlama_AvaTax/issues/99)
+
 ### 1.2.7 (2017-12-14)
 
 * Refactor code to remove abstract class for conditionally loading new class in parent constructor
