@@ -53,14 +53,14 @@ class CustomerCode implements \Magento\Framework\Option\ArrayInterface
 
         // Retrieve all customer attributes
         $customerAttributes = $this->customer->getAttributes();
-        foreach($customerAttributes as $attribute){
+        foreach ($customerAttributes as $attribute){
             $label = $attribute->getDefaultFrontendLabel();
             if (!is_null($label) && $attribute->getIsUserDefined()) {
                 // Only add custom attribute codes that have a frontend label value defined
-                $attributesArray[$attribute->getAttributeCode()] = array(
+                $attributesArray[$attribute->getAttributeCode()] = [
                     'value' => $attribute->getAttributeCode(),
                     'label' => __($label)
-                );
+                ];
             }
         }
 
