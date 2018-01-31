@@ -254,7 +254,7 @@ class TaxClass
         }
 
         foreach ($items as $item) {
-            $productId = $item->getOrderItem()->getProduct()->getId();
+            $productId = $item->getOrderItem()->getProductId();
             if (isset($productsById[$productId])) {
                 $productWithCorrectTaxClassId = $productsById[$productId];
                 if ($productWithCorrectTaxClassId->getTaxClassId()) {
