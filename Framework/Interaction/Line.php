@@ -166,27 +166,29 @@ class Line
         if ($item->getQty() == 0) {
             return false;
         }
-        $product = $item->getOrderItem()->getProduct();
-
-        $itemCode = $this->taxClassHelper->getItemCodeOverride($product);
-        if (!$itemCode) {
-            $itemCode = $item->getSku();
-        }
 
         $storeId = $item->getStoreId();
+        $product = $item->getOrderItem()->getProduct();
+
+        $itemData = $this->buildItemData($product, $storeId);
+
+        if (!$itemData['itemCode']) {
+            $itemData['itemCode'] = $item->getSku();
+        }
+
 
         return [
             'StoreId' => $storeId,
             'No' => $this->getLineNumber(),
-            'ItemCode' => $itemCode,
-            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product, $storeId),
+            'ItemCode' => $itemData['itemCode'],
+            'TaxCode' => $itemData['taxCode'],
             'Description' => $item->getName(),
             'Qty' => $item->getQty(),
             'Amount' => $amount,
             'Discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'TaxIncluded' => false,
-            'Ref1' => $this->taxClassHelper->getRef1ForProduct($product),
-            'Ref2' => $this->taxClassHelper->getRef2ForProduct($product),
+            'Ref1' => $itemData['productRef1'],
+            'Ref2' => $itemData['productRef2']
         ];
     }
 
@@ -213,27 +215,27 @@ class Line
             return false;
         }
 
+        $storeId = $item->getStoreId();
         $product = $item->getOrderItem()->getProduct();
 
-        $itemCode = $this->taxClassHelper->getItemCodeOverride($product);
-        if (!$itemCode) {
-            $itemCode = $item->getSku();
-        }
+        $itemData = $this->buildItemData($product, $storeId);
 
-        $storeId = $item->getStoreId();
+        if (!$itemData['itemCode']) {
+            $itemData['itemCode'] = $item->getSku();
+        }
 
         return [
             'StoreId' => $storeId,
             'No' => $this->getLineNumber(),
-            'ItemCode' => $itemCode,
-            'TaxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product, $storeId),
+            'ItemCode' => $itemData['itemCode'],
+            'TaxCode' => $itemData['taxCode'],
             'Description' => $item->getName(),
             'Qty' => $item->getQty(),
             'Amount' => $amount,
             'Discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'TaxIncluded' => false,
-            'Ref1' => $this->taxClassHelper->getRef1ForProduct($product),
-            'Ref2' => $this->taxClassHelper->getRef2ForProduct($product),
+            'Ref1' => $itemData['productRef1'],
+            'Ref2' => $itemData['productRef2']
         ];
     }
 
@@ -648,5 +650,35 @@ class Line
         } else {
             return true;
         }
+    }
+
+    /**
+     * @param $product
+     * @param integer $storeId
+     * @return array
+     */
+    protected function buildItemData($product, $storeId)
+    {
+        if ($product) {
+            $data =
+            [
+                'itemCode' => $this->taxClassHelper->getItemCodeOverride($product),
+                'taxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product, $storeId),
+                'productRef1' => $this->taxClassHelper->getRef1ForProduct($product),
+                'productRef2' => $this->taxClassHelper->getRef2ForProduct($product)
+            ];
+        } else {
+            // Using null values for these parameters since the product can no longer be found; they're null by default
+            // and only have values if explicitly defined in the configuration. Using nulls won't prevent submission to
+            // Avalara and will only raise an issue if the product had these values before being deleted.
+            $data =
+                [
+                    'itemCode' => null,
+                    'taxCode' => null,
+                    'productRef1' => null,
+                    'productRef2' => null
+                ];
+        }
+        return $data;
     }
 }
