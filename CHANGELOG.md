@@ -1,3 +1,7 @@
+### 1.3.2 (2018-02-08)
+
+* Refactor code to prevent error when product is deleted before queue processing [#104](https://github.com/classyllama/ClassyLlama_AvaTax/issues/104)
+
 ### 1.3.1 (2018-01-31)
 
 * Refactor code to make product ID retrieval more reliable [PR #103](https://github.com/classyllama/ClassyLlama_AvaTax/pull/103)
