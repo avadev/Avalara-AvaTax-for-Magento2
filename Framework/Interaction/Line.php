@@ -659,20 +659,25 @@ class Line
      */
     protected function buildItemData($product, $storeId)
     {
-        $data = [];
         if ($product) {
-            $data['itemCode'] = $this->taxClassHelper->getItemCodeOverride($product);
-            $data['taxCode'] = $this->taxClassHelper->getAvataxTaxCodeForProduct($product, $storeId);
-            $data['productRef1'] = $this->taxClassHelper->getRef1ForProduct($product);
-            $data['productRef2'] = $this->taxClassHelper->getRef2ForProduct($product);
+            $data =
+            [
+                'itemCode' => $this->taxClassHelper->getItemCodeOverride($product),
+                'taxCode' => $this->taxClassHelper->getAvataxTaxCodeForProduct($product, $storeId),
+                'productRef1' => $this->taxClassHelper->getRef1ForProduct($product),
+                'productRef2' => $this->taxClassHelper->getRef2ForProduct($product)
+            ];
         } else {
             // Using null values for these parameters since the product can no longer be found; they're null by default
             // and only have values if explicitly defined in the configuration. Using nulls won't prevent submission to
             // Avalara and will only raise an issue if the product had these values before being deleted.
-            $data['itemCode'] = null;
-            $data['taxCode'] = null;
-            $data['productRef1'] = null;
-            $data['productRef2'] = null;
+            $data =
+                [
+                    'itemCode' => null,
+                    'taxCode' => null,
+                    'productRef1' => null,
+                    'productRef2' => null
+                ];
         }
         return $data;
     }
