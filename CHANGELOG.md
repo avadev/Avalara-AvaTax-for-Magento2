@@ -1,3 +1,7 @@
+### 1.3.3 (2018-02-12)
+
+* Fix problem where customer can't save address in address book when address validation is disabled [#108](https://github.com/classyllama/ClassyLlama_AvaTax/issues/108)
+
 ### 1.3.2 (2018-02-08)
 
 * Refactor code to prevent error when product is deleted before queue processing [#104](https://github.com/classyllama/ClassyLlama_AvaTax/issues/104)
