@@ -32,7 +32,11 @@ define([
                 submitHandler: function (form) {
 
                     button.attr('disabled', true);
-                    // BEGIN EDIT - Remove form submit
+                    // BEGIN EDIT - Add conditional to form submit
+                    if (!$(form).data('avataxAddressValidationEnabled')) {
+                        // Store is not using AvaTax address validation, submit form natively
+                        form.submit();
+                    }
                     // END EDIT
                 }
             });
