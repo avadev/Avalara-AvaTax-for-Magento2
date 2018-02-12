@@ -79,6 +79,11 @@ define([
 
         handleFormSubmit: function () {
             var self = this;
+
+            // Set the status of the AvaTax address validation config setting for use elsewhere in form processing;
+            // specifically form submission
+            $(self.formSelector).data('avataxAddressValidationEnabled', self.options.validationEnabled);
+
             $(this.formSelector).on('submit', function (e) {
                 if (self.options.validationEnabled) {
                     try {
