@@ -40,6 +40,7 @@ define([
                     text: $.mage.__('Edit Address'),
                     class: 'action-secondary action-dismiss',
                     click: function () {
+                        this.enableSubmit($(this.formSelector));
                         this.closeModal();
                     }
                 },
@@ -125,6 +126,10 @@ define([
                     }
                 }
             });
+        },
+
+        enableSubmit: function (form) {
+            $(form).find("[type=submit]").prop("disabled", false);
         }
     });
 
