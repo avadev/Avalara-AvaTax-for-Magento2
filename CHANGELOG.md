@@ -1,3 +1,7 @@
+### 1.3.4 (2018-02-14)
+
+* Fix problem where customer can't save edited address in address book [#110](https://github.com/classyllama/ClassyLlama_AvaTax/issues/110)
+
 ### 1.3.3 (2018-02-12)
 
 * Fix problem where customer can't save address in address book when address validation is disabled [#108](https://github.com/classyllama/ClassyLlama_AvaTax/issues/108)
