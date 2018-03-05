@@ -1,3 +1,7 @@
+### 1.3.5 (2018-03-05)
+
+* Fix issue where sometimes the connection credentials fail when assigned at website level [#112](https://github.com/classyllama/ClassyLlama_AvaTax/issues/112)
+
 ### 1.3.4 (2018-02-14)
 
 * Fix problem where customer can't save edited address in address book [#110](https://github.com/classyllama/ClassyLlama_AvaTax/issues/110)
