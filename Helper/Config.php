@@ -591,13 +591,14 @@ class Config extends AbstractHelper
      * Get development company code from config
      *
      * @param $store
+     * @param $scopeType
      * @return string
      */
-    public function getDevelopmentCompanyCode($store)
+    public function getDevelopmentCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
-            ScopeInterface::SCOPE_STORE,
+            $scopeType,
             $store
         );
     }
