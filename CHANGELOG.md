@@ -1,3 +1,62 @@
+### 1.3.5 (2018-03-05)
+
+* Fix issue where sometimes the connection credentials fail when assigned at website level [#112](https://github.com/classyllama/ClassyLlama_AvaTax/issues/112)
+
+### 1.3.4 (2018-02-14)
+
+* Fix problem where customer can't save edited address in address book [#110](https://github.com/classyllama/ClassyLlama_AvaTax/issues/110)
+
+### 1.3.3 (2018-02-12)
+
+* Fix problem where customer can't save address in address book when address validation is disabled [#108](https://github.com/classyllama/ClassyLlama_AvaTax/issues/108)
+
+### 1.3.2 (2018-02-08)
+
+* Refactor code to prevent error when product is deleted before queue processing [#104](https://github.com/classyllama/ClassyLlama_AvaTax/issues/104)
+
+### 1.3.1 (2018-01-31)
+
+* Refactor code to make product ID retrieval more reliable [PR #103](https://github.com/classyllama/ClassyLlama_AvaTax/pull/103)
+* Refactor code prevent error when running some CLI tests [PR #102](https://github.com/classyllama/ClassyLlama_AvaTax/pull/102)
+
+### 1.3.0 (2017-12-29)
+
+* Add the ability to use any custom customer attribute as customer code [#99](https://github.com/classyllama/ClassyLlama_AvaTax/issues/99)
+
+### 1.2.7 (2017-12-14)
+
+* Refactor code to remove abstract class for conditionally loading new class in parent constructor
+
+### 1.2.6 (2017-12-03)
+
+* Fix error when AvaTax extension has not set tax value as extension attribute [#93](https://github.com/classyllama/ClassyLlama_AvaTax/issues/93)
+
+### 1.2.5 (2017-11-29)
+
+* Fix error when processing queue for some invoices [#94](https://github.com/classyllama/ClassyLlama_AvaTax/issues/94)
+
+### 1.2.4 (2017-11-27)
+
+* Fix bug that prevents DI compilation [#85](https://github.com/classyllama/ClassyLlama_AvaTax/issues/85)
+
+### 1.2.3 (2017-11-27)
+
+* Refactor code for compatibility with Magento 2.2 [#85](https://github.com/classyllama/ClassyLlama_AvaTax/issues/85)
+
+### 1.2.2 (2017-11-27)
+
+* Refactor code to display verbose tax summary [#70](https://github.com/classyllama/ClassyLlama_AvaTax/issues/70)
+
+### 1.2.1 (2017-10-15)
+
+* Refactor code to exclude configurable products from Avalara submission [#78](https://github.com/classyllama/ClassyLlama_AvaTax/issues/78)
+      
+### 1.2.0 (2017-09-21)
+
+* Refactor code to prepend 'AVATAX-' to jurisdiction tax code on all tax responses [#81](https://github.com/classyllama/ClassyLlama_AvaTax/issues/81)
+    * This change will be reflected on the native Magento sales tax report and is for future tax requests only; it does
+      not update existing tax results stored in Magento.
+
 ### 1.1.4 (2017-08-31)
 
 * Refactor code to correctly use origin address line 2 [#77](https://github.com/classyllama/ClassyLlama_AvaTax/issues/77)

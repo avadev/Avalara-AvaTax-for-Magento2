@@ -54,6 +54,7 @@
                 <queue_failed_lifetime>180</queue_failed_lifetime>
                 <queue_admin_notification_enabled>1</queue_admin_notification_enabled>
                 <queue_failure_notification_enabled>1</queue_failure_notification_enabled>
+                <customer_code_format>id</customer_code_format>
             </avatax>
         </tax>
     </default>

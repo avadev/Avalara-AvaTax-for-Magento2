@@ -40,6 +40,7 @@ define([
                     text: $.mage.__('Edit Address'),
                     class: 'action-secondary action-dismiss',
                     click: function () {
+                        this.enableSubmit($(this.formSelector));
                         this.closeModal();
                     }
                 },
@@ -79,6 +80,11 @@ define([
 
         handleFormSubmit: function () {
             var self = this;
+
+            // Set the status of the AvaTax address validation config setting for use elsewhere in form processing;
+            // specifically form submission
+            $(self.formSelector).data('avataxAddressValidationEnabled', self.options.validationEnabled);
+
             $(this.formSelector).on('submit', function (e) {
                 if (self.options.validationEnabled) {
                     try {
@@ -120,6 +126,10 @@ define([
                     }
                 }
             });
+        },
+
+        enableSubmit: function (form) {
+            $(form).find("[type=submit]").prop("disabled", false);
         }
     });
 

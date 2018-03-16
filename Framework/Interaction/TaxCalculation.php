@@ -29,6 +29,7 @@ use Magento\Tax\Api\Data\AppliedTaxInterfaceFactory;
 use Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
+use Magento\Tax\Api\Data\AppliedTaxRateExtensionFactory;
 
 class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 {
@@ -53,6 +54,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     protected $extensionFactory;
 
     /**
+     * @var AppliedTaxRateExtensionFactory
+     */
+    protected $appliedTaxRateExtensionFactory;
+
+    /**
      * Constructor
      *
      * @param Calculation $calculation
@@ -67,6 +73,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory
      * @param AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory
      * @param QuoteDetailsItemExtensionFactory $extensionFactory
+     * @param AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory
      */
     public function __construct(
         Calculation $calculation,
@@ -80,12 +87,14 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         PriceCurrencyInterface $priceCurrency,
         AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory,
-        QuoteDetailsItemExtensionFactory $extensionFactory
+        QuoteDetailsItemExtensionFactory $extensionFactory,
+        AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
         $this->appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
         $this->extensionFactory = $extensionFactory;
+        $this->appliedTaxRateExtensionFactory = $appliedTaxRateExtensionFactory;
         return parent::__construct(
             $calculation,
             $calculatorFactory,
@@ -394,7 +403,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                     'id' => $key . '_' . $row->getJurisCode(),
                     'ratePercent' => $ratePercent,
                     'taxName' => $row->getTaxName(),
-                    'jurisCode' => $row->getJurisCode(),
+                    // Prepend a string to the juris code to prevent false positives on comparison (e.g. '053' == '53)
+                    'jurisCode' => 'AVATAX-' . $row->getJurisCode(),
                     // These two values will only be used in the conditional below
                     'taxable' => (float)$row->getTaxable(),
                     'tax' => (float)$row->getTax(),
@@ -420,14 +430,26 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             $taxCode = $rowArray['jurisCode'];
             $taxName = $rowArray['taxName'];
             $taxNames[] = $rowArray['taxName'];
+            $taxable = $rowArray['taxable'];
+            $tax = $rowArray['tax'];
             // In case jurisdiction codes are duplicated, prepending the $key ensures we have a unique ID
             $id = $rowArray['id'];
+
+            // Add row-specific tax amounts as extension attribute
+            $appliedTaxRateExtension = $this->appliedTaxRateExtensionFactory
+                ->create()
+                ->setRatePercent($ratePercent)
+                ->setTaxName($taxName)
+                ->setJurisCode($taxCode)
+                ->setTaxable($taxable)
+                ->setTax($tax);
 
             // Skipped position, priority and rule_id
             $rateDataObjects[$id] = $this->appliedTaxRateDataObjectFactory->create()
                 ->setPercent($ratePercent)
                 ->setCode($taxCode)
-                ->setTitle($taxName);
+                ->setTitle($taxName)
+                ->setExtensionAttributes($appliedTaxRateExtension);
         }
         $rateKey = implode(' - ', $taxNames);
 
