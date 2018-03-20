@@ -683,6 +683,7 @@ class SetupUtil
             \Magento\Catalog\Api\ProductRepositoryInterface::class
         );
         $productRepository->save($product);
+        $product = $this->loadProductBySku($sku);
 
         $this->products[$sku] = $product;
 
@@ -1126,6 +1127,7 @@ class SetupUtil
                 $requestInfo->addData($requestData);
             }
 
+            $product->unsetData('is_salable');
             $quote->addProduct($product, $requestInfo);
 
         } elseif ($product->getTypeId() == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
