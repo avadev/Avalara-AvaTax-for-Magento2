@@ -130,6 +130,39 @@ class TaxTest extends TaxTestAbstract
         'gw_tax_amount',
     ];
 
+    protected function setUp()
+    {
+        /** @var \Magento\CatalogInventory\Model\Indexer\Stock\Processor $stockProcessor */
+        $stockProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\CatalogInventory\Model\Indexer\Stock\Processor::class
+        );
+        $stockProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\Catalog\Model\Indexer\Product\Category\Processor $productCategoryProcessor */
+        $productCategoryProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\Catalog\Model\Indexer\Product\Category\Processor::class
+        );
+        $productCategoryProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\Catalog\Model\Indexer\Category\Product\Processor $categoryProductProcessor */
+        $categoryProductProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\Catalog\Model\Indexer\Category\Product\Processor::class
+        );
+        $categoryProductProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\Catalog\Model\Indexer\Product\Price\Processor $priceProcessor */
+        $priceProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\Catalog\Model\Indexer\Product\Price\Processor::class
+        );
+        $priceProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\Catalog\Model\Indexer\Product\Eav\Processor $productAttrProcessor */
+        $productAttrProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\Catalog\Model\Indexer\Product\Eav\Processor::class
+        );
+        $productAttrProcessor->getIndexer()->setScheduled(false);
+    }
+
     /**
      * Verify fields in quote item
      *
