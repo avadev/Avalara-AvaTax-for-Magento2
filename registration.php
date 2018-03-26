@@ -14,6 +14,7 @@ if (defined('BP')) {
     $vendorPath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..';
 }
 
+// TODO: Why is this necessary?
 \Magento\Framework\Component\ComponentRegistrar::register(
     \Magento\Framework\Component\ComponentRegistrar::LIBRARY,
     'Avalara_AvaTax',
