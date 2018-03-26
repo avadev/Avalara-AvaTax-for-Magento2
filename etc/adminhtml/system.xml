@@ -109,8 +109,9 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_license_key" translate="label" type="text" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="production_license_key" translate="label" type="obscure" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Production)</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -129,8 +130,9 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="development_license_key" translate="label" type="text" sortOrder="1070" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_license_key" translate="label" type="obscure" sortOrder="1070" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>License Key (Development)</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

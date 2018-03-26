@@ -109,6 +109,31 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="tax/avatax/production_license_key" xsi:type="string">1</item>
+                <item name="tax/avatax/development_license_key" xsi:type="string">1</item>
+            </argument>
+            <argument name="environment" xsi:type="array">
+                <item name="tax/avatax/enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/tax_mode" xsi:type="string">1</item>
+                <item name="tax/avatax/commit_submitted_transactions" xsi:type="string">1</item>
+                <item name="tax/avatax/live_mode" xsi:type="string">1</item>
+                <item name="tax/avatax/production_account_number" xsi:type="string">1</item>
+                <item name="tax/avatax/production_company_code" xsi:type="string">1</item>
+                <item name="tax/avatax/development_account_number" xsi:type="string">1</item>
+                <item name="tax/avatax/development_company_code" xsi:type="string">1</item>
+                <item name="tax/avatax/location_code" xsi:type="string">1</item>
+                <item name="tax/avatax/address_validation_enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/logging_file_enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/logging_file_mode" xsi:type="string">1</item>
+                <item name="tax/avatax/logging_file_builtin_rotation_enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/queue_admin_notification_enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/queue_failure_notification_enabled" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
     <!--
     /**
      * The following code will rewrite the connection name to connect to 'sales' database on split database install;
