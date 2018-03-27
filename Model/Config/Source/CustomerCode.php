@@ -20,6 +20,13 @@ use Magento\Customer\Model\Customer;
 
 class CustomerCode implements \Magento\Framework\Option\ArrayInterface
 {
+    /**#@+
+     * Constants defined for default option labels
+     */
+    const CUSTOMER_FORMAT_OPTION_ID_LABEL = 'ID';
+    const CUSTOMER_FORMAT_OPTION_NAME_ID_LABEL = 'Name (ID)';
+    /**#@-*/
+
     /**
      * @var Customer
      */
@@ -41,23 +48,24 @@ class CustomerCode implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         // Define attributes array with default config values to include
-        $attributesArray[Config::CUSTOMER_FORMAT_OPTION_ID] = [
-            'value' => Config::CUSTOMER_FORMAT_OPTION_ID, 'label' => __('ID')
+        $attributesArray[self::CUSTOMER_FORMAT_OPTION_ID_LABEL] = [
+            'value' => Config::CUSTOMER_FORMAT_OPTION_ID, 'label' => __(self::CUSTOMER_FORMAT_OPTION_ID_LABEL)
         ];
-        $attributesArray[Config::CUSTOMER_FORMAT_OPTION_EMAIL] = [
-            'value' => Config::CUSTOMER_FORMAT_OPTION_EMAIL, 'label' => __('Email')
-        ];
-        $attributesArray[Config::CUSTOMER_FORMAT_OPTION_NAME_ID] = [
-            'value' => Config::CUSTOMER_FORMAT_OPTION_NAME_ID, 'label' => __('Name (ID)')
+        $attributesArray[self::CUSTOMER_FORMAT_OPTION_NAME_ID_LABEL] = [
+            'value' => Config::CUSTOMER_FORMAT_OPTION_NAME_ID, 'label' => __(self::CUSTOMER_FORMAT_OPTION_NAME_ID_LABEL)
         ];
 
         // Retrieve all customer attributes
         $customerAttributes = $this->customer->getAttributes();
         foreach ($customerAttributes as $attribute){
             $label = $attribute->getDefaultFrontendLabel();
-            if (!is_null($label) && $attribute->getIsUserDefined()) {
+            if (!is_null($label)) {
                 // Only add custom attribute codes that have a frontend label value defined
-                $attributesArray[$attribute->getAttributeCode()] = [
+                if (isset($attributesArray[$label])) {
+                    // An option already exists with this label, append the attribute code to this one for clarification
+                    $label .= ' (' . $attribute->getAttributeCode() . ')';
+                }
+                $attributesArray[$label] = [
                     'value' => $attribute->getAttributeCode(),
                     'label' => __($label)
                 ];
@@ -65,7 +73,7 @@ class CustomerCode implements \Magento\Framework\Option\ArrayInterface
         }
 
         // Sort alphabetically for ease of use
-        sort($attributesArray);
+        ksort($attributesArray);
 
         return $attributesArray;
     }
