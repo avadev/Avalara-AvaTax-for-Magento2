@@ -134,6 +134,13 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Rest">
+        <arguments>
+            <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
+        </arguments>
+    </type>
+
     <!--
     /**
      * The following code will rewrite the connection name to connect to 'sales' database on split database install;

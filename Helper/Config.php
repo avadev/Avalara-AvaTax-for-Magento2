@@ -491,6 +491,45 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Generate AvaTax Application Name from a combination of Magento version number and AvaTax module name
+     * Format: Magento 2.x Community - AvaTax
+     * Limited to 50 characters to comply with API requirements
+     *
+     * @return string
+     */
+    public function getApplicationName()
+    {
+        return substr($this->magentoProductMetadata->getName(), 0, 7) . ' ' . // "Magento" - 8 chars
+            substr($this->magentoProductMetadata->getVersion(), 0, 14) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
+            substr($this->magentoProductMetadata->getEdition(), 0, 10) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
+            'AvaTax';
+    }
+
+    /**
+     * The version of the AvaTax module
+     *
+     * @return string
+     */
+    public function getApplicationVersion()
+    {
+        return AvaTaxAppInterface::APP_VERSION;
+    }
+
+    /**
+     * Get the base URL minus protocol and trailing slash, for use as machine name in API requests
+     *
+     * @return string
+     */
+    public function getApplicationDomain()
+    {
+        $domain = $this->backendUrl->getBaseUrl();
+        $domain = preg_replace('#^https?://#', '', $domain);
+        $domain = preg_replace('#/$#', '', $domain);
+
+        return $domain;
+    }
+
+    /**
      * Get Live vs. Development mode of the module
      *
      * Must be configured at default level as it is difficult to pass store in all contexts this is used

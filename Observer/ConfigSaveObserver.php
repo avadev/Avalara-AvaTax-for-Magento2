@@ -17,6 +17,8 @@ namespace ClassyLlama\AvaTax\Observer;
 
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\Event\ObserverInterface;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest as RestInteraction;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class ConfigSaveObserver
@@ -39,9 +41,9 @@ class ConfigSaveObserver implements ObserverInterface
     protected $moduleChecks;
 
     /**
-     * @var \ClassyLlama\AvaTax\Framework\Interaction\Tax
+     * @var RestInteraction
      */
-    protected $interactionTax;
+    protected $interactionRest;
 
     /**
      * Constructor
@@ -49,18 +51,18 @@ class ConfigSaveObserver implements ObserverInterface
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param Config $config
      * @param \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks
-     * @param \ClassyLlama\AvaTax\Framework\Interaction\Tax $interactionTax
+     * @param RestInteraction $interactionRest
      */
     public function __construct(
         \Magento\Framework\Message\ManagerInterface $messageManager,
         Config $config,
         \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks,
-        \ClassyLlama\AvaTax\Framework\Interaction\Tax $interactionTax
+        RestInteraction $interactionRest
     ) {
         $this->messageManager = $messageManager;
         $this->config = $config;
         $this->moduleChecks = $moduleChecks;
-        $this->interactionTax = $interactionTax;
+        $this->interactionRest = $interactionRest;
     }
 
     /**
@@ -147,13 +149,12 @@ class ConfigSaveObserver implements ObserverInterface
         $type = $this->config->getLiveMode($scopeId, $scopeType) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         if ($this->checkCredentialsForMode($scopeId, $scopeType, $type)) {
             try {
-                $result = $this->interactionTax->getTaxService($type, $scopeId, $scopeType)->ping();
-                if (is_object($result) && $result->getResultCode() != \AvaTax\SeverityLevel::$Success) {
-                    foreach ($result->getMessages() as $messages) {
-                        $message .= $messages->getName() . ': ' . $messages->getSummary() . "\n";
-                    }
-                } elseif (is_object($result) && $result->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                    $this->messageManager->addSuccess(
+                $result = $this->interactionRest->ping($type, $scopeId, $scopeType);
+
+                if (!$result->authenticated) {
+                    $message = __('Connection to AvaTax failed');
+                } else {
+                    $this->messageManager->addSuccessMessage(
                         __('Successfully connected to AvaTax using the '
                             . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>', $type
                         )

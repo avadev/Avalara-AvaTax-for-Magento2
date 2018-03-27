@@ -117,6 +117,29 @@ class UpgradeData implements UpgradeDataInterface
                     );
             }
         }
+
+        /**
+         * For conversion to REST, initially disable module and delete pre-existing credentials
+         */
+        if (version_compare($context->getVersion(), '2.0.0', '<' )) {
+            $connection = $setup->getConnection(self::$connectionName);
+
+            /** @var \Magento\Framework\DB\Select $select */
+            $select = $connection->select()
+                ->from(['main' => 'core_config_data'])
+                ->where('main.path IN (?)', [
+                    'tax/avatax/enabled',
+                    'tax/avatax/production_account_number',
+                    'tax/avatax/production_license_key',
+                    'tax/avatax/production_company_code',
+                    'tax/avatax/development_account_number',
+                    'tax/avatax/development_license_key',
+                    'tax/avatax/development_company_code',
+                ]);
+            $sql = $select->deleteFromSelect('main');
+            $connection->query($sql);
+        }
+
         $setup->endSetup();
     }
 }
