@@ -99,19 +99,21 @@ class Line
     public static $validFields = [
         'store_id' => ['type' => 'integer', 'use_in_cache_key' => false],
         'mage_sequence_no' => ['type' => 'string', 'length' => 50, 'required' => true],
-        'origin_address' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'],
-        'destination_address' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'],
+        'number' => ['type' => 'integer', 'required' => false],
         'item_code' => ['type' => 'string', 'length' => 50],
         'tax_code' => ['type' => 'string', 'length' => 25],
-        'exemption_no' => ['type' => 'string', 'length' => 25],
         'description' => ['type' => 'string', 'length' => 255],
-        'qty' => ['type' => 'double'],
+        'quantity' => ['type' => 'double'],
         'amount' => ['type' => 'double'], // Required, but $0 value is acceptable so removing required attribute.
         'discounted' => ['type' => 'boolean'],
         'tax_included' => ['type' => 'boolean'],
         'ref1' => ['type' => 'string', 'length' => 250],
         'ref2' => ['type' => 'string', 'length' => 250],
-        'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'], // TODO: Update validated class
+        'addresses' => [
+            'type' => 'array',
+            'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
+            'required' => true,
+        ],
     ];
 
     /**
@@ -182,7 +184,7 @@ class Line
             'item_code' => $itemData['itemCode'],
             'tax_code' => $itemData['taxCode'],
             'description' => $item->getName(),
-            'qty' => $item->getQty(),
+            'quantity' => $item->getQty(),
             'amount' => $amount,
             'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'tax_included' => false,
@@ -234,7 +236,7 @@ class Line
             'item_code' => $itemData['itemCode'],
             'tax_code' => $itemData['taxCode'],
             'description' => $item->getName(),
-            'qty' => $item->getQty(),
+            'quantity' => $item->getQty(),
             'amount' => $amount,
             'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'tax_included' => false,
@@ -281,7 +283,7 @@ class Line
             'item_code' => $itemCode,
             'tax_code' => $taxCode,
             'description' => $description,
-            'qty' => $item->getQuantity(),
+            'quantity' => $item->getQuantity(),
             'amount' => $amount,
             'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
@@ -380,7 +382,7 @@ class Line
             'item_code' => $itemCode,
             'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForShipping(),
             'description' => self::SHIPPING_LINE_DESCRIPTION,
-            'qty' => 1,
+            'quantity' => 1,
             'amount' => $shippingAmount,
             'discounted' => $discounted,
         ];
@@ -425,7 +427,7 @@ class Line
             'item_code' => $itemCode,
             'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
             'description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
-            'qty' => 1,
+            'quantity' => 1,
             'amount' => $giftWrapOrderAmount,
             'discounted' => false,
         ];
@@ -474,7 +476,7 @@ class Line
             'item_code' => $itemCode,
             'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
             'description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
-            'qty' => 1,
+            'quantity' => 1,
             'amount' => $giftWrapItemAmount,
             'discounted' => false,
         ];
@@ -518,7 +520,7 @@ class Line
             'item_code' => $itemCode,
             'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId),
             'description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,
-            'qty' => 1,
+            'quantity' => 1,
             'amount' => $giftWrapCardAmount,
             'discounted' => false,
         ];
@@ -559,7 +561,7 @@ class Line
             'item_code' => $itemCode,
             // Intentionally excluding TaxCode key
             'description' => self::ADJUSTMENT_POSITIVE_LINE_DESCRIPTION,
-            'qty' => 1,
+            'quantity' => 1,
             'amount' => $amount,
             'discounted' => false,
             // Since taxes will already be included in this amount, set this flag to true
@@ -599,7 +601,7 @@ class Line
             'item_code' => $itemCode,
             // Intentionally excluding TaxCode key
             'description' => self::ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION,
-            'qty' => 1,
+            'quantity' => 1,
             'amount' => $amount,
             'discounted' => false,
             // Since taxes will already be included in this amount, set this flag to true

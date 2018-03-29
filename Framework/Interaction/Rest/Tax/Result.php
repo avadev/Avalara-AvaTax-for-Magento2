@@ -41,9 +41,9 @@ class Result extends \Magento\Framework\DataObject
             /** @var \Magento\Framework\DataObject $requestLine */
             foreach($this->getRequest()->getLines() as $requestLine)
             {
-                if ($requestLine->hasLineNumber() && $requestLine->hasMageSequenceNo() && $mageSeqNo == $requestLine->getMageSequenceNo())
+                if ($requestLine->hasNumber() && $requestLine->hasMageSequenceNo() && $mageSeqNo == $requestLine->getMageSequenceNo())
                 {
-                    $lineNo = $requestLine->getLineNumber();
+                    $lineNo = $requestLine->getNumber();
                     break;
                 }
 

@@ -99,9 +99,6 @@ class Address
         'region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
         'postal_code' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
         'country' => ['type' => 'string', 'length' => 2],
-        'tax_region_id' => ['type' => 'integer', 'useInCacheKey' => false],
-        'latitude' => ['type' => 'string', 'useInCacheKey' => false],
-        'longitude' => ['type' => 'string', 'useInCacheKey' => false],
     ];
 
     /**
@@ -166,7 +163,7 @@ class Address
      * Magento/CustomerCustomAttributes/etc/adminhtml/system.xml.  As a result not currently doing anything with this.
      * Likely no special consideration since the code is already sending all addresses (up to 3) to AvaTax if present.
      *
-     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array
+     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|\Magento\Framework\DataObject
      * @return \Magento\Framework\DataObject
      * @throws LocalizedException
      */

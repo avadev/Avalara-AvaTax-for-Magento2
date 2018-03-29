@@ -60,4 +60,20 @@ class Config extends AbstractHelper
     {
         return \Avalara\DocumentType::C_RETURNINVOICE;
     }
+
+    /**
+     * @return string
+     */
+    public function getAddrTypeFrom()
+    {
+        return \Avalara\TransactionAddressType::C_SHIPFROM;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddrTypeTo()
+    {
+        return \Avalara\TransactionAddressType::C_SHIPTO;
+    }
 }

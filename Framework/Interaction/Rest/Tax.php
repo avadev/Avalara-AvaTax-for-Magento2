@@ -81,7 +81,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                 /**
                  * It's only here that we can set the line number on the request items, when we're sure it will be the same as the line number in the response
                  */
-                $line->setLineNumber($lineNumber);
+                $line->setNumber($lineNumber);
 
                 $lineNumber++;
             }

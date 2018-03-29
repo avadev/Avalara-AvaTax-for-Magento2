@@ -143,11 +143,6 @@ class Tax
         'currency_code' => ['type' => 'string', 'length' => 3],
         'customer_code' => ['type' => 'string', 'length' => 50, 'required' => true],
         'customer_usage_type' => ['type' => 'string', 'length' => 25],
-        'destination_address' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject', 'required' => true],
-        'detail_level' => [
-            'type' => 'string',
-            'options' => ['Document', 'Diagnostic', 'Line', 'Summary', 'Tax']
-        ],
         'discount' => ['type' => 'double'],
         'code' => ['type' => 'string', 'length' => 50],
         'date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
@@ -158,21 +153,22 @@ class Tax
             'required' => true,
         ],
         'exchange_rate' => ['type' => 'double'],
-        'exchange_rate_eff_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
-        'exemption_no' => ['type' => 'string', 'length' => 25],
+        'exchange_rate_effective_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
         'lines' => [
             'type' => 'array',
             'length' => 15000,
             'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
             'required' => true,
         ],
-        'location_code' => ['type' => 'string', 'length' => 50],
-        'origin_address' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'],
-        'payment_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'addresses' => [
+            'type' => 'array',
+            'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
+            'required' => true,
+        ],
+        'reporting_location_code' => ['type' => 'string', 'length' => 50],
         'purchase_order_no' => ['type' => 'string', 'length' => 50],
         'reference_code' => ['type' => 'string', 'length' => 50],
-        'salesperson_code' => ['type' => 'string', 'length' => 25],
-        'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'], // TODO Updated validated class
+        'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'], // TODO Update validation class
         'is_seller_importer_of_record' => ['type' => 'boolean'],
     ];
 
@@ -468,13 +464,15 @@ class Tax
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'customer_code' => $this->getCustomerCode($quote),
             'customer_usage_type' => $customerUsageType,
-            'destination_address' => $address,
+            'addresses' => [
+                $this->restConfig->getAddrTypeTo() => $address,
+            ],
             'code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'date' => $docDate,
             'type' => $this->restConfig->getDocTypeQuote(),
             'exchange_rate' => $this->getExchangeRate($store,
                 $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
-            'exchange_rate_eff_date' => $currentDate,
+            'exchange_rate_effective_date' => $currentDate,
             'lines' => $lines,
             'purchase_order_no' => $quote->getReservedOrderId(),
             'is_seller_importer_of_record' => $this->config->isSellerImporterOfRecord(
@@ -482,6 +480,7 @@ class Tax
                 $address,
                 $store
             ),
+            'discount' => 0, // TODO: Need to account for this?
         ];
 
         /** @var \Magento\Framework\DataObject $request */
@@ -559,10 +558,7 @@ class Tax
 
         $store = $quote->getStore();
         $shippingAddress = $shippingAssignment->getShipping()->getAddress();
-        $additionalData = $this->retrieveGetTaxRequestFields($store, $shippingAddress, $quote);
-        foreach ($additionalData as $key => $value) {
-            $request->setData($key, $value);
-        }
+        $this->addGetTaxRequestFields($request, $store, $shippingAddress, $quote);
 
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
@@ -719,12 +715,10 @@ class Tax
                 $avaTaxAddress,
                 $store
             ),
+            'discount' => 0, // TODO: Need to account for this?
         ];
 
-        $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store, $address, $object),
-            $data
-        );
+        $this->addGetTaxRequestFields($request, $store, $address, $object);
 
         try {
             $data = $this->metaDataObject->validateData($data);
@@ -763,13 +757,14 @@ class Tax
     /**
      * Get details for tax request
      *
+     * @param \Magento\Framework\DataObject $request
      * @param \Magento\Store\Api\Data\StoreInterface $store
      * @param $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface
      * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\OrderInterface $object
      * @return array
      * @throws LocalizedException
      */
-    protected function retrieveGetTaxRequestFields(StoreInterface $store, $address, $object)
+    protected function addGetTaxRequestFields($request, StoreInterface $store, $address, $object)
     {
         $customerId = $object->getCustomerId();
         $customer = $this->getCustomerById(($customerId));
@@ -782,12 +777,21 @@ class Tax
         }
         $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address, $customer);
         $locationCode = $this->config->getLocationCode($store);
-        return [
+
+        $additionalData = [
             'business_identification_no' => $businessIdentificationNumber,
             'company_code' => $companyCode,
-            'location_code' => $locationCode,
-            'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
+            'reporting_location_code' => $locationCode,
         ];
+
+        foreach ($additionalData as $key => $value) {
+            $request->setData($key, $value);
+        }
+
+        $originAddress = $this->address->getAddress($this->config->getOriginAddress($storeId));
+        $addresses = ($request->hasAddresses()) ? $request->getAddresses() : [];
+        $addresses[$this->restConfig->getAddrTypeFrom()] = $originAddress;
+        $request->setAddresses($addresses);
     }
 
     /**
