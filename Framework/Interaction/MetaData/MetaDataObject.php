@@ -211,7 +211,7 @@ class MetaDataObject
     /**
      * Returns an hashed cache key representing a combination of all relevant data on the object as defined by metadata
      *
-     * @param $object
+     * @param \Magento\Framework\DataObject $object
      * @return string
      */
     public function getCacheKeyFromObject($object)
@@ -222,7 +222,7 @@ class MetaDataObject
             /** @var $keyGenerator MetaDataAbstract */
             $methodName = 'get' . $name;
             if (method_exists($object, $methodName)) {
-                $cacheKey .= $keyGenerator->getCacheKey(call_user_func([$object, $methodName]));
+                $cacheKey .= $keyGenerator->getCacheKey($object->getData($name));
             }
         }
 

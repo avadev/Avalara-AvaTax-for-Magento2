@@ -30,6 +30,7 @@ use Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Magento\Tax\Api\Data\AppliedTaxRateExtensionFactory;
+use \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 
 class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 {
@@ -114,14 +115,14 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @see Magento\Tax\Model\TaxCalculation::calculateTax()
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
-     * @param GetTaxResult $getTaxResult
+     * @param TaxResult $getTaxResult
      * @param bool $useBaseCurrency
      * @param \Magento\Framework\App\ScopeInterface $scope
      * @return \Magento\Tax\Api\Data\TaxDetailsInterface
      */
     public function calculateTaxDetails(
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
-        GetTaxResult $getTaxResult,
+        $getTaxResult,
         $useBaseCurrency,
         $scope
     ) {
@@ -180,14 +181,14 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * This includes tax for the item as well as any additional line item tax information like Gift Wrapping
      *
      * @param QuoteDetailsItemInterface $item
-     * @param GetTaxResult $getTaxResult
+     * @param TaxResult $getTaxResult
      * @param bool $useBaseCurrency
      * @param \Magento\Framework\App\ScopeInterface $scope
      * @return \Magento\Tax\Api\Data\TaxDetailsItemInterface
      */
     protected function getTaxDetailsItem(
         QuoteDetailsItemInterface $item,
-        GetTaxResult $getTaxResult,
+        $getTaxResult,
         $useBaseCurrency,
         $scope
     ) {

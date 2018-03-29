@@ -26,6 +26,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
+use Magento\Framework\DataObjectFactory;
 
 /**
  * AvaTax Config model
@@ -238,6 +239,11 @@ class Config extends AbstractHelper
     protected $backendUrl;
 
     /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
+
+    /**
      * Class constructor
      *
      * @param Context $context
@@ -246,6 +252,7 @@ class Config extends AbstractHelper
      * @param State $appState
      * @param TaxClassRepositoryInterface $taxClassRepository
      * @param \Magento\Backend\Model\UrlInterface $backendUrl
+     * @param DataObjectFactory $dataObjectFactory
      */
     public function __construct(
         Context $context,
@@ -253,13 +260,15 @@ class Config extends AbstractHelper
         ATConfigFactory $avaTaxConfigFactory,
         State $appState,
         TaxClassRepositoryInterface $taxClassRepository,
-        \Magento\Backend\Model\UrlInterface $backendUrl
+        \Magento\Backend\Model\UrlInterface $backendUrl,
+        DataObjectFactory $dataObjectFactory
     ) {
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->backendUrl = $backendUrl;
+        $this->dataObjectFactory = $dataObjectFactory;
         parent::__construct($context);
     }
 
@@ -421,43 +430,48 @@ class Config extends AbstractHelper
      * Return origin address
      *
      * @param null $store
-     * @return array
+     * @return \Magento\Framework\DataObject
      */
     public function getOriginAddress($store)
     {
-        return [
-            'Line1' => $this->scopeConfig->getValue(
+        $data = [
+            'line1' => $this->scopeConfig->getValue(
                 // Line1 and Line2 constants are missing from \Magento\Shipping\Model\Config, so using them from Shipment
                 \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'Line2' => $this->scopeConfig->getValue(
+            'line2' => $this->scopeConfig->getValue(
                 \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS2,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'City' => $this->scopeConfig->getValue(
+            'city' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_CITY,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'RegionId' => $this->scopeConfig->getValue(
+            'region_id' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'PostalCode' => $this->scopeConfig->getValue(
+            'postal_code' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_POSTCODE,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'Country' => $this->scopeConfig->getValue(
+            'country' => $this->scopeConfig->getValue(
                 ShippingConfig::XML_PATH_ORIGIN_COUNTRY_ID,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
         ];
+
+        /** @var \Magento\Framework\DataObject $address */
+        $address = $this->dataObjectFactory->create(['data' => $data]);
+
+        return $address;
     }
 
     /**

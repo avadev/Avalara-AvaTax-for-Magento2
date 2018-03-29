@@ -151,14 +151,14 @@ class ConfigSaveObserver implements ObserverInterface
             try {
                 $result = $this->interactionRest->ping($type, $scopeId, $scopeType);
 
-                if (!$result->authenticated) {
-                    $message = __('Connection to AvaTax failed');
-                } else {
+                if ($result) {
                     $this->messageManager->addSuccessMessage(
                         __('Successfully connected to AvaTax using the '
                             . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>', $type
                         )
                     );
+                } else {
+                    $message = __('Authentication failed');
                 }
             } catch (\Exception $exception) {
                 $message = $exception->getMessage();

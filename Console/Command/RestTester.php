@@ -7,14 +7,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Magento\Framework\App\State as AppState;
 use Symfony\Component\Console\Input\InputOption;
 use Avalara\AvaTaxClient;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class RestTester extends \Symfony\Component\Console\Command\Command
 {
+    protected $appState;
+
+    protected $scopeConfig;
+
     public function __construct(
         AppState $appState,
+        ScopeConfigInterface $scopeConfig,
         $name = null
     ) {
         $this->appState = $appState;
+        $this->scopeConfig = $scopeConfig;
 
         parent::__construct($name);
     }
@@ -33,13 +40,13 @@ class RestTester extends \Symfony\Component\Console\Command\Command
             new InputOption(
                 'account',
                 'a',
-                InputOption::VALUE_REQUIRED,
+                InputOption::VALUE_OPTIONAL,
                 'Account ID'
             ),
             new InputOption(
                 'license',
                 'l',
-                InputOption::VALUE_REQUIRED,
+                InputOption::VALUE_OPTIONAL,
                 'License Key'
             ),
         ];

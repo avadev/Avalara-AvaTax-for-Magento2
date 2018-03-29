@@ -20,11 +20,13 @@ use AvaTax\GetTaxResult;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax as RestTaxInteraction;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 
 class TaxService
 {
@@ -61,14 +63,14 @@ class TaxService
     /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
-     * @param Tax $taxInteraction
+     * @param RestTaxInteraction $taxInteraction
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param null $type
      */
     public function __construct(
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
-        Tax $taxInteraction,
+        RestTaxInteraction $taxInteraction,
         MetaDataObjectFactory $metaDataObjectFactory,
         $type = null
     ) {
@@ -83,33 +85,41 @@ class TaxService
     /**
      * Cache validated response
      *
-     * @param GetTaxRequest $getTaxRequest
+     * @param \Magento\Framework\DataObject $getTaxRequest
      * @param $storeId
      * @param bool $useCache
-     * @return GetTaxResult
+     * @return TaxResult
      * @throws LocalizedException
      */
-    public function getTax(GetTaxRequest $getTaxRequest, $storeId, $useCache = false)
+    public function getTax($getTaxRequest, $storeId, $useCache = false)
     {
+        // TODO: Remove this
+        $useCache = false;
+
+
         $cacheKey = $this->getCacheKey($getTaxRequest) . $storeId;
         $getTaxResult = @unserialize($this->cache->load($cacheKey));
 
-        if ($getTaxResult instanceof GetTaxResult && $useCache) {
-            $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from cache.', [
-                'result' => var_export($getTaxResult, true),
+        if ($getTaxResult instanceof TaxResult && $useCache) {
+            $this->avaTaxLogger->addDebug('Loaded tax result from cache.', [
+                'result' => var_export($getTaxResult->getData(), true),
                 'cache_key' => $cacheKey
             ]);
             return $getTaxResult;
         }
 
-        $getTaxResult = $this->taxInteraction->getTaxService($this->type, $storeId)->getTax($getTaxRequest);
-        $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from SOAP.', [
-            'request' => var_export($getTaxRequest, true),
-            'result' => var_export($getTaxResult, true),
+        $getTaxResult = $this->taxInteraction->getTax($getTaxRequest);
+        if (!($getTaxResult instanceof TaxResult)) {
+            throw new LocalizedException(__('Bad response from AvaTax'));
+        }
+
+        $this->avaTaxLogger->addDebug('Loaded tax result from REST.', [
+            'request' => var_export($getTaxRequest->getData(), true),
+            'result' => var_export($getTaxResult->getData(), true),
         ]);
 
         // Only cache successful requests
-        if ($useCache && $getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+        if ($useCache) {
             $serializedGetTaxResult = serialize($getTaxResult);
             $this->cache->save(
                 $serializedGetTaxResult,

@@ -218,9 +218,9 @@ class Get
             // Taxes need to be calculated on the base prices/amounts, not the current currency prices. As a result of this,
             // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
             // calculated by multiplying the base tax rates * currency conversion rate.
-            /** @var $getTaxRequest GetTaxRequest */
+            /** @var $getTaxRequest \Magento\Framework\DataObject */
             $getTaxRequest = $this->interactionTax
-                ->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
+                ->getTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
 
             if (is_null($getTaxRequest)) {
                 $message = __('$quote was empty or address was not valid so not running getTax request.');
@@ -228,37 +228,25 @@ class Get
             }
 
             $getTaxResult = $taxService->getTax($getTaxRequest, $storeId, true);
-            if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
 
-                $store = $quote->getStore();
-                $baseTaxDetails =
-                    $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
-                /**
-                 * If quote is using a currency other than the base currency, calculate tax details for both quote
-                 * currency and base currency. Otherwise use the same tax details object.
-                 */
-                if ($quote->getBaseCurrencyCode() != $quote->getQuoteCurrencyCode()) {
-                    $taxDetails =
-                        $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
-                } else {
-                    $taxDetails = $baseTaxDetails;
-                }
-
-                return [
-                    self::KEY_TAX_DETAILS => $taxDetails,
-                    self::KEY_BASE_TAX_DETAILS => $baseTaxDetails
-                ];
+            $store = $quote->getStore();
+            $baseTaxDetails =
+                $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
+            /**
+             * If quote is using a currency other than the base currency, calculate tax details for both quote
+             * currency and base currency. Otherwise use the same tax details object.
+             */
+            if ($quote->getBaseCurrencyCode() != $quote->getQuoteCurrencyCode()) {
+                $taxDetails =
+                    $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
             } else {
-                $message = __('Bad result code: %1', $getTaxResult->getResultCode());
-                $this->avaTaxLogger->warning(
-                    $message,
-                    [ /* context */
-                        'request' => var_export($getTaxRequest, true),
-                        'result' => var_export($getTaxResult, true),
-                    ]
-                );
-                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
+                $taxDetails = $baseTaxDetails;
             }
+
+            return [
+                self::KEY_TAX_DETAILS => $taxDetails,
+                self::KEY_BASE_TAX_DETAILS => $baseTaxDetails
+            ];
         } catch (\SoapFault $exception) {
             $message = "Exception: \n";
             if ($exception) {

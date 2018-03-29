@@ -25,6 +25,7 @@ use Magento\Quote\Model\ResourceModel\Quote;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
 use AvaTax\AddressFactory;
+use Magento\Framework\DataObjectFactory;
 use AvaTax\AddressServiceSoapFactory;
 use AvaTax\AddressServiceSoap;
 use ClassyLlama\AvaTax\Helper\Config;
@@ -52,6 +53,11 @@ class Address
      * @var AddressFactory
      */
     protected $addressFactory = null;
+
+    /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
 
     /**
      * @var AddressServiceSoapFactory
@@ -104,16 +110,16 @@ class Address
          * The AvaTax API defines Line1 as required, however in implementation it is not required. We can't require
          * it here, as we need to be able to calculate taxes from the cart page using Postal Code, Region, and Country.
          */
-        'Line1' => ['type' => 'string', 'length' => 50],
-        'Line2' => ['type' => 'string', 'length' => 50],
-        'Line3' => ['type' => 'string', 'length' => 50],
-        'City' => ['type' => 'string', 'length' => 50], // Either city & region are required or postalCode is required.
-        'Region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
-        'PostalCode' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
-        'Country' => ['type' => 'string', 'length' => 2],
-        'TaxRegionId' => ['type' => 'integer', 'useInCacheKey' => false],
-        'Latitude' => ['type' => 'string', 'useInCacheKey' => false],
-        'Longitude' => ['type' => 'string', 'useInCacheKey' => false],
+        'line1' => ['type' => 'string', 'length' => 50],
+        'line2' => ['type' => 'string', 'length' => 50],
+        'line3' => ['type' => 'string', 'length' => 50],
+        'city' => ['type' => 'string', 'length' => 50], // Either city & region are required or postalCode is required.
+        'region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
+        'postal_code' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
+        'country' => ['type' => 'string', 'length' => 2],
+        'tax_region_id' => ['type' => 'integer', 'useInCacheKey' => false],
+        'latitude' => ['type' => 'string', 'useInCacheKey' => false],
+        'longitude' => ['type' => 'string', 'useInCacheKey' => false],
     ];
 
     /**
@@ -121,6 +127,7 @@ class Address
      * @param Config $config
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param AddressFactory $addressFactory
+     * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
      * @param AddressServiceSoapFactory $addressServiceSoapFactory
      * @param RegionCollectionFactory $regionCollectionFactory
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
@@ -133,6 +140,7 @@ class Address
         Config $config,
         MetaDataObjectFactory $metaDataObjectFactory,
         AddressFactory $addressFactory,
+        DataObjectFactory $dataObjectFactory,
         AddressServiceSoapFactory $addressServiceSoapFactory,
         RegionCollectionFactory $regionCollectionFactory,
         CustomerAddressInterfaceFactory $customerAddressFactory,
@@ -144,6 +152,7 @@ class Address
         $this->config = $config;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->addressFactory = $addressFactory;
+        $this->dataObjectFactory = $dataObjectFactory;
         $this->addressServiceSoapFactory = $addressServiceSoapFactory;
         $this->regionCollection = $regionCollectionFactory->create();
         $this->customerAddressFactory = $customerAddressFactory;
@@ -182,108 +191,127 @@ class Address
      * Likely no special consideration since the code is already sending all addresses (up to 3) to AvaTax if present.
      *
      * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array
-     * @return \AvaTax\Address
+     * @return \Magento\Framework\DataObject
      * @throws LocalizedException
      */
     public function getAddress($data)
     {
+        /** \Magento\Framework\DataObject $address */
         switch (true) {
             case ($data instanceof \Magento\Customer\Api\Data\AddressInterface):
-                $data = $this->convertCustomerAddressToAvaTaxAddress($data);
+                $address = $this->convertCustomerAddressToAvaTaxAddress($data);
                 break;
             case ($data instanceof \Magento\Quote\Api\Data\AddressInterface):
-                $data = $this->convertQuoteAddressToAvaTaxAddress($data);
+                $address = $this->convertQuoteAddressToAvaTaxAddress($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
-                $data = $this->convertOrderAddressToAvaTaxAddress($data);
+                $address = $this->convertOrderAddressToAvaTaxAddress($data);
                 break;
-            case (!is_array($data)):
+            case ($data instanceof \Magento\Framework\DataObject):
+                $address = $data;
+                break;
+            default:
                 throw new LocalizedException(__(
                     'Input parameter "$data" was not of a recognized/valid type: "%1".', [
                         gettype($data),
                 ]));
         }
 
-        if (isset($data['RegionId'])) {
-            $data['Region'] = $this->getRegionCodeById($data['RegionId']);
-            unset($data['RegionId']);
+        if ($address->hasRegionId()) {
+            $address->setRegion($this->getRegionCodeById($address->getRegionId()));
+            $address->unsRegionId();
         }
 
         try {
-            $data = $this->metaDataObject->validateData($data);
+            $validatedData = $this->metaDataObject->validateData($address->getData());
+            $address->setData($validatedData);
         } catch (MetaData\ValidationException $e) {
             $this->avaTaxLogger->error('Error validating address: ' . $e->getMessage(), [
-                'data' => var_export($data, true)
+                'data' => var_export($address->getData(), true)
             ]);
             // Rethrow exception as if internal validation fails, don't send address to AvaTax
             throw $e;
         }
 
-        $address = $this->addressFactory->create();
-        return $this->populateAddress($data, $address);
+        return $address;
     }
 
     /**
      * Converts Customer address into AvaTax compatible data array
      *
      * @param \Magento\Customer\Api\Data\AddressInterface $address
-     * @return array
+     * @return \Magento\Framework\DataObject
      */
     public function convertCustomerAddressToAvaTaxAddress(CustomerAddressInterface $address)
     {
         $street = $address->getStreet();
 
-        return [
-            'Line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'Line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'Line3' => array_key_exists(2, $street) ? $street[2] : '',
-            'City' => $address->getCity(),
-            'Region' => $this->getRegionCodeById($address->getRegionId()),
-            'PostalCode' => $address->getPostcode(),
-            'Country' => $address->getCountryId(),
+        $data = [
+            'line1' => array_key_exists(0, $street) ? $street[0] : '',
+            'line2' => array_key_exists(1, $street) ? $street[1] : '',
+            'line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'city' => $address->getCity(),
+            'region' => $this->getRegionCodeById($address->getRegionId()),
+            'postal_code' => $address->getPostcode(),
+            'country' => $address->getCountryId(),
         ];
+
+        /** @var \Magento\Framework\DataObject $address */
+        $address = $this->dataObjectFactory->create(['data' => $data]);
+
+        return $address;
     }
 
     /**
      * Converts Quote address into AvaTax compatible data array
      *
      * @param \Magento\Quote\Api\Data\AddressInterface $address
-     * @return array
+     * @return \Magento\Framework\DataObject
      */
     public function convertQuoteAddressToAvaTaxAddress(QuoteAddressInterface $address)
     {
         $street = $address->getStreet();
 
-        return [
-            'Line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'Line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'Line3' => array_key_exists(2, $street) ? $street[2] : '',
-            'City' => $address->getCity(),
-            'Region' => $this->getRegionCodeById($address->getRegionId()),
-            'PostalCode' => $address->getPostcode(),
-            'Country' => $address->getCountryId(),
+        $data = [
+            'line1' => array_key_exists(0, $street) ? $street[0] : '',
+            'line2' => array_key_exists(1, $street) ? $street[1] : '',
+            'line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'city' => $address->getCity(),
+            'region' => $this->getRegionCodeById($address->getRegionId()),
+            'postal_code' => $address->getPostcode(),
+            'country' => $address->getCountryId(),
         ];
+
+        /** @var \Magento\Framework\DataObject $address */
+        $address = $this->dataObjectFactory->create(['data' => $data]);
+
+        return $address;
     }
 
     /**
      * Converts Order address into AvaTax compatible data array
      *
      * @param \Magento\Sales\Api\Data\OrderAddressInterface $address
-     * @return array
+     * @return \Magento\Framework\DataObject
      */
     public function convertOrderAddressToAvaTaxAddress(OrderAddressInterface $address)
     {
         $street = $address->getStreet();
 
-        return [
-            'Line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'Line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'Line3' => array_key_exists(2, $street) ? $street[2] : '',
-            'City' => $address->getCity(),
-            'Region' => $this->getRegionCodeById($address->getRegionId()),
-            'PostalCode' => $address->getPostcode(),
-            'Country' => $address->getCountryId(),
+        $data = [
+            'line1' => array_key_exists(0, $street) ? $street[0] : '',
+            'line2' => array_key_exists(1, $street) ? $street[1] : '',
+            'line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'city' => $address->getCity(),
+            'region' => $this->getRegionCodeById($address->getRegionId()),
+            'postal_code' => $address->getPostcode(),
+            'country' => $address->getCountryId(),
         ];
+
+        /** @var \Magento\Framework\DataObject $address */
+        $address = $this->dataObjectFactory->create(['data' => $data]);
+
+        return $address;
     }
 
     /**
@@ -507,24 +535,5 @@ class Address
         }
 
         return null;
-    }
-
-    /**
-     * Map data array to methods in GetTaxRequest object
-     *
-     * @param array $data
-     * @param \AvaTax\Address $address
-     * @return \AvaTax\Address
-     */
-    protected function populateAddress(array $data, \AvaTax\Address $address)
-    {
-        // Set any data elements that exist on the getTaxRequest
-        foreach ($data as $key => $datum) {
-            $methodName = 'set' . $key;
-            if (method_exists($address, $methodName)) {
-                $address->$methodName($datum);
-            }
-        }
-        return $address;
     }
 }

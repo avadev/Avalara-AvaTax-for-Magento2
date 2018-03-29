@@ -19,6 +19,7 @@ use AvaTax\DetailLevel;
 use AvaTax\DocumentType;
 use AvaTax\GetTaxRequest;
 use AvaTax\GetTaxRequestFactory;
+use Magento\Framework\DataObjectFactory;
 use AvaTax\TaxOverrideFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
@@ -77,6 +78,11 @@ class Tax
      * @var GetTaxRequestFactory
      */
     protected $getTaxRequestFactory = null;
+
+    /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
 
     /**
      * @var TaxOverrideFactory
@@ -147,45 +153,45 @@ class Tax
      * @var array
      */
     public static $validFields = [
-        'StoreId' => ['type' => 'integer'],
-        'BusinessIdentificationNo' => ['type' => 'string', 'length' => 25],
-        'Commit' => ['type' => 'boolean'],
+        'store_id' => ['type' => 'integer'],
+        'business_identification_no' => ['type' => 'string', 'length' => 25],
+        'commit' => ['type' => 'boolean'],
         // Company Code is not required by the the API, but we are requiring it in this integration
-        'CompanyCode' => ['type' => 'string', 'length' => 25, 'required' => true],
-        'CurrencyCode' => ['type' => 'string', 'length' => 3],
-        'CustomerCode' => ['type' => 'string', 'length' => 50, 'required' => true],
-        'CustomerUsageType' => ['type' => 'string', 'length' => 25],
-        'DestinationAddress' => ['type' => 'object', 'class' => '\AvaTax\Address', 'required' => true],
-        'DetailLevel' => [
+        'company_code' => ['type' => 'string', 'length' => 25, 'required' => true],
+        'currency_code' => ['type' => 'string', 'length' => 3],
+        'customer_code' => ['type' => 'string', 'length' => 50, 'required' => true],
+        'customer_usage_type' => ['type' => 'string', 'length' => 25],
+        'destination_address' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject', 'required' => true],
+        'detail_level' => [
             'type' => 'string',
             'options' => ['Document', 'Diagnostic', 'Line', 'Summary', 'Tax']
         ],
-        'Discount' => ['type' => 'double'],
-        'DocCode' => ['type' => 'string', 'length' => 50],
-        'DocDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
-        'DocType' => [
+        'discount' => ['type' => 'double'],
+        'doc_code' => ['type' => 'string', 'length' => 50],
+        'doc_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
+        'doc_type' => [
             'type' => 'string',
             'options' =>
                 ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
             'required' => true,
         ],
-        'ExchangeRate' => ['type' => 'double'],
-        'ExchangeRateEffDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
-        'ExemptionNo' => ['type' => 'string', 'length' => 25],
-        'Lines' => [
+        'exchange_rate' => ['type' => 'double'],
+        'exchange_rate_eff_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'exemption_no' => ['type' => 'string', 'length' => 25],
+        'lines' => [
             'type' => 'array',
             'length' => 15000,
-            'subtype' => ['*' => ['type' => 'object', 'class' => '\AvaTax\Line']],
+            'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
             'required' => true,
         ],
-        'LocationCode' => ['type' => 'string', 'length' => 50],
-        'OriginAddress' => ['type' => 'object', 'class' => '\AvaTax\Address'],
-        'PaymentDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
-        'PurchaseOrderNo' => ['type' => 'string', 'length' => 50],
-        'ReferenceCode' => ['type' => 'string', 'length' => 50],
-        'SalespersonCode' => ['type' => 'string', 'length' => 25],
-        'TaxOverride' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'],
-        'IsSellerImporterOfRecord' => ['type' => 'boolean'],
+        'location_code' => ['type' => 'string', 'length' => 50],
+        'origin_address' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'],
+        'payment_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'purchase_order_no' => ['type' => 'string', 'length' => 50],
+        'reference_code' => ['type' => 'string', 'length' => 50],
+        'salesperson_code' => ['type' => 'string', 'length' => 25],
+        'tax_override' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'], // TODO Updated validated class
+        'is_seller_importer_of_record' => ['type' => 'boolean'],
     ];
 
     public static $validTaxOverrideFields = [
@@ -240,6 +246,7 @@ class Tax
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param TaxServiceSoapFactory $taxServiceSoapFactory
      * @param GetTaxRequestFactory $getTaxRequestFactory
+     * @param DataObjectFactory $dataObjectFactory
      * @param TaxOverrideFactory $taxOverrideFactory
      * @param CustomerRepositoryInterface $customerRepository
      * @param GroupRepositoryInterface $groupRepository
@@ -260,6 +267,7 @@ class Tax
         MetaDataObjectFactory $metaDataObjectFactory,
         TaxServiceSoapFactory $taxServiceSoapFactory,
         GetTaxRequestFactory $getTaxRequestFactory,
+        DataObjectFactory $dataObjectFactory,
         TaxOverrideFactory $taxOverrideFactory,
         CustomerRepositoryInterface $customerRepository,
         GroupRepositoryInterface $groupRepository,
@@ -279,6 +287,7 @@ class Tax
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->taxServiceSoapFactory = $taxServiceSoapFactory;
         $this->getTaxRequestFactory = $getTaxRequestFactory;
+        $this->dataObjectFactory = $dataObjectFactory;
         $this->taxOverrideFactory = $taxOverrideFactory;
         $this->customerRepository = $customerRepository;
         $this->groupRepository = $groupRepository;
@@ -421,9 +430,9 @@ class Tax
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @param \Magento\Quote\Api\Data\CartInterface $quote
-     * @return array|null
+     * @return \Magento\Framework\DataObject|null
      */
-    protected function convertTaxQuoteDetailsToData(
+    protected function convertTaxQuoteDetailsToRequest(
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Api\Data\CartInterface $quote
@@ -499,29 +508,34 @@ class Tax
         $customerUsageType = $quote->getCustomer()
             ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer())
             : null;
-        return [
-            'StoreId' => $store->getId(),
-            'Commit' => false, // quotes should never be committed
-            'CurrencyCode' => $quote->getCurrency()->getQuoteCurrencyCode(),
-            'CustomerCode' => $this->getCustomerCode($quote),
-            'CustomerUsageType' => $customerUsageType,
-            'DestinationAddress' => $address,
-            'DocCode' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
-            'DocDate' => $docDate,
-            'DocType' => DocumentType::$SalesOrder,
-            'ExchangeRate' => $this->getExchangeRate($store,
+        $data = [
+            'store_id' => $store->getId(),
+            'commit' => false, // quotes should never be committed
+            'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
+            'customer_code' => $this->getCustomerCode($quote),
+            'customer_usage_type' => $customerUsageType,
+            'destination_address' => $address,
+            'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
+            'doc_date' => $docDate,
+            'doc_type' => DocumentType::$SalesOrder,
+            'exchange_rate' => $this->getExchangeRate($store,
                 $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
-            'ExchangeRateEffDate' => $currentDate,
-            'Lines' => $lines,
+            'exchange_rate_eff_date' => $currentDate,
+            'lines' => $lines,
             // This level of detail is needed in order to receive lines back in response
-            'DetailLevel' => DetailLevel::$Line,
-            'PurchaseOrderNo' => $quote->getReservedOrderId(),
-            'IsSellerImporterOfRecord' => $this->config->isSellerImporterOfRecord(
+            'detail_level' => DetailLevel::$Line,
+            'purchase_order_no' => $quote->getReservedOrderId(),
+            'is_seller_importer_of_record' => $this->config->isSellerImporterOfRecord(
                 $this->config->getOriginAddress($store),
                 $address,
                 $store
             ),
         ];
+
+        /** @var \Magento\Framework\DataObject $request */
+        $request = $this->dataObjectFactory->create(['data' => $data]);
+
+        return $request;
     }
 
     /**
@@ -532,6 +546,7 @@ class Tax
      * @param \AvaTax\Line|null|bool $line
      * @return bool
      */
+    // TODO: Retrofit this for receiving a DataObject as $line
     protected function isShippingDiscountAmountAdjustmentNeeded (
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item,
@@ -571,46 +586,42 @@ class Tax
     }
 
     /**
-     * Creates and returns a populated getTaxRequest for a quote
+     * Creates and returns a populated request object for a quote
      *
      * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-     * @return null|GetTaxRequest
+     * @return null|\Magento\Framework\DataObject
      * @throws LocalizedException
      */
-    public function getGetTaxRequestForQuote(
+    public function getTaxRequestForQuote(
         \Magento\Quote\Model\Quote $quote,
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
-        $data = $this->convertTaxQuoteDetailsToData($taxQuoteDetails, $shippingAssignment, $quote);
+        $request = $this->convertTaxQuoteDetailsToRequest($taxQuoteDetails, $shippingAssignment, $quote);
 
-        if (is_null($data)) {
+        if (is_null($request)) {
             return null;
         }
 
         $store = $quote->getStore();
         $shippingAddress = $shippingAssignment->getShipping()->getAddress();
-        $data = array_merge(
-            $this->retrieveGetTaxRequestFields($store, $shippingAddress, $quote),
-            $data
-        );
+        $additionalData = $this->retrieveGetTaxRequestFields($store, $shippingAddress, $quote);
+        foreach ($additionalData as $key => $value) {
+            $request->setData($key, $value);
+        }
 
         try {
-            $data = $this->metaDataObject->validateData($data);
+            $validatedData = $this->metaDataObject->validateData($request->getData());
+            $request->setData($validatedData);
         } catch (ValidationException $e) {
             $this->avaTaxLogger->error('Error validating data: ' . $e->getMessage(), [
-                'data' => var_export($data, true)
+                'data' => var_export($request->getData(), true)
             ]);
         }
 
-        /** @var $getTaxRequest GetTaxRequest */
-        $getTaxRequest = $this->getTaxRequestFactory->create();
-
-        $this->populateGetTaxRequest($data, $getTaxRequest);
-
-        return $getTaxRequest;
+        return $request;
     }
 
     /**
@@ -822,10 +833,10 @@ class Tax
         $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address, $customer);
         $locationCode = $this->config->getLocationCode($store);
         return [
-            'BusinessIdentificationNo' => $businessIdentificationNumber,
-            'CompanyCode' => $companyCode,
-            'LocationCode' => $locationCode,
-            'OriginAddress' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
+            'business_identification_no' => $businessIdentificationNumber,
+            'company_code' => $companyCode,
+            'location_code' => $locationCode,
+            'origin_address' => $this->address->getAddress($this->config->getOriginAddress($storeId)),
         ];
     }
 
@@ -844,25 +855,6 @@ class Tax
             return $address->getVatId();
         }
         return null;
-    }
-
-    /**
-     * Map data array to methods in GetTaxRequest object
-     *
-     * @param array $data
-     * @param GetTaxRequest $getTaxRequest
-     * @return GetTaxRequest
-     */
-    protected function populateGetTaxRequest(array $data, GetTaxRequest $getTaxRequest)
-    {
-        // Set any data elements that exist on the getTaxRequest
-        foreach ($data as $key => $datum) {
-            $methodName = 'set' . $key;
-            if (method_exists($getTaxRequest, $methodName)) {
-                $getTaxRequest->$methodName($datum);
-            }
-        }
-        return $getTaxRequest;
     }
 
     /**

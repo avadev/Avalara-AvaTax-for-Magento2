@@ -19,6 +19,7 @@ use ClassyLlama\AvaTax\Helper\Config;
 use Avalara\AvaTaxClient;
 use Avalara\AvaTaxClientFactory;
 use Psr\Log\LoggerInterface;
+use \Magento\Framework\DataObjectFactory;
 
 class Rest
 {
@@ -41,6 +42,11 @@ class Rest
      */
     protected $logger;
 
+    /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
+
     /** @var array */
     protected $clients = [];
 
@@ -48,15 +54,18 @@ class Rest
      * @param Config $config
      * @param AvaTaxClientFactory $avaTaxClientFactory
      * @param LoggerInterface $logger
+     * @param DataObjectFactory $dataObjectFactory
      */
     public function __construct(
         Config $config,
         AvaTaxClientFactory $avaTaxClientFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        DataObjectFactory $dataObjectFactory
     ) {
         $this->config = $config;
         $this->avaTaxClientFactory = $avaTaxClientFactory;
         $this->logger = $logger;
+        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**
@@ -102,7 +111,7 @@ class Rest
      * @param null|string $mode
      * @param null|string|int $scopeId
      * @param string $scopeType
-     * @return \Avalara\PingResultModel
+     * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \InvalidArgumentException
      */
@@ -111,14 +120,9 @@ class Rest
         $client = $this->getClient($mode, $scopeId, $scopeType);
         $result = $client->ping();
 
-        $this->validateResponse($result);
+        $this->validateResult($result);
 
-        if (!$result->authenticated) {
-            // TODO: Better exception class
-            throw new \Magento\Framework\Exception\LocalizedException(__('AvaTax authentication failed'));
-        }
-
-        return $result;
+        return $result->authenticated;
     }
 
     /**
@@ -129,16 +133,55 @@ class Rest
      * @return void
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function validateResponse($result)
+    protected function validateResult($result)
     {
         if (!is_object($result)) {
-            $message = __('AvaTax connection error');
             if (is_string($result)) {
-                $message = __('AvaTax authentication failed');
                 $this->logger->error(__('AvaTax connection error: %1', $result));
+            } else {
+                $this->logger->error(__('Response from AvaTax was in invalid format'));
             }
             // TODO: Better exception class
-            throw new \Magento\Framework\Exception\LocalizedException($message);
+            throw new \Magento\Framework\Exception\LocalizedException(__('AvaTax connection error'));
         }
+
+        /**
+         * This really should never happen, because the response should come back with a response code that
+         * results in the Guzzle middleware throwing an exception, which Avalara catches and turns into a flat string result
+         */
+        if (isset($result->error)) {
+            if (is_object($result->error) && isset($result->error->message)) {
+                $this->logger->error(__('AvaTax connection error: %1', $result->error->message));
+            } else {
+                $this->logger->error(__('Response from AvaTax indicated non-specific error'));
+            }
+            // TODO: Better exception class
+            throw new \Magento\Framework\Exception\LocalizedException(__('AvaTax connection error'));
+        }
+    }
+
+    /**
+     * Convert a simple object to a data object
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    protected function formatResult($value)
+    {
+        if (is_array($value)) {
+            foreach ($value as &$subValue) {
+                $subValue = $this->formatResult($subValue);
+            }
+        } elseif (is_object($value)) {
+            $valueObj = $this->dataObjectFactory->create();
+            foreach ($value as $key => $subValue) {
+                $methodName = 'set' . ucfirst($key);
+                call_user_func([$valueObj, $methodName], $this->formatResult($subValue));
+            }
+
+            $value = $valueObj;
+        }
+
+        return $value;
     }
 }
