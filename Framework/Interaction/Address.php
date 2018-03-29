@@ -24,10 +24,7 @@ use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFacto
 use Magento\Quote\Model\ResourceModel\Quote;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
-use AvaTax\AddressFactory;
 use Magento\Framework\DataObjectFactory;
-use AvaTax\AddressServiceSoapFactory;
-use AvaTax\AddressServiceSoap;
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Directory\Model\Region;
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
@@ -35,7 +32,7 @@ use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionColl
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
-use \Magento\Framework\Api\CustomAttributesDataInterface;
+use Magento\Framework\Api\CustomAttributesDataInterface;
 
 class Address
 {
@@ -50,19 +47,9 @@ class Address
     protected $metaDataObject = null;
 
     /**
-     * @var AddressFactory
-     */
-    protected $addressFactory = null;
-
-    /**
      * @var DataObjectFactory
      */
     protected $dataObjectFactory;
-
-    /**
-     * @var AddressServiceSoapFactory
-     */
-    protected $addressServiceSoapFactory = null;
 
     /**
      * @var RegionCollection
@@ -95,11 +82,6 @@ class Address
     protected $avaTaxLogger;
 
     /**
-     * @var AddressServiceSoap[]
-     */
-    protected $addressServiceSoap = [];
-
-    /**
      * Validation based on API documentation found here:
      * http://developer.avalara.com/wp-content/apireference/master/?php#validate-request58
      *
@@ -126,9 +108,7 @@ class Address
      * Address constructor.
      * @param Config $config
      * @param MetaDataObjectFactory $metaDataObjectFactory
-     * @param AddressFactory $addressFactory
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
-     * @param AddressServiceSoapFactory $addressServiceSoapFactory
      * @param RegionCollectionFactory $regionCollectionFactory
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
      * @param QuoteAddressInterfaceFactory $quoteAddressFactory
@@ -139,9 +119,7 @@ class Address
     public function __construct(
         Config $config,
         MetaDataObjectFactory $metaDataObjectFactory,
-        AddressFactory $addressFactory,
         DataObjectFactory $dataObjectFactory,
-        AddressServiceSoapFactory $addressServiceSoapFactory,
         RegionCollectionFactory $regionCollectionFactory,
         CustomerAddressInterfaceFactory $customerAddressFactory,
         QuoteAddressInterfaceFactory $quoteAddressFactory,
@@ -151,9 +129,7 @@ class Address
     ) {
         $this->config = $config;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
-        $this->addressFactory = $addressFactory;
         $this->dataObjectFactory = $dataObjectFactory;
-        $this->addressServiceSoapFactory = $addressServiceSoapFactory;
         $this->regionCollection = $regionCollectionFactory->create();
         $this->customerAddressFactory = $customerAddressFactory;
         $this->quoteAddressFactory = $quoteAddressFactory;

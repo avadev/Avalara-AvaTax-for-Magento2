@@ -15,10 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use ClassyLlama\AvaTax\Helper\Config;
-use Avalara\AvaTaxClientFactory;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\DataObjectFactory;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResultFactory;
 use Avalara\TransactionBuilderFactory;
 
@@ -35,22 +34,20 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     protected $taxResultFactory;
 
     /**
-     * @param Config $config
-     * @param AvaTaxClientFactory $avaTaxClientFactory
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
+     * @param ClientPool $clientPool
      * @param TransactionBuilderFactory $transactionBuilderFactory
      * @param TaxResultFactory $taxResultFactory
      */
     public function __construct(
-        Config $config,
-        AvaTaxClientFactory $avaTaxClientFactory,
         LoggerInterface $logger,
         DataObjectFactory $dataObjectFactory,
+        ClientPool $clientPool,
         TransactionBuilderFactory $transactionBuilderFactory,
         TaxResultFactory $taxResultFactory
     ) {
-        parent::__construct($config, $avaTaxClientFactory, $logger, $dataObjectFactory);
+        parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->transactionBuilderFactory = $transactionBuilderFactory;
         $this->taxResultFactory = $taxResultFactory;
     }

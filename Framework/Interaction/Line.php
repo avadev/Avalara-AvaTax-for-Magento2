@@ -15,7 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use AvaTax\LineFactory;
 use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
@@ -38,11 +37,6 @@ class Line
      * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
      */
     protected $avaTaxLogger;
-
-    /**
-     * @var LineFactory
-     */
-    protected $lineFactory = null;
 
     /**
      * @var DataObjectFactory
@@ -117,7 +111,7 @@ class Line
         'tax_included' => ['type' => 'boolean'],
         'ref1' => ['type' => 'string', 'length' => 250],
         'ref2' => ['type' => 'string', 'length' => 250],
-        'tax_override' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'], // TODO: Update validated class
+        'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'], // TODO: Update validated class
     ];
 
     /**
@@ -134,7 +128,6 @@ class Line
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      * @param MetaDataObjectFactory $metaDataObjectFactory
-     * @param LineFactory $lineFactory
      * @param DataObjectFactory $dataObjectFactory
      * @param ResourceProduct $resourceProduct
      */
@@ -143,7 +136,6 @@ class Line
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
         \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
         MetaDataObjectFactory $metaDataObjectFactory,
-        LineFactory $lineFactory,
         DataObjectFactory $dataObjectFactory,
         ResourceProduct $resourceProduct
     ) {
@@ -151,7 +143,6 @@ class Line
         $this->taxClassHelper = $taxClassHelper;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
-        $this->lineFactory = $lineFactory;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->resourceProduct = $resourceProduct;
     }

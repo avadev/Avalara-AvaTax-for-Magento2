@@ -105,6 +105,7 @@
                 </field>
                 <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Account Number (Production)</label>
+                    <!-- TODO: Make this encrypted? -->
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -126,6 +127,7 @@
                 </field>
                 <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Account Number (Development)</label>
+                    <!-- TODO: Make this encrypted? -->
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

@@ -15,27 +15,16 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use ClassyLlama\AvaTax\Helper\Config;
 use Avalara\AvaTaxClient;
-use Avalara\AvaTaxClientFactory;
 use Psr\Log\LoggerInterface;
-use \Magento\Framework\DataObjectFactory;
+use Magento\Framework\DataObjectFactory;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 
 class Rest
 {
     const API_MODE_PROD = 'production';
 
     const API_MODE_DEV = 'sandbox';
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var AvaTaxClientFactory
-     */
-    protected $avaTaxClientFactory;
 
     /**
      * @var LoggerInterface
@@ -47,25 +36,27 @@ class Rest
      */
     protected $dataObjectFactory;
 
+    /**
+     * @var ClientPool
+     */
+    protected $clientPool;
+
     /** @var array */
     protected $clients = [];
 
     /**
-     * @param Config $config
-     * @param AvaTaxClientFactory $avaTaxClientFactory
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
+     * @param ClientPool $clientPool
      */
     public function __construct(
-        Config $config,
-        AvaTaxClientFactory $avaTaxClientFactory,
         LoggerInterface $logger,
-        DataObjectFactory $dataObjectFactory
+        DataObjectFactory $dataObjectFactory,
+        ClientPool $clientPool
     ) {
-        $this->config = $config;
-        $this->avaTaxClientFactory = $avaTaxClientFactory;
         $this->logger = $logger;
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->clientPool = $clientPool;
     }
 
     /**
@@ -79,30 +70,7 @@ class Rest
      */
     public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
-        if (is_null($mode)) {
-            $mode = $this->config->getLiveMode($scopeId, $scopeType) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
-        }
-
-        $cacheKey = $mode . '-' . $scopeId . '-' . $scopeType;
-
-        if (!isset($this->clients[$cacheKey])) {
-            /** @var AvaTaxClient $avaTaxClient */
-            $avaTaxClient = $this->avaTaxClientFactory->create([
-                'appName' => $this->config->getApplicationName(),
-                'appVersion' => $this->config->getApplicationVersion(),
-                'machineName' => $this->config->getApplicationDomain(),
-                'environment' => ($mode == Config::API_PROFILE_NAME_PROD) ? self::API_MODE_PROD : self::API_MODE_DEV,
-            ]);
-
-            $accountNumber = ($mode == Config::API_PROFILE_NAME_PROD) ? $this->config->getAccountNumber($scopeId, $scopeType) : $this->config->getDevelopmentAccountNumber($scopeId, $scopeType);
-            $licenseKey = ($mode == Config::API_PROFILE_NAME_PROD) ? $this->config->getLicenseKey($scopeId, $scopeType) : $this->config->getDevelopmentLicenseKey($scopeId, $scopeType);
-
-            $avaTaxClient->withSecurity($accountNumber, $licenseKey);
-
-            $this->clients[$cacheKey] = $avaTaxClient;
-        }
-
-        return $this->clients[$cacheKey];
+        return $this->clientPool->getClient($mode, $scopeId, $scopeType);
     }
 
     /**

@@ -15,8 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Cacheable;
 
-use AvaTax\GetTaxRequest;
-use AvaTax\GetTaxResult;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;

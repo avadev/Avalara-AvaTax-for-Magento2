@@ -15,7 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Helper;
 
-use AvaTax\ATConfigFactory;
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -219,11 +218,6 @@ class Config extends AbstractHelper
     protected $magentoProductMetadata = null;
 
     /**
-     * @var ATConfigFactory
-     */
-    protected $avaTaxConfigFactory = null;
-
-    /**
      * @var \Magento\Framework\App\State
      */
     protected $appState;
@@ -248,7 +242,6 @@ class Config extends AbstractHelper
      *
      * @param Context $context
      * @param ProductMetadataInterface $magentoProductMetadata
-     * @param ATConfigFactory $avaTaxConfigFactory
      * @param State $appState
      * @param TaxClassRepositoryInterface $taxClassRepository
      * @param \Magento\Backend\Model\UrlInterface $backendUrl
@@ -257,59 +250,17 @@ class Config extends AbstractHelper
     public function __construct(
         Context $context,
         ProductMetadataInterface $magentoProductMetadata,
-        ATConfigFactory $avaTaxConfigFactory,
         State $appState,
         TaxClassRepositoryInterface $taxClassRepository,
         \Magento\Backend\Model\UrlInterface $backendUrl,
         DataObjectFactory $dataObjectFactory
     ) {
         $this->magentoProductMetadata = $magentoProductMetadata;
-        $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->backendUrl = $backendUrl;
         $this->dataObjectFactory = $dataObjectFactory;
         parent::__construct($context);
-    }
-
-    /**
-     * Create a profile based on the store ID
-     *
-     * @param $storeId
-     * @param $scopeType
-     */
-    public function createAvaTaxProfile($storeId, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        if ($this->getLiveMode($storeId)) {
-            $this->avaTaxConfigFactory->create(
-                [
-                    'name' => self::API_PROFILE_NAME_PROD,
-                    'values' => [
-                        'url'       => self::API_URL_PROD,
-                        'account'   => $this->getAccountNumber($storeId, $scopeType),
-                        'license'   => $this->getLicenseKey($storeId, $scopeType),
-                        'trace'     => false,
-                        'client' => $this->getClientName(),
-                        'name' => self::API_PROFILE_NAME_PROD,
-                    ],
-                ]
-            );
-        } else {
-            $this->avaTaxConfigFactory->create(
-                [
-                    'name' => self::API_PROFILE_NAME_DEV,
-                    'values' => [
-                        'url'       => self::API_URL_DEV,
-                        'account'   => $this->getDevelopmentAccountNumber($storeId, $scopeType),
-                        'license'   => $this->getDevelopmentLicenseKey($storeId, $scopeType),
-                        'trace'     => true,
-                        'client' => $this->getClientName(),
-                        'name' => self::API_PROFILE_NAME_DEV,
-                    ],
-                ]
-            );
-        }
-
     }
 
     /**

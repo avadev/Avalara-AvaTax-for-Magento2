@@ -15,14 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use AvaTax\DetailLevel;
-use AvaTax\DocumentType;
-use AvaTax\GetTaxRequest;
-use AvaTax\GetTaxRequestFactory;
 use Magento\Framework\DataObjectFactory;
-use AvaTax\TaxOverrideFactory;
-use AvaTax\TaxServiceSoap;
-use AvaTax\TaxServiceSoapFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -38,12 +31,14 @@ use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
+use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 
 /**
  * Class Tax
  */
 class Tax
 {
+
     /**
      * @var Address
      */
@@ -70,24 +65,14 @@ class Tax
     protected $metaDataObject = null;
 
     /**
-     * @var TaxServiceSoapFactory
-     */
-    protected $taxServiceSoapFactory = [];
-
-    /**
-     * @var GetTaxRequestFactory
-     */
-    protected $getTaxRequestFactory = null;
-
-    /**
      * @var DataObjectFactory
      */
     protected $dataObjectFactory;
 
-    /**
-     * @var TaxOverrideFactory
-     */
-    protected $taxOverrideFactory = null;
+//    /**
+//     * @var TaxOverrideFactory
+//     */
+//    protected $taxOverrideFactory = null;
 
     /**
      * @var CustomerRepositoryInterface
@@ -130,14 +115,11 @@ class Tax
     protected $interactionLine = null;
 
     /**
-     * @var TaxServiceSoap[]
-     */
-    protected $taxServiceSoap = [];
-
-    /**
      * @var TaxCalculation
      */
     protected $taxCalculation = null;
+
+    protected $restConfig;
 
     /**
      * List of types that we want to be used with setType
@@ -148,7 +130,7 @@ class Tax
 
     /**
      * A list of valid fields for the data array and meta data about their types to use in validation
-     * based on the API documentation.  If any fields are added or removed, the same should be done in getGetTaxRequest.
+     * based on the API documentation.  If any fields are added or removed, the same should be done in getTaxRequest.
      *
      * @var array
      */
@@ -167,9 +149,9 @@ class Tax
             'options' => ['Document', 'Diagnostic', 'Line', 'Summary', 'Tax']
         ],
         'discount' => ['type' => 'double'],
-        'doc_code' => ['type' => 'string', 'length' => 50],
-        'doc_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
-        'doc_type' => [
+        'code' => ['type' => 'string', 'length' => 50],
+        'date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
+        'type' => [
             'type' => 'string',
             'options' =>
                 ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
@@ -190,7 +172,7 @@ class Tax
         'purchase_order_no' => ['type' => 'string', 'length' => 50],
         'reference_code' => ['type' => 'string', 'length' => 50],
         'salesperson_code' => ['type' => 'string', 'length' => 25],
-        'tax_override' => ['type' => 'object', 'class' => '\AvaTax\TaxOverride'], // TODO Updated validated class
+        'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'], // TODO Updated validated class
         'is_seller_importer_of_record' => ['type' => 'boolean'],
     ];
 
@@ -244,10 +226,7 @@ class Tax
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      * @param MetaDataObjectFactory $metaDataObjectFactory
-     * @param TaxServiceSoapFactory $taxServiceSoapFactory
-     * @param GetTaxRequestFactory $getTaxRequestFactory
      * @param DataObjectFactory $dataObjectFactory
-     * @param TaxOverrideFactory $taxOverrideFactory
      * @param CustomerRepositoryInterface $customerRepository
      * @param GroupRepositoryInterface $groupRepository
      * @param InvoiceRepositoryInterface $invoiceRepository
@@ -258,6 +237,7 @@ class Tax
      * @param Line $interactionLine
      * @param TaxCalculation $taxCalculation
      * @param QuoteDetailsItemExtensionFactory $extensionFactory
+     * @param RestConfig $restConfig
      */
     public function __construct(
         Address $address,
@@ -265,10 +245,8 @@ class Tax
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
         \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
         MetaDataObjectFactory $metaDataObjectFactory,
-        TaxServiceSoapFactory $taxServiceSoapFactory,
-        GetTaxRequestFactory $getTaxRequestFactory,
         DataObjectFactory $dataObjectFactory,
-        TaxOverrideFactory $taxOverrideFactory,
+//        TaxOverrideFactory $taxOverrideFactory,
         CustomerRepositoryInterface $customerRepository,
         GroupRepositoryInterface $groupRepository,
         InvoiceRepositoryInterface $invoiceRepository,
@@ -278,17 +256,16 @@ class Tax
         TimezoneInterface $localeDate,
         Line $interactionLine,
         TaxCalculation $taxCalculation,
-        QuoteDetailsItemExtensionFactory $extensionFactory
+        QuoteDetailsItemExtensionFactory $extensionFactory,
+        RestConfig $restConfig
     ) {
         $this->address = $address;
         $this->config = $config;
         $this->taxClassHelper = $taxClassHelper;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
-        $this->taxServiceSoapFactory = $taxServiceSoapFactory;
-        $this->getTaxRequestFactory = $getTaxRequestFactory;
         $this->dataObjectFactory = $dataObjectFactory;
-        $this->taxOverrideFactory = $taxOverrideFactory;
+//        $this->taxOverrideFactory = $taxOverrideFactory;
         $this->customerRepository = $customerRepository;
         $this->groupRepository = $groupRepository;
         $this->invoiceRepository = $invoiceRepository;
@@ -299,30 +276,7 @@ class Tax
         $this->interactionLine = $interactionLine;
         $this->taxCalculation = $taxCalculation;
         $this->extensionFactory = $extensionFactory;
-    }
-
-    /**
-     * Get tax service by type and cache instances by type to avoid duplicate instantiation
-     *
-     * @param null $type
-     * @param $storeId
-     * @param $scopeType
-     * @return TaxServiceSoap
-     */
-    public function getTaxService(
-        $type = null,
-        $storeId = null,
-        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    ) {
-        if (is_null($type)) {
-            $type = $this->config->getLiveMode($storeId) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
-        }
-        if (!isset($this->taxServiceSoap[$type])) {
-            $this->config->createAvaTaxProfile($storeId, $scopeType);
-            $this->taxServiceSoap[$type] =
-                $this->taxServiceSoapFactory->create(['configurationName' => $type]);
-        }
-        return $this->taxServiceSoap[$type];
+        $this->restConfig = $restConfig;
     }
 
     /**
@@ -515,15 +469,13 @@ class Tax
             'customer_code' => $this->getCustomerCode($quote),
             'customer_usage_type' => $customerUsageType,
             'destination_address' => $address,
-            'doc_code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
-            'doc_date' => $docDate,
-            'doc_type' => DocumentType::$SalesOrder,
+            'code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
+            'date' => $docDate,
+            'type' => $this->restConfig->getDocTypeQuote(),
             'exchange_rate' => $this->getExchangeRate($store,
                 $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
             'exchange_rate_eff_date' => $currentDate,
             'lines' => $lines,
-            // This level of detail is needed in order to receive lines back in response
-            'detail_level' => DetailLevel::$Line,
             'purchase_order_no' => $quote->getReservedOrderId(),
             'is_seller_importer_of_record' => $this->config->isSellerImporterOfRecord(
                 $this->config->getOriginAddress($store),
@@ -625,7 +577,7 @@ class Tax
     }
 
     /**
-     * Creates and returns a populated getTaxRequest for a invoice
+     * Creates and returns a populated tax request for a invoice
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
      * @return GetTaxRequest
@@ -644,7 +596,7 @@ class Tax
 
         $lines = [];
         $items = $object->getItems();
-        
+
         $this->taxClassHelper->populateCorrectTaxClasses($items, $object->getStoreId());
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item */
         foreach ($items as $item) {
@@ -702,20 +654,20 @@ class Tax
 
         $taxOverride = null;
         if ($object instanceof \Magento\Sales\Api\Data\InvoiceInterface) {
-            $docType = DocumentType::$SalesInvoice;
+            $docType = $this->restConfig->getDocTypeInvoice();
 
             if ($this->areTimesDifferentDays($order->getCreatedAt(), $object->getCreatedAt(), $object->getStoreId())) {
                 $taxCalculationDate = $this->getFormattedDate($store, $order->getCreatedAt());
 
                 // Set the tax date for calculation
-                $taxOverride = $this->taxOverrideFactory->create();
-                $taxOverride->setTaxDate($taxCalculationDate);
-                $taxOverride->setTaxOverrideType(\AvaTax\TaxOverrideType::$TaxDate);
-                $taxOverride->setTaxAmount(0.00);
-                $taxOverride->setReason(self::AVATAX_INVOICE_OVERRIDE_REASON);
+//                $taxOverride = $this->taxOverrideFactory->create();
+//                $taxOverride->setTaxDate($taxCalculationDate);
+//                $taxOverride->setTaxOverrideType(\AvaTax\TaxOverrideType::$TaxDate);
+//                $taxOverride->setTaxAmount(0.00);
+//                $taxOverride->setReason(self::AVATAX_INVOICE_OVERRIDE_REASON);
             }
         } else {
-            $docType = DocumentType::$ReturnInvoice;
+            $docType = $this->restConfig->getDocTypeCreditmemo();
 
             $invoice = $this->getInvoice($object->getInvoiceId());
             // If a Creditmemo was generated for an invoice, use the created_at value from the invoice
@@ -726,11 +678,11 @@ class Tax
             }
 
             // Set the tax date for calculation
-            $taxOverride = $this->taxOverrideFactory->create();
-            $taxOverride->setTaxDate($taxCalculationDate);
-            $taxOverride->setTaxOverrideType(\AvaTax\TaxOverrideType::$TaxDate);
-            $taxOverride->setTaxAmount(0.00);
-            $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
+//            $taxOverride = $this->taxOverrideFactory->create();
+//            $taxOverride->setTaxDate($taxCalculationDate);
+//            $taxOverride->setTaxOverrideType(\AvaTax\TaxOverrideType::$TaxDate);
+//            $taxOverride->setTaxAmount(0.00);
+//            $taxOverride->setReason(self::AVATAX_CREDITMEMO_OVERRIDE_REASON);
         }
 
         $customer = $this->getCustomerById($order->getCustomerId());
@@ -759,8 +711,6 @@ class Tax
                 $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
             'ExchangeRateEffDate' => $currentDate,
             'Lines' => $lines,
-            // Only need document-level detail as we don't need lines in our response
-            'DetailLevel' => DetailLevel::$Document,
             'PaymentDate' => $currentDate,
             'PurchaseOrderNo' => $object->getIncrementId(),
             'ReferenceCode' => $orderIncrementId,
@@ -785,7 +735,7 @@ class Tax
         }
 
         /** @var $getTaxRequest GetTaxRequest */
-        $getTaxRequest = $this->getTaxRequestFactory->create();
+//        $getTaxRequest = $this->getTaxRequestFactory->create();
 
         $this->populateGetTaxRequest($data, $getTaxRequest);
 
@@ -811,7 +761,7 @@ class Tax
     }
 
     /**
-     * Get details for GetTaxRequest
+     * Get details for tax request
      *
      * @param \Magento\Store\Api\Data\StoreInterface $store
      * @param $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface

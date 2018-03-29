@@ -15,9 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
-use AvaTax\GetTaxRequest;
-use AvaTax\GetTaxResult;
-use AvaTax\LineFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\TaxService;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
@@ -43,11 +40,6 @@ class Get
      * @var Tax
      */
     protected $interactionTax = null;
-
-    /**
-     * @var LineFactory
-     */
-    protected $lineFactory = null;
 
     /**
      * @var Config
@@ -81,7 +73,6 @@ class Get
      * @param TaxCalculation $taxCalculation
      * @param Address $interactionAddress
      * @param Tax $interactionTax
-     * @param LineFactory $lineFactory
      * @param Config $config
      * @param Get\ResponseFactory $getTaxResponseFactory
      * @param AvaTaxLogger $avaTaxLogger
@@ -91,7 +82,6 @@ class Get
         TaxCalculation $taxCalculation,
         Address $interactionAddress,
         Tax $interactionTax,
-        LineFactory $lineFactory,
         Config $config,
         Get\ResponseFactory $getTaxResponseFactory,
         AvaTaxLogger $avaTaxLogger,
@@ -100,7 +90,6 @@ class Get
         $this->taxCalculation = $taxCalculation;
         $this->interactionAddress = $interactionAddress;
         $this->interactionTax = $interactionTax;
-        $this->lineFactory = $lineFactory;
         $this->config = $config;
         $this->getTaxResponseFactory = $getTaxResponseFactory;
         $this->avaTaxLogger = $avaTaxLogger;
@@ -147,7 +136,7 @@ class Get
 
         try {
             $getTaxResult = $taxService->getTax($getTaxRequest, $storeId);
-            if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+//            if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
                 // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
                 $avataxTaxAmount = abs($getTaxResult->getTotalTax());
                 $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
@@ -158,19 +147,19 @@ class Get
                     ->setBaseAvataxTaxAmount($avataxTaxAmount);
 
                 return $response;
-            } else {
-                $message = $this->getErrorMessageFromGetTaxResult($getTaxResult);
-
-                $this->avaTaxLogger->warning(
-                    $message,
-                    [ /* context */
-                        'request' => var_export($getTaxRequest, true),
-                        'result' => var_export($getTaxResult, true),
-                    ]
-                );
-
-                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
-            }
+//            } else {
+//                $message = $this->getErrorMessageFromGetTaxResult($getTaxResult);
+//
+//                $this->avaTaxLogger->warning(
+//                    $message,
+//                    [ /* context */
+//                        'request' => var_export($getTaxRequest, true),
+//                        'result' => var_export($getTaxResult, true),
+//                    ]
+//                );
+//
+//                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
+//            }
         } catch (\SoapFault $exception) {
             $message = "Exception: \n";
             if ($exception) {
@@ -275,7 +264,7 @@ class Get
      * @param GetTaxResult $getTaxResult
      * @return string
      */
-    protected function getErrorMessageFromGetTaxResult(GetTaxResult $getTaxResult)
+    protected function getErrorMessageFromGetTaxResult($getTaxResult)
     {
         $message = '';
 
