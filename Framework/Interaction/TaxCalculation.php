@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\GetTaxResult;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\CalculatorFactory;
@@ -184,7 +185,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param TaxResult $getTaxResult
      * @param bool $useBaseCurrency
      * @param \Magento\Framework\App\ScopeInterface $scope
-     * @return \Magento\Tax\Api\Data\TaxDetailsItemInterface
+     * @return \Magento\Tax\Api\Data\TaxDetailsItemInterface|bool
+     * @throws LocalizedException
      */
     protected function getTaxDetailsItem(
         QuoteDetailsItemInterface $item,
@@ -194,15 +196,15 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     ) {
         $price = $item->getUnitPrice();
 
-        /* @var $taxLine \AvaTax\TaxLine  */
+        /* @var $taxLine \Magento\Framework\DataObject  */
         $taxLine = $getTaxResult->getTaxLine($item->getCode());
 
         // Items that are children of other items won't have lines in the response
-        if (!$taxLine instanceof \AvaTax\TaxLine) {
+        if (is_null($taxLine)) {
             return false;
         }
 
-        $rate = (float)($taxLine->getRate() * Tax::RATE_MULTIPLIER);
+        $rate = $getTaxResult->getLineRate($taxLine);
         $tax = (float)$taxLine->getTax();
 
         /**
@@ -228,10 +230,10 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
              * but using the taxable amount returned back from AvaTax is the only way to get an accurate amount as
              * some items sent to AvaTax may be tax exempt
              */
-            $taxableAmount = (float)$taxLine->getTaxable();
-            $amount = $this->priceCurrency->convert($taxableAmount, $scope);
+            $baseTaxableAmount = (float)$taxLine->getTaxableAmount();
+            $taxableAmount = $this->priceCurrency->convert($baseTaxableAmount, $scope);
 
-            $tax = $amount * $taxLine->getRate();
+            $tax = $taxableAmount * $rate;
             $tax = $this->calculationTool->round($tax);
         }
 
@@ -246,7 +248,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          * If the rate is 0, then this product doesn't have taxes applied and tax on discount shouldn't be calculated.
          * If tax is 0, then item was tax-exempt for some reason and tax on discount shouldn't be calculated
          */
-        if ($taxLine->getRate() > 0 && $tax > 0) {
+        if ($rate > 0 && $tax > 0) {
             /**
              * Accurately calculating what AvaTax would have charged before discount requires checking to see if any
              * of the tax amount is tax exempt. If so, we need to find out what percentage of the total amount AvaTax
@@ -258,18 +260,18 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
              * jurisdictions as partially taxable.
              */
             $taxableAmountPercentage = 1;
-            if ($taxLine->getExemption() > 0) {
+            if ($taxLine->getExemptAmount() > 0) {
                 // This value is the total amount sent to AvaTax for tax calculation, before AvaTax determined what
                 // portion of the amount is taxable
-                $totalAmount = ($taxLine->getTaxable() + $taxLine->getExemption());
+                $totalAmount = ($taxLine->getTaxableAmount() + $taxLine->getExemptAmount());
                 // Avoid division by 0
                 if ($totalAmount != 0) {
-                    $taxableAmountPercentage = $taxLine->getTaxable() / $totalAmount;
+                    $taxableAmountPercentage = $taxLine->getTaxableAmount() / $totalAmount;
                 }
             }
 
             $effectiveDiscountAmount = $taxableAmountPercentage * $item->getDiscountAmount();
-            $taxOnDiscountAmount = $effectiveDiscountAmount * $taxLine->getRate();
+            $taxOnDiscountAmount = $effectiveDiscountAmount * $rate;
             $taxOnDiscountAmount = $this->calculationTool->round($taxOnDiscountAmount);
             $rowTaxBeforeDiscount = $rowTax + $taxOnDiscountAmount;
         } else {
@@ -321,7 +323,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             ->setRowTotalInclTax($rowTotalInclTax)
             ->setDiscountTaxCompensationAmount($discountTaxCompensationAmount)
             ->setAssociatedItemCode($item->getAssociatedItemCode())
-            ->setTaxPercent($rate)
+            ->setTaxPercent($rate * Tax::RATE_MULTIPLIER)
             ->setAppliedTaxes($appliedTaxes);
     }
 
@@ -330,12 +332,12 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      *
      * @see \Magento\Tax\Model\Calculation\AbstractCalculator::getAppliedTax()
      *
-     * @param GetTaxResult $getTaxResult
+     * @param \Magento\Framework\DataObject $getTaxResult
      * @param float $rowTax
      * @return \Magento\Tax\Api\Data\AppliedTaxInterface
      */
     protected function getAppliedTax(
-        GetTaxResult $getTaxResult,
+        $getTaxResult,
         $rowTax
     ) {
         $totalPercent = 0.00;
@@ -389,7 +391,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          */
         $taxRatesByCode = [];
         /* @var \AvaTax\TaxDetail $row */
-        foreach ($getTaxResult->getTaxSummary() as $key => $row) {
+        foreach ($getTaxResult->getSummary() as $key => $row) {
             $arrayKey = $row->getJurisCode() . '_' . $row->getJurisName();
 
             // Since the total percent is for display purposes only, round to 5 digits. Since the tax percent returned

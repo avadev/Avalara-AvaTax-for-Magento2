@@ -15,13 +15,20 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax;
 
+use Magento\Framework\Exception\LocalizedException;
+
 class Result extends \Magento\Framework\DataObject
 {
+    /**
+     * @var array
+     */
+    protected $rates = [];
+
     /**
      * Get the tax line corresponding with a specific Magento sequence number
      *
      * @param string|int $mageSeqNo
-     * @return mixed
+     * @return null|\Magento\Framework\DataObject
      */
     public function getTaxLine($mageSeqNo)
     {
@@ -30,6 +37,8 @@ class Result extends \Magento\Framework\DataObject
         if($this->hasRequest() && $this->getRequest()->hasLines() && $this->hasLines())
         {
             $lineNo = null;
+            // First, look through the original request items for the matching sequence number, and fetch the line number that was associated when request was sent
+            /** @var \Magento\Framework\DataObject $requestLine */
             foreach($this->getRequest()->getLines() as $requestLine)
             {
                 if ($requestLine->hasLineNumber() && $requestLine->hasMageSequenceNo() && $mageSeqNo == $requestLine->getMageSequenceNo())
@@ -40,7 +49,9 @@ class Result extends \Magento\Framework\DataObject
 
             }
 
+            // Look for the matching item from the response
             if (!is_null($lineNo)) {
+                /** @var \Magento\Framework\DataObject $taxLine */
                 foreach ($this->getLines() as $taxLine) {
                     if ($taxLine->hasLineNumber() && $lineNo == $taxLine->getLineNumber()) {
                         $result = $taxLine;
@@ -51,5 +62,37 @@ class Result extends \Magento\Framework\DataObject
         }
 
         return $result;
+    }
+
+    /**
+     * Get the total tax rate for a specific line item
+     *
+     * @param int|\Magento\Framework\DataObject $line
+     * @return float
+     * @throws LocalizedException
+     */
+    public function getLineRate($line)
+    {
+        if (!is_object($line)) {
+            $line = $this->getTaxLine($line);
+        }
+
+        if (is_null($line) || !$line->hasDetails()) {
+            // TODO: Better exception
+            throw new LocalizedException(__('Could not get rate details for tax line'));
+        }
+
+        if (!isset($this->rates[$line->getLineNumber()])) {
+            $rate = 0;
+            foreach ($line->getDetails() as $detail) {
+                if ($detail->hasRate()) {
+                    $rate += $detail->getRate();
+                }
+            }
+
+            $this->rates[$line->getLineNumber()] = $rate;
+        }
+
+        return $this->rates[$line->getLineNumber()];
     }
 }
