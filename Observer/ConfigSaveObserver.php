@@ -152,7 +152,7 @@ class ConfigSaveObserver implements ObserverInterface
                 $result = $this->interactionRest->ping($type, $scopeId, $scopeType);
 
                 if ($result) {
-                    $this->messageManager->addSuccessMessage(
+                    $this->messageManager->addSuccess(
                         __('Successfully connected to AvaTax using the '
                             . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>', $type
                         )

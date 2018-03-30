@@ -15,9 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Address;
 
-use AvaTax\SeverityLevel;
-use AvaTax\TextCase;
-use AvaTax\ValidateRequestFactory;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\AddressService;
@@ -54,12 +51,12 @@ class Validation
      */
     public function __construct(
         Address $interactionAddress,
-        AddressService $addressService,
-        ValidateRequestFactory $validateRequestFactory
+        AddressService $addressService
+//        ValidateRequestFactory $validateRequestFactory
     ) {
         $this->interactionAddress = $interactionAddress;
         $this->addressService = $addressService;
-        $this->validateRequestFactory = $validateRequestFactory;
+//        $this->validateRequestFactory = $validateRequestFactory;
     }
 
     /**
