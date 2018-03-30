@@ -386,13 +386,13 @@ class Config extends AbstractHelper
     public function getOriginAddress($store)
     {
         $data = [
-            'line1' => $this->scopeConfig->getValue(
+            'line_1' => $this->scopeConfig->getValue(
                 // Line1 and Line2 constants are missing from \Magento\Shipping\Model\Config, so using them from Shipment
                 \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
                 ScopeInterface::SCOPE_STORE,
                 $store
             ),
-            'line2' => $this->scopeConfig->getValue(
+            'line_2' => $this->scopeConfig->getValue(
                 \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS2,
                 ScopeInterface::SCOPE_STORE,
                 $store

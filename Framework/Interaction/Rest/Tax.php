@@ -68,26 +68,15 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         $transactionBuilder = $this->transactionBuilderFactory->create([
             'client' => $client,
             'companyCode' => $request->getCompanyCode(),
-            'type' => \Avalara\DocumentType::C_SALESORDER,
+            'type' => $request->getType(),
             'customerCode' => $request->getCustomerCode(),
         ]);
 
-        // TODO: Replace with real details
-        $transactionBuilder->withAddress('SingleLocation', '2920 Zoo Dr', NULL, NULL, 'San Diego', 'CA', '92101', 'US');
-        if ($request->hasLines()) {
-            $lineNumber = 1;
-            foreach ($request->getLines() as $line) {
-                $transactionBuilder->withLine(100.0, 1, 'code-' . $lineNumber, 'P0000000');
-                /**
-                 * It's only here that we can set the line number on the request items, when we're sure it will be the same as the line number in the response
-                 */
-                $line->setNumber($lineNumber);
+        $this->setTransactionDetails($transactionBuilder, $request);
+        $this->setLineDetails($transactionBuilder, $request);
+        $this->setAddressDetails($transactionBuilder, $request);
 
-                $lineNumber++;
-            }
-        }
         $resultObj = $transactionBuilder->create();
-
         $this->validateResult($resultObj);
 
         $resultGeneric = $this->formatResult($resultObj);
@@ -100,5 +89,115 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         $result->setRequest($request);
 
         return $result;
+    }
+
+    /**
+     * Set transaction-level fields for request
+     *
+     * @param \Avalara\TransactionBuilder $transactionBuilder
+     * @param \Magento\Framework\DataObject $request
+     */
+    protected function setTransactionDetails($transactionBuilder, $request)
+    {
+        if ($request->getCommit()) {
+            $transactionBuilder->withCommit();
+        }
+        if ($request->getIsSellerImporterOfRecord()) {
+            $transactionBuilder->withSellerIsImporterOfRecord();
+        }
+
+        if ($request->hasCode()) {
+            $transactionBuilder->withTransactionCode($request->getCode());
+        }
+        if ($request->hasBusinessIdentificationNo()) {
+            $transactionBuilder->withBusinessIdentificationNo($request->getBusinessIdentificationNo());
+        }
+        if ($request->hasCurrencyCode()) {
+            $transactionBuilder->withCurrencyCode($request->getCurrencyCode());
+        }
+        if ($request->hasEntityUseCode()) {
+            $transactionBuilder->withEntityUseCode($request->getEntityUseCode());
+        }
+        if ($request->hasDiscount()) {
+            $transactionBuilder->withDiscountAmount($request->getDiscount());
+        }
+        if ($request->hasExchangeRate()) {
+            $transactionBuilder->withExchangeRate($request->getExchangeRate(), $request->getExchangeRateEffectiveDate());
+        }
+        if ($request->hasReportingLocationCode()) {
+            $transactionBuilder->withReportingLocationCode($request->getReportingLocationCode());
+        }
+        if ($request->hasPurchaseOrderNo()) {
+            $transactionBuilder->withPurchaseOrderNo($request->getPurchaseOrderNo());
+        }
+        if ($request->hasReferenceCode()) {
+            $transactionBuilder->withReferenceCode($request->getReferenceCode());
+        }
+        if ($request->hasTaxOverride()) {
+            $override = $request->getTaxOverride();
+            if (is_object($override)) {
+                $transactionBuilder->withTaxOverride($override->getType(), $override->getReason(), $override->getTaxAmount(), $override->getTaxDate());
+            }
+        }
+    }
+
+    /**
+     * Set address entries and fields for request
+     *
+     * @param \Avalara\TransactionBuilder $transactionBuilder
+     * @param \Magento\Framework\DataObject $request
+     * @throws \Exception
+     */
+    protected function setLineDetails($transactionBuilder, $request)
+    {
+        if ($request->hasLines()) {
+            foreach ($request->getLines() as $line) {
+                $amount = ($line->hasAmount()) ? $line->getAmount() : 0;
+                $transactionBuilder->withLine($amount, $line->getQuantity(), $line->getItemCode(), $line->getTaxCode());
+
+                if ($line->getTaxIncluded()) {
+                    $transactionBuilder->withLineTaxIncluded();
+                }
+
+                if ($line->hasDescription()) {
+                    $transactionBuilder->withLineDescription($line->getDescription());
+                }
+                if ($line->hasDiscounted()) {
+                    $transactionBuilder->withItemDiscount($line->getDiscounted());
+                }
+                if ($line->hasRef1() || $line->hasRef2()) {
+                    $transactionBuilder->withLineCustomFields($line->getRef1(), $line->getRef2());
+                }
+
+                /**
+                 * It's only here that we can set the line number on the request items, when we're sure it will be the same as the line number in the response
+                 */
+                $line->setNumber($transactionBuilder->getMostRecentLineNumber());
+            }
+        }
+    }
+
+    /**
+     * Set line item entries and fields for request
+     *
+     * @param \Avalara\TransactionBuilder $transactionBuilder
+     * @param \Magento\Framework\DataObject $request
+     */
+    protected function setAddressDetails($transactionBuilder, $request)
+    {
+        if ($request->hasAddresses()) {
+            foreach ($request->getAddresses() as $type => $address) {
+                $transactionBuilder->withAddress(
+                    $type,
+                    $address->getLine1(),
+                    $address->getLine2(),
+                    $address->getLine3(),
+                    $address->getCity(),
+                    $address->getRegion(),
+                    $address->getPostalCode(),
+                    $address->getCountry()
+                );
+            }
+        }
     }
 }

@@ -102,13 +102,13 @@ class Line
         'number' => ['type' => 'integer', 'required' => false],
         'item_code' => ['type' => 'string', 'length' => 50],
         'tax_code' => ['type' => 'string', 'length' => 25],
-        'description' => ['type' => 'string', 'length' => 255], // TODO: Must determine how to specify this when using TransactionBuilder
+        'description' => ['type' => 'string', 'length' => 255],
         'quantity' => ['type' => 'double'],
         'amount' => ['type' => 'double'], // Required, but $0 value is acceptable so removing required attribute.
         'discounted' => ['type' => 'boolean'],
-        'tax_included' => ['type' => 'boolean'], // TODO: Must determine how to specify this when using TransactionBuilder
-        'ref1' => ['type' => 'string', 'length' => 250], // TODO: Must determine how to specify this when using TransactionBuilder
-        'ref2' => ['type' => 'string', 'length' => 250], // TODO: Must determine how to specify this when using TransactionBuilder
+        'tax_included' => ['type' => 'boolean'],
+        'ref_1' => ['type' => 'string', 'length' => 250],
+        'ref_2' => ['type' => 'string', 'length' => 250],
         'addresses' => [
             'type' => 'array',
             'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
@@ -188,8 +188,8 @@ class Line
             'amount' => $amount,
             'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'tax_included' => false,
-            'ref1' => $itemData['productRef1'],
-            'ref2' => $itemData['productRef2']
+            'ref_1' => $itemData['productRef1'],
+            'ref_2' => $itemData['productRef2']
         ];
 
         /** @var \Magento\Framework\DataObject $line */
@@ -240,8 +240,8 @@ class Line
             'amount' => $amount,
             'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'tax_included' => false,
-            'ref1' => $itemData['productRef1'],
-            'ref2' => $itemData['productRef2']
+            'ref_1' => $itemData['productRef1'],
+            'ref_2' => $itemData['productRef2']
         ];
 
         /** @var \Magento\Framework\DataObject $line */
@@ -287,8 +287,8 @@ class Line
             'amount' => $amount,
             'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
-            'ref1' => $ref1,
-            'ref2' => $ref2,
+            'ref_1' => $ref1,
+            'ref_2' => $ref2,
         ];
 
         /** @var \Magento\Framework\DataObject $line */

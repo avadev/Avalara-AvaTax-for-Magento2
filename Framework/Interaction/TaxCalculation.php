@@ -158,8 +158,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 $processedItem->setType($item->getType());
             } else {
                 $processedItem = $this->getTaxDetailsItem($item, $getTaxResult, $useBaseCurrency, $scope);
-                $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
                 if ($processedItem) {
+                    $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
                     $processedItems[$processedItem->getCode()] = $processedItem;
                 }
             }

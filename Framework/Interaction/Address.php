@@ -92,9 +92,9 @@ class Address
          * The AvaTax API defines Line1 as required, however in implementation it is not required. We can't require
          * it here, as we need to be able to calculate taxes from the cart page using Postal Code, Region, and Country.
          */
-        'line1' => ['type' => 'string', 'length' => 50],
-        'line2' => ['type' => 'string', 'length' => 50],
-        'line3' => ['type' => 'string', 'length' => 50],
+        'line_1' => ['type' => 'string', 'length' => 50],
+        'line_2' => ['type' => 'string', 'length' => 50],
+        'line_3' => ['type' => 'string', 'length' => 50],
         'city' => ['type' => 'string', 'length' => 50], // Either city & region are required or postalCode is required.
         'region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
         'postal_code' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
@@ -220,9 +220,9 @@ class Address
         $street = $address->getStreet();
 
         $data = [
-            'line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'line_1' => array_key_exists(0, $street) ? $street[0] : '',
+            'line_2' => array_key_exists(1, $street) ? $street[1] : '',
+            'line_3' => array_key_exists(2, $street) ? $street[2] : '',
             'city' => $address->getCity(),
             'region' => $this->getRegionCodeById($address->getRegionId()),
             'postal_code' => $address->getPostcode(),
@@ -246,9 +246,9 @@ class Address
         $street = $address->getStreet();
 
         $data = [
-            'line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'line_1' => array_key_exists(0, $street) ? $street[0] : '',
+            'line_2' => array_key_exists(1, $street) ? $street[1] : '',
+            'line_3' => array_key_exists(2, $street) ? $street[2] : '',
             'city' => $address->getCity(),
             'region' => $this->getRegionCodeById($address->getRegionId()),
             'postal_code' => $address->getPostcode(),
@@ -272,9 +272,9 @@ class Address
         $street = $address->getStreet();
 
         $data = [
-            'line1' => array_key_exists(0, $street) ? $street[0] : '',
-            'line2' => array_key_exists(1, $street) ? $street[1] : '',
-            'line3' => array_key_exists(2, $street) ? $street[2] : '',
+            'line_1' => array_key_exists(0, $street) ? $street[0] : '',
+            'line_2' => array_key_exists(1, $street) ? $street[1] : '',
+            'line_3' => array_key_exists(2, $street) ? $street[2] : '',
             'city' => $address->getCity(),
             'region' => $this->getRegionCodeById($address->getRegionId()),
             'postal_code' => $address->getPostcode(),

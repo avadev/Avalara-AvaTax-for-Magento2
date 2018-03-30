@@ -136,14 +136,14 @@ class Tax
      */
     public static $validFields = [
         'store_id' => ['type' => 'integer'],
-        'business_identification_no' => ['type' => 'string', 'length' => 25], // TODO: Must determine how to specify this when using TransactionBuilder
+        'business_identification_no' => ['type' => 'string', 'length' => 25],
         'commit' => ['type' => 'boolean'],
         // Company Code is not required by the the API, but we are requiring it in this integration
         'company_code' => ['type' => 'string', 'length' => 25, 'required' => true],
-        'currency_code' => ['type' => 'string', 'length' => 3], // TODO: Must determine how to specify this when using TransactionBuilder
+        'currency_code' => ['type' => 'string', 'length' => 3],
         'customer_code' => ['type' => 'string', 'length' => 50, 'required' => true],
-        'customer_usage_type' => ['type' => 'string', 'length' => 25], // TODO: Deprecated in favor of entity_use_code
-        'discount' => ['type' => 'double'],
+        'entity_use_code' => ['type' => 'string', 'length' => 25],
+        'discount' => ['type' => 'double'], // TODO: This isn't populated anywhere
         'code' => ['type' => 'string', 'length' => 50],
         'date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true], // TODO: TransactionBuilder always uses current date
         'type' => [
@@ -152,8 +152,8 @@ class Tax
                 ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
             'required' => true,
         ],
-        'exchange_rate' => ['type' => 'double'], // TODO: Must determine how to specify this when using TransactionBuilder
-        'exchange_rate_effective_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'], // TODO: Must determine how to specify this when using TransactionBuilder
+        'exchange_rate' => ['type' => 'double'],
+        'exchange_rate_effective_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
         'lines' => [
             'type' => 'array',
             'length' => 15000,
@@ -165,22 +165,22 @@ class Tax
             'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
             'required' => true,
         ],
-        'reporting_location_code' => ['type' => 'string', 'length' => 50], // TODO: Must determine how to specify this when using TransactionBuilder
-        'purchase_order_no' => ['type' => 'string', 'length' => 50], // TODO: Must determine how to specify this when using TransactionBuilder
-        'reference_code' => ['type' => 'string', 'length' => 50], // TODO: Must determine how to specify this when using TransactionBuilder
+        'reporting_location_code' => ['type' => 'string', 'length' => 50],
+        'purchase_order_no' => ['type' => 'string', 'length' => 50],
+        'reference_code' => ['type' => 'string', 'length' => 50],
         'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'], // TODO Update validation class
-        'is_seller_importer_of_record' => ['type' => 'boolean'], // TODO: Must determine how to specify this when using TransactionBuilder
+        'is_seller_importer_of_record' => ['type' => 'boolean'],
     ];
 
     public static $validTaxOverrideFields = [
-        'Reason' => ['type' => 'string', 'required' => true],
-        'TaxOverrideType' => [
+        'reason' => ['type' => 'string', 'required' => true],
+        'type' => [
             'type' => 'string',
             'options' => ['None', 'TaxAmount', 'Exemption', 'TaxDate'],
             'required' => true,
         ],
-        'TaxDate' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
-        'TaxAmount' => ['type' => 'double'],
+        'tax_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'tax_amount' => ['type' => 'double'],
     ];
 
     /**
@@ -463,7 +463,7 @@ class Tax
             'commit' => false, // quotes should never be committed
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
             'customer_code' => $this->getCustomerCode($quote),
-            'customer_usage_type' => $customerUsageType,
+            'entity_use_code' => $customerUsageType,
             'addresses' => [
                 $this->restConfig->getAddrTypeTo() => $address,
             ],
@@ -698,7 +698,7 @@ class Tax
             'TaxOverride' => $taxOverride,
             'CurrencyCode' => $order->getOrderCurrencyCode(),
             'CustomerCode' => $this->getCustomerCode($order),
-            'CustomerUsageType' => $customerUsageType,
+            'entity_use_code' => $customerUsageType,
             'DestinationAddress' => $avaTaxAddress,
             'DocCode' => $object->getIncrementId() . '123-' . rand(10000000,90000000000),
             'DocDate' => $currentDate,
