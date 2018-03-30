@@ -136,24 +136,24 @@ class Tax
      */
     public static $validFields = [
         'store_id' => ['type' => 'integer'],
-        'business_identification_no' => ['type' => 'string', 'length' => 25],
+        'business_identification_no' => ['type' => 'string', 'length' => 25], // TODO: Must determine how to specify this when using TransactionBuilder
         'commit' => ['type' => 'boolean'],
         // Company Code is not required by the the API, but we are requiring it in this integration
         'company_code' => ['type' => 'string', 'length' => 25, 'required' => true],
-        'currency_code' => ['type' => 'string', 'length' => 3],
+        'currency_code' => ['type' => 'string', 'length' => 3], // TODO: Must determine how to specify this when using TransactionBuilder
         'customer_code' => ['type' => 'string', 'length' => 50, 'required' => true],
-        'customer_usage_type' => ['type' => 'string', 'length' => 25],
+        'customer_usage_type' => ['type' => 'string', 'length' => 25], // TODO: Deprecated in favor of entity_use_code
         'discount' => ['type' => 'double'],
         'code' => ['type' => 'string', 'length' => 50],
-        'date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true],
+        'date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true], // TODO: TransactionBuilder always uses current date
         'type' => [
             'type' => 'string',
             'options' =>
                 ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
             'required' => true,
         ],
-        'exchange_rate' => ['type' => 'double'],
-        'exchange_rate_effective_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
+        'exchange_rate' => ['type' => 'double'], // TODO: Must determine how to specify this when using TransactionBuilder
+        'exchange_rate_effective_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'], // TODO: Must determine how to specify this when using TransactionBuilder
         'lines' => [
             'type' => 'array',
             'length' => 15000,
@@ -165,11 +165,11 @@ class Tax
             'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
             'required' => true,
         ],
-        'reporting_location_code' => ['type' => 'string', 'length' => 50],
-        'purchase_order_no' => ['type' => 'string', 'length' => 50],
-        'reference_code' => ['type' => 'string', 'length' => 50],
+        'reporting_location_code' => ['type' => 'string', 'length' => 50], // TODO: Must determine how to specify this when using TransactionBuilder
+        'purchase_order_no' => ['type' => 'string', 'length' => 50], // TODO: Must determine how to specify this when using TransactionBuilder
+        'reference_code' => ['type' => 'string', 'length' => 50], // TODO: Must determine how to specify this when using TransactionBuilder
         'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'], // TODO Update validation class
-        'is_seller_importer_of_record' => ['type' => 'boolean'],
+        'is_seller_importer_of_record' => ['type' => 'boolean'], // TODO: Must determine how to specify this when using TransactionBuilder
     ];
 
     public static $validTaxOverrideFields = [

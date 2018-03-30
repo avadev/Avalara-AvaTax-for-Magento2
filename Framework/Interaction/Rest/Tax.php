@@ -67,9 +67,9 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         /** @var \Avalara\TransactionBuilder $transactionBuilder */
         $transactionBuilder = $this->transactionBuilderFactory->create([
             'client' => $client,
-            'companyCode' => 'CLASSYINC', // TODO: Get this dynamically
+            'companyCode' => $request->getCompanyCode(),
             'type' => \Avalara\DocumentType::C_SALESORDER,
-            'customerCode' => 'My Customer', // TODO: Get this dynamically
+            'customerCode' => $request->getCustomerCode(),
         ]);
 
         // TODO: Replace with real details

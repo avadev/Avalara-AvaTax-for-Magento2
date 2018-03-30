@@ -102,13 +102,13 @@ class Line
         'number' => ['type' => 'integer', 'required' => false],
         'item_code' => ['type' => 'string', 'length' => 50],
         'tax_code' => ['type' => 'string', 'length' => 25],
-        'description' => ['type' => 'string', 'length' => 255],
+        'description' => ['type' => 'string', 'length' => 255], // TODO: Must determine how to specify this when using TransactionBuilder
         'quantity' => ['type' => 'double'],
         'amount' => ['type' => 'double'], // Required, but $0 value is acceptable so removing required attribute.
         'discounted' => ['type' => 'boolean'],
-        'tax_included' => ['type' => 'boolean'],
-        'ref1' => ['type' => 'string', 'length' => 250],
-        'ref2' => ['type' => 'string', 'length' => 250],
+        'tax_included' => ['type' => 'boolean'], // TODO: Must determine how to specify this when using TransactionBuilder
+        'ref1' => ['type' => 'string', 'length' => 250], // TODO: Must determine how to specify this when using TransactionBuilder
+        'ref2' => ['type' => 'string', 'length' => 250], // TODO: Must determine how to specify this when using TransactionBuilder
         'addresses' => [
             'type' => 'array',
             'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
