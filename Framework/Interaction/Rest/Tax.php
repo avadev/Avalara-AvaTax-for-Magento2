@@ -59,6 +59,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param string $scopeType
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Exception
      */
     public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {

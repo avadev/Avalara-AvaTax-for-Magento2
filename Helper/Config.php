@@ -26,6 +26,9 @@ use Magento\Store\Model\Store;
 use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Magento\Framework\DataObjectFactory;
+use ClassyLlama\AvaTax\Framework\Interaction\Address as TaxAddress;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 
 /**
  * AvaTax Config model
@@ -238,6 +241,16 @@ class Config extends AbstractHelper
     protected $dataObjectFactory;
 
     /**
+     * @var MetaDataObject
+     */
+    protected $addressMetaDataObject = null;
+
+    /**
+     * @var array
+     */
+    protected $originAddress = [];
+
+    /**
      * Class constructor
      *
      * @param Context $context
@@ -246,6 +259,7 @@ class Config extends AbstractHelper
      * @param TaxClassRepositoryInterface $taxClassRepository
      * @param \Magento\Backend\Model\UrlInterface $backendUrl
      * @param DataObjectFactory $dataObjectFactory
+     * @param MetaDataObjectFactory $metaDataObjectFactory
      */
     public function __construct(
         Context $context,
@@ -253,13 +267,15 @@ class Config extends AbstractHelper
         State $appState,
         TaxClassRepositoryInterface $taxClassRepository,
         \Magento\Backend\Model\UrlInterface $backendUrl,
-        DataObjectFactory $dataObjectFactory
+        DataObjectFactory $dataObjectFactory,
+        MetaDataObjectFactory $metaDataObjectFactory
     ) {
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->backendUrl = $backendUrl;
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->addressMetaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => TaxAddress::$validFields]);
         parent::__construct($context);
     }
 
@@ -380,49 +396,61 @@ class Config extends AbstractHelper
     /**
      * Return origin address
      *
-     * @param null $store
+     * @param int|\Magento\Store\Api\Data\StoreInterface $store
      * @return \Magento\Framework\DataObject
+     * @throws \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException
      */
     public function getOriginAddress($store)
     {
-        $data = [
-            'line_1' => $this->scopeConfig->getValue(
+        if ($store instanceof \Magento\Store\Api\Data\StoreInterface) {
+            $store = $store->getId();
+        }
+
+        if (!isset($this->originAddress[$store])) {
+            $data = [
+                'line_1' => $this->scopeConfig->getValue(
                 // Line1 and Line2 constants are missing from \Magento\Shipping\Model\Config, so using them from Shipment
-                \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'line_2' => $this->scopeConfig->getValue(
-                \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS2,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'city' => $this->scopeConfig->getValue(
-                ShippingConfig::XML_PATH_ORIGIN_CITY,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'region_id' => $this->scopeConfig->getValue(
-                ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'postal_code' => $this->scopeConfig->getValue(
-                ShippingConfig::XML_PATH_ORIGIN_POSTCODE,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'country' => $this->scopeConfig->getValue(
-                ShippingConfig::XML_PATH_ORIGIN_COUNTRY_ID,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-        ];
+                    \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'line_2' => $this->scopeConfig->getValue(
+                    \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS2,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'city' => $this->scopeConfig->getValue(
+                    ShippingConfig::XML_PATH_ORIGIN_CITY,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'region_id' => $this->scopeConfig->getValue(
+                    ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'postal_code' => $this->scopeConfig->getValue(
+                    ShippingConfig::XML_PATH_ORIGIN_POSTCODE,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'country' => $this->scopeConfig->getValue(
+                    ShippingConfig::XML_PATH_ORIGIN_COUNTRY_ID,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+            ];
 
-        /** @var \Magento\Framework\DataObject $address */
-        $address = $this->dataObjectFactory->create(['data' => $data]);
+            /** @var \Magento\Framework\DataObject $address */
+            $address = $this->dataObjectFactory->create(['data' => $data]);
 
-        return $address;
+            $validatedData = $this->addressMetaDataObject->validateData($address->getData());
+            $address->setData($validatedData);
+
+            $this->originAddress[$store] = $address;
+        }
+
+        return $this->originAddress[$store];
     }
 
     /**
@@ -1060,8 +1088,8 @@ class Config extends AbstractHelper
     /**
      * Determine whether to set IsSellerImportOfRecord flag
      *
-     * @param array $originAddress
-     * @param \AvaTax\Address $destAddress
+     * @param \Magento\Framework\DataObject $originAddress
+     * @param \Magento\Framework\DataObject $destAddress
      * @param $storeId
      * @return bool
      */
@@ -1069,7 +1097,7 @@ class Config extends AbstractHelper
     {
         $isSellerImporterOfRecord = true;
         $countryFilters = explode(',', $this->getTaxCalculationCountriesEnabled($storeId));
-        $originCountryId = (isset($originAddress['Country']) ? $originAddress['Country'] : false);
+        $originCountryId = ($originAddress->hasCountry()) ? $originAddress->getCountry() : false);
         $destCountryId = $destAddress->getCountry();
         if ($destCountryId == $originCountryId || !in_array($destCountryId, $countryFilters)) {
             $isSellerImporterOfRecord = false;

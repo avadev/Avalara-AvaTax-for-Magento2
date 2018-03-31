@@ -76,4 +76,12 @@ class Config extends AbstractHelper
     {
         return \Avalara\TransactionAddressType::C_SHIPTO;
     }
+
+    /**
+     * @return string
+     */
+    public function getOverrideTypeDate()
+    {
+        return \Avalara\TaxOverrideType::C_TAXDATE;
+    }
 }

@@ -344,7 +344,7 @@ class Line
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @param $credit
      * @return \Magento\Framework\DataObject|bool
-     * @throws MetaData\ValidationException
+     * @throws ValidationException
      */
     public function getShippingLine($data, $credit)
     {
@@ -393,8 +393,9 @@ class Line
             $line->setData($validatedData);
         } catch (ValidationException $e) {
             $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
-                'data' => var_export($data, true)
+                'data' => var_export($line->getData(), true)
             ]);
+            throw $e;
         }
 
         return $line;
@@ -406,7 +407,7 @@ class Line
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @param $credit
      * @return \Magento\Framework\DataObject|bool
-     * @throws MetaData\ValidationException
+     * @throws ValidationException
      */
     public function getGiftWrapOrderLine($data, $credit)
     {
@@ -439,8 +440,9 @@ class Line
             $line->setData($validatedData);
         } catch (ValidationException $e) {
             $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
-                'data' => var_export($data, true)
+                'data' => var_export($line->getData(), true)
             ]);
+            throw $e;
         }
 
         return $line;
@@ -452,7 +454,7 @@ class Line
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @param $credit
      * @return \Magento\Framework\DataObject|bool
-     * @throws MetaData\ValidationException
+     * @throws ValidationException
      */
     public function getGiftWrapItemsLine($data, $credit) {
         $giftWrapItemsPrice = $data->getGwItemsBasePrice();
@@ -487,8 +489,9 @@ class Line
             $line->setData($validatedData);
         } catch (ValidationException $e) {
             $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
-                'data' => var_export($data, true)
+                'data' => var_export($line->getData(), true)
             ]);
+            throw $e;
         }
 
         return $line;
@@ -500,7 +503,7 @@ class Line
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @param $credit
      * @return \Magento\Framework\DataObject|bool
-     * @throws MetaData\ValidationException
+     * @throws ValidationException
      */
     public function getGiftWrapCardLine($data, $credit) {
         $giftWrapCardAmount = $data->getGwCardBasePrice();
@@ -531,8 +534,9 @@ class Line
             $line->setData($validatedData);
         } catch (ValidationException $e) {
             $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
-                'data' => var_export($data, true)
+                'data' => var_export($line->getData(), true)
             ]);
+            throw $e;
         }
 
         return $line;
@@ -543,6 +547,7 @@ class Line
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \Magento\Framework\DataObject|bool
+     * @throws ValidationException
      */
     public function getPositiveAdjustmentLine($data) {
         $amount = $data->getBaseAdjustmentPositive();
@@ -576,6 +581,7 @@ class Line
             $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
                 'data' => var_export($data, true)
             ]);
+            throw $e;
         }
 
         return $line;
@@ -586,6 +592,7 @@ class Line
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \Magento\Framework\DataObject|bool
+     * @throws ValidationException
      */
     public function getNegativeAdjustmentLine($data) {
         $amount = $data->getBaseAdjustmentNegative();
@@ -614,8 +621,9 @@ class Line
             $line->setData($validatedData);
         } catch (ValidationException $e) {
             $this->avaTaxLogger->error('Error validating line: ' . $e->getMessage(), [
-                'data' => var_export($data, true)
+                'data' => var_export($line->getData(), true)
             ]);
+            throw $e;
         }
 
         return $line;

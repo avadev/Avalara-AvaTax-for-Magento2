@@ -33,6 +33,7 @@ use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Framework\Api\CustomAttributesDataInterface;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 
 class Address
 {
@@ -166,6 +167,7 @@ class Address
      * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|\Magento\Framework\DataObject
      * @return \Magento\Framework\DataObject
      * @throws LocalizedException
+     * @throws ValidationException
      */
     public function getAddress($data)
     {
@@ -198,7 +200,7 @@ class Address
         try {
             $validatedData = $this->metaDataObject->validateData($address->getData());
             $address->setData($validatedData);
-        } catch (MetaData\ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->avaTaxLogger->error('Error validating address: ' . $e->getMessage(), [
                 'data' => var_export($address->getData(), true)
             ]);

@@ -108,7 +108,7 @@ class Get
         $storeId = $object->getStoreId();
         $taxService = $this->taxService;
         try {
-            /** @var $getTaxRequest GetTaxRequest */
+            /** @var $getTaxRequest \Magento\Framework\DataObject */
             $getTaxRequest = $this->interactionTax->getGetTaxRequestForSalesObject($object);
         } catch (\Exception $e) {
             $message = __('Error while building the request to send to AvaTax. ');
@@ -135,46 +135,22 @@ class Get
         }
 
         try {
+            /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $getTaxResult */
             $getTaxResult = $taxService->getTax($getTaxRequest, $storeId);
-//            if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
-                $avataxTaxAmount = abs($getTaxResult->getTotalTax());
-                $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
 
-                /** @var $response \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface */
-                $response = $this->getTaxResponseFactory->create();
-                $response->setIsUnbalanced($unbalanced)
-                    ->setBaseAvataxTaxAmount($avataxTaxAmount);
+            // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
+            $avataxTaxAmount = abs($getTaxResult->getTotalTax());
+            $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
 
-                return $response;
-//            } else {
-//                $message = $this->getErrorMessageFromGetTaxResult($getTaxResult);
-//
-//                $this->avaTaxLogger->warning(
-//                    $message,
-//                    [ /* context */
-//                        'request' => var_export($getTaxRequest, true),
-//                        'result' => var_export($getTaxResult, true),
-//                    ]
-//                );
-//
-//                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
-//            }
-        } catch (\SoapFault $exception) {
-            $message = "Exception: \n";
-            if ($exception) {
-                $message .= $exception->faultstring;
-            }
-            $message .= $taxService->__getLastRequest() . "\n";
-            $message .= $taxService->__getLastResponse() . "\n";
-            $this->avaTaxLogger->critical(
-                "Exception: \n" . ($exception) ? $exception->faultstring: "",
-                [ /* context */
-                    'request' => var_export($taxService->__getLastRequest(), true),
-                    'result' => var_export($taxService->__getLastResponse(), true),
-                ]
-            );
+            /** @var $response \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface */
+            $response = $this->getTaxResponseFactory->create();
+            $response->setIsUnbalanced($unbalanced)
+                ->setBaseAvataxTaxAmount($avataxTaxAmount);
 
+            return $response;
+        } catch (\Exception $exception) {
+            $message = $exception->getMessage();
+            $this->avaTaxLogger->error($message);
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         }
     }
@@ -236,51 +212,10 @@ class Get
                 self::KEY_TAX_DETAILS => $taxDetails,
                 self::KEY_BASE_TAX_DETAILS => $baseTaxDetails
             ];
-        } catch (\SoapFault $exception) {
-            $message = "Exception: \n";
-            if ($exception) {
-                $message .= $exception->faultstring;
-            }
-            $message .= $taxService->__getLastRequest() . "\n";
-            $message .= $taxService->__getLastResponse() . "\n";
-            $this->avaTaxLogger->error(
-                "Exception: \n" . ($exception) ? $exception->faultstring: "",
-                [ /* context */
-                    'request' => var_export($taxService->__getLastRequest(), true),
-                    'result' => var_export($taxService->__getLastResponse(), true),
-                ]
-            );
-            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         } catch (\Exception $exception) {
             $message = $exception->getMessage();
             $this->avaTaxLogger->error($message);
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         }
-    }
-
-    /**
-     * Get formatted error message from GetTaxResult
-     *
-     * @param GetTaxResult $getTaxResult
-     * @return string
-     */
-    protected function getErrorMessageFromGetTaxResult($getTaxResult)
-    {
-        $message = '';
-
-        $message .= __('Result code: ') . $getTaxResult->getResultCode() . PHP_EOL;
-
-        /** @var \AvaTax\Message $avataxMessage */
-        foreach ($getTaxResult->getMessages() as $avataxMessage) {
-            $message .= __('Message:') . PHP_EOL;
-            $message .= __('    Name: ') . $avataxMessage->getName() . PHP_EOL;
-            $message .= __('    Summary: ') . $avataxMessage->getSummary() . PHP_EOL;
-            $message .= __('    Details: ') . $avataxMessage->getDetails() . PHP_EOL;
-            $message .= __('    RefersTo: ') . $avataxMessage->getRefersTo() . PHP_EOL;
-            $message .= __('    Severity: ') . $avataxMessage->getSeverity() . PHP_EOL;
-            $message .= __('    Source: ') . $avataxMessage->getSource() . PHP_EOL;
-        }
-
-        return $message;
     }
 }

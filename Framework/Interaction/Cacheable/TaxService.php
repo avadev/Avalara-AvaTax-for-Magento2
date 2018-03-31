@@ -88,6 +88,7 @@ class TaxService
      * @param bool $useCache
      * @return TaxResult
      * @throws LocalizedException
+     * @throws \Exception
      */
     public function getTax($getTaxRequest, $storeId, $useCache = false)
     {
