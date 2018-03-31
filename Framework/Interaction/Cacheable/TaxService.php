@@ -135,23 +135,10 @@ class TaxService
      *
      * @param $object
      * @return string
-     * @throws LocalizedException
      */
     protected function getCacheKey($object)
     {
         return $this->metaDataObject->getCacheKeyFromObject($object);
-    }
-
-    /**
-     * Pass all undefined method calls through to Tax Service
-     *
-     * @param $name
-     * @param array $arguments
-     * @return mixed
-     */
-    public function __call($name , array $arguments)
-    {
-        return call_user_func_array([$this->taxInteraction->getTaxService($this->type), $name], $arguments);
     }
 
 }
