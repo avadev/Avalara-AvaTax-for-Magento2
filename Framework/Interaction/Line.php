@@ -112,7 +112,6 @@ class Line
         'addresses' => [
             'type' => 'array',
             'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
-            'required' => true,
         ],
     ];
 
@@ -169,7 +168,7 @@ class Line
             return false;
         }
 
-        $storeId = $item->getStoreId();
+        $storeId = $item->getInvoice()->getStoreId();
         $product = $item->getOrderItem()->getProduct();
 
         $itemData = $this->buildItemData($product, $storeId);

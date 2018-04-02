@@ -15,11 +15,13 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResultFactory;
 use Avalara\TransactionBuilderFactory;
+use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
 {
@@ -34,22 +36,30 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     protected $taxResultFactory;
 
     /**
+     * @var RestConfig
+     */
+    protected $restConfig;
+
+    /**
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
      * @param TransactionBuilderFactory $transactionBuilderFactory
      * @param TaxResultFactory $taxResultFactory
+     * @param RestConfig $restConfig
      */
     public function __construct(
         LoggerInterface $logger,
         DataObjectFactory $dataObjectFactory,
         ClientPool $clientPool,
         TransactionBuilderFactory $transactionBuilderFactory,
-        TaxResultFactory $taxResultFactory
+        TaxResultFactory $taxResultFactory,
+        RestConfig $restConfig
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->transactionBuilderFactory = $transactionBuilderFactory;
         $this->taxResultFactory = $taxResultFactory;
+        $this->restConfig = $restConfig;
     }
 
     /**
@@ -90,6 +100,18 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         $result->setRequest($request);
 
         return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function validateResult($result)
+    {
+        parent::validateResult($result);
+
+        if ($result->status != $this->restConfig->getDocStatusCommitted()) {
+            throw new LocalizedException(__('Transaction was not successfully committed'));
+        }
     }
 
     /**

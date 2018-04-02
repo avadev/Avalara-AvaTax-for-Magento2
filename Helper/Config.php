@@ -397,7 +397,7 @@ class Config extends AbstractHelper
      * Return origin address
      *
      * @param int|\Magento\Store\Api\Data\StoreInterface $store
-     * @return \Magento\Framework\DataObject
+     * @return array
      * @throws \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException
      */
     public function getOriginAddress($store)
@@ -441,13 +441,7 @@ class Config extends AbstractHelper
                 ),
             ];
 
-            /** @var \Magento\Framework\DataObject $address */
-            $address = $this->dataObjectFactory->create(['data' => $data]);
-
-            $validatedData = $this->addressMetaDataObject->validateData($address->getData());
-            $address->setData($validatedData);
-
-            $this->originAddress[$store] = $address;
+            $this->originAddress[$store] = $data;
         }
 
         return $this->originAddress[$store];
@@ -1088,7 +1082,7 @@ class Config extends AbstractHelper
     /**
      * Determine whether to set IsSellerImportOfRecord flag
      *
-     * @param \Magento\Framework\DataObject $originAddress
+     * @param array $originAddress
      * @param \Magento\Framework\DataObject $destAddress
      * @param $storeId
      * @return bool
@@ -1097,7 +1091,7 @@ class Config extends AbstractHelper
     {
         $isSellerImporterOfRecord = true;
         $countryFilters = explode(',', $this->getTaxCalculationCountriesEnabled($storeId));
-        $originCountryId = ($originAddress->hasCountry()) ? $originAddress->getCountry() : false;
+        $originCountryId = (isset($originAddress['country'])) ? $originAddress['country'] : false;
         $destCountryId = $destAddress->getCountry();
         if ($destCountryId == $originCountryId || !in_array($destCountryId, $countryFilters)) {
             $isSellerImporterOfRecord = false;

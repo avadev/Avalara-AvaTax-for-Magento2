@@ -732,7 +732,7 @@ class Tax
         $this->addGetTaxRequestFields($request, $store, $address, $object->getCustomerId());
 
         try {
-            $validatedData = $this->metaDataObject->validateData($data);
+            $validatedData = $this->metaDataObject->validateData($request->getData());
             $request->setData($validatedData);
         } catch (ValidationException $e) {
             $this->avaTaxLogger->error('Error validating data: ' . $e->getMessage(), [

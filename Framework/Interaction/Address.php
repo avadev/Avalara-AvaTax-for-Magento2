@@ -164,7 +164,7 @@ class Address
      * Magento/CustomerCustomAttributes/etc/adminhtml/system.xml.  As a result not currently doing anything with this.
      * Likely no special consideration since the code is already sending all addresses (up to 3) to AvaTax if present.
      *
-     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|\Magento\Framework\DataObject
+     * @param $data \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array
      * @return \Magento\Framework\DataObject
      * @throws LocalizedException
      * @throws ValidationException
@@ -182,8 +182,8 @@ class Address
             case ($data instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
                 $address = $this->convertOrderAddressToAvaTaxAddress($data);
                 break;
-            case ($data instanceof \Magento\Framework\DataObject):
-                $address = $data;
+            case (is_array($data)):
+                $address = $this->dataObjectFactory->create(['data' => $data]);
                 break;
             default:
                 throw new LocalizedException(__(

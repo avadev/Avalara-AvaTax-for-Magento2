@@ -64,6 +64,14 @@ class Config extends AbstractHelper
     /**
      * @return string
      */
+    public function getDocStatusCommitted()
+    {
+        return \Avalara\DocumentStatus::C_COMMITTED;
+    }
+
+    /**
+     * @return string
+     */
     public function getAddrTypeFrom()
     {
         return \Avalara\TransactionAddressType::C_SHIPFROM;
