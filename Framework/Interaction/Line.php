@@ -220,7 +220,7 @@ class Line
             return false;
         }
 
-        $storeId = $item->getStoreId();
+        $storeId = $item->getCreditmemo()->getStoreId();
         $product = $item->getOrderItem()->getProduct();
 
         $itemData = $this->buildItemData($product, $storeId);
