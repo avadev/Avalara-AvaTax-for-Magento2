@@ -26,6 +26,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 
+// TODO: Consider making this and Rest/Tax implement the same interface?
 class TaxService
 {
     /**

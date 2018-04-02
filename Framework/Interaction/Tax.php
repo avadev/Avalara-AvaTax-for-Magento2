@@ -171,7 +171,7 @@ class Tax
         'reporting_location_code' => ['type' => 'string', 'length' => 50],
         'purchase_order_no' => ['type' => 'string', 'length' => 50],
         'reference_code' => ['type' => 'string', 'length' => 50],
-        'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'], // TODO Update validation class
+        'tax_override' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject'],
         'is_seller_importer_of_record' => ['type' => 'boolean'],
     ];
 

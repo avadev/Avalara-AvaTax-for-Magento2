@@ -251,7 +251,7 @@ class Line
     }
 
     /**
-     * Convert \Magento\Tax\Model\Sales\Quote\ItemDetails to an array to be used for building an \AvaTax\Line object
+     * Convert \Magento\Tax\Model\Sales\Quote\ItemDetails to an array to be used for building a line object
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item
      * @return \Magento\Framework\DataObject
@@ -339,7 +339,7 @@ class Line
     }
 
     /**
-     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns a line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @param $credit
@@ -402,7 +402,7 @@ class Line
     }
 
     /**
-     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns a line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @param $credit
@@ -449,7 +449,7 @@ class Line
     }
 
     /**
-     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns a line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @param $credit
@@ -498,7 +498,7 @@ class Line
     }
 
     /**
-     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns a line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @param $credit
@@ -543,7 +543,7 @@ class Line
     }
 
     /**
-     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns a line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \Magento\Framework\DataObject|bool
@@ -588,7 +588,7 @@ class Line
     }
 
     /**
-     * Accepts an invoice or creditmemo and returns an \AvaTax\Line object
+     * Accepts an invoice or creditmemo and returns a line object
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $data
      * @return \Magento\Framework\DataObject|bool

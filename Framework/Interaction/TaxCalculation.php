@@ -390,7 +390,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          * ]]
          */
         $taxRatesByCode = [];
-        /* @var \AvaTax\TaxDetail $row */
+        /* @var \Magento\Framework\DataObject $row */
         foreach ($getTaxResult->getSummary() as $key => $row) {
             $arrayKey = $row->getJurisCode() . '_' . $row->getJurisName();
 
