@@ -1097,7 +1097,7 @@ class Config extends AbstractHelper
     {
         $isSellerImporterOfRecord = true;
         $countryFilters = explode(',', $this->getTaxCalculationCountriesEnabled($storeId));
-        $originCountryId = ($originAddress->hasCountry()) ? $originAddress->getCountry() : false);
+        $originCountryId = ($originAddress->hasCountry()) ? $originAddress->getCountry() : false;
         $destCountryId = $destAddress->getCountry();
         if ($destCountryId == $originCountryId || !in_array($destCountryId, $countryFilters)) {
             $isSellerImporterOfRecord = false;
