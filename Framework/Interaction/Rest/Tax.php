@@ -103,18 +103,6 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     }
 
     /**
-     * @inheritdoc
-     */
-    protected function validateResult($result)
-    {
-        parent::validateResult($result);
-
-        if ($result->status != $this->restConfig->getDocStatusCommitted()) {
-            throw new LocalizedException(__('Transaction was not successfully committed'));
-        }
-    }
-
-    /**
      * Set transaction-level fields for request
      *
      * @param \Avalara\TransactionBuilder $transactionBuilder
