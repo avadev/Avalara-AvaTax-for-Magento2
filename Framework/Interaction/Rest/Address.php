@@ -90,12 +90,24 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         parent::validateResult($result, $request);
 
         $errors = [];
+        $warnings = [];
         if (isset($result->messages) && is_array($result->messages)) {
             foreach ($result->messages as $message) {
                 if (in_array($message->severity, $this->restConfig->getErrorSeverityLevels())) {
                     $errors[] = $message->summary;
+                } elseif (in_array($message->severity, $this->restConfig->getWarningSeverityLevels())) {
+                    $warnings[] = $message->summary;
                 }
             }
+        }
+
+        if (!empty($warnings)) {
+            $warningsMsg = implode('; ', $warnings);
+
+            $this->logger->warning(__('AvaTax address validation warnings: %1', $warningsMsg), [
+                'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
+                'result' => var_export($result, true),
+            ]);
         }
 
         if (!empty($errors)) {

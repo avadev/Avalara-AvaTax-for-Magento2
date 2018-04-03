@@ -111,4 +111,14 @@ class Config extends AbstractHelper
             \Avalara\SeverityLevel::C_EXCEPTION,
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function getWarningSeverityLevels()
+    {
+        return [
+            \Avalara\SeverityLevel::C_WARNING,
+        ];
+    }
 }
