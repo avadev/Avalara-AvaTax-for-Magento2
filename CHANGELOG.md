@@ -1,3 +1,7 @@
+### 1.4.0 (2018-04-03)
+
+* Add the ability to use any customer attribute as customer code [#99](https://github.com/classyllama/ClassyLlama_AvaTax/issues/99)
+
 ### 1.3.5 (2018-03-05)
 
 * Fix issue where sometimes the connection credentials fail when assigned at website level [#112](https://github.com/classyllama/ClassyLlama_AvaTax/issues/112)
