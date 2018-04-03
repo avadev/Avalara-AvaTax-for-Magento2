@@ -98,16 +98,22 @@ class Rest
      * Response is an error message string if an error occurred
      *
      * @param string|\Avalara\PingResultModel $result
+     * @param \Magento\Framework\DataObject|null $request
      * @return void
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function validateResult($result)
+    protected function validateResult($result, $request = null)
     {
         if (!is_object($result)) {
             if (is_string($result)) {
-                $this->logger->error(__('AvaTax connection error: %1', $result));
+                $this->logger->error(__('AvaTax connection error: %1', $result), [
+                    'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
+                ]);
             } else {
-                $this->logger->error(__('Response from AvaTax was in invalid format'));
+                $this->logger->error(__('Response from AvaTax was in invalid format'), [
+                    'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
+                    'result' => var_export($result, true),
+                ]);
             }
             // TODO: Better exception class
             throw new \Magento\Framework\Exception\LocalizedException(__('AvaTax connection error'));
@@ -119,9 +125,15 @@ class Rest
          */
         if (isset($result->error)) {
             if (is_object($result->error) && isset($result->error->message)) {
-                $this->logger->error(__('AvaTax connection error: %1', $result->error->message));
+                $this->logger->error(__('AvaTax connection error: %1', $result->error->message), [
+                    'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
+                    'result' => var_export($result, true),
+                ]);
             } else {
-                $this->logger->error(__('Response from AvaTax indicated non-specific error'));
+                $this->logger->error(__('Response from AvaTax indicated non-specific error'), [
+                    'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
+                    'result' => var_export($result, true),
+                ]);
             }
             // TODO: Better exception class
             throw new \Magento\Framework\Exception\LocalizedException(__('AvaTax connection error'));

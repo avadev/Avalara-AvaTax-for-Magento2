@@ -15,16 +15,16 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Cacheable;
 
-use AvaTax\ValidateRequest;
-use AvaTax\ValidateResult;
-use ClassyLlama\AvaTax\Framework\Interaction\Address;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address as RestAddressInteraction;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
+use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 
+// TODO: Consider making this and Rest/Address implement the same interface?
 class AddressService
 {
     /**
@@ -38,7 +38,7 @@ class AddressService
     protected $avaTaxLogger = null;
 
     /**
-     * @var Address
+     * @var RestAddressInteraction
      */
     protected $interactionAddress = null;
 
@@ -47,14 +47,14 @@ class AddressService
     /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
-     * @param Address $interactionAddress
+     * @param RestAddressInteraction $interactionAddress
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param null $type
      */
     public function __construct(
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
-        Address $interactionAddress,
+        RestAddressInteraction $interactionAddress,
         MetaDataObjectFactory $metaDataObjectFactory,
         $type = null
     ) {
@@ -70,55 +70,35 @@ class AddressService
     /**
      * Cache validated response
      *
-     * @param ValidateRequest $validateRequest
-     * @param $storeId
-     * @return ValidateResult
-     * @throws \SoapFault
+     * @param \Magento\Framework\DataObject $validateRequest
+     * @param int $storeId
+     * @return \Magento\Framework\DataObject
+     * @throws LocalizedException
      */
-    public function validate(ValidateRequest $validateRequest, $storeId)
+    public function validate($validateRequest, $storeId)
     {
         $addressCacheKey = $this->getCacheKey($validateRequest->getAddress()) . $storeId;
         $validateResult = @unserialize($this->cache->load($addressCacheKey));
 
-        if ($validateResult instanceof ValidateResult) {
-            $this->avaTaxLogger->addDebug('Loaded \AvaTax\ValidateResult from cache.', [
-                'request' => var_export($validateRequest, true),
-                'result' => var_export($validateResult, true),
+        if ($validateResult instanceof DataObject) {
+            $this->avaTaxLogger->addDebug('Loaded address validate result from cache.', [
+                'request' => var_export($validateRequest->getData(), true),
+                'result' => var_export($validateResult->getData(), true),
                 'cache_key' => $addressCacheKey
             ]);
             return $validateResult;
         }
 
-        try {
-            $addressService = $this->interactionAddress->getAddressService($this->type, $storeId);
-            $validateResult = $addressService->validate($validateRequest);
+        $validateResult = $this->interactionAddress->validate($validateRequest, null, $storeId);
 
-            $serializedValidateResult = serialize($validateResult);
-            $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
+        $serializedValidateResult = serialize($validateResult);
+        $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
 
-            $validAddress =
-                isset($validateResult->getValidAddresses()[0]) ? $validateResult->getValidAddresses()[0] : null;
-            $validAddressCacheKey = $this->getCacheKey($validAddress);
-            $this->avaTaxLogger->addDebug('Loaded \AvaTax\ValidateResult from SOAP.', [
-                'request' => var_export($validateRequest, true),
-                'result' => var_export($validateResult, true)
+        if ($validateResult->hasValidatedAddresses() && is_array($validateResult->getValidatedAddresses())) {
+            $this->avaTaxLogger->addDebug('Loaded address validate result from REST.', [
+                'request' => var_export($validateRequest->getData(), true),
+                'result' => var_export($validateResult->getData(), true)
             ]);
-
-            $this->cache->save($serializedValidateResult, $validAddressCacheKey, [Config::AVATAX_CACHE_TAG]);
-        } catch (LocalizedException $e) {
-            $this->avaTaxLogger->addDebug('\AvaTax\ValidateResult no valid address found from SOAP.', [
-                'result' => var_export($validateResult, true)
-            ]);
-        } catch (\SoapFault $e) {
-            $this->avaTaxLogger->error(
-                "Exception: \n" . $e->getMessage() . "\n" . $e->faultstring,
-                [
-                    'request' => var_export($addressService->__getLastRequest(), true),
-                    'result' => var_export($addressService->__getLastResponse(), true),
-                ]
-            );
-
-            throw $e;
         }
 
         return $validateResult;
@@ -134,17 +114,5 @@ class AddressService
     protected function getCacheKey($object)
     {
         return $this->metaDataObject->getCacheKeyFromObject($object);
-    }
-
-    /**
-     * Pass all undefined method calls through to AddressService
-     *
-     * @param $name
-     * @param array $arguments
-     * @return mixed
-     */
-    public function __call($name , array $arguments)
-    {
-        return call_user_func_array([$this->interactionAddress->getAddressService($this->type), $name], $arguments);
     }
 }

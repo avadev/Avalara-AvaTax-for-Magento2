@@ -88,7 +88,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         $this->setAddressDetails($transactionBuilder, $request);
 
         $resultObj = $transactionBuilder->create();
-        $this->validateResult($resultObj);
+        $this->validateResult($resultObj, $request);
 
         $resultGeneric = $this->formatResult($resultObj);
         /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $result */

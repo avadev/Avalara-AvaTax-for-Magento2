@@ -108,7 +108,7 @@ class TaxService
             return $getTaxResult;
         }
 
-        $getTaxResult = $this->taxInteraction->getTax($getTaxRequest);
+        $getTaxResult = $this->taxInteraction->getTax($getTaxRequest, null, $storeId);
         if (!($getTaxResult instanceof TaxResult)) {
             throw new LocalizedException(__('Bad response from AvaTax'));
         }

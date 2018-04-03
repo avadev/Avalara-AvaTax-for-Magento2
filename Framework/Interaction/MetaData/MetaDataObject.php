@@ -220,8 +220,7 @@ class MetaDataObject
 
         foreach ($this->metaDataProperties as $name => $keyGenerator) {
             /** @var $keyGenerator MetaDataAbstract */
-            $methodName = 'get' . $name;
-            if (method_exists($object, $methodName)) {
+            if ($object->hasData($name)) {
                 $cacheKey .= $keyGenerator->getCacheKey($object->getData($name));
             }
         }

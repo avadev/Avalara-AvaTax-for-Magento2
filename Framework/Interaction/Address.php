@@ -359,22 +359,22 @@ class Address
     /**
      * Convert ValidAddress to CustomerAddressInterface
      *
-     * @param \AvaTax\ValidAddress $address
+     * @param \Magento\Framework\DataObject $address
      * @param CustomerAddressInterface $originalAddress
      * @return null|CustomerAddressInterface
      */
     public function convertAvaTaxValidAddressToCustomerAddress(
-        \AvaTax\ValidAddress $address,
+        $address,
         CustomerAddressInterface $originalAddress
     ) {
         $street = [];
-        if ($address->getLine1()) {
+        if ($address->hasLine1()) {
             $street[] = $address->getLine1();
         }
-        if ($address->getLine2()) {
+        if ($address->hasLine2()) {
             $street[] = $address->getLine2();
         }
-        if ($address->getLine3()) {
+        if ($address->hasLine3()) {
             $street[] = $address->getLine3();
         }
         // Not using line 4, as it returns a concatenation of city, state, and zip (e.g., BAINBRIDGE IS WA 98110-2450)
@@ -402,22 +402,22 @@ class Address
     /**
      * Convert ValidAddress to QuoteAddressInterface
      *
-     * @param \AvaTax\ValidAddress $address
+     * @param \Magento\Framework\DataObject $address
      * @param QuoteAddressInterface $originalAddress
      * @return QuoteAddressInterface
      */
     public function convertAvaTaxValidAddressToQuoteAddress(
-        \AvaTax\ValidAddress $address,
+        $address,
         \Magento\Quote\Api\Data\AddressInterface $originalAddress
     ) {
         $street = [];
-        if ($address->getLine1()) {
+        if ($address->hasLine1()) {
             $street[] = $address->getLine1();
         }
-        if ($address->getLine2()) {
+        if ($address->hasLine2()) {
             $street[] = $address->getLine2();
         }
-        if ($address->getLine3()) {
+        if ($address->hasLine3()) {
             $street[] = $address->getLine3();
         }
         // Not using line 4, as it returns a concatenation of city, state, and zip (e.g., BAINBRIDGE IS WA 98110-2450)

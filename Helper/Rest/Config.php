@@ -92,4 +92,23 @@ class Config extends AbstractHelper
     {
         return \Avalara\TaxOverrideType::C_TAXDATE;
     }
+
+    /**
+     * @return string
+     */
+    public function getTextCaseMixed()
+    {
+        return \Avalara\TextCase::C_MIXED;
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrorSeverityLevels()
+    {
+        return [
+            \Avalara\SeverityLevel::C_ERROR,
+            \Avalara\SeverityLevel::C_EXCEPTION,
+        ];
+    }
 }
