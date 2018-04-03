@@ -173,11 +173,9 @@ class Address
     {
         /** \Magento\Framework\DataObject $address */
         switch (true) {
-            case ($data instanceof \Magento\Customer\Api\Data\AddressInterface):
+            case ($data instanceof \Magento\Customer\Api\Data\AddressInterface
+                || $data instanceof \Magento\Quote\Api\Data\AddressInterface):
                 $address = $this->convertCustomerAddressToAvaTaxAddress($data);
-                break;
-            case ($data instanceof \Magento\Quote\Api\Data\AddressInterface):
-                $address = $this->convertQuoteAddressToAvaTaxAddress($data);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\OrderAddressInterface):
                 $address = $this->convertOrderAddressToAvaTaxAddress($data);
@@ -214,36 +212,10 @@ class Address
     /**
      * Converts Customer address into AvaTax compatible data array
      *
-     * @param \Magento\Customer\Api\Data\AddressInterface $address
+     * @param \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface $address
      * @return \Magento\Framework\DataObject
      */
-    public function convertCustomerAddressToAvaTaxAddress(CustomerAddressInterface $address)
-    {
-        $street = $address->getStreet();
-
-        $data = [
-            'line_1' => array_key_exists(0, $street) ? $street[0] : '',
-            'line_2' => array_key_exists(1, $street) ? $street[1] : '',
-            'line_3' => array_key_exists(2, $street) ? $street[2] : '',
-            'city' => $address->getCity(),
-            'region' => $this->getRegionCodeById($address->getRegionId()),
-            'postal_code' => $address->getPostcode(),
-            'country' => $address->getCountryId(),
-        ];
-
-        /** @var \Magento\Framework\DataObject $address */
-        $address = $this->dataObjectFactory->create(['data' => $data]);
-
-        return $address;
-    }
-
-    /**
-     * Converts Quote address into AvaTax compatible data array
-     *
-     * @param \Magento\Quote\Api\Data\AddressInterface $address
-     * @return \Magento\Framework\DataObject
-     */
-    public function convertQuoteAddressToAvaTaxAddress(QuoteAddressInterface $address)
+    public function convertCustomerAddressToAvaTaxAddress($address)
     {
         $street = $address->getStreet();
 

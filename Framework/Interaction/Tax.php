@@ -583,7 +583,7 @@ class Tax
      * @throws ValidationException
      * @throws LocalizedException
      */
-    public function getGetTaxRequestForSalesObject($object) {
+    public function getTaxRequestForSalesObject($object) {
         $order = $this->orderRepository->get($object->getOrderId());
 
         // Create an array of items for the order being processed
@@ -729,7 +729,7 @@ class Tax
 
         $request = $this->dataObjectFactory->create(['data' => $data]);
 
-        $this->addGetTaxRequestFields($request, $store, $address, $object->getCustomerId());
+        $this->addGetTaxRequestFields($request, $store, $address, $object->getOrder()->getCustomerId());
 
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());

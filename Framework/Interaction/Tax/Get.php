@@ -109,7 +109,7 @@ class Get
         $taxService = $this->taxService;
         try {
             /** @var $getTaxRequest \Magento\Framework\DataObject */
-            $getTaxRequest = $this->interactionTax->getGetTaxRequestForSalesObject($object);
+            $getTaxRequest = $this->interactionTax->getTaxRequestForSalesObject($object);
         } catch (\Exception $e) {
             $message = __('Error while building the request to send to AvaTax. ');
             $this->avaTaxLogger->error(
