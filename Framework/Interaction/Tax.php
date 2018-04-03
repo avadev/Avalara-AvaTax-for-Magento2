@@ -366,7 +366,7 @@ class Tax
                 $customer = $this->getCustomerById($data->getCustomerId());
                 // Retrieve attribute value using provided attribute code
                 $attributeValue = $this->retrieveCustomerCode($customer, $customerCode);
-                if (!is_null($attributeValue) && is_string($attributeValue)) {
+                if (!is_null($attributeValue) && (is_string($attributeValue) || is_numeric($attributeValue))) {
                     // Customer has a value defined for provided attribute code and the provided value is a string
                     return $attributeValue;
                 }
