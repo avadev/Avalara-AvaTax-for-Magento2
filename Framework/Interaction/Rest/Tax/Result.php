@@ -78,8 +78,7 @@ class Result extends \Magento\Framework\DataObject
         }
 
         if (is_null($line) || !$line->hasDetails()) {
-            // TODO: Better exception
-            throw new LocalizedException(__('Could not get rate details for tax line'));
+            throw new \Magento\Framework\Exception\InputException(__('Could not get rate details for tax line'));
         }
 
         if (!isset($this->rates[$line->getLineNumber()])) {

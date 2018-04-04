@@ -23,6 +23,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResult
 use Avalara\TransactionBuilderFactory;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+use ClassyLlama\AvaTax\Exception\TaxCalculationException;
 
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestTaxInterface

@@ -21,6 +21,7 @@ use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+use ClassyLlama\AvaTax\Exception\AddressValidateException;
 
 class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestAddressInterface
@@ -54,7 +55,7 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param string|int|null $scopeId
      * @param string $scopeType
      * @return \Magento\Framework\DataObject
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AddressValidateException
      * @throws AvataxConnectionException
      */
     public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
@@ -86,7 +87,14 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     }
 
     /**
-     * @inheritdoc
+     * Validate a response from the AvaTax library client
+     * Response is an error message string if an error occurred
+     *
+     * @param string|\Avalara\PingResultModel $result
+     * @param \Magento\Framework\DataObject|null $request
+     * @return void
+     * @throws AvataxConnectionException
+     * @throws AddressValidateException
      */
     protected function validateResult($result, $request = null)
     {
@@ -121,8 +129,7 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                 'result' => var_export($result, true),
             ]);
 
-            // TODO: Better exception
-            throw new LocalizedException(__($errorsMsg));
+            throw new AddressValidateException(__($errorsMsg));
         }
     }
 }
