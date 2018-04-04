@@ -137,26 +137,6 @@ class Address
     }
 
     /**
-     * Get address service by type and cache instances by type to avoid duplicate instantiation
-     *
-     * @param string $type
-     * @param $storeId
-     * @return AddressServiceSoap
-     */
-    public function getAddressService($type = null, $storeId = null)
-    {
-        if (is_null($type)) {
-            $type = $this->config->getLiveMode($storeId) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
-        }
-        if (!isset($this->addressServiceSoap[$type])) {
-            $this->config->createAvaTaxProfile($storeId);
-            $this->addressServiceSoap[$type] =
-                $this->addressServiceSoapFactory->create(['configurationName' => $type]);
-        }
-        return $this->addressServiceSoap[$type];
-    }
-
-    /**
      * Get an AvaTax address object with fields as specified in data
      *
      * Note: AvaTax only allows 3 street fields according to the API documentation.  The customer/address/street_lines

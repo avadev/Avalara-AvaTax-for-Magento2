@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction\Address;
 
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Api\RestAddressInterface;
 use Magento\Framework\DataObject;
@@ -77,6 +78,7 @@ class Validation
      * @return array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
      * @throws AddressValidateException
      * @throws LocalizedException
+     * @throws AvataxConnectionException
      */
     public function validateAddress($addressInput, $storeId)
     {

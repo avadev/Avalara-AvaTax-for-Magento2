@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Model;
 use ClassyLlama\AvaTax\Api\ValidAddressManagementInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Address\Validation as ValidationInteraction;
 use Magento\Customer\Api\Data\AddressInterface;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
 /**
  * Class ValidAddressManagement
@@ -60,8 +61,8 @@ class ValidAddressManagement implements ValidAddressManagementInterface
 
         try {
             return $this->validationInteraction->validateAddress($address, $storeId);
-        } catch (\SoapFault $e) {
-            return 'Connection Error: ' . $e->getMessage();
+        } catch (AvataxConnectionException $e) {
+            return 'Address validation connection error';
         } catch (\Exception $e) {
             return $e->getMessage();
         }

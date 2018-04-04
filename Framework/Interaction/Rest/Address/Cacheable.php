@@ -23,6 +23,7 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
 class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
 {
@@ -75,6 +76,7 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
      * @param string $scopeType
      * @return \Magento\Framework\DataObject
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AvataxConnectionException
      */
     public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {

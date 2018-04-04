@@ -22,6 +22,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResultFactory;
 use Avalara\TransactionBuilderFactory;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestTaxInterface
@@ -75,6 +76,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param array $params
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AvataxConnectionException
      * @throws \Exception
      */
     public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])

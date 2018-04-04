@@ -15,6 +15,8 @@
 
 namespace ClassyLlama\AvaTax\Api;
 
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+
 interface RestAddressInterface extends \ClassyLlama\AvaTax\Api\RestInterface
 {
     /**
@@ -25,6 +27,8 @@ interface RestAddressInterface extends \ClassyLlama\AvaTax\Api\RestInterface
      * @param string|int|null $scopeId
      * @param string $scopeType
      * @return \Magento\Framework\DataObject
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AvataxConnectionException
      */
     public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 }

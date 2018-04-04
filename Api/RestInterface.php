@@ -15,6 +15,8 @@
 
 namespace ClassyLlama\AvaTax\Api;
 
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+
 interface RestInterface
 {
     /**
@@ -24,6 +26,7 @@ interface RestInterface
      * @param null|string|int $scopeId
      * @param string $scopeType
      * @return \Avalara\AvaTaxClient
+     * @throws \InvalidArgumentException
      */
     public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 
@@ -34,6 +37,8 @@ interface RestInterface
      * @param null|string|int $scopeId
      * @param string $scopeType
      * @return bool
+     * @throws AvataxConnectionException
+     * @throws \InvalidArgumentException
      */
     public function ping($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 }

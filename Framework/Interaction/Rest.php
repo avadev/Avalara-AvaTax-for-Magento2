@@ -19,6 +19,7 @@ use Avalara\AvaTaxClient;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
 class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
 {
@@ -80,7 +81,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      * @param null|string|int $scopeId
      * @param string $scopeType
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AvataxConnectionException
      * @throws \InvalidArgumentException
      */
     public function ping($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
@@ -100,11 +101,10 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      * @param string|\Avalara\PingResultModel $result
      * @param \Magento\Framework\DataObject|null $request
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AvataxConnectionException
      */
     protected function validateResult($result, $request = null)
     {
-        // TODO: Unique exception for connection error, modify address validation handling to do nothing in this instance
         if (!is_object($result)) {
             if (is_string($result)) {
                 $this->logger->error(__('AvaTax connection error: %1', $result), [
@@ -116,8 +116,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
                     'result' => var_export($result, true),
                 ]);
             }
-            // TODO: Better exception class
-            throw new \Magento\Framework\Exception\LocalizedException(__('AvaTax connection error'));
+            throw new AvataxConnectionException(__('AvaTax connection error'));
         }
 
         /**
@@ -136,8 +135,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
                     'result' => var_export($result, true),
                 ]);
             }
-            // TODO: Better exception class
-            throw new \Magento\Framework\Exception\LocalizedException(__('AvaTax connection error'));
+            throw new AvataxConnectionException(__('AvaTax connection error'));
         }
     }
 

@@ -20,6 +20,7 @@ use Psr\Log\LoggerInterface;
 use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
 class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestAddressInterface
@@ -54,6 +55,7 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param string $scopeType
      * @return \Magento\Framework\DataObject
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AvataxConnectionException
      */
     public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {

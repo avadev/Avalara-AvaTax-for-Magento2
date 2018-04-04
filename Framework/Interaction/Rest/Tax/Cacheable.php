@@ -25,6 +25,7 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
 class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
 {
@@ -90,6 +91,7 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
      * @param array $params
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AvataxConnectionException
      * @throws \Exception
      */
     public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])

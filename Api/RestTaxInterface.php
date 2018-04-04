@@ -15,6 +15,8 @@
 
 namespace ClassyLlama\AvaTax\Api;
 
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+
 interface RestTaxInterface extends \ClassyLlama\AvaTax\Api\RestInterface
 {
     /**
@@ -26,6 +28,9 @@ interface RestTaxInterface extends \ClassyLlama\AvaTax\Api\RestInterface
      * @param string $scopeType
      * @param array $params
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws AvataxConnectionException
+     * @throws \Exception
      */
     public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = []);
 }
