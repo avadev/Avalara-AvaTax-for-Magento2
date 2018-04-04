@@ -167,14 +167,4 @@
             <argument name="connectionName" xsi:type="string">sales</argument>
         </arguments>
     </type>
-
-
-
-    <type name="Magento\Framework\Console\CommandListInterface">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="avataxRestTest" xsi:type="object">ClassyLlama\AvaTax\Console\Command\RestTester</item>
-            </argument>
-        </arguments>
-    </type>
 </config>
