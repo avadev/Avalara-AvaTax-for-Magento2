@@ -148,7 +148,7 @@ class Tax
         'entity_use_code' => ['type' => 'string', 'length' => 25],
         'discount' => ['type' => 'double'], // TODO: This isn't populated anywhere
         'code' => ['type' => 'string', 'length' => 50],
-        'date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/', 'required' => true], // TODO: TransactionBuilder always uses current date
+        'date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'], // REST TransactionBuilder always uses current date
         'type' => [
             'type' => 'string',
             'options' =>
@@ -456,9 +456,6 @@ class Tax
         $store = $this->storeRepository->getById($quote->getStoreId());
         $currentDate = $this->getFormattedDate($store);
 
-        // Quote created/updated date is not relevant, so just pass the current date
-        $docDate = $currentDate;
-
         $customerUsageType = $quote->getCustomer()
             ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer())
             : null;
@@ -472,7 +469,6 @@ class Tax
                 $this->restConfig->getAddrTypeTo() => $address,
             ],
             'code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
-            'date' => $docDate,
             'type' => $this->restConfig->getDocTypeQuote(),
             'exchange_rate' => $this->getExchangeRate($store,
                 $quote->getCurrency()->getBaseCurrencyCode(), $quote->getCurrency()->getQuoteCurrencyCode()),
@@ -711,7 +707,6 @@ class Tax
                 $this->restConfig->getAddrTypeTo() => $avaTaxAddress,
             ],
             'code' => $object->getIncrementId() . '123-' . rand(10000000,90000000000),
-            'date' => $currentDate,
             'type' => $docType,
             'exchange_rate' => $this->getExchangeRate($store,
                 $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
