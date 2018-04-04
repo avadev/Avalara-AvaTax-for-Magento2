@@ -55,7 +55,9 @@
                 <queue_admin_notification_enabled>1</queue_admin_notification_enabled>
                 <queue_failure_notification_enabled>1</queue_failure_notification_enabled>
                 <customer_code_format>id</customer_code_format>
+                <production_account_number backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <production_license_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <development_account_number backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <development_license_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </avatax>
         </tax>

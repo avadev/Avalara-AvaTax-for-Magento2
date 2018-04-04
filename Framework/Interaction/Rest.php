@@ -104,6 +104,7 @@ class Rest
      */
     protected function validateResult($result, $request = null)
     {
+        // TODO: Unique exception for connection error, modify address validation handling to do nothing in this instance
         if (!is_object($result)) {
             if (is_string($result)) {
                 $this->logger->error(__('AvaTax connection error: %1', $result), [
