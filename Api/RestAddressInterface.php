@@ -27,7 +27,7 @@ interface RestAddressInterface extends \ClassyLlama\AvaTax\Api\RestInterface
      * @param string|null $mode
      * @param string|int|null $scopeId
      * @param string $scopeType
-     * @return \Magento\Framework\DataObject
+     * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result
      * @throws AddressValidateException
      * @throws AvataxConnectionException
      */

@@ -22,6 +22,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\ResultFactory as AddressResultFactory;
 
 class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestAddressInterface
@@ -31,20 +32,25 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      */
     protected $restConfig;
 
+    protected $addressResultFactory;
+
     /**
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
      * @param RestConfig $restConfig
+     * @param AddressResultFactory $addressResultFactory
      */
     public function __construct(
         LoggerInterface $logger,
         DataObjectFactory $dataObjectFactory,
         ClientPool $clientPool,
-        RestConfig $restConfig
+        RestConfig $restConfig,
+        AddressResultFactory $addressResultFactory
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->restConfig = $restConfig;
+        $this->addressResultFactory = $addressResultFactory;
     }
 
     /**
@@ -54,7 +60,7 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param string|null $mode
      * @param string|int|null $scopeId
      * @param string $scopeType
-     * @return \Magento\Framework\DataObject
+     * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result
      * @throws AddressValidateException
      * @throws AvataxConnectionException
      */
@@ -80,8 +86,9 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
 
         $this->validateResult($resultObj, $request);
 
-        // TODO: Specially defined result class?
-        $result = $this->formatResult($resultObj);
+        $resultGeneric = $this->formatResult($resultObj);
+        /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result $result */
+        $result = $this->addressResultFactory->create(['data' => $resultGeneric->getData()]);
 
         return $result;
     }

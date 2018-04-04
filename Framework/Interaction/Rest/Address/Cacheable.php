@@ -25,6 +25,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result as AddressResult;
 
 class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
 {
@@ -75,7 +76,7 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
      * @param string|null $mode
      * @param string|int|null $scopeId
      * @param string $scopeType
-     * @return \Magento\Framework\DataObject
+     * @return AddressResult
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws AvataxConnectionException
      * @throws AddressValidateException
@@ -85,7 +86,7 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
         $addressCacheKey = $this->getCacheKey($request->getAddress()) . $scopeId;
         $validateResult = @unserialize($this->cache->load($addressCacheKey));
 
-        if ($validateResult instanceof DataObject) {
+        if ($validateResult instanceof AddressResult) {
             $this->avaTaxLogger->addDebug('Loaded address validate result from cache.', [
                 'request' => var_export($request->getData(), true),
                 'result' => var_export($validateResult->getData(), true),

@@ -62,7 +62,7 @@ class ValidAddressManagement implements ValidAddressManagementInterface
         try {
             return $this->validationInteraction->validateAddress($address, $storeId);
         } catch (AvataxConnectionException $e) {
-            return __('Address validation connection error');
+            return __('Address validation connection error')->getText();
         } catch (\Exception $e) {
             return $e->getMessage();
         }
