@@ -154,6 +154,16 @@
             <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
         </arguments>
     </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Address\Validation">
+        <arguments>
+            <argument name="addressService" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Cacheable</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get">
+        <arguments>
+            <argument name="taxService" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Cacheable</argument>
+        </arguments>
+    </type>
 
     <!--
     /**

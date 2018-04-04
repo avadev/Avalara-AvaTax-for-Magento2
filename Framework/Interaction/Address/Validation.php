@@ -17,7 +17,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Address;
 
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
-use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\AddressService;
+use ClassyLlama\AvaTax\Api\RestAddressInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -32,7 +32,7 @@ class Validation
     protected $interactionAddress = null;
 
     /**
-     * @var AddressService
+     * @var RestAddressInterface
      */
     protected $addressService = null;
 
@@ -53,13 +53,13 @@ class Validation
 
     /**
      * @param Address $interactionAddress
-     * @param AddressService $addressService
+     * @param RestAddressInterface $addressService
      * @param DataObjectFactory $dataObjectFactory
      * @param RestConfig $restConfig
      */
     public function __construct(
         Address $interactionAddress,
-        AddressService $addressService,
+        RestAddressInterface $addressService,
         DataObjectFactory $dataObjectFactory,
         RestConfig $restConfig
     ) {
@@ -85,7 +85,7 @@ class Validation
             'text_case' => $this->restConfig->getTextCaseMixed(),
         ];
         $validateRequest = $this->dataObjectFactory->create(['data' => $validateRequestData]);
-        $validateResult = $this->addressService->validate($validateRequest, $storeId);
+        $validateResult = $this->addressService->validate($validateRequest, null, $storeId);
 
         $validAddresses = ($validateResult->hasValidatedAddresses()) ? $validateResult->getValidatedAddresses() : null;
         if (is_null($validAddresses) || !is_array($validAddresses) || empty($validAddresses)) {

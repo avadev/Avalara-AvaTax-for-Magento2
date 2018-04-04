@@ -24,7 +24,8 @@ interface RestTaxInterface extends \ClassyLlama\AvaTax\Api\RestInterface
      * @param null|string $mode
      * @param null|string|int $scopeId
      * @param string $scopeType
+     * @param array $params
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
      */
-    public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = []);
 }

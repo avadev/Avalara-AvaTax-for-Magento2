@@ -26,6 +26,8 @@ use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestTaxInterface
 {
+    const FLAG_FORCE_NEW_RATES = 'force_new_rates';
+
     /**
      * @var TransactionBuilderFactory
      */
@@ -70,11 +72,12 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param null|string $mode
      * @param null|string|int $scopeId
      * @param string $scopeType
+     * @param array $params
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
      */
-    public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
         $client = $this->getClient($mode, $scopeId, $scopeType);
 

@@ -13,7 +13,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Framework\Interaction\Cacheable;
+namespace ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax;
 
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
@@ -26,8 +26,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 
-// TODO: Consider making this and Rest/Tax implement the same interface?
-class TaxService
+class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
 {
     /**
      * 1 day in seconds
@@ -84,19 +83,26 @@ class TaxService
     /**
      * Cache validated response
      *
-     * @param \Magento\Framework\DataObject $getTaxRequest
-     * @param $storeId
-     * @param bool $useCache
-     * @return TaxResult
-     * @throws LocalizedException
+     * @param \Magento\Framework\DataObject $request
+     * @param null|string $mode
+     * @param null|string|int $scopeId
+     * @param string $scopeType
+     * @param array $params
+     * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
      */
-    public function getTax($getTaxRequest, $storeId, $useCache = false)
+    public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
-        $cacheKey = $this->getCacheKey($getTaxRequest) . $storeId;
+        $forceNew = false;
+        if (isset($params[\ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax::FLAG_FORCE_NEW_RATES])) {
+            $forceNew = $params[\ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax::FLAG_FORCE_NEW_RATES];
+        }
+
+        $cacheKey = $this->getCacheKey($request) . $scopeId;
         $getTaxResult = @unserialize($this->cache->load($cacheKey));
 
-        if ($getTaxResult instanceof TaxResult && $useCache) {
+        if ($getTaxResult instanceof TaxResult && !$forceNew) {
             $this->avaTaxLogger->addDebug('Loaded tax result from cache.', [
                 'result' => var_export($getTaxResult->getData(), true),
                 'cache_key' => $cacheKey
@@ -104,18 +110,18 @@ class TaxService
             return $getTaxResult;
         }
 
-        $getTaxResult = $this->taxInteraction->getTax($getTaxRequest, null, $storeId);
+        $getTaxResult = $this->taxInteraction->getTax($request, null, $scopeId);
         if (!($getTaxResult instanceof TaxResult)) {
             throw new LocalizedException(__('Bad response from AvaTax'));
         }
 
         $this->avaTaxLogger->addDebug('Loaded tax result from REST.', [
-            'request' => var_export($getTaxRequest->getData(), true),
+            'request' => var_export($request->getData(), true),
             'result' => var_export($getTaxResult->getData(), true),
         ]);
 
         // Only cache successful requests
-        if ($useCache) {
+        if (!$forceNew) {
             $serializedGetTaxResult = serialize($getTaxResult);
             $this->cache->save(
                 $serializedGetTaxResult,
@@ -125,6 +131,22 @@ class TaxService
             );
         }
         return $getTaxResult;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    {
+        return $this->taxInteraction->getClient($mode, $scopeId, $scopeType);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function ping($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    {
+        return $this->taxInteraction->ping($mode, $scopeId, $scopeType);
     }
 
     /**
@@ -138,4 +160,15 @@ class TaxService
         return $this->metaDataObject->getCacheKeyFromObject($object);
     }
 
+    /**
+     * Pass all undefined method calls through to REST tax instance
+     *
+     * @param $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name , array $arguments)
+    {
+        return call_user_func_array([$this->taxInteraction, $name], $arguments);
+    }
 }

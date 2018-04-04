@@ -13,7 +13,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Framework\Interaction\Cacheable;
+namespace ClassyLlama\AvaTax\Framework\Interaction\Rest\Address;
 
 use ClassyLlama\AvaTax\Api\RestAddressInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
@@ -24,8 +24,7 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 
-// TODO: Consider making this and Rest/Address implement the same interface?
-class AddressService
+class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
 {
     /**
      * @var CacheInterface
@@ -70,38 +69,56 @@ class AddressService
     /**
      * Cache validated response
      *
-     * @param \Magento\Framework\DataObject $validateRequest
-     * @param int $storeId
+     * @param \Magento\Framework\DataObject $request
+     * @param string|null $mode
+     * @param string|int|null $scopeId
+     * @param string $scopeType
      * @return \Magento\Framework\DataObject
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validate($validateRequest, $storeId)
+    public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
-        $addressCacheKey = $this->getCacheKey($validateRequest->getAddress()) . $storeId;
+        $addressCacheKey = $this->getCacheKey($request->getAddress()) . $scopeId;
         $validateResult = @unserialize($this->cache->load($addressCacheKey));
 
         if ($validateResult instanceof DataObject) {
             $this->avaTaxLogger->addDebug('Loaded address validate result from cache.', [
-                'request' => var_export($validateRequest->getData(), true),
+                'request' => var_export($request->getData(), true),
                 'result' => var_export($validateResult->getData(), true),
                 'cache_key' => $addressCacheKey
             ]);
             return $validateResult;
         }
 
-        $validateResult = $this->interactionAddress->validate($validateRequest, null, $storeId);
+        $validateResult = $this->interactionAddress->validate($request, null, $scopeId);
 
         $serializedValidateResult = serialize($validateResult);
         $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
 
         if ($validateResult->hasValidatedAddresses() && is_array($validateResult->getValidatedAddresses())) {
             $this->avaTaxLogger->addDebug('Loaded address validate result from REST.', [
-                'request' => var_export($validateRequest->getData(), true),
+                'request' => var_export($request->getData(), true),
                 'result' => var_export($validateResult->getData(), true)
             ]);
         }
 
         return $validateResult;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    {
+        return $this->interactionAddress->getClient($mode, $scopeId, $scopeType);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function ping($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    {
+        return $this->interactionAddress->ping($mode, $scopeId, $scopeType);
     }
 
     /**
@@ -114,5 +131,17 @@ class AddressService
     protected function getCacheKey($object)
     {
         return $this->metaDataObject->getCacheKeyFromObject($object);
+    }
+
+    /**
+     * Pass all undefined method calls through to REST address instance
+     *
+     * @param $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name , array $arguments)
+    {
+        return call_user_func_array([$this->interactionAddress, $name], $arguments);
     }
 }

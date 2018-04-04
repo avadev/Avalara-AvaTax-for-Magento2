@@ -84,6 +84,10 @@ class DataObjectType extends MetaDataAbstract
      */
     public function validateData($value)
     {
+        if (is_null($value)) {
+            return $value;
+        }
+
         if ('object' != getType($value)) {
             if ($this->getRequired()) {
                 throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(
@@ -123,7 +127,7 @@ class DataObjectType extends MetaDataAbstract
         // If a subtype is defined, call this function for that contents of the array
         if (!is_null($this->getSubtype())) {
             $cacheKey = $this->getSubtype()->getCacheKeyFromObject($value);
-        } else {
+        } elseif (!is_null($value)) {
             foreach ($value->getData() as $item) {
                 if (is_array($item)) {
                     $cacheKey .= $this->getCacheKey($item);

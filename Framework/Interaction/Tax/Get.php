@@ -15,7 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
-use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\TaxService;
+use ClassyLlama\AvaTax\Api\RestTaxInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
@@ -57,7 +57,7 @@ class Get
     protected $avaTaxLogger;
 
     /**
-     * @var TaxService
+     * @var RestTaxInterface
      */
     protected $taxService = null;
 
@@ -76,7 +76,7 @@ class Get
      * @param Config $config
      * @param Get\ResponseFactory $getTaxResponseFactory
      * @param AvaTaxLogger $avaTaxLogger
-     * @param TaxService $taxService
+     * @param RestTaxInterface $taxService
      */
     public function __construct(
         TaxCalculation $taxCalculation,
@@ -85,7 +85,7 @@ class Get
         Config $config,
         Get\ResponseFactory $getTaxResponseFactory,
         AvaTaxLogger $avaTaxLogger,
-        TaxService $taxService
+        RestTaxInterface $taxService
     ) {
         $this->taxCalculation = $taxCalculation;
         $this->interactionAddress = $interactionAddress;
@@ -136,7 +136,13 @@ class Get
 
         try {
             /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $getTaxResult */
-            $getTaxResult = $taxService->getTax($getTaxRequest, $storeId);
+            $getTaxResult = $taxService->getTax(
+                $getTaxRequest,
+                null,
+                $storeId,
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                [\ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax::FLAG_FORCE_NEW_RATES => true]
+            );
 
             // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
             $avataxTaxAmount = abs($getTaxResult->getTotalTax());
@@ -192,7 +198,7 @@ class Get
                 throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
             }
 
-            $getTaxResult = $taxService->getTax($getTaxRequest, $storeId, true);
+            $getTaxResult = $taxService->getTax($getTaxRequest, null, $storeId);
 
             $store = $quote->getStore();
             $baseTaxDetails =
