@@ -18,7 +18,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\MetaData;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 
-class ObjectType extends MetaDataAbstract
+class DataObjectType extends MetaDataAbstract
 {
     /**
      * @param string $name
@@ -26,7 +26,7 @@ class ObjectType extends MetaDataAbstract
      */
     public function __construct($name, array $data = [])
     {
-        parent::__construct('object', $name, $data);
+        parent::__construct('dataObject', $name, $data);
     }
 
     /**
@@ -84,7 +84,7 @@ class ObjectType extends MetaDataAbstract
      */
     public function validateData($value)
     {
-        if ($this->getType() != getType($value)) {
+        if ('object' != getType($value)) {
             if ($this->getRequired()) {
                 throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(
                     __('The value you passed in is not an object.')
@@ -110,7 +110,7 @@ class ObjectType extends MetaDataAbstract
     /**
      * Returns the cacheable portion of the string version of this object
      *
-     * @param $value
+     * @param \Magento\Framework\DataObject $value
      * @return mixed
      * @internal param $data
      */
@@ -124,7 +124,7 @@ class ObjectType extends MetaDataAbstract
         if (!is_null($this->getSubtype())) {
             $cacheKey = $this->getSubtype()->getCacheKeyFromObject($value);
         } else {
-            foreach ($value as $item) {
+            foreach ($value->getData() as $item) {
                 if (is_array($item)) {
                     $cacheKey .= $this->getCacheKey($item);
                 } else {

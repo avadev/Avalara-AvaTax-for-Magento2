@@ -111,7 +111,7 @@ class Line
         'ref_2' => ['type' => 'string', 'length' => 250],
         'addresses' => [
             'type' => 'array',
-            'subtype' => ['*' => ['type' => 'object', 'class' => '\Magento\Framework\DataObject']],
+            'subtype' => ['*' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject']],
         ],
     ];
 

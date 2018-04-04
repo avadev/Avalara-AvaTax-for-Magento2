@@ -60,9 +60,9 @@ class MetaDataObject
     protected $integerTypeFactory = null;
 
     /**
-     * @var ObjectTypeFactory
+     * @var DataObjectTypeFactory
      */
-    protected $objectTypeFactory = null;
+    protected $dataObjectTypeFactory = null;
 
     /**
      * @var StringTypeFactory
@@ -89,7 +89,7 @@ class MetaDataObject
      * @param BooleanTypeFactory $booleanTypeFactory
      * @param DoubleTypeFactory $doubleTypeFactory
      * @param IntegerTypeFactory $integerTypeFactory
-     * @param ObjectTypeFactory $objectTypeFactory
+     * @param DataObjectTypeFactory $dataObjectTypeFactory
      * @param StringTypeFactory $stringTypeFactory
      * @param array $metaDataProperties
      */
@@ -99,7 +99,7 @@ class MetaDataObject
         BooleanTypeFactory $booleanTypeFactory,
         DoubleTypeFactory $doubleTypeFactory,
         IntegerTypeFactory $integerTypeFactory,
-        ObjectTypeFactory $objectTypeFactory,
+        DataObjectTypeFactory $dataObjectTypeFactory,
         StringTypeFactory $stringTypeFactory,
         array $metaDataProperties
     ) {
@@ -108,7 +108,7 @@ class MetaDataObject
         $this->booleanTypeFactory = $booleanTypeFactory;
         $this->doubleTypeFactory = $doubleTypeFactory;
         $this->integerTypeFactory = $integerTypeFactory;
-        $this->objectTypeFactory = $objectTypeFactory;
+        $this->dataObjectTypeFactory = $dataObjectTypeFactory;
         $this->stringTypeFactory = $stringTypeFactory;
         foreach ($metaDataProperties as $name => $metaDataRule) {
             if (in_array($metaDataRule[MetaDataAbstract::ATTR_TYPE], MetaDataAbstract::$types)) {

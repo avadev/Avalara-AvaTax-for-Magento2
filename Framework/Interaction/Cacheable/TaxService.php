@@ -93,10 +93,6 @@ class TaxService
      */
     public function getTax($getTaxRequest, $storeId, $useCache = false)
     {
-        // TODO: Remove this
-        $useCache = false;
-
-
         $cacheKey = $this->getCacheKey($getTaxRequest) . $storeId;
         $getTaxResult = @unserialize($this->cache->load($cacheKey));
 
