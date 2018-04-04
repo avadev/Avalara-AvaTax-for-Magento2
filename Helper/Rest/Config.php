@@ -17,7 +17,7 @@ namespace ClassyLlama\AvaTax\Helper\Rest;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use ClassyLlama\AvaTax\Framework\Interaction\Rest as RestInteraction;
+use ClassyLlama\AvaTax\Api\RestInterface;
 
 /**
  * Helper for retrieving AvaTax library configuration
@@ -25,9 +25,13 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest as RestInteraction;
  */
 class Config extends AbstractHelper
 {
+    /**
+     * @param Context $context
+     * @param RestInterface $restInteraction
+     */
     public function __construct(
         Context $context,
-        RestInteraction $restInteraction
+        RestInterface $restInteraction
     ) {
         parent::__construct($context);
 

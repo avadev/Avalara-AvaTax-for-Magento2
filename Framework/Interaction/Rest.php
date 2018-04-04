@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
 use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 
-class Rest
+class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
 {
     const API_MODE_PROD = 'production';
 

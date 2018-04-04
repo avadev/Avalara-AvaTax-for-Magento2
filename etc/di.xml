@@ -15,10 +15,14 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" type="ClassyLlama\AvaTax\Model\ValidAddressManagement" />
+    <preference for="ClassyLlama\AvaTax\Api\RestInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest" />
+    <preference for="ClassyLlama\AvaTax\Api\RestTaxInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax" />
+    <preference for="ClassyLlama\AvaTax\Api\RestAddressInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Address" />
+
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
     </type>
-    <preference for="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" type="ClassyLlama\AvaTax\Model\ValidAddressManagement" />
     <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
         <plugin name="avatax_tax_model_sales_total_quote_subtotal" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Subtotal" />
     </type>
@@ -136,6 +140,16 @@
     </type>
 
     <type name="ClassyLlama\AvaTax\Framework\Interaction\Rest">
+        <arguments>
+            <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax">
+        <arguments>
+            <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Rest\Address">
         <arguments>
             <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
         </arguments>

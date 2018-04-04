@@ -24,6 +24,7 @@ use Avalara\TransactionBuilderFactory;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
+    implements \ClassyLlama\AvaTax\Api\RestTaxInterface
 {
     /**
      * @var TransactionBuilderFactory
@@ -63,6 +64,8 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     }
 
     /**
+     * REST call to post tax transaction
+     *
      * @param \Magento\Framework\DataObject $request
      * @param null|string $mode
      * @param null|string|int $scopeId

@@ -18,7 +18,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Cacheable;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
-use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax as RestTaxInteraction;
+use ClassyLlama\AvaTax\Api\RestTaxInterface;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
@@ -62,14 +62,14 @@ class TaxService
     /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
-     * @param RestTaxInteraction $taxInteraction
+     * @param RestTaxInterface $taxInteraction
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param null $type
      */
     public function __construct(
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
-        RestTaxInteraction $taxInteraction,
+        RestTaxInterface $taxInteraction,
         MetaDataObjectFactory $metaDataObjectFactory,
         $type = null
     ) {

@@ -15,7 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Cacheable;
 
-use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address as RestAddressInteraction;
+use ClassyLlama\AvaTax\Api\RestAddressInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
@@ -38,7 +38,7 @@ class AddressService
     protected $avaTaxLogger = null;
 
     /**
-     * @var RestAddressInteraction
+     * @var RestAddressInterface
      */
     protected $interactionAddress = null;
 
@@ -47,14 +47,14 @@ class AddressService
     /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
-     * @param RestAddressInteraction $interactionAddress
+     * @param RestAddressInterface $interactionAddress
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param null $type
      */
     public function __construct(
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
-        RestAddressInteraction $interactionAddress,
+        RestAddressInterface $interactionAddress,
         MetaDataObjectFactory $metaDataObjectFactory,
         $type = null
     ) {

@@ -17,7 +17,7 @@ namespace ClassyLlama\AvaTax\Observer;
 
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\Event\ObserverInterface;
-use ClassyLlama\AvaTax\Framework\Interaction\Rest as RestInteraction;
+use ClassyLlama\AvaTax\Api\RestInterface;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
@@ -41,7 +41,7 @@ class ConfigSaveObserver implements ObserverInterface
     protected $moduleChecks;
 
     /**
-     * @var RestInteraction
+     * @var RestInterface
      */
     protected $interactionRest;
 
@@ -51,13 +51,13 @@ class ConfigSaveObserver implements ObserverInterface
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param Config $config
      * @param \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks
-     * @param RestInteraction $interactionRest
+     * @param RestInterface $interactionRest
      */
     public function __construct(
         \Magento\Framework\Message\ManagerInterface $messageManager,
         Config $config,
         \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks,
-        RestInteraction $interactionRest
+        RestInterface $interactionRest
     ) {
         $this->messageManager = $messageManager;
         $this->config = $config;

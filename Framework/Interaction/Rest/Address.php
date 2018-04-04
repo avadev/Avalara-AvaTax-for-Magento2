@@ -22,6 +22,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 
 class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
+    implements \ClassyLlama\AvaTax\Api\RestAddressInterface
 {
     /**
      * @var RestConfig
