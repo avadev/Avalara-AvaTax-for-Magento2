@@ -185,7 +185,6 @@ class Line
             'description' => $item->getName(),
             'quantity' => $item->getQty(),
             'amount' => $amount,
-            'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'tax_included' => false,
             'ref_1' => $itemData['productRef1'],
             'ref_2' => $itemData['productRef2']
@@ -237,7 +236,6 @@ class Line
             'description' => $item->getName(),
             'quantity' => $item->getQty(),
             'amount' => $amount,
-            'discounted' => (bool)($item->getBaseDiscountAmount() > 0),
             'tax_included' => false,
             'ref_1' => $itemData['productRef1'],
             'ref_2' => $itemData['productRef2']
@@ -284,7 +282,6 @@ class Line
             'description' => $description,
             'quantity' => $item->getQuantity(),
             'amount' => $amount,
-            'discounted' => (bool)($item->getDiscountAmount() > 0),
             'tax_included' => false,
             'ref_1' => $ref1,
             'ref_2' => $ref2,
@@ -348,7 +345,6 @@ class Line
     public function getShippingLine($data, $credit)
     {
         $shippingAmount = $data->getBaseShippingAmount();
-        $discounted = false;
 
         // If shipping rate doesn't have cost associated with it, do nothing
         if ($shippingAmount <= 0) {
@@ -366,7 +362,6 @@ class Line
             && $shippingAmount - $shippingDiscountAmount >= 0
         ) {
             $shippingAmount = $shippingAmount - $shippingDiscountAmount;
-            $discounted = true;
         }
 
 
@@ -383,7 +378,6 @@ class Line
             'description' => self::SHIPPING_LINE_DESCRIPTION,
             'quantity' => 1,
             'amount' => $shippingAmount,
-            'discounted' => $discounted,
         ];
         $line = $this->dataObjectFactory->create(['data' => $data]);
 
@@ -429,7 +423,6 @@ class Line
             'description' => self::GIFT_WRAP_ORDER_LINE_DESCRIPTION,
             'quantity' => 1,
             'amount' => $giftWrapOrderAmount,
-            'discounted' => false,
         ];
         $line = $this->dataObjectFactory->create(['data' => $data]);
 
@@ -479,7 +472,6 @@ class Line
             'description' => self::GIFT_WRAP_ITEM_LINE_DESCRIPTION,
             'quantity' => 1,
             'amount' => $giftWrapItemAmount,
-            'discounted' => false,
         ];
         $line = $this->dataObjectFactory->create(['data' => $data]);
 
@@ -524,7 +516,6 @@ class Line
             'description' => self::GIFT_WRAP_CARD_LINE_DESCRIPTION,
             'quantity' => 1,
             'amount' => $giftWrapCardAmount,
-            'discounted' => false,
         ];
         $line = $this->dataObjectFactory->create(['data' => $data]);
 
@@ -567,7 +558,6 @@ class Line
             'description' => self::ADJUSTMENT_POSITIVE_LINE_DESCRIPTION,
             'quantity' => 1,
             'amount' => $amount,
-            'discounted' => false,
             // Since taxes will already be included in this amount, set this flag to true
             'tax_included' => true
         ];
@@ -609,7 +599,6 @@ class Line
             'description' => self::ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION,
             'quantity' => 1,
             'amount' => $amount,
-            'discounted' => false,
             // Since taxes will already be included in this amount, set this flag to true
             'tax_included' => true
         ];

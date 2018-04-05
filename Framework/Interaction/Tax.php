@@ -146,7 +146,7 @@ class Tax
         'currency_code' => ['type' => 'string', 'length' => 3],
         'customer_code' => ['type' => 'string', 'length' => 50, 'required' => true],
         'entity_use_code' => ['type' => 'string', 'length' => 25],
-        'discount' => ['type' => 'double'], // TODO: This isn't populated anywhere
+        'discount' => ['type' => 'double'],
         'code' => ['type' => 'string', 'length' => 50],
         'date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'], // REST TransactionBuilder always uses current date
         'type' => [
@@ -480,7 +480,6 @@ class Tax
                 $address,
                 $store
             ),
-            'discount' => 0, // TODO: Need to account for this?
         ];
 
         /** @var \Magento\Framework\DataObject $request */
@@ -719,7 +718,6 @@ class Tax
                 $avaTaxAddress,
                 $store
             ),
-            'discount' => 0, // TODO: Need to account for this?
         ];
 
         $request = $this->dataObjectFactory->create(['data' => $data]);
