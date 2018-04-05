@@ -398,7 +398,6 @@ class Config extends AbstractHelper
      *
      * @param int|\Magento\Store\Api\Data\StoreInterface $store
      * @return array
-     * @throws \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException
      */
     public function getOriginAddress($store)
     {
@@ -460,21 +459,6 @@ class Config extends AbstractHelper
             ScopeInterface::SCOPE_STORE,
             $store
         );
-    }
-
-    /**
-     * Generate AvaTax Client Name from a combination of Magento version number and AvaTax module version number
-     * Format: Magento 2.x Community - AvaTax 1.0.0
-     * Limited to 50 characters to comply with API requirements
-     *
-     * @return string
-     */
-    protected function getClientName()
-    {
-        return substr($this->magentoProductMetadata->getName(), 0, 7) . ' ' . // "Magento" - 8 chars
-            substr($this->magentoProductMetadata->getVersion(), 0, 14) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
-            substr($this->magentoProductMetadata->getEdition(), 0, 10) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
-            'AvaTax ' . substr(AvaTaxAppInterface::APP_VERSION, 0, 7); // "AvaTax " & 1.x.x - 14 chars
     }
 
     /**

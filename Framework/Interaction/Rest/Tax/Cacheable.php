@@ -23,7 +23,6 @@ use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Phrase;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
@@ -106,6 +105,7 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
         }
 
         $getTaxResult = $this->taxInteraction->getTax($request, null, $scopeId);
+
         if (!($getTaxResult instanceof TaxResult)) {
             throw new LocalizedException(__('Bad response from AvaTax'));
         }

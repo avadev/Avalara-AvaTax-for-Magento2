@@ -18,7 +18,6 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
-use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 
 class Line
@@ -26,7 +25,7 @@ class Line
     /**
      * @var Config
      */
-    protected $config = null;
+    protected $config;
 
     /**
      * @var \ClassyLlama\AvaTax\Helper\TaxClass
@@ -44,24 +43,14 @@ class Line
     protected $dataObjectFactory;
 
     /**
-     * @var ResourceProduct
+     * @var MetaData\MetaDataObject|null
      */
-    protected $resourceProduct = null;
-
-    /**
-     * @var array
-     */
-    protected $productSkus = [];
+    protected $metaDataObject = null;
 
     /**
      * Description for shipping line
      */
     const SHIPPING_LINE_DESCRIPTION = 'Shipping costs';
-
-    /**
-     * An arbitrary ID used to track tax for shipping
-     */
-    const SHIPPING_LINE_NO = 'shipping';
 
     /**
      * Description for Gift Wrap order line
@@ -130,22 +119,19 @@ class Line
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param DataObjectFactory $dataObjectFactory
-     * @param ResourceProduct $resourceProduct
      */
     public function __construct(
         Config $config,
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
         \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
         MetaDataObjectFactory $metaDataObjectFactory,
-        DataObjectFactory $dataObjectFactory,
-        ResourceProduct $resourceProduct
+        DataObjectFactory $dataObjectFactory
     ) {
         $this->config = $config;
         $this->taxClassHelper = $taxClassHelper;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->dataObjectFactory = $dataObjectFactory;
-        $this->resourceProduct = $resourceProduct;
     }
 
     /**
@@ -454,9 +440,7 @@ class Line
         if ($giftWrapItemsPrice <= 0) {
             return false;
         }
-//        $qty = $data->getTotalQty();
 
-//        $giftWrapItemAmount = $giftWrapItemsPrice * $qty;
         $giftWrapItemAmount = $giftWrapItemsPrice;
 
         if ($credit) {

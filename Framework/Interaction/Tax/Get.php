@@ -17,11 +17,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
 use ClassyLlama\AvaTax\Api\RestTaxInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
-use ClassyLlama\AvaTax\Framework\Interaction\Address;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
-use ClassyLlama\AvaTax\Helper\Config;
-use Magento\Framework\DataObject;
-use Magento\Quote\Model\Quote\Item as QuoteItem;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 class Get
@@ -29,22 +25,12 @@ class Get
     /**
      * @var TaxCalculation
      */
-    protected $taxCalculation = null;
-
-    /**
-     * @var Address
-     */
-    protected $interactionAddress = null;
+    protected $taxCalculation;
 
     /**
      * @var Tax
      */
-    protected $interactionTax = null;
-
-    /**
-     * @var Config
-     */
-    protected $config = null;
+    protected $interactionTax;
 
     /**
      * @var Get\ResponseFactory
@@ -71,26 +57,20 @@ class Get
 
     /**
      * @param TaxCalculation $taxCalculation
-     * @param Address $interactionAddress
      * @param Tax $interactionTax
-     * @param Config $config
      * @param Get\ResponseFactory $getTaxResponseFactory
      * @param AvaTaxLogger $avaTaxLogger
      * @param RestTaxInterface $taxService
      */
     public function __construct(
         TaxCalculation $taxCalculation,
-        Address $interactionAddress,
         Tax $interactionTax,
-        Config $config,
         Get\ResponseFactory $getTaxResponseFactory,
         AvaTaxLogger $avaTaxLogger,
         RestTaxInterface $taxService
     ) {
         $this->taxCalculation = $taxCalculation;
-        $this->interactionAddress = $interactionAddress;
         $this->interactionTax = $interactionTax;
-        $this->config = $config;
         $this->getTaxResponseFactory = $getTaxResponseFactory;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->taxService = $taxService;
@@ -141,7 +121,7 @@ class Get
                 null,
                 $storeId,
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                [\ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax::FLAG_FORCE_NEW_RATES => true]
+                [\ClassyLlama\AvaTax\Api\RestTaxInterface::FLAG_FORCE_NEW_RATES => true]
             );
 
             // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value

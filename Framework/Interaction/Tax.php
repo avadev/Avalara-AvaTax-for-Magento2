@@ -19,14 +19,11 @@ use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Phrase;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Store\Api\Data\StoreInterface;
-use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
@@ -120,13 +117,6 @@ class Tax
     protected $restConfig;
 
     /**
-     * List of types that we want to be used with setType
-     *
-     * @var array
-     */
-    protected $simpleTypes = ['boolean', 'integer', 'string', 'double'];
-
-    /**
      * A list of valid fields for the data array and meta data about their types to use in validation
      * based on the API documentation.  If any fields are added or removed, the same should be done in getTaxRequest.
      *
@@ -197,11 +187,6 @@ class Tax
     const AVATAX_CREDITMEMO_OVERRIDE_REASON = 'Adjustment for return';
 
     /**
-     * Reason for AvaTax override for invoice to specify tax date
-     */
-    const AVATAX_INVOICE_OVERRIDE_REASON = 'TaxDate reflects Order Date (not Magento invoice date)';
-
-    /**
      * Magento and AvaTax calculate tax rate differently (8.25 and 0.0825, respectively), so this multiplier is used to
      * convert AvaTax rate to Magento's rate
      */
@@ -222,7 +207,6 @@ class Tax
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param DataObjectFactory $dataObjectFactory
      * @param CustomerRepositoryInterface $customerRepository
-     * @param GroupRepositoryInterface $groupRepository
      * @param InvoiceRepositoryInterface $invoiceRepository
      * @param OrderRepositoryInterface $orderRepository
      * @param StoreRepositoryInterface $storeRepository
@@ -230,7 +214,6 @@ class Tax
      * @param TimezoneInterface $localeDate
      * @param Line $interactionLine
      * @param TaxCalculation $taxCalculation
-     * @param QuoteDetailsItemExtensionFactory $extensionFactory
      * @param RestConfig $restConfig
      */
     public function __construct(
@@ -241,7 +224,6 @@ class Tax
         MetaDataObjectFactory $metaDataObjectFactory,
         DataObjectFactory $dataObjectFactory,
         CustomerRepositoryInterface $customerRepository,
-        GroupRepositoryInterface $groupRepository,
         InvoiceRepositoryInterface $invoiceRepository,
         OrderRepositoryInterface $orderRepository,
         StoreRepositoryInterface $storeRepository,
@@ -249,7 +231,6 @@ class Tax
         TimezoneInterface $localeDate,
         Line $interactionLine,
         TaxCalculation $taxCalculation,
-        QuoteDetailsItemExtensionFactory $extensionFactory,
         RestConfig $restConfig
     ) {
         $this->address = $address;
@@ -260,7 +241,6 @@ class Tax
         $this->overrideMetaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validTaxOverrideFields]);
         $this->dataObjectFactory = $dataObjectFactory;
         $this->customerRepository = $customerRepository;
-        $this->groupRepository = $groupRepository;
         $this->invoiceRepository = $invoiceRepository;
         $this->orderRepository = $orderRepository;
         $this->storeRepository = $storeRepository;
@@ -268,7 +248,6 @@ class Tax
         $this->localeDate = $localeDate;
         $this->interactionLine = $interactionLine;
         $this->taxCalculation = $taxCalculation;
-        $this->extensionFactory = $extensionFactory;
         $this->restConfig = $restConfig;
     }
 

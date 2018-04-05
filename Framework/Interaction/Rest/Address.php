@@ -15,7 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;

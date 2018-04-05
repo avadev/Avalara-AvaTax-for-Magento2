@@ -15,7 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use AvaTax\GetTaxResult;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
 use Magento\Tax\Model\Calculation;
@@ -113,10 +112,10 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * Calculates tax for each of the items in a quote/order/invoice/credit memo
      *
      * This code is heavily influenced by this method:
-     * @see Magento\Tax\Model\TaxCalculation::calculateTax()
+     * @see \Magento\Tax\Model\TaxCalculation::calculateTax()
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
-     * @param TaxResult $getTaxResult
+     * @param \Magento\Framework\DataObject $getTaxResult
      * @param bool $useBaseCurrency
      * @param \Magento\Framework\App\ScopeInterface $scope
      * @return \Magento\Tax\Api\Data\TaxDetailsInterface

@@ -20,9 +20,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
-use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Phrase;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result as AddressResult;
@@ -67,7 +65,6 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
         $this->metaDataObject = $metaDataObjectFactory->create(
             ['metaDataProperties' => \ClassyLlama\AvaTax\Framework\Interaction\Address::$validFields]
         );
-        $this->type = $type;
     }
 
     /**

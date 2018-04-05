@@ -48,11 +48,6 @@ class Validation
     protected $restConfig;
 
     /**
-     * Error message to use when response does not contain error messages
-     */
-    const GENERIC_VALIDATION_MESSAGE = 'An unknown address validation error occurred';
-
-    /**
      * @param Address $interactionAddress
      * @param RestAddressInterface $addressService
      * @param DataObjectFactory $dataObjectFactory

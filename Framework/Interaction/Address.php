@@ -21,27 +21,18 @@ use Magento\Customer\Api\Data\AddressInterface as CustomerAddressInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressInterfaceFactory;
 use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
 use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFactory;
-use Magento\Quote\Model\ResourceModel\Quote;
 use Magento\Sales\Api\Data\OrderAddressInterface;
-use Magento\Sales\Api\Data\OrderAddressInterfaceFactory;
 use Magento\Framework\DataObjectFactory;
-use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Directory\Model\Region;
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionCollectionFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Phrase;
 use Magento\Framework\Api\CustomAttributesDataInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 
 class Address
 {
-    /**
-     * @var Config
-     */
-    protected $config = null;
-
     /**
      * @var MetaDataObject
      */
@@ -99,34 +90,28 @@ class Address
 
     /**
      * Address constructor.
-     * @param Config $config
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
      * @param RegionCollectionFactory $regionCollectionFactory
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
      * @param QuoteAddressInterfaceFactory $quoteAddressFactory
-     * @param OrderAddressInterfaceFactory $orderAddressFactory
      * @param DataObjectHelper $dataObjectHelper
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      */
     public function __construct(
-        Config $config,
         MetaDataObjectFactory $metaDataObjectFactory,
         DataObjectFactory $dataObjectFactory,
         RegionCollectionFactory $regionCollectionFactory,
         CustomerAddressInterfaceFactory $customerAddressFactory,
         QuoteAddressInterfaceFactory $quoteAddressFactory,
-        OrderAddressInterfaceFactory $orderAddressFactory,
         DataObjectHelper $dataObjectHelper,
         \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
     ) {
-        $this->config = $config;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->dataObjectFactory = $dataObjectFactory;
         $this->regionCollection = $regionCollectionFactory->create();
         $this->customerAddressFactory = $customerAddressFactory;
         $this->quoteAddressFactory = $quoteAddressFactory;
-        $this->orderAddressFactory = $orderAddressFactory;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->avaTaxLogger = $avaTaxLogger;
     }
