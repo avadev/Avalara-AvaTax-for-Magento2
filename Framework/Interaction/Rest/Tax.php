@@ -28,8 +28,6 @@ use ClassyLlama\AvaTax\Exception\TaxCalculationException;
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestTaxInterface
 {
-    const FLAG_FORCE_NEW_RATES = 'force_new_rates';
-
     /**
      * @var TransactionBuilderFactory
      */

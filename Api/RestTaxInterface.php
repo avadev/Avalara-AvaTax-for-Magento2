@@ -19,6 +19,8 @@ use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
 interface RestTaxInterface extends \ClassyLlama\AvaTax\Api\RestInterface
 {
+    const FLAG_FORCE_NEW_RATES = 'force_new_rates';
+
     /**
      * REST call to post tax transaction
      *

@@ -90,8 +90,8 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
     public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
         $forceNew = false;
-        if (isset($params[\ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax::FLAG_FORCE_NEW_RATES])) {
-            $forceNew = $params[\ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax::FLAG_FORCE_NEW_RATES];
+        if (isset($params[\ClassyLlama\AvaTax\Api\RestTaxInterface::FLAG_FORCE_NEW_RATES])) {
+            $forceNew = $params[\ClassyLlama\AvaTax\Api\RestTaxInterface::FLAG_FORCE_NEW_RATES];
         }
 
         $cacheKey = $this->getCacheKey($request) . $scopeId;
