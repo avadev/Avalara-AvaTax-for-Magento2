@@ -37,37 +37,37 @@ class MetaDataObject
     /**
      * @var MetaDataObjectFactory
      */
-    protected $metaDataObjectFactory = null;
+    protected $metaDataObjectFactory;
 
     /**
      * @var ArrayTypeFactory
      */
-    protected $arrayTypeFactory = null;
+    protected $arrayTypeFactory;
 
     /**
      * @var BooleanTypeFactory
      */
-    protected $booleanTypeFactory = null;
+    protected $booleanTypeFactory;
 
     /**
      * @var DoubleTypeFactory
      */
-    protected $doubleTypeFactory = null;
+    protected $doubleTypeFactory;
 
     /**
      * @var IntegerTypeFactory
      */
-    protected $integerTypeFactory = null;
+    protected $integerTypeFactory;
 
     /**
      * @var DataObjectTypeFactory
      */
-    protected $dataObjectTypeFactory = null;
+    protected $dataObjectTypeFactory;
 
     /**
      * @var StringTypeFactory
      */
-    protected $stringTypeFactory = null;
+    protected $stringTypeFactory;
 
     /**
      * Stores all of the validation fields

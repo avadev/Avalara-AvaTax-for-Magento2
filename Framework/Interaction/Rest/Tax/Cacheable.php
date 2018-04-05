@@ -37,17 +37,17 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
     /**
      * @var CacheInterface
      */
-    protected $cache = null;
+    protected $cache;
 
     /**
      * @var AvaTaxLogger
      */
-    protected $avaTaxLogger = null;
+    protected $avaTaxLogger;
 
     /**
      * @var Tax
      */
-    protected $taxInteraction = null;
+    protected $taxInteraction;
 
     /**
      * @var MetaDataObject
@@ -55,23 +55,16 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
     protected $metaDataObject = null;
 
     /**
-     * @var null
-     */
-    protected $type = null;
-
-    /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      * @param RestTaxInterface $taxInteraction
      * @param MetaDataObjectFactory $metaDataObjectFactory
-     * @param null $type
      */
     public function __construct(
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
         RestTaxInterface $taxInteraction,
-        MetaDataObjectFactory $metaDataObjectFactory,
-        $type = null
+        MetaDataObjectFactory $metaDataObjectFactory
     ) {
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;

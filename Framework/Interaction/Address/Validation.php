@@ -30,12 +30,12 @@ class Validation
     /**
      * @var Address
      */
-    protected $interactionAddress = null;
+    protected $interactionAddress;
 
     /**
      * @var RestAddressInterface
      */
-    protected $addressService = null;
+    protected $addressService;
 
     /**
      * @var DataObjectFactory

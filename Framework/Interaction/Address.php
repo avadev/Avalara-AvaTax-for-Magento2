@@ -60,22 +60,17 @@ class Address
     /**
      * @var CustomerAddressInterfaceFactory
      */
-    protected $customerAddressFactory = null;
+    protected $customerAddressFactory;
 
     /**
      * @var QuoteAddressInterfaceFactory
      */
-    protected $quoteAddressFactory = null;
-
-    /**
-     * @var OrderAddressInterfaceFactory
-     */
-    protected $orderAddressFactory = null;
+    protected $quoteAddressFactory;
 
     /**
      * @var null|DataObjectHelper
      */
-    protected $dataObjectHelper = null;
+    protected $dataObjectHelper;
 
     /**
      * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger

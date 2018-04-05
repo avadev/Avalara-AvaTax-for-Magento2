@@ -42,12 +42,12 @@ class Tax
     /**
      * @var Address
      */
-    protected $address = null;
+    protected $address;
 
     /**
      * @var Config
      */
-    protected $config = null;
+    protected $config;
 
     /**
      * @var \ClassyLlama\AvaTax\Helper\TaxClass
@@ -77,27 +77,22 @@ class Tax
     /**
      * @var CustomerRepositoryInterface
      */
-    protected $customerRepository = null;
-
-    /**
-     * @var GroupRepositoryInterface
-     */
-    protected $groupRepository = null;
+    protected $customerRepository;
 
     /**
      * @var InvoiceRepositoryInterface
      */
-    protected $invoiceRepository = null;
+    protected $invoiceRepository;
 
     /**
      * @var OrderRepositoryInterface
      */
-    protected $orderRepository = null;
+    protected $orderRepository;
 
     /**
      * @var StoreRepositoryInterface
      */
-    protected $storeRepository = null;
+    protected $storeRepository;
 
     /**
      * @var PriceCurrencyInterface
@@ -112,12 +107,12 @@ class Tax
     /**
      * @var Line
      */
-    protected $interactionLine = null;
+    protected $interactionLine;
 
     /**
      * @var TaxCalculation
      */
-    protected $taxCalculation = null;
+    protected $taxCalculation;
 
     /**
      * @var RestConfig

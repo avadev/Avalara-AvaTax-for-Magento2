@@ -59,7 +59,7 @@ class Get
     /**
      * @var RestTaxInterface
      */
-    protected $taxService = null;
+    protected $taxService;
 
     /**#@+
      * Keys for non-base and base tax details
