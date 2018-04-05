@@ -81,6 +81,7 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws AvataxConnectionException
      * @throws AddressValidateException
+     * @throws \Exception
      */
     public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
@@ -94,9 +95,24 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
                 'cache_key' => $addressCacheKey
             ]);
             return $validateResult;
+        } elseif (is_array($validateResult) && isset($validateResult['message']) && isset($validateResult['class'])) {
+            $exceptionClass = $validateResult['class'];
+            throw new $exceptionClass(__($validateResult['message']));
         }
 
-        $validateResult = $this->interactionAddress->validate($request, null, $scopeId);
+        try {
+            $validateResult = $this->interactionAddress->validate($request, null, $scopeId);
+        } catch (AddressValidateException $e) {
+            $exceptionData = [
+                'message' => $e->getMessage(),
+                'class' => get_class($e),
+            ];
+            $serializedException = serialize($exceptionData);
+            $this->cache->save($serializedException, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
+            throw $e;
+        } catch (\Exception $e) {
+            throw $e;
+        }
 
         $serializedValidateResult = serialize($validateResult);
         $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
