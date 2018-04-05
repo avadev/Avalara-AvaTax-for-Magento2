@@ -116,7 +116,7 @@ class Line
     ];
 
     /**
-     * Index that will be incremented for \AvaTax\Line numbers
+     * Index that will be incremented for AvaTax line numbers
      *
      * @var int
      */
@@ -618,7 +618,7 @@ class Line
     }
 
     /**
-     * Get line number for \AvaTax\Line "No" field
+     * Get line number for AvaTax "No" field
      *
      * @return int
      */
