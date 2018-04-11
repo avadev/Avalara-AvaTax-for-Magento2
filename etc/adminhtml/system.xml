@@ -190,7 +190,7 @@
                 <field id="customer_code_format" translate="label comment" type="select" sortOrder="3010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Customer Code Format</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\CustomerCode</source_model>
-                    <comment><![CDATA[Select a format for customers to be identified in AvaTax. Available options will include any <em>custom</em> customer attributes that have been created in Magento. If the customer doesn't have a value defined for the selected attribute when their transaction is processed and sent to Avalara, their customer (or guest) ID will be used instead. Once the integration is live, this setting should not be changed.]]></comment>
+                    <comment><![CDATA[Select a format for customers to be identified in AvaTax. Available options will include any customer attributes that exist in Magento. If the customer doesn't have a value defined for the selected attribute when their transaction is processed and sent to Avalara, their customer (or guest) ID will be used instead. Once the integration is live, this setting should not be changed.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
