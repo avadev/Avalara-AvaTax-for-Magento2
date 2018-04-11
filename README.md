@@ -1,4 +1,4 @@
-# Extension User Guide
+# Extension User Guide ()
 
 Find installation and configuration instructions here: [www.classyllama.com/documentation/extensions/avatax-magento-2-module](http://www.classyllama.com/documentation/extensions/avatax-magento-2-module).
 
