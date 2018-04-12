@@ -1,7 +1,7 @@
 {
     "name": "classyllama/module-avatax",
     "type": "magento2-module",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "license": "OSL-3.0",
     "require": {
         "magento/framework": "^100.1.0|101.0.*",
