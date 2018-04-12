@@ -938,7 +938,12 @@ class Tax
             // A method exists with this getter name, call it
             return $customer->{$getCustomerCode}();
         }
-        // This was not a system-defined customer attribute, attempt to retrieve it as a custom attribute
-        return $customer->getCustomAttribute($customerCode)->getValue();
+        $attribute = $customer->getCustomAttribute($customerCode);
+        if (is_null($attribute)) {
+            // Retrieving the custom attribute failed, or no value was set, return null
+            return null;
+        }
+        // This was not a system-defined customer attribute, retrieve it as a custom attribute
+        return $attribute->getValue();
     }
 }
