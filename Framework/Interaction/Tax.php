@@ -357,20 +357,20 @@ class Tax
                 return $data->getCustomerId() ?: strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $data->getId();
                 break;
             default:
-                // Use custom customer attribute
+                // Use other customer attribute
                 if (!$data->getCustomerId()) {
                     // This is a guest so no attribute value exists and neither does a customer ID
                     return strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $data->getId();
                 }
                 // Retrieve customer by ID
                 $customer = $this->getCustomerById($data->getCustomerId());
-                // Retrieve attribute using provided attribute code
-                $attribute = $customer->getCustomAttribute($customerCode);
-                if (!is_null($attribute)) {
-                    // Customer has value defined for provided attribute code
-                    return $attribute->getValue();
+                // Retrieve attribute value using provided attribute code
+                $attributeValue = $this->retrieveCustomerCode($customer, $customerCode);
+                if (!is_null($attributeValue) && (is_string($attributeValue) || is_numeric($attributeValue))) {
+                    // Customer has a value defined for provided attribute code and the provided value is a string
+                    return $attributeValue;
                 }
-                // No value set for provided attribute code, but this is not a guest so use customer ID
+                // No value set for provided attr code (or not a string), but this is not a guest so use customer ID
                 return $data->getCustomerId();
                 break;
         }
@@ -920,5 +920,31 @@ class Tax
             }
         }
         return false;
+    }
+
+    /**
+     * This method will attempt to retrieve the provided customer code value as a system-defined customer attribute; if
+     * that fails, then it will attempt to retrieve the value as a custom attribute
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param string $customerCode
+     * @return mixed
+     */
+    protected function retrieveCustomerCode($customer, $customerCode)
+    {
+        // Convert provided customer code to getter name
+        $getCustomerCode = 'get' . str_replace('_', '', ucwords($customerCode, '_'));
+        if (method_exists($customer, $getCustomerCode)) {
+            // A method exists with this getter name, call it
+            return $customer->{$getCustomerCode}();
+        }
+        // This was not a system-defined customer attribute, retrieve it as a custom attribute
+        $attribute = $customer->getCustomAttribute($customerCode);
+        if (is_null($attribute)) {
+            // Retrieving the custom attribute failed, or no value was set, return null
+            return null;
+        }
+        // Return value of custom attribute
+        return $attribute->getValue();
     }
 }
