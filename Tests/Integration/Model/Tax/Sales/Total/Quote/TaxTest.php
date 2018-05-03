@@ -161,6 +161,42 @@ class TaxTest extends TaxTestAbstract
             \Magento\Catalog\Model\Indexer\Product\Eav\Processor::class
         );
         $productAttrProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\AdvancedSalesRule\Model\Indexer\SalesRule\Processor $salesRuleProcessor */
+        $salesRuleProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\AdvancedSalesRule\Model\Indexer\SalesRule\Processor::class
+        );
+        $salesRuleProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor $searchProcessor */
+        $searchProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor::class
+        );
+        $searchProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor $catalogRuleProcessor */
+        $catalogRuleProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\CatalogRule\Model\Indexer\Rule\RuleProductProcessor::class
+        );
+        $catalogRuleProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor $catalogRuleProductProcessor */
+        $catalogRuleProductProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\CatalogRule\Model\Indexer\Product\ProductRuleProcessor::class
+        );
+        $catalogRuleProductProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\TargetRule\Model\Indexer\TargetRule\Rule\Product\Processor $targetRuleProcessor */
+        $targetRuleProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\TargetRule\Model\Indexer\TargetRule\Rule\Product\Processor::class
+        );
+        $targetRuleProcessor->getIndexer()->setScheduled(false);
+
+        /** @var \Magento\TargetRule\Model\Indexer\TargetRule\Product\Rule\Processor $targetRuleProductProcessor */
+        $targetRuleProductProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+            \Magento\TargetRule\Model\Indexer\TargetRule\Product\Rule\Processor::class
+        );
+        $targetRuleProductProcessor->getIndexer()->setScheduled(false);
     }
 
     /**

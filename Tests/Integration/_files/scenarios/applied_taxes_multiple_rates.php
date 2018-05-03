@@ -57,6 +57,7 @@ $taxCalculationData['applied_taxes_multiple_rates'] = [
                 SetupUtil::AVATAX_CA_RATE_DESCRIPTION
                     . ' - ' . SetupUtil::AVATAX_CA_COUNTY_RATE_DESCRIPTION
                     . ' - ' . SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION
+                    . ' - ' . SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION
                         => [
                     'percent' => 8,
                     'amount' => 8.8,
@@ -71,6 +72,11 @@ $taxCalculationData['applied_taxes_multiple_rates'] = [
                             'code' => SetupUtil::AVATAX_CA_COUNTY_RATE_JURISCODE,
                             'title' => SetupUtil::AVATAX_CA_COUNTY_RATE_DESCRIPTION,
                             'percent' => 1,
+                        ],
+                        [
+                            'code' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_TWO_JURISCODE,
+                            'title' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_TWO_DESCRIPTION,
+                            'percent' => 0,
                         ],
                         [
                             'code' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_JURISCODE,
@@ -91,32 +97,50 @@ $taxCalculationData['applied_taxes_multiple_rates'] = [
                 'tax_amount' => 0.8,
                 'applied_taxes' => [
                     [
-                        'percent' => 8,
+                        'percent' => 8.0,
                         'amount' => 0.8,
                         'base_amount' => 0.8,
                         'id' => SetupUtil::AVATAX_CA_RATE_DESCRIPTION
                             . ' - ' . SetupUtil::AVATAX_CA_COUNTY_RATE_DESCRIPTION
+                            . ' - ' . SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION
                             . ' - ' . SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION,
+                        'item_id' => null,
+                        'item_type' => 'product',
+                        'associated_item_id' => null,
                         'rates' => [
                             [
                                 'code' => SetupUtil::AVATAX_CA_RATE_JURISCODE,
                                 'title' => SetupUtil::AVATAX_CA_RATE_DESCRIPTION,
                                 'percent' => 6.5,
+                                'extension_attributes' => [
+                                    'tax' => 7.15,
+                                ],
                             ],
                             [
                                 'code' => SetupUtil::AVATAX_CA_COUNTY_RATE_JURISCODE,
                                 'title' => SetupUtil::AVATAX_CA_COUNTY_RATE_DESCRIPTION,
                                 'percent' => 1,
+                                'extension_attributes' => [
+                                    'tax' => 1.1,
+                                ],
+                            ],
+                            [
+                                'code' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_TWO_JURISCODE,
+                                'title' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_TWO_DESCRIPTION,
+                                'percent' => 0,
+                                'extension_attributes' => [
+                                    'tax' => null,
+                                ],
                             ],
                             [
                                 'code' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_JURISCODE,
                                 'title' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION,
                                 'percent' => 0.5,
+                                'extension_attributes' => [
+                                    'tax' => 0.55,
+                                ],
                             ],
                         ],
-                        'item_id' => null,
-                        'item_type' => 'product',
-                        'associated_item_id' => null,
                     ],
                 ],
             ],
@@ -129,32 +153,50 @@ $taxCalculationData['applied_taxes_multiple_rates'] = [
                 'tax_amount' => 8.0,
                 'applied_taxes' => [
                     [
-                        'percent' => 8,
-                        'amount' => 8,
-                        'base_amount' => 8,
+                        'percent' => 8.0,
+                        'amount' => 8.0,
+                        'base_amount' => 8.0,
                         'id' => SetupUtil::AVATAX_CA_RATE_DESCRIPTION
                             . ' - ' . SetupUtil::AVATAX_CA_COUNTY_RATE_DESCRIPTION
+                            . ' - ' . SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION
                             . ' - ' . SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION,
+                        'item_id' => null,
+                        'item_type' => 'product',
+                        'associated_item_id' => null,
                         'rates' => [
                             [
                                 'code' => SetupUtil::AVATAX_CA_RATE_JURISCODE,
                                 'title' => SetupUtil::AVATAX_CA_RATE_DESCRIPTION,
                                 'percent' => 6.5,
+                                'extension_attributes' => [
+                                    'tax' => 7.15,
+                                ],
                             ],
                             [
                                 'code' => SetupUtil::AVATAX_CA_COUNTY_RATE_JURISCODE,
                                 'title' => SetupUtil::AVATAX_CA_COUNTY_RATE_DESCRIPTION,
                                 'percent' => 1,
+                                'extension_attributes' => [
+                                    'tax' => 1.1,
+                                ],
+                            ],
+                            [
+                                'code' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_TWO_JURISCODE,
+                                'title' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_TWO_DESCRIPTION,
+                                'percent' => 0,
+                                'extension_attributes' => [
+                                    'tax' => null,
+                                ],
                             ],
                             [
                                 'code' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_JURISCODE,
                                 'title' => SetupUtil::AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION,
                                 'percent' => 0.5,
+                                'extension_attributes' => [
+                                    'tax' => 0.55,
+                                ],
                             ],
                         ],
-                        'item_id' => null,
-                        'item_type' => 'product',
-                        'associated_item_id' => null,
                     ],
                 ],
             ],
