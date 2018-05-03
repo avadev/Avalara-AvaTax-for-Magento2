@@ -50,7 +50,7 @@ class SetupUtil
     const MI_CITY = 'Lansing';
     const MI_STREET_1 = '100 N Capitol Ave'; // Michigan state capitol
     const AVATAX_MI_RATE_DESCRIPTION = 'MI STATE TAX';
-    const AVATAX_MI_RATE_JURISCODE = 26;
+    const AVATAX_MI_RATE_JURISCODE = 'AVATAX-26';
     /**#@-*/
 
     /**#@+
@@ -61,11 +61,11 @@ class SetupUtil
     const SAN_DIEGO_CITY = 'San Diego';
     const SAN_DIEGO_STREET_1 = '2920 Zoo Dr'; // San Diego Zoo
     const AVATAX_CA_RATE_DESCRIPTION = 'CA STATE TAX';
-    const AVATAX_CA_RATE_JURISCODE = '06';
+    const AVATAX_CA_RATE_JURISCODE = 'AVATAX-06';
     const AVATAX_CA_COUNTY_RATE_DESCRIPTION = 'CA COUNTY TAX';
-    const AVATAX_CA_COUNTY_RATE_JURISCODE = '037';
+    const AVATAX_CA_COUNTY_RATE_JURISCODE = 'AVATAX-037';
     const AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_DESCRIPTION = 'CA SPECIAL TAX';
-    const AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_JURISCODE = 'EMBD0';
+    const AVATAX_CA_SAN_DIEGO_SPECIAL_RATE_JURISCODE = 'AVATAX-EMBD0';
     /**#@-*/
 
     /**

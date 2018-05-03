@@ -51,13 +51,13 @@ $taxCalculationData['applied_taxes_one_rate'] = [
             'grand_total' => 116.60,
             'applied_taxes' => [
                 SetupUtil::AVATAX_MI_RATE_DESCRIPTION => [
-                    'percent' => 6,
+                    'percent' => 6.0,
                     'amount' => 6.6,
                     'base_amount' => 6.6,
                     'rates' => [
                         [
                             'title' => SetupUtil::AVATAX_MI_RATE_DESCRIPTION,
-                            'percent' => 6,
+                            'percent' => 6.0,
                         ],
                     ],
                 ],
@@ -73,7 +73,7 @@ $taxCalculationData['applied_taxes_one_rate'] = [
                 'tax_amount' => 0.6,
                 'applied_taxes' => [
                     [
-                        'percent' => 6,
+                        'percent' => 6.0,
                         'amount' => 0.6,
                         'base_amount' => 0.6,
                         'id' => SetupUtil::AVATAX_MI_RATE_DESCRIPTION,
@@ -81,7 +81,11 @@ $taxCalculationData['applied_taxes_one_rate'] = [
                             [
                                 'code' => SetupUtil::AVATAX_MI_RATE_JURISCODE,
                                 'title' => SetupUtil::AVATAX_MI_RATE_DESCRIPTION,
-                                'percent' => 6,
+                                'percent' => 6.0,
+                                // Rates details are for the entire transaction, which seems counter-intuitive to their inclusion on the individual item
+                                'extension_attributes' => [
+                                    'tax' => 6.6,
+                                ],
                             ],
                         ],
                         'item_id' => null,
@@ -99,15 +103,19 @@ $taxCalculationData['applied_taxes_one_rate'] = [
                 'tax_amount' => 6.0,
                 'applied_taxes' => [
                     [
-                        'percent' => 6,
-                        'amount' => 6,
-                        'base_amount' => 6,
+                        'percent' => 6.0,
+                        'amount' => 6.0,
+                        'base_amount' => 6.0,
                         'id' => SetupUtil::AVATAX_MI_RATE_DESCRIPTION,
                         'rates' => [
                             [
                                 'code' => SetupUtil::AVATAX_MI_RATE_JURISCODE,
                                 'title' => SetupUtil::AVATAX_MI_RATE_DESCRIPTION,
-                                'percent' => 6,
+                                'percent' => 6.0,
+                                // Rates details are for the entire transaction, which seems counter-intuitive to their inclusion on the individual item
+                                'extension_attributes' => [
+                                    'tax' => 6.6,
+                                ],
                             ],
                         ],
                         'item_id' => null,
