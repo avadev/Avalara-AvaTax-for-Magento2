@@ -889,9 +889,9 @@ class SetupUtil
         }
         $product->save();
 
-        $this->products[$sku] = $product;
+        $this->products[$sku] = $this->productRepository->get($product->getSku());
 
-        return $product;
+        return $this->products[$sku];
     }
 
     /**
