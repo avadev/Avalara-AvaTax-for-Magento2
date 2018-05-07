@@ -162,11 +162,11 @@ class TaxTest extends TaxTestAbstract
         );
         $productAttrProcessor->getIndexer()->setScheduled(false);
 
-        /** @var \Magento\AdvancedSalesRule\Model\Indexer\SalesRule\Processor $salesRuleProcessor */
-        $salesRuleProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
-            \Magento\AdvancedSalesRule\Model\Indexer\SalesRule\Processor::class
-        );
-        $salesRuleProcessor->getIndexer()->setScheduled(false);
+//        /** @var \Magento\AdvancedSalesRule\Model\Indexer\SalesRule\Processor $salesRuleProcessor */
+//        $salesRuleProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+//            \Magento\AdvancedSalesRule\Model\Indexer\SalesRule\Processor::class
+//        );
+//        $salesRuleProcessor->getIndexer()->setScheduled(false);
 
         /** @var \Magento\CatalogSearch\Model\Indexer\Fulltext\Processor $searchProcessor */
         $searchProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
