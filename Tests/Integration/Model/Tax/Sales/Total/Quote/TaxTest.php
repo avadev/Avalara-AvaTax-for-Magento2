@@ -186,17 +186,17 @@ class TaxTest extends TaxTestAbstract
         );
         $catalogRuleProductProcessor->getIndexer()->setScheduled(false);
 
-        /** @var \Magento\TargetRule\Model\Indexer\TargetRule\Rule\Product\Processor $targetRuleProcessor */
-        $targetRuleProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
-            \Magento\TargetRule\Model\Indexer\TargetRule\Rule\Product\Processor::class
-        );
-        $targetRuleProcessor->getIndexer()->setScheduled(false);
-
-        /** @var \Magento\TargetRule\Model\Indexer\TargetRule\Product\Rule\Processor $targetRuleProductProcessor */
-        $targetRuleProductProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
-            \Magento\TargetRule\Model\Indexer\TargetRule\Product\Rule\Processor::class
-        );
-        $targetRuleProductProcessor->getIndexer()->setScheduled(false);
+//        /** @var \Magento\TargetRule\Model\Indexer\TargetRule\Rule\Product\Processor $targetRuleProcessor */
+//        $targetRuleProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+//            \Magento\TargetRule\Model\Indexer\TargetRule\Rule\Product\Processor::class
+//        );
+//        $targetRuleProcessor->getIndexer()->setScheduled(false);
+//
+//        /** @var \Magento\TargetRule\Model\Indexer\TargetRule\Product\Rule\Processor $targetRuleProductProcessor */
+//        $targetRuleProductProcessor = \Magento\TestFramework\Helper\Bootstrap::getObjectManager()->create(
+//            \Magento\TargetRule\Model\Indexer\TargetRule\Product\Rule\Processor::class
+//        );
+//        $targetRuleProductProcessor->getIndexer()->setScheduled(false);
     }
 
     /**
