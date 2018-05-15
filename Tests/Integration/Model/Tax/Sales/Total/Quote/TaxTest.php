@@ -380,7 +380,7 @@ class TaxTest extends TaxTestAbstract
      * @dataProvider taxDataProvider
      * @return void
      */
-    public function testNativeVsMagentoTaxCalculation($configData, $quoteData, $expectedResults)
+    public function testNativeVsAvataxCalculation($configData, $quoteData, $expectedResults)
     {
         // Only compare with native Magento taxes if this test is configured to do so
         if (!isset($expectedResults['compare_with_native_tax_calculation'])

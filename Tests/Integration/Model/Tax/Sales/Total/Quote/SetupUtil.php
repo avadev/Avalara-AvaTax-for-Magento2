@@ -204,7 +204,7 @@ class SetupUtil
 
     /**
      * Storage for customer so that it can be reused by this test
-     * @see \ClassyLlama\AvaTax\Tests\Integration\Model\Tax\Sales\Total\Quote\TaxTest::testNativeVsMagentoTaxCalculation
+     * @see \ClassyLlama\AvaTax\Tests\Integration\Model\Tax\Sales\Total\Quote\TaxTest::testNativeVsAvataxCalculation
      *
      * @var null
      */
