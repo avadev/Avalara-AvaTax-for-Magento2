@@ -16,7 +16,7 @@
 use Magento\Tax\Model\Calculation;
 use ClassyLlama\AvaTax\Tests\Integration\Model\Tax\Sales\Total\Quote\SetupUtil;
 
-$taxCalculationData['customer_tax_class'] = [
+$taxCalculationData['tax_before_discount_only_applies_to_taxable_amount'] = [
     'config_data' => [
         SetupUtil::CONFIG_OVERRIDES => $credentialsConfig,
     ],

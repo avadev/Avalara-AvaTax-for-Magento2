@@ -28,7 +28,7 @@ $tennesseeAddress = [
  * The purpose of this test is to verify the "$taxableAmountPercentage" functionality in
  * @see \ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation::getTaxDetailsItem
  */
-$taxCalculationData['customer_tax_class'] = [
+$taxCalculationData['tax_before_discount_applies_to_partial_taxable_amount'] = [
     'config_data' => [
         SetupUtil::CONFIG_OVERRIDES => $credentialsConfig,
     ],
