@@ -17,11 +17,12 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="tax">
-            <group id="avatax" translate="label" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>AvaTax Settings</label>
+            <group id="avatax_general" translate="label" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax - General</label>
                 <comment><![CDATA[For complete and up-to-date documentation, please visit <a href="http://www.classyllama.com/documentation/extensions/avatax-magento-2-module" target="_blank">www.classyllama.com/documentation/extensions/avatax-magento-2-module</a>.</p>
                     ]]></comment>
                 <field id="enabled" translate="label" type="select" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/enabled</config_path>
                     <label>Enable AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
@@ -34,6 +35,7 @@
                     -->
                 </field>
                 <field id="tax_mode" translate="label" type="select" sortOrder="1002" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/tax_mode</config_path>
                     <label>Tax Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxMode</source_model>
                     <comment><![CDATA[<ul><li><strong>Disabled</strong> — AvaTax tax estimation will be disabled and native Magento tax estimation will be used. Only use this option if you want to use Address Validation without tax estimation.</li><li><strong>Estimate Tax</strong> — AvaTax tax estimation will run during checkout, but completed orders will not be submitted to AvaTax.</li><li><strong>Estimate Tax & Submit Transactions to AvaTax</strong> — AvaTax tax estimation will run during checkout and invoices and credit memos will be submitted to AvaTax.</li></ul>]]></comment>
@@ -42,6 +44,7 @@
                     </depends>
                 </field>
                 <field id="commit_submitted_transactions" translate="label" type="select" sortOrder="1004" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/commit_submitted_transactions</config_path>
                     <label>Commit Submitted Transactions</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Should transactions sent to AvaTax be committed? Only change to <strong>No</strong> if you have specific reason to do so.]]></comment>
@@ -51,6 +54,7 @@
                     </depends>
                 </field>
                 <field id="tax_calculation_countries_enabled" translate="label comment" type="multiselect" sortOrder="1005" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/tax_calculation_countries_enabled</config_path>
                     <label>Taxable Countries</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxCalculationCountries</source_model>
                     <!--<source_model>Magento\Directory\Model\Config\Source\Country</source_model>-->
@@ -61,6 +65,7 @@
                     </depends>
                 </field>
                 <field id="filter_tax_by_region" translate="label" type="select" sortOrder="1006" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/filter_tax_by_region</config_path>
                     <label>Filter Tax Calculation By Region</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so, as filtering tax calculation by region may complicate report reconciliation. Non-nexus tax requests are not counted as billable transactions, so filtering by region does not reduce costs.]]></comment>
@@ -70,6 +75,7 @@
                     </depends>
                 </field>
                 <field id="region_filter_list" translate="label" type="multiselect" sortOrder="1007" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/region_filter_list</config_path>
                     <label>Enabled Regions</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\RegionFilterList</source_model>
                     <comment><![CDATA[Select regions where you want AvaTax tax calculation to apply. Unselected regions will use native Magento tax calculation. If you change the selection of the <strong>Taxable Countries</strong> field, you must save this page for this region list to update.]]></comment>
@@ -80,6 +86,7 @@
                     </depends>
                 </field>
                 <field id="is_seller_importer_of_record" translate="label comment" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/is_seller_importer_of_record</config_path>
                     <label>Set Seller as Importer of Record for Global Transactions</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Set this to <strong>Yes</strong> to calculate tax for global transactions using the destination address (only applies to countries indicated as taxable <a href="#row_tax_avatax_tax_calculation_countries_enabled">above</a>). This setting requires that your Avalara account be configured to allow global transactions. For more information on what it means to be the "Importer of Record", visit the <a href="https://help.avalara.com/000_Avalara_AvaTax/Manage_Transactions/Manage_Place_of_Supply_settings">Avalara Help Center</a>.]]></comment>
@@ -96,6 +103,7 @@
                     -->
                 </field>
                 <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/live_mode</config_path>
                     <label>Mode</label>
                     <comment><![CDATA[The mode you select will determine whether the <strong>Production</strong> or <strong>Development</strong> credentials will be used. You will get your Account Number, License Key, and Company Code from your AvaTax representative. If <strong>Production</strong> is selected, then https://avatax.avalara.net will be used as the API url. If <strong>Development</strong> is selected, then https://development.avalara.net will be used as the API url.<br><br>When you save this page, if you have entered credentials below for the selected mode, the AvaTax API will be pinged to ensure the credentials are working.]]></comment>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
@@ -104,6 +112,7 @@
                     </depends>
                 </field>
                 <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/production_account_number</config_path>
                     <label>Account Number (Production)</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
@@ -111,6 +120,7 @@
                     </depends>
                 </field>
                 <field id="production_license_key" translate="label" type="obscure" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/production_license_key</config_path>
                     <label>License Key (Production)</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
@@ -118,6 +128,7 @@
                     </depends>
                 </field>
                 <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/production_company_code</config_path>
                     <label>Company Code (Production)</label>
                     <frontend_class>validate-length maximum-length-25</frontend_class>
                     <comment>This can be found in your AvaTax Dashboard. This may be different from the actual company name.</comment>
@@ -126,6 +137,7 @@
                     </depends>
                 </field>
                 <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/development_account_number</config_path>
                     <label>Account Number (Development)</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
@@ -133,6 +145,7 @@
                     </depends>
                 </field>
                 <field id="development_license_key" translate="label" type="obscure" sortOrder="1070" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/development_license_key</config_path>
                     <label>License Key (Development)</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <depends>
@@ -140,43 +153,12 @@
                     </depends>
                 </field>
                 <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/development_company_code</config_path>
                     <label>Company Code (Development)</label>
                     <frontend_class>validate-length maximum-length-25</frontend_class>
                     <comment>This can be found in your AvaTax Dashboard. This may be different from the actual company name.</comment>
                     <depends>
                         <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="error_handling_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[<strong>Error Handling Settings</strong>]]></label>
-                    <!-- Reference: https://github.com/magento/magento2/issues/2340
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                    -->
-                </field>
-                <field id="error_action" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Error Action</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
-                    <comment><![CDATA[What should happen if Magento is unable to retrieve taxes from the AvaTax API. Regardless of which option is selected, if there is an error in the AvaTax tax estimation, the extension will fall back to using native Magento tax rules. However if <strong>Disable checkout & show error message</strong> is selected, the extension will prevent users and admins from placing orders.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="2020" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Frontend Error Message</label>
-                    <comment><![CDATA[This error message will be displayed to user if there is an error calculating taxes and if <strong>Disable checkout & show error message</strong> is selected above.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                        <field id="error_action">1</field>
-                    </depends>
-                </field>
-                <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="2030" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Backend Error Message</label>
-                    <comment><![CDATA[This error message will be displayed to admin if there is an error calculating taxes and if <strong>Disable checkout & show error message</strong> is selected above.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                        <field id="error_action">1</field>
                     </depends>
                 </field>
                 <field id="data_mapping_header" translate="label" type="label" sortOrder="3000" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -188,6 +170,7 @@
                     -->
                 </field>
                 <field id="customer_code_format" translate="label comment" type="select" sortOrder="3010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/customer_code_format</config_path>
                     <label>Customer Code Format</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\CustomerCode</source_model>
                     <comment><![CDATA[Select a format for customers to be identified in AvaTax. Available options will include any customer attributes that exist in Magento. If the customer doesn't have a value defined for the selected attribute when their transaction is processed and sent to Avalara, their customer (or guest) ID will be used instead. Once the integration is live, this setting should not be changed.]]></comment>
@@ -196,6 +179,7 @@
                     </depends>
                 </field>
                 <field id="upc_attribute" translate="label comment" type="select" sortOrder="3020" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/upc_attribute</config_path>
                     <label>UPC Attribute To Use As Item Code</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment><![CDATA[Optional. By default, this extension sends the Magento product SKU to the AvaTax <strong>ItemCode</strong> field. However if you want to use a UPC product attribute as the AvaTax ItemCode, select which attribute above maps to your UPC attribute. If a UPC attribute is present on a product, it will be used as the AvaTax ItemCode and will be prepended with "UPC: ". Otherwise the product's SKU will be sent. Sending the UPC in the ItemCode field will allow you to bypass the Avalara Tax Code selection and mapping in your product record. The UPC, when sent in the ItemCode field, maps directly to the Avalara Product Tax Code so you don’t have to map those codes separately.]]></comment>
@@ -204,6 +188,7 @@
                     </depends>
                 </field>
                 <field id="ref1_attribute" translate="label comment" type="select" sortOrder="3030" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/ref1_attribute</config_path>
                     <label>Ref1 Attribute</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment><![CDATA[Optional. AvaTax allows you to pass arbitrary information into two reference fields for each line item. Select a text type product attribute to be sent to AvaTax in the <strong>Ref1</strong> field. Only the first 250 characters of this attribute will be sent to AvaTax.]]></comment>
@@ -212,6 +197,7 @@
                     </depends>
                 </field>
                 <field id="ref2_attribute" translate="label comment" type="select" sortOrder="3040" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/ref2_attribute</config_path>
                     <label>Ref2 Attribute</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
                     <comment><![CDATA[Optional. AvaTax allows you to pass arbitrary information into two reference fields for each line item. Select a text type product attribute to be sent to AvaTax in the <strong>Ref2</strong> field. Only the first 250 characters of this attribute will be sent to AvaTax.]]></comment>
@@ -220,6 +206,7 @@
                     </depends>
                 </field>
                 <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="3050" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/use_business_identification_number</config_path>
                     <label>Submit VAT Number to AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Set this to <strong>Yes</strong> if you want to send VAT tax numbers to AvaTax to affect tax calculation. If a guest or customer has a <strong>VAT number</strong> set on their Magento shipping address, it will be used. Otherwise the <strong>Tax/VAT Number</strong> attribute value from the customer record will be used. If a VAT number is not found, nothing will be sent. The VAT number will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
@@ -228,6 +215,7 @@
                     </depends>
                 </field>
                 <field id="location_code" translate="label" type="text" sortOrder="3060" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/location_code</config_path>
                     <label>Location Code</label>
                     <frontend_class>validate-length maximum-length-50</frontend_class>
                     <comment><![CDATA[Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
@@ -236,6 +224,7 @@
                     </depends>
                 </field>
                 <field id="sku_shipping" translate="label" type="text" sortOrder="3070" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/sku_shipping</config_path>
                     <label>Shipping SKU</label>
                     <comment>The SKU sent to denote shipping costs.</comment>
                     <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
@@ -244,6 +233,7 @@
                     </depends>
                 </field>
                 <field id="sku_adjustment_positive" translate="label" type="text" sortOrder="3080" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/sku_adjustment_positive</config_path>
                     <label>Adjustment Refund SKU</label>
                     <comment>The SKU sent to denote positive adjustments on Credit Memos.</comment>
                     <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
@@ -252,6 +242,7 @@
                     </depends>
                 </field>
                 <field id="sku_adjustment_negative" translate="label" type="text" sortOrder="3090" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/sku_adjustment_negative</config_path>
                     <label>Adjustment Fee SKU</label>
                     <comment>The SKU sent to denote negative adjustments on Credit Memos.</comment>
                     <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
@@ -260,6 +251,7 @@
                     </depends>
                 </field>
                 <field id="sku_gift_wrap_order" translate="label" type="text" sortOrder="3100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/sku_gift_wrap_order</config_path>
                     <label>Gift Wrap Order SKU</label>
                     <comment>The SKU sent AvaTax to denote gift wrap order costs. Only relevant for Magento Enterprise.</comment>
                     <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
@@ -268,6 +260,7 @@
                     </depends>
                 </field>
                 <field id="sku_gift_wrap_item" translate="label" type="text" sortOrder="3110" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/sku_gift_wrap_item</config_path>
                     <label>Gift Wrap Items SKU</label>
                     <comment>The SKU sent AvaTax to denote gift wrap item costs. Only relevant for Magento Enterprise.</comment>
                     <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
@@ -276,6 +269,7 @@
                     </depends>
                 </field>
                 <field id="sku_gift_wrap_card" translate="label" type="text" sortOrder="3120" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/sku_gift_wrap_card</config_path>
                     <label>Gift Wrap Printed Card SKU</label>
                     <comment>The SKU sent to denote gift wrap printed card costs. Only relevant for Magento Enterprise.</comment>
                     <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
@@ -283,24 +277,20 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="address_validation_header" translate="label" type="label" sortOrder="4000" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[<strong>Address Validation Settings</strong>]]></label>
-                    <!-- Reference: https://github.com/magento/magento2/issues/2340
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                    -->
-                </field>
+            </group>
+            <group id="avatax_address_validation" translate="label" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax - Address Validation</label>
                 <field id="address_validation_enabled" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/address_validation_enabled</config_path>
                     <label>Enable Address Validation</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>tax/avatax/address_validation_enabled</config_path>
                     <comment>Enable validation of shipping address using the AvaTax Address Validation API.</comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
                 <field id="address_validation_countries_enabled" translate="label comment" type="multiselect" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/address_validation_countries_enabled</config_path>
                     <label>Enabled Countries</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\AddressValidationCountries</source_model>
                     <comment>Select which countries to enable for address validation. AvaTax Address Validation currently only supports United States and Canada.</comment>
@@ -310,6 +300,7 @@
                     </depends>
                 </field>
                 <field id="address_validation_user_has_choice" translate="label comment" type="select" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/address_validation_user_has_choice</config_path>
                     <label>Allow User To Choose Original (Invalid) Address</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Set this to <strong>Yes</strong> to allow the user to choose between the original and validated addresses (valid address will be selected by default). If set to <strong>No</strong>, user will be required to use the validated address or update their original address. This setting is ignored in the backend and the user will always have a choice.]]></comment>
@@ -319,6 +310,7 @@
                     </depends>
                 </field>
                 <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/address_validation_instructions_with_choice</config_path>
                     <label>Address Validation Instructions</label>
                     <comment><![CDATA[When user progresses to the <strong>Review & Payments</strong> step of the checkout, this text will be displayed above the <strong>Suggested Address</strong> and <strong>Original Address</strong> checkboxes.]]></comment>
                     <depends>
@@ -328,6 +320,7 @@
                     </depends>
                 </field>
                 <field id="address_validation_instructions_without_choice" translate="label comment" type="textarea" sortOrder="4050" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/address_validation_instructions_without_choice</config_path>
                     <label>Address Validation Instructions</label>
                     <comment><![CDATA[When user progresses to the <strong>Review & Payments</strong> step of the checkout, this text will be displayed above the suggested address.]]></comment>
                     <depends>
@@ -337,11 +330,50 @@
                     </depends>
                 </field>
                 <field id="address_validation_error_instructions" translate="label comment" type="textarea" sortOrder="4060" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/address_validation_error_instructions</config_path>
                     <label>Address Validation Error Instructions</label>
                     <comment>This text will be displayed when there is an error in the address validation process. The element assigned the "error-message" class will be filled with the error message summary returned by AvaTax.</comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="address_validation_enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="avatax_advanced" translate="label" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax - Advanced</label>
+                <field id="error_handling_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Error Handling Settings</strong>]]></label>
+                    <!-- Reference: https://github.com/magento/magento2/issues/2340
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    -->
+                </field>
+                <field id="error_action" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/error_action</config_path>
+                    <label>Error Action</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
+                    <comment><![CDATA[What should happen if Magento is unable to retrieve taxes from the AvaTax API. Regardless of which option is selected, if there is an error in the AvaTax tax estimation, the extension will fall back to using native Magento tax rules. However if <strong>Disable checkout & show error message</strong> is selected, the extension will prevent users and admins from placing orders.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="2020" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/error_action_disable_checkout_message_frontend</config_path>
+                    <label>Frontend Error Message</label>
+                    <comment><![CDATA[This error message will be displayed to user if there is an error calculating taxes and if <strong>Disable checkout & show error message</strong> is selected above.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="error_action">1</field>
+                    </depends>
+                </field>
+                <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="2030" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/error_action_disable_checkout_message_backend</config_path>
+                    <label>Backend Error Message</label>
+                    <comment><![CDATA[This error message will be displayed to admin if there is an error calculating taxes and if <strong>Disable checkout & show error message</strong> is selected above.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="error_action">1</field>
                     </depends>
                 </field>
                 <field id="logging_settings_header" translate="label" type="label" sortOrder="5000" showInDefault="1" showInWebsite="0" showInStore="0">
@@ -353,6 +385,7 @@
                     -->
                 </field>
                 <field id="logging_db_level" translate="label" type="select" sortOrder="5010" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_db_level</config_path>
                     <label>Database Log Level</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
                     <depends>
@@ -361,6 +394,7 @@
                     <comment><![CDATA[<strong>Warning</strong> is recommended for production use.]]></comment>
                 </field>
                 <field id="logging_db_detail" translate="label" type="select" sortOrder="5020" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_db_detail</config_path>
                     <label>Database Log Detail</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
@@ -369,6 +403,7 @@
                     <comment><![CDATA[<strong>Minimal</strong> is recommended for production use.]]></comment>
                 </field>
                 <field id="logging_db_lifetime" translate="label" type="text" sortOrder="5030" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_db_lifetime</config_path>
                     <label>Database Log Record Lifetime</label>
                     <comment>Required. Days before entries are auto-purged.</comment>
                     <frontend_class>validate-number</frontend_class>
@@ -378,6 +413,7 @@
                     </depends>
                 </field>
                 <field id="logging_file_enabled" translate="label" type="select" sortOrder="5040" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_file_enabled</config_path>
                     <label>Enable Logging To File</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
@@ -386,6 +422,7 @@
                     <comment>Archiving of log files is affected by System -> Admin Actions Log Archiving</comment>
                 </field>
                 <field id="logging_file_mode" translate="label" type="select" sortOrder="5050" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_file_mode</config_path>
                     <label>File Log Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
                     <depends>
@@ -395,6 +432,7 @@
                     <comment>Log files are located in the magento var/log/ directory</comment>
                 </field>
                 <field id="logging_file_builtin_rotation_enabled" translate="label" type="select" sortOrder="5060" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_file_builtin_rotation_enabled</config_path>
                     <label>Enable Built-In Log File Rotation</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
@@ -408,6 +446,7 @@
                         at the system level.</comment>
                 </field>
                 <field id="logging_file_builtin_rotation_max_files" translate="label" type="text" sortOrder="5070" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_file_builtin_rotation_max_files</config_path>
                     <label>Built-In Log File Rotation Max Files</label>
                     <frontend_class>validate-number</frontend_class>
                     <validate>required-entry integer validate-greater-than-zero</validate>
@@ -422,6 +461,7 @@
                     </comment>
                 </field>
                 <field id="logging_file_level" translate="label" type="select" sortOrder="5080" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_file_level</config_path>
                     <label>File Log Level</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
                     <depends>
@@ -431,6 +471,7 @@
                     <comment><![CDATA[<strong>Warning</strong> is recommended for production use.]]></comment>
                 </field>
                 <field id="logging_file_detail" translate="label" type="select" sortOrder="5090" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/logging_file_detail</config_path>
                     <label>File Log Detail</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
                     <depends>
@@ -449,6 +490,7 @@
                     -->
                 </field>
                 <field id="queue_admin_notification_enabled" translate="label" type="select" sortOrder="6010" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/queue_admin_notification_enabled</config_path>
                     <label>Enable Queue Admin Notification</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
@@ -458,6 +500,7 @@
                     <comment>A notification will be displayed at the top of any admin page if there are pending queue records waiting to be submitted to AvaTax but no attempts have been made in the last 24 hours to submit them.</comment>
                 </field>
                 <field id="queue_failure_notification_enabled" translate="label" type="select" sortOrder="6020" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/queue_failure_notification_enabled</config_path>
                     <label>Enable Queue Failure Notification</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
@@ -467,6 +510,7 @@
                     <comment>A notification will be displayed at the top of any admin page if there are any failed queue records.</comment>
                 </field>
                 <field id="queue_max_retry_attempts" translate="label comment" type="text" sortOrder="6030" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/queue_max_retry_attempts</config_path>
                     <label>Max Queue Retry Attempts</label>
                     <comment>Please enter a number 1 or greater in this field.</comment>
                     <frontend_class>validate-number</frontend_class>
@@ -476,6 +520,7 @@
                     </depends>
                 </field>
                 <field id="queue_complete_lifetime" translate="label comment" type="text" sortOrder="6040" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/queue_complete_lifetime</config_path>
                     <label>Complete Queue Lifetime</label>
                     <comment>Required. Days before entries are auto-purged.</comment>
                     <frontend_class>validate-number</frontend_class>
@@ -486,6 +531,7 @@
                     </depends>
                 </field>
                 <field id="queue_failed_lifetime" translate="label comment" type="text" sortOrder="6050" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/queue_failed_lifetime</config_path>
                     <label>Failed Queue Lifetime</label>
                     <comment>Required. Days before entries are auto-purged.</comment>
                     <frontend_class>validate-number</frontend_class>
