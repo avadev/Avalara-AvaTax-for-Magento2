@@ -5,7 +5,7 @@
     "license": "OSL-3.0",
     "require": {
         "magento/framework": "^100.1.0|101.0.*",
-        "avalara/avataxclient": "^18.2.0"
+        "avalara/avataxclient": "^18.4.3.191"
     },
     "autoload": {
         "files": [ "registration.php" ],
