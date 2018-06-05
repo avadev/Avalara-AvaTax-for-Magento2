@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\GetTaxResult;
+use ClassyLlama\AvaTax\Helper\Config as ConfigHelper;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\CalculatorFactory;
@@ -59,6 +60,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     protected $appliedTaxRateExtensionFactory;
 
     /**
+     * @var
+     */
+    private $configHelper;
+
+    /**
      * Constructor
      *
      * @param Calculation $calculation
@@ -74,6 +80,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory
      * @param QuoteDetailsItemExtensionFactory $extensionFactory
      * @param AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory
+     * @param ConfigHelper $configHelper
      */
     public function __construct(
         Calculation $calculation,
@@ -88,13 +95,15 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory,
         QuoteDetailsItemExtensionFactory $extensionFactory,
-        AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory
+        AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory,
+        ConfigHelper $configHelper
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
         $this->appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
         $this->extensionFactory = $extensionFactory;
         $this->appliedTaxRateExtensionFactory = $appliedTaxRateExtensionFactory;
+        $this->configHelper = $configHelper;
         return parent::__construct(
             $calculation,
             $calculatorFactory,
@@ -191,8 +200,6 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $useBaseCurrency,
         $scope
     ) {
-        $price = $item->getUnitPrice();
-
         /* @var $taxLine \AvaTax\TaxLine  */
         $taxLine = $getTaxResult->getTaxLine($item->getCode());
 
@@ -267,9 +274,14 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 }
             }
 
-            $effectiveDiscountAmount = $taxableAmountPercentage * $item->getDiscountAmount();
-            $taxOnDiscountAmount = $effectiveDiscountAmount * $taxLine->getRate();
-            $taxOnDiscountAmount = $this->calculationTool->round($taxOnDiscountAmount);
+            if ($this->configHelper->isTaxIncludedInPrice($item->getType())) {
+                // Price includes tax and thus discount will also already include tax
+                $taxOnDiscountAmount = 0;
+            } else {
+                $effectiveDiscountAmount = $taxableAmountPercentage * $item->getDiscountAmount();
+                $taxOnDiscountAmount = $effectiveDiscountAmount * $taxLine->getRate();
+                $taxOnDiscountAmount = $this->calculationTool->round($taxOnDiscountAmount);
+            }
             $rowTaxBeforeDiscount = $rowTax + $taxOnDiscountAmount;
         } else {
             $rowTaxBeforeDiscount = 0;
@@ -283,15 +295,23 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         } else {
             $quantity = $item->getQuantity();
         }
+
+        if ($this->configHelper->isTaxIncludedInPrice($item->getType())) {
+            // Catalog/Shipping price includes tax, we need to calculate the price
+            $price = $item->getUnitPrice() - ($rowTaxBeforeDiscount / $quantity);
+        } else {
+            // Catalog/Shipping price excludes tax, use price from item
+            $price = $item->getUnitPrice();
+        }
         $rowTotal = $price * $quantity;
         $rowTotalInclTax = $rowTotal + $rowTaxBeforeDiscount;
         $priceInclTax = $rowTotalInclTax / $quantity;
 
         /**
-         * Since the AvaTax extension does not support merchants adding products with tax already factored into the
-         * price, we don't need to do any calculations for this number. The only time this value would be something
-         * other than 0 is when this method runs:
-         * @see \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxInPrice
+         * Since the AvaTax extension does not support the use of line-level discounts, we don't need to do any
+         * calculations for this number. The only time this value would be something other than 0 is when this method
+         * runs: @see \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxInPrice
+         * and only when "Apply Customer Tax" = "After Discount"
          */
         $discountTaxCompensationAmount = 0;
 

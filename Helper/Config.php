@@ -135,6 +135,15 @@ class Config extends AbstractHelper
     /**#@-*/
 
     /**
+     * List of product types with tax inclusion/exclusion config values
+     */
+    static protected $taxIncludedConfigPaths =
+        [
+            'product' => 'tax/calculation/price_includes_tax',
+            'shipping' => 'tax/calculation/shipping_includes_tax'
+        ];
+
+    /**
      * List of countries that are enabled by default
      */
     static public $taxCalculationCountriesDefault = ['US', 'CA'];
@@ -1071,5 +1080,20 @@ class Config extends AbstractHelper
             $isSellerImporterOfRecord = false;
         }
         return $isSellerImporterOfRecord;
+    }
+
+    /**
+     * @param string
+     * @param $storeId
+     * @return mixed
+     */
+    public function isTaxIncludedInPrice($itemType, $storeId = null) {
+        return boolval(
+            $this->scopeConfig->getValue(
+                self::$taxIncludedConfigPaths[strtolower($itemType)],
+                $scopeType = ScopeInterface::SCOPE_STORE,
+                $storeId
+            )
+        );
     }
 }

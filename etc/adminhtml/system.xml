@@ -507,17 +507,11 @@
                 <field id="based_on">
                     <comment>This setting will be ignored if AvaTax is enabled, as AvaTax always uses the shipping address for estimation.</comment>
                 </field>
-                <field id="price_includes_tax">
-                    <comment>This setting will be ignored if AvaTax is enabled, as you must set your prices in Magento without taxes included so that AvaTax is the single system of record for tax estimation.</comment>
-                </field>
-                <field id="shipping_includes_tax">
-                    <comment>This setting will be ignored if AvaTax is enabled, as AvaTax must be responsible for calculating shipping tax.</comment>
-                </field>
                 <field id="apply_after_discount">
                     <comment>This setting will be ignored if AvaTax is enabled, as AvaTax doesn't support line-level discounts.</comment>
                 </field>
                 <field id="discount_tax">
-                    <comment>This setting will be ignored if AvaTax is enabled, as AvaTax doesn't support line-level discounts.</comment>
+                    <comment><![CDATA[This setting will be ignored if AvaTax is enabled; if catalog/shipping prices are set to include sales tax, then the discount will always <em>include</em> sales tax and if not, then the discount will always <em>exclude</em> sales tax. More information is available <a href="https://github.com/classyllama/ClassyLlama_AvaTax/issues/127">here</a>.]]></comment>
                 </field>
                 <field id="apply_tax_on">
                     <comment>This setting will be ignored if AvaTax is enabled, as AvaTax should always calculate tax after discounts are applied in Magento.</comment>

@@ -64,6 +64,16 @@ class Line
     const SHIPPING_LINE_NO = 'shipping';
 
     /**
+     * Item type for products
+     */
+    const ITEM_TYPE_PRODUCT = 'product';
+
+    /**
+     * Item type for shipping
+     */
+    const ITEM_TYPE_SHIPPING = 'shipping';
+
+    /**
      * Description for Gift Wrap order line
      */
     const GIFT_WRAP_ORDER_LINE_DESCRIPTION = 'Gift Wrap Order Amount';
@@ -243,10 +253,14 @@ class Line
      * Convert \Magento\Tax\Model\Sales\Quote\ItemDetails to an array to be used for building an \AvaTax\Line object
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item
+     * @param int|null $storeId
      * @return array
      */
-    protected function convertTaxQuoteDetailsItemToData(\Magento\Tax\Api\Data\QuoteDetailsItemInterface $item)
-    {
+    protected function convertTaxQuoteDetailsItemToData
+    (
+        \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item,
+        $storeId = null
+    ) {
         $extensionAttributes = $item->getExtensionAttributes();
         if ($extensionAttributes) {
             $quantity = $extensionAttributes->getTotalQuantity() !== null
@@ -275,7 +289,7 @@ class Line
             'Qty' => $item->getQuantity(),
             'Amount' => $amount,
             'Discounted' => (bool)($item->getDiscountAmount() > 0),
-            'TaxIncluded' => false,
+            'TaxIncluded' => $this->config->isTaxIncludedInPrice(self::ITEM_TYPE_PRODUCT, $storeId),
             'Ref1' => $ref1,
             'Ref2' => $ref2,
         ];
@@ -285,13 +299,14 @@ class Line
      * Get tax line object
      *
      * @param $data
-     * @return \AvaTax\Line|null|bool
+     * @param int|null $storeId
+     * @return \AvaTax\Line|bool|null
      */
-    public function getLine($data)
+    public function getLine($data, $storeId = null)
     {
         switch (true) {
             case ($data instanceof \Magento\Tax\Api\Data\QuoteDetailsItemInterface):
-                $data = $this->convertTaxQuoteDetailsItemToData($data);
+                $data = $this->convertTaxQuoteDetailsItemToData($data, $storeId);
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\InvoiceItemInterface):
                 $data = $this->convertInvoiceItemToData($data);

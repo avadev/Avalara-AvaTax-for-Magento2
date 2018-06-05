@@ -428,6 +428,8 @@ class Tax
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Api\Data\CartInterface $quote
     ) {
+        $storeId = $quote->getStoreId();
+
         $lines = [];
 
         $items = $taxQuoteDetails->getItems();
@@ -447,13 +449,13 @@ class Tax
             if (isset($childrenItems[$item->getCode()])) {
                 /** @var \Magento\Tax\Api\Data\QuoteDetailsItemInterface $childItem */
                 foreach ($childrenItems[$item->getCode()] as $childItem) {
-                    $line = $this->interactionLine->getLine($childItem);
+                    $line = $this->interactionLine->getLine($childItem, $storeId);
                     if ($line) {
                         $lines[] = $line;
                     }
                 }
             } else {
-                $line = $this->interactionLine->getLine($item);
+                $line = $this->interactionLine->getLine($item, $storeId);
                 if ($line) {
 
                     /**
