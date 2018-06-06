@@ -109,6 +109,9 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Tax\Model\Config">
+        <plugin name="avatax_tax_model_config" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Config" />
+    </type>
     <!--
     /**
      * The following code will rewrite the connection name to connect to 'sales' database on split database install;
