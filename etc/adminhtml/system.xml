@@ -136,6 +136,15 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <field id="production_company_id" translate="label" type="text" sortOrder="1055" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/production_company_id</config_path>
+                    <label>Company Id (Production)</label>
+                    <comment>This value is automatically determined by the Company Code you have entered and cannot be edited.</comment>
+                    <!-- Can't use depends when disabling a field. TODO: Make a core magento bug report on this -->
+                    <!--<depends>-->
+                    <!--<field id="enabled">1</field>-->
+                    <!--</depends>-->
+                </field>
                 <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <config_path>tax/avatax/development_account_number</config_path>
                     <label>Account Number (Development)</label>
@@ -339,6 +348,30 @@
                     </depends>
                 </field>
             </group>
+            <group id="avatax_document_management" translate="label" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax - Document Management</label>
+                <field id="enabled" type="select" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable AvaTax Document Management</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>AvaTax Document Management allows users to upload documents that verify that they’re tax exempt and if they do, they won’t be charged tax in the checkout. This feature must be enabled in your Avalara account.</comment>
+                </field>
+                <field id="enabled_countries" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/tax_calculation_countries_enabled</config_path>
+                    <label>Enabled Countries</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\DocumentManagementCountries</source_model>
+                    <comment>Select which countries to enable for Document Management.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="ecommerce_sdk_company_id" translate="label" type="obscure" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>eCommerce SDK Company ID</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
             <group id="avatax_advanced" translate="label" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax - Advanced</label>
                 <field id="error_handling_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -443,7 +476,8 @@
                     <comment>Automatic log file rotation will allow you to control how much history is maintained in
                         the AvaTax log files, and separate them by day. For more efficient management of log files you
                         should disable this option and use something like logrotate to handle the rotation of log files
-                        at the system level.</comment>
+                        at the system level.
+                    </comment>
                 </field>
                 <field id="logging_file_builtin_rotation_max_files" translate="label" type="text" sortOrder="5070" showInDefault="1" showInWebsite="0" showInStore="0">
                     <config_path>tax/avatax/logging_file_builtin_rotation_max_files</config_path>
