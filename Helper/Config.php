@@ -140,6 +140,8 @@ class Config extends AbstractHelper
      */
     static public $taxCalculationCountriesDefault = ['US', 'CA'];
 
+    const DOCUMENT_MANAGEMENT_COUNTRIES_DEFAULT = ['US', 'CA'];
+
     /**#@+
      * Customer Code Format Options
      */
