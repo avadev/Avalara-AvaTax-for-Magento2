@@ -60,6 +60,9 @@
                 <development_account_number backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <development_license_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </avatax>
+            <avatax_customs>
+                <enabled>0</enabled>
+            </avatax_customs>
         </tax>
     </default>
 </config>
