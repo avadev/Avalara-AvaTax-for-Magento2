@@ -157,7 +157,6 @@ class Tax
         'purchase_order_no' => ['type' => 'string', 'length' => 50],
         'reference_code' => ['type' => 'string', 'length' => 50],
         'tax_override' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject'],
-        'is_seller_importer_of_record' => ['type' => 'boolean'],
     ];
 
     public static $validTaxOverrideFields = [
@@ -449,11 +448,6 @@ class Tax
             'exchange_rate_effective_date' => $currentDate,
             'lines' => $lines,
             'purchase_order_no' => $quote->getReservedOrderId(),
-            'is_seller_importer_of_record' => $this->config->isSellerImporterOfRecord(
-                $this->config->getOriginAddress($store),
-                $address,
-                $store
-            ),
         ];
 
         /** @var \Magento\Framework\DataObject $request */
@@ -687,11 +681,6 @@ class Tax
             'lines' => $lines,
             'purchase_order_no' => $object->getIncrementId(),
             'reference_code' => $orderIncrementId,
-            'is_seller_importer_of_record' => $this->config->isSellerImporterOfRecord(
-                $this->config->getOriginAddress($store),
-                $avaTaxAddress,
-                $store
-            ),
         ];
 
         $request = $this->dataObjectFactory->create(['data' => $data]);
