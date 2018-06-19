@@ -16,13 +16,15 @@ define(
         'jquery',
         'ko',
         'mageUtils',
-        'ClassyLlama_AvaTax/js/model/address-model'
+        'ClassyLlama_AvaTax/js/model/address-model',
+        'ClassyLlama_AvaTax/js/model/region-model'
     ],
     function (
         $,
         ko,
         utils,
-        addressModel
+        addressModel,
+        regionModel
     ) {
         'use strict';
 
@@ -123,12 +125,24 @@ define(
             },
 
             buildOriginalAddress: function (originalAddress) {
+                // Get country data JSON from region model
+                var countryData = regionModel.regions.responseJSON;
+
+                if (originalAddress.region_id && countryData[originalAddress.country_id]) {
+                    // A region ID was provided and the provided country ID has region data set
+                    var region = countryData[originalAddress.country_id][originalAddress.region_id];
+                    if (region) {
+                        // Found a matching region
+                        originalAddress.region = region['name'];
+                    }
+                }
+
                 var result = "";
 
                 var parent = this;
 
                 // Name
-                result += this.encodeHtml(originalAddress.firstname + " " + originalAddress.lastname) + "<br/>";
+                result += this.encodeHtml(originalAddress.firstname + " "  + originalAddress.lastname) + "<br/>";
 
                 // Streets
                 $.each(originalAddress.street, function (index, value) {
