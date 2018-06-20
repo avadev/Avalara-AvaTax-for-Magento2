@@ -19,10 +19,8 @@ use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Framework\Phrase;
 use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\Store;
 use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Magento\Framework\DataObjectFactory;
@@ -555,14 +553,16 @@ class Config extends AbstractHelper
     /**
      * Get company code from config
      *
-     * @param $store
+     * @param        $store
+     * @param string $scopeType
+     *
      * @return string
      */
-    public function getCompanyCode($store)
+    public function getCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            ScopeInterface::SCOPE_STORE,
+            $scopeType,
             $store
         );
     }

@@ -1,0 +1,18 @@
+<?php $url = $this->getUrl(
+    'avatax/companycodes/get',
+    ['form_key' => $this->getFormKey(), 'mode' => $this->getData( 'avatax_mode' )]
+); ?>
+
+<script type="text/x-magento-init">
+{
+    "#<?php echo $this->getData( 'company_code_id' ) ?>": {
+        "companyCode": {
+            "url": "<?php echo $url ?>",
+            "account_number_id": "<?php echo $this->getData( 'account_number_id' ) ?>",
+            "license_key_id": "<?php echo $this->getData( 'license_key_id' ) ?>",
+            "company_id_id": "<?php echo $this->getData( 'company_id_id' ) ?>"
+        }
+    }
+}
+
+</script>

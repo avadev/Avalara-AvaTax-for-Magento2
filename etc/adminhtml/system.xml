@@ -127,23 +127,20 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="production_company_code" translate="label" type="select" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
                     <config_path>tax/avatax/production_company_code</config_path>
                     <label>Company Code (Production)</label>
-                    <frontend_class>validate-length maximum-length-25</frontend_class>
-                    <comment>This can be found in your AvaTax Dashboard. This may be different from the actual company name.</comment>
+                    <frontend_model>productionCompanyCodeFrontendModel</frontend_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CompanyCode</source_model>
+                    <comment><![CDATA[Choose the company code to use. If you don't see values in this dropdown, then enter values into the <strong>Account Number</strong> and <strong>License Key</strong> fields above.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
                 <field id="production_company_id" translate="label" type="text" sortOrder="1055" showInDefault="1" showInWebsite="1" showInStore="1">
                     <config_path>tax/avatax/production_company_id</config_path>
-                    <label>Company Id (Production)</label>
+                    <label>Company ID (Production)</label>
                     <comment>This value is automatically determined by the Company Code you have entered and cannot be edited.</comment>
-                    <!-- Can't use depends when disabling a field. TODO: Make a core magento bug report on this -->
-                    <!--<depends>-->
-                    <!--<field id="enabled">1</field>-->
-                    <!--</depends>-->
                 </field>
                 <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <config_path>tax/avatax/development_account_number</config_path>
@@ -161,14 +158,20 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="development_company_code" translate="label" type="select" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
                     <config_path>tax/avatax/development_company_code</config_path>
                     <label>Company Code (Development)</label>
-                    <frontend_class>validate-length maximum-length-25</frontend_class>
-                    <comment>This can be found in your AvaTax Dashboard. This may be different from the actual company name.</comment>
+                    <frontend_model>developmentCompanyCodeFrontendModel</frontend_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CompanyCode</source_model>
+                    <comment><![CDATA[Choose the company code to use. If you don't see values in this dropdown, then enter values into the <strong>Account Number</strong> and <strong>License Key</strong> fields above.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
+                </field>
+                <field id="development_company_id" translate="label" type="text" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/development_company_id</config_path>
+                    <label>Company ID (Development)</label>
+                    <comment>This value is automatically determined by the Company Code you have entered and cannot be edited.</comment>
                 </field>
                 <field id="data_mapping_header" translate="label" type="label" sortOrder="3000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Data Mapping</strong>]]></label>

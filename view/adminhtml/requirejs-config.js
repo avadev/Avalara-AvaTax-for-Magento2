@@ -1,4 +1,3 @@
-<?php
 /**
  * ClassyLlama_AvaTax
  *
@@ -13,21 +12,10 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Model\Config\Source;
-
-class Mode implements \Magento\Framework\Option\ArrayInterface
-{
-    const DEVELOPMENT = 0;
-    const PRODUCTION = 1;
-
-    /**
-     * @return array
-     */
-    public function toOptionArray()
-    {
-        return [
-            ['value' => self::PRODUCTION, 'label' => __('Production')],
-            ['value' => self::DEVELOPMENT, 'label' => __('Development')]
-        ];
+var config = {
+    map: {
+        '*': {
+            companyCode: 'ClassyLlama_AvaTax/js/form/field/company-code'
+        }
     }
-}
+};
