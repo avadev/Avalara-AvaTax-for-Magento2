@@ -13,17 +13,9 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Api\Data;
+namespace ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\Classes;
 
-use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
-
-interface CrossBorderClassRepositoryInterface
+class Index extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesAbstract
 {
-    /**
-     * @param int $classId
-     * @return CrossBorderClassInterface
-     *
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    public function getById($classId);
+
 }

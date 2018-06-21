@@ -1,4 +1,5 @@
-<?php
+<?xml version="1.0"?>
+<!--
 /**
  * ClassyLlama_AvaTax
  *
@@ -12,18 +13,12 @@
  * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
+-->
 
-namespace ClassyLlama\AvaTax\Api\Data;
-
-use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
-
-interface CrossBorderClassRepositoryInterface
-{
-    /**
-     * @param int $classId
-     * @return CrossBorderClassInterface
-     *
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    public function getById($classId);
-}
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <uiComponent name="avatax_crossborder_classes_listing" />
+        </referenceContainer>
+    </body>
+</page>

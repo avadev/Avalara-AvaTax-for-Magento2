@@ -118,4 +118,27 @@ class CrossBorderClassRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($unitAmountProductAttr, $result->getUnitAmountAttrCode(), "CrossBorderClass unit amount attribute doesn't match");
         $this->assertEquals($prefProgramIndicator, $result->getPrefProgramIndicator(), "CrossBorderClass pref program indicator doesn't match");
     }
+
+    public function testGetById_nonexistentClassThrowsExc()
+    {
+        // Arrange
+        $id = 1;
+
+        $crossBorderClassDataModel = $this->createPartialMock(CrossBorderClassData::class, []);
+
+        $crossBorderClass = $this->createPartialMock(
+            CrossBorderClass::class,
+            ['createDataModel', 'getClassId', 'getDestinationCountryCodes', 'getCrossBorderType',
+                'getHsCode', 'getUnitName', 'getUnitAmountProductAttr', 'getPrefProgramIndicator']
+        );
+        $crossBorderClass->method('createDataModel')->willReturn($crossBorderClassDataModel);
+        $crossBorderClass->method('getClassId')->willReturn(null);
+
+        $this->crossBorderClassFactory->method('create')->willReturn($crossBorderClass);
+
+        // Act and Assert
+        $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
+
+        $result = $this->crossBorderClassRepository->getById($id);
+    }
 }

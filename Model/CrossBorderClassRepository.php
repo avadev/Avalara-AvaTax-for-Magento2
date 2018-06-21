@@ -61,6 +61,10 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
 
         $crossBorderClassResource->load($crossBorderClass, $classId);
 
+        if (!$crossBorderClass->getClassId()) {
+            throw new \Magento\Framework\Exception\NoSuchEntityException(__('Cross-border Class w/ ID %1 does not exist', $classId));
+        }
+
         return $crossBorderClass->getDataModel();
     }
 }
