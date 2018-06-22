@@ -85,15 +85,6 @@
                         <field id="filter_tax_by_region">1</field>
                     </depends>
                 </field>
-                <field id="is_seller_importer_of_record" translate="label comment" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <config_path>tax/avatax/is_seller_importer_of_record</config_path>
-                    <label>Set Seller as Importer of Record for Global Transactions</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Set this to <strong>Yes</strong> to calculate tax for global transactions using the destination address (only applies to countries indicated as taxable <a href="#row_tax_avatax_tax_calculation_countries_enabled">above</a>). This setting requires that your Avalara account be configured to allow global transactions. For more information on what it means to be the "Importer of Record", visit the <a href="https://help.avalara.com/000_Avalara_AvaTax/Manage_Transactions/Manage_Place_of_Supply_settings">Avalara Help Center</a>.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
                 <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label><![CDATA[<strong>Connection Settings</strong>]]></label>
                     <!-- Reference: https://github.com/magento/magento2/issues/2340
@@ -349,6 +340,14 @@
                         <field id="enabled">1</field>
                         <field id="address_validation_enabled">1</field>
                     </depends>
+                </field>
+            </group>
+            <group id="avatax_customs" translate="label" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax - Customs</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Customs Duty &amp; Import Tax</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Customs Duty & Import Tax include duties, fees and taxes relevant to cross border shipments. This feature must be enabled in your Avalara account. Note that the proper use of this feature requires appropriate configuration of <strong>Cross Border Classes</strong> and assignment of Cross Border Types to products.]]></comment>
                 </field>
             </group>
             <group id="avatax_document_management" translate="label" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">

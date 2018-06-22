@@ -22,7 +22,6 @@
                 <tax_mode>3</tax_mode>
                 <commit_submitted_transactions>1</commit_submitted_transactions>
                 <tax_calculation_countries_enabled>CA,US</tax_calculation_countries_enabled>
-                <is_seller_importer_of_record>0</is_seller_importer_of_record>
                 <use_business_identification_number>1</use_business_identification_number>
                 <sku_shipping>Shipping</sku_shipping>
                 <sku_gift_wrap_order>GwOrder</sku_gift_wrap_order>
@@ -60,6 +59,9 @@
                 <development_account_number backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <development_license_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
             </avatax>
+            <avatax_customs>
+                <enabled>0</enabled>
+            </avatax_customs>
         </tax>
     </default>
 </config>
