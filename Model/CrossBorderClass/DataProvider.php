@@ -90,12 +90,12 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
 
         /** @var \ClassyLlama\AvaTax\Model\CrossBorderClass $class */
         foreach ($items as $class) {
-            $this->loadedData[$class->getId()] = ['crossborder_class' => $class->getData()];
+            $this->loadedData[$class->getId()] = $class->getData();
         }
 
         $data = $this->dataPersistor->get('crossborder_class');
         if (!empty($data)) {
-            $this->loadedData[$class['class_id']] = ['crossborder_class' => $data];
+            $this->loadedData[$class['class_id']] = $data;
             $this->dataPersistor->clear('crossborder_class');
         }
 

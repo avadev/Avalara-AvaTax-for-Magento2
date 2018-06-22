@@ -24,6 +24,13 @@
         <item name="template" xsi:type="string">templates/form/collapsible</item>
     </argument>
     <settings>
+        <buttons>
+            <button name="save_and_continue" class="ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\SaveAndContinueButton"/>
+            <button name="save" class="ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\SaveButton"/>
+            <button name="reset" class="ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\ResetButton"/>
+            <button name="delete" class="ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\DeleteButton"/>
+            <button name="back" class="ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\BackButton"/>
+        </buttons>
         <namespace>avatax_crossborder_classes_form</namespace>
         <dataScope>data</dataScope>
         <deps>
@@ -50,12 +57,17 @@
         <settings>
             <label/>
         </settings>
+        <field name="cross_border_type" sortOrder="10" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Cross Border Type</label>
+                <dataScope>cross_border_type</dataScope>
+            </settings>
+        </field>
         <field name="hs_code" sortOrder="20" formElement="input">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="source" xsi:type="string">crossborder_class</item>
-                </item>
-            </argument>
             <settings>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
@@ -63,6 +75,27 @@
                 <dataType>text</dataType>
                 <label translate="true">HS Code</label>
                 <dataScope>hs_code</dataScope>
+            </settings>
+        </field>
+        <field name="unit_name" sortOrder="30" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Unit Name</label>
+                <dataScope>unit_name</dataScope>
+            </settings>
+        </field>
+        <field name="unit_amount_product_attr" sortOrder="40" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Unit Amount Product Attribute</label>
+                <dataScope>unit_amount_product_attr</dataScope>
+            </settings>
+        </field>
+        <field name="pref_program_indicator" sortOrder="50" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Pref. Program Indicator</label>
+                <dataScope>pref_program_indicator</dataScope>
             </settings>
         </field>
     </fieldset>

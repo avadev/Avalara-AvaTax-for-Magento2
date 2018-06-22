@@ -20,10 +20,43 @@ use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
 interface CrossBorderClassRepositoryInterface
 {
     /**
+     * Get a specific Cross-Border Class
+     *
      * @param int $classId
      * @return CrossBorderClassInterface
      *
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getById($classId);
+
+    /**
+     * Create a blank Cross-Border Class
+     *
+     * @return CrossBorderClassInterface
+     */
+    public function create();
+
+    /**
+     * Save a Cross-Border Class
+     *
+     * @param CrossBorderClassInterface $classDataModel
+     * @return CrossBorderClassInterface
+     *
+     * @throws \Magento\Framework\Exception\AlreadyExistsException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Exception
+     */
+    public function save($classDataModel);
+
+    /**
+     * Delete a Cross-Border Class
+     *
+     * @param int $classId
+     * @return void
+     *
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Exception
+     */
+    public function deleteById($classId);
 }
