@@ -104,6 +104,7 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
         $class->setData($classData);
 
         $classResource->save($class);
+        $classDataModel->setId($class->getId());
 
         return $this->getById($class->getId());
     }

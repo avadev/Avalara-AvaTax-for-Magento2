@@ -27,7 +27,7 @@
                 <item name="name" xsi:type="string">add</item>
                 <item name="label" xsi:type="string" translate="true">Create New Cross-Border Class</item>
                 <item name="class" xsi:type="string">primary</item>
-                <item name="url" xsi:type="string">avatax/crossborder_classes/newclass</item>
+                <item name="url" xsi:type="string">avatax/crossborder_classes/new</item>
             </item>
         </item>
     </argument>
