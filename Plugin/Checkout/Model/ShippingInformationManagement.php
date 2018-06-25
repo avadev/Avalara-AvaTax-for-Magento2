@@ -133,6 +133,14 @@ class ShippingInformationManagement
         $this->avaTaxLogger = $avaTaxLogger;
     }
 
+    /**
+     * @param \Magento\Checkout\Model\ShippingInformationManagement $subject
+     * @param \Closure $proceed
+     * @param $cartId
+     * @param ShippingInformationInterface $addressInformation
+     * @return mixed
+     * @throws NoSuchEntityException
+     */
     public function aroundSaveAddressInformation(
         \Magento\Checkout\Model\ShippingInformationManagement $subject,
         \Closure $proceed,
