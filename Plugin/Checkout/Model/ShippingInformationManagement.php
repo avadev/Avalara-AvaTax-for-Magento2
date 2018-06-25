@@ -28,6 +28,7 @@ use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\DataObject\Copy;
 use Magento\Customer\Model\Address\Mapper;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Class ShippingInformationManagement
@@ -132,6 +133,14 @@ class ShippingInformationManagement
         $this->avaTaxLogger = $avaTaxLogger;
     }
 
+    /**
+     * @param \Magento\Checkout\Model\ShippingInformationManagement $subject
+     * @param \Closure $proceed
+     * @param $cartId
+     * @param ShippingInformationInterface $addressInformation
+     * @return mixed
+     * @throws NoSuchEntityException
+     */
     public function aroundSaveAddressInformation(
         \Magento\Checkout\Model\ShippingInformationManagement $subject,
         \Closure $proceed,
@@ -232,7 +241,32 @@ class ShippingInformationManagement
             $shouldValidateAddress = false;
         }
 
-        $returnValue = $proceed($cartId, $addressInformation);
+        try {
+            $returnValue = $proceed($cartId, $addressInformation);
+        } catch (NoSuchEntityException $e) {
+            if (
+            (
+                strpos(strtolower($e->getMessage()), 'carrier') !== false
+                || strpos(strtolower($e->getMessage()), 'shipping') !== false
+            )
+                && strpos(strtolower($e->getMessage()), 'not found') !== false
+            ) {
+                // The exception that was thrown looks like it is one indicating the selected shipping method is no
+                // longer valid; override this message with one that is more verbose
+                throw new NoSuchEntityException(
+                    __(
+                        'Our address validation service has suggested that the provided address be updated to:<p>' .
+                        $validAddress->getStreetFull() . '<br />' . $validAddress->getCity() . ', ' .
+                        $validAddress->getRegion() . ' ' . $validAddress->getPostcode() .
+                        '</p>However, the selected shipping method is not available for the updated address. Please ' .
+                        'either update your address to match the address above or select a different shipping method ' .
+                        'to continue.'
+                    )
+                );
+            }
+            // The exception that was thrown is not the specific one we were looking for, bubble up the original error
+            throw new NoSuchEntityException(__($e->getMessage()));
+        }
 
         $this->ensureTaxCalculationSuccess($storeId);
 
