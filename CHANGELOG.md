@@ -1,3 +1,7 @@
+### 1.4.2 (2018-06-25)
+
+* Fix issue where Magento error isn't clear as to why a user can't proceed to payment method during checkout [#132](https://github.com/classyllama/ClassyLlama_AvaTax/issues/132)
+
 ### 1.4.1 (2018-04-12)
 
 * Fix bug where exception is thrown when customer has no value for chosen attribute [#99](https://github.com/classyllama/ClassyLlama_AvaTax/issues/99)
