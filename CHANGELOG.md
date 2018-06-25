@@ -1,3 +1,7 @@
+### 1.4.1 (2018-04-12)
+
+* Fix bug where exception is thrown when customer has no value for chosen attribute [#99](https://github.com/classyllama/ClassyLlama_AvaTax/issues/99)
+
 ### 1.4.0 (2018-04-03)
 
 * Add the ability to use any customer attribute as customer code [#99](https://github.com/classyllama/ClassyLlama_AvaTax/issues/99)
