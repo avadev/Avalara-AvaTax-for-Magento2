@@ -15,20 +15,20 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Store\Api\StoreRepositoryInterface;
-use Magento\Store\Api\Data\StoreInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
-use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 
 /**
  * Class Tax
@@ -722,37 +722,37 @@ class Tax
      *
      * @param \Magento\Framework\DataObject $request
      * @param \Magento\Store\Api\Data\StoreInterface $store
-     * @param $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface
+     * @param                                        $address \Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface
      * @param int $customerId
+     *
      * @throws LocalizedException
      */
-    protected function addGetTaxRequestFields($request, StoreInterface $store, $address, $customerId)
+    protected function addGetTaxRequestFields( $request, StoreInterface $store, $address, $customerId )
     {
-        $customer = $this->getCustomerById(($customerId));
+        $customer = $this->getCustomerById( ($customerId) );
 
         $storeId = $store->getId();
-        if ($this->config->getLiveMode($store) == Config::API_PROFILE_NAME_PROD) {
-            $companyCode = $this->config->getCompanyCode($storeId);
-        } else {
-            $companyCode = $this->config->getDevelopmentCompanyCode($storeId);
-        }
-        $businessIdentificationNumber = $this->getBusinessIdentificationNumber($store, $address, $customer);
-        $locationCode = $this->config->getLocationCode($store);
+        $companyCode = $this->config->isProductionMode( $store ) ? $this->config->getCompanyCode(
+            $storeId
+        ) : $this->config->getDevelopmentCompanyCode( $storeId );
+        $businessIdentificationNumber = $this->getBusinessIdentificationNumber( $store, $address, $customer );
+        $locationCode = $this->config->getLocationCode( $store );
 
         $additionalData = [
             'business_identification_no' => $businessIdentificationNumber,
-            'company_code' => $companyCode,
-            'reporting_location_code' => $locationCode,
+            'company_code'               => $companyCode,
+            'reporting_location_code'    => $locationCode,
         ];
 
-        foreach ($additionalData as $key => $value) {
-            $request->setData($key, $value);
+        foreach ($additionalData as $key => $value)
+        {
+            $request->setData( $key, $value );
         }
 
-        $originAddress = $this->address->getAddress($this->config->getOriginAddress($storeId));
+        $originAddress = $this->address->getAddress( $this->config->getOriginAddress( $storeId ) );
         $addresses = ($request->hasAddresses()) ? $request->getAddresses() : [];
-        $addresses[$this->restConfig->getAddrTypeFrom()] = $originAddress;
-        $request->setAddresses($addresses);
+        $addresses[ $this->restConfig->getAddrTypeFrom() ] = $originAddress;
+        $request->setAddresses( $addresses );
     }
 
     /**

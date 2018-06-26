@@ -15,10 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Observer;
 
+use ClassyLlama\AvaTax\Api\RestInterface;
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\Event\ObserverInterface;
-use ClassyLlama\AvaTax\Api\RestInterface;
-use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class ConfigSaveObserver
@@ -136,76 +135,105 @@ class ConfigSaveObserver implements ObserverInterface
      *
      * @param $scopeId
      * @param $scopeType
+     *
      * @return array
      */
-    protected function sendPing($scopeId, $scopeType)
+    protected function sendPing( $scopeId, $scopeType )
     {
         $errors = [];
-        if (!$this->config->isModuleEnabled($scopeId, $scopeType)) {
+        $message = '';
+
+        if (!$this->config->isModuleEnabled( $scopeId, $scopeType ))
+        {
             return $errors;
         }
 
-        $message = '';
-        $type = $this->config->getLiveMode($scopeId, $scopeType) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
-        if ($this->checkCredentialsForMode($scopeId, $scopeType, $type)) {
-            try {
-                $result = $this->interactionRest->ping($type, $scopeId, $scopeType);
+        $isProduction = $this->config->isProductionMode( $scopeId, $scopeType );
+        $mode = $this->config->getMode( $isProduction );
 
-                if ($result) {
+        if ($this->checkCredentialsForMode( $scopeId, $scopeType, $isProduction ))
+        {
+            try
+            {
+                $result = $this->interactionRest->ping( $isProduction, $scopeId, $scopeType );
+
+                if ($result)
+                {
                     $this->messageManager->addSuccess(
-                        __('Successfully connected to AvaTax using the '
-                            . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>', $type
+                        __(
+                            'Successfully connected to AvaTax using the '
+                            . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>',
+                            $mode
                         )
                     );
-                } else {
-                    $message = __('Authentication failed');
                 }
-            } catch (\Exception $exception) {
+                else
+                {
+                    $message = __( 'Authentication failed' );
+                }
+            }
+            catch (\Exception $exception)
+            {
                 $message = $exception->getMessage();
             }
 
-            if ($message) {
-                $errors[] = __('Error connecting to AvaTax using the '
-                    . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>: %2', $type, $message);
+            if ($message)
+            {
+                $errors[] = __(
+                    'Error connecting to AvaTax using the '
+                    . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>: %2',
+                    $mode,
+                    $message
+                );
             }
         }
+
         return $errors;
     }
-
-
 
     /**
      * Check that credentials have been set for the supplied mode
      *
      * @param $scopeId
      * @param $scopeType
-     * @param $mode
+     * @param $isProduction
+     *
      * @return bool
      */
-    protected function checkCredentialsForMode($scopeId, $scopeType, $mode)
+    protected function checkCredentialsForMode( $scopeId, $scopeType, $isProduction )
     {
         // Check that credentials have been set for whichever mode has been chosen
-        if ($mode == Config::API_PROFILE_NAME_PROD) {
+        if ($isProduction)
+        {
             if (
-                $this->config->getAccountNumber($scopeId, $scopeType) != ''
-                && $this->config->getLicenseKey($scopeId, $scopeType) != ''
-                && $this->config->getCompanyCode($scopeId, $scopeType) != ''
-            ) {
+                $this->config->getAccountNumber( $scopeId, $scopeType ) != ''
+                && $this->config->getLicenseKey( $scopeId, $scopeType ) != ''
+                && $this->config->getCompanyCode( $scopeId, $scopeType ) != ''
+            )
+            {
                 return true;
             }
-        } else {
+        }
+        else
+        {
             if (
-                $this->config->getDevelopmentAccountNumber($scopeId, $scopeType) != ''
-                && $this->config->getDevelopmentLicenseKey($scopeId, $scopeType) != ''
-                && $this->config->getDevelopmentCompanyCode($scopeId, $scopeType) != ''
-            ) {
+                $this->config->getDevelopmentAccountNumber( $scopeId, $scopeType ) != ''
+                && $this->config->getDevelopmentLicenseKey( $scopeId, $scopeType ) != ''
+                && $this->config->getDevelopmentCompanyCode( $scopeId, $scopeType ) != ''
+            )
+            {
                 return true;
             }
         }
         // One or more of the supplied mode's credentials is blank
         $this->messageManager->addWarningMessage(
-            __('The AvaTax extension is set to "%1" mode, but %2 credentials are incomplete.', $mode, strtolower($mode))
+            __(
+                'The AvaTax extension is set to "%1" mode, but %2 credentials are incomplete.',
+                $isProduction,
+                strtolower( $isProduction )
+            )
         );
+
         return false;
     }
 }

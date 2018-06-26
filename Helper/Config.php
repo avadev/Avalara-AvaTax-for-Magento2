@@ -16,17 +16,17 @@
 namespace ClassyLlama\AvaTax\Helper;
 
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Helper\Context;
-use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Shipping\Model\Config as ShippingConfig;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Framework\App\State;
-use Magento\Tax\Api\TaxClassRepositoryInterface;
-use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Address as TaxAddress;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\App\State;
+use Magento\Framework\DataObjectFactory;
+use Magento\Shipping\Model\Config as ShippingConfig;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Tax\Api\TaxClassRepositoryInterface;
 
 /**
  * AvaTax Config model
@@ -499,21 +499,32 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Get Live vs. Development mode of the module
+     * Get Production vs. Development mode of the module
      *
-     * Must be configured at default level as it is difficult to pass store in all contexts this is used
+     * @param int|null    $store
+     * @param string|null $scopeType
      *
-     * @param $store
-     * @param string $scopeType
      * @return bool
      */
-    public function getLiveMode($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function isProductionMode( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
     {
-        return (bool)$this->scopeConfig->getValue(
+        return (bool) $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LIVE_MODE,
             $scopeType,
             $store
         );
+    }
+
+    /**
+     * Returns a string representing the mode
+     *
+     * @param bool $isProductionMode
+     *
+     * @return string
+     */
+    public function getMode( $isProductionMode )
+    {
+        return $isProductionMode ? self::API_PROFILE_NAME_PROD : self::API_PROFILE_NAME_DEV;
     }
 
     /**
