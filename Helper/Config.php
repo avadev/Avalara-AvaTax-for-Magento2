@@ -530,14 +530,21 @@ class Config extends AbstractHelper
     /**
      * Get account number from config
      *
-     * @param $store
-     * @param $scopeType
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
      * @return string
      */
-    public function getAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function getAccountNumber( $store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null )
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
+        if ($isProduction === null)
+        {
+            $isProduction = $this->isProductionMode( $store, $scopeType );
+        }
+
+        return (string) $this->scopeConfig->getValue(
+            $isProduction ? self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER : self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
             $scopeType,
             $store
         );
@@ -571,22 +578,6 @@ class Config extends AbstractHelper
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get development account number from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
             $scopeType,
             $store
         );

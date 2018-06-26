@@ -98,10 +98,7 @@ class ClientPool
                 ]
             );
 
-            $accountNumber = $isProduction ? $this->config->getAccountNumber(
-                $scopeId,
-                $scopeType
-            ) : $this->config->getDevelopmentAccountNumber( $scopeId, $scopeType );
+            $accountNumber = $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction );
             $licenseKey = $isProduction ? $this->config->getLicenseKey(
                 $scopeId,
                 $scopeType
