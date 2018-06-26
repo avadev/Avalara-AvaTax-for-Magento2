@@ -56,11 +56,15 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE = 'tax/avatax/production_company_code';
 
+    const XML_PATH_AVATAX_PRODUCTION_COMPANY_ID = 'tax/avatax/production_company_id';
+
     const XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER = 'tax/avatax/development_account_number';
 
     const XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY = 'tax/avatax/development_license_key';
 
     const XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE = 'tax/avatax/development_company_code';
+
+    const XML_PATH_AVATAX_DEVELOPMENT_COMPANY_ID = 'tax/avatax/development_company_id';
 
     const XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT = 'tax/avatax/customer_code_format';
 
@@ -612,6 +616,26 @@ class Config extends AbstractHelper
         return (string) $this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
             self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
+            $isProduction,
+            $store,
+            $scopeType
+        );
+    }
+
+    /**
+     * Get company code from config
+     *
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
+     * @return string
+     */
+    public function getCompanyId($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
+    {
+        return (string) $this->getConfigByMode(
+            self::XML_PATH_AVATAX_PRODUCTION_COMPANY_ID,
+            self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_ID,
             $isProduction,
             $store,
             $scopeType
