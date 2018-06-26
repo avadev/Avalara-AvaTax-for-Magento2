@@ -39,23 +39,13 @@ class Get extends \Magento\Backend\App\Action
 
     public function execute()
     {
+        $companies = [];
         $postValue = $this->getRequest()->getPostValue();
         $mode = $this->getRequest()->getParam( 'mode' );
         $resultJson = $this->resultPageFactory->create();
-        $companies = [];
-        $currentCompanyCode = null;
         $scope = isset( $postValue['scope'] ) ? $postValue['scope'] : null;
         $scopeType = $postValue['scope_type'] === 'global' ? \Magento\Store\Model\ScopeInterface::SCOPE_STORE : $postValue['scope_type'];
-
-        switch ((int) $mode)
-        {
-            case \ClassyLlama\AvaTax\Model\Config\Source\Mode::DEVELOPMENT:
-                $currentCompanyCode = $this->config->getDevelopmentCompanyCode( $scope, $scopeType );
-                break;
-            case \ClassyLlama\AvaTax\Model\Config\Source\Mode::PRODUCTION:
-                $currentCompanyCode = $this->config->getCompanyCode( $scope, $scopeType );
-                break;
-        }
+        $currentCompanyCode = $this->config->getCompanyCode( $scope, $scopeType, (int) $mode );
 
         try
         {

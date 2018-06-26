@@ -601,33 +601,20 @@ class Config extends AbstractHelper
     /**
      * Get company code from config
      *
-     * @param        $store
-     * @param string $scopeType
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
      *
      * @return string
      */
-    public function getCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function getCompanyCode($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
     {
-        return (string)$this->scopeConfig->getValue(
+        return (string) $this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get development company code from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
-            $scopeType,
-            $store
+            $isProduction,
+            $store,
+            $scopeType
         );
     }
 

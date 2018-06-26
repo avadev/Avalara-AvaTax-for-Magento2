@@ -732,11 +732,9 @@ class Tax
         $customer = $this->getCustomerById( ($customerId) );
 
         $storeId = $store->getId();
-        $companyCode = $this->config->isProductionMode( $store ) ? $this->config->getCompanyCode(
-            $storeId
-        ) : $this->config->getDevelopmentCompanyCode( $storeId );
+        $companyCode = $this->config->getCompanyCode( $storeId );
+        $locationCode = $this->config->getLocationCode( $storeId );
         $businessIdentificationNumber = $this->getBusinessIdentificationNumber( $store, $address, $customer );
-        $locationCode = $this->config->getLocationCode( $store );
 
         $additionalData = [
             'business_identification_no' => $businessIdentificationNumber,

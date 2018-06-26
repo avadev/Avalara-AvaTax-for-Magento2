@@ -203,28 +203,15 @@ class ConfigSaveObserver implements ObserverInterface
     protected function checkCredentialsForMode( $scopeId, $scopeType, $isProduction )
     {
         // Check that credentials have been set for whichever mode has been chosen
-        if ($isProduction)
+        if (
+            $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction ) !== ''
+            && $this->config->getLicenseKey( $scopeId, $scopeType, $isProduction ) !== ''
+            && $this->config->getCompanyCode( $scopeId, $scopeType, $isProduction ) !== ''
+        )
         {
-            if (
-                $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction ) !== ''
-                && $this->config->getLicenseKey( $scopeId, $scopeType, $isProduction ) !== ''
-                && $this->config->getCompanyCode( $scopeId, $scopeType ) != ''
-            )
-            {
-                return true;
-            }
+            return true;
         }
-        else
-        {
-            if (
-                $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction ) != ''
-                && $this->config->getLicenseKey( $scopeId, $scopeType, $isProduction ) != ''
-                && $this->config->getDevelopmentCompanyCode( $scopeId, $scopeType ) != ''
-            )
-            {
-                return true;
-            }
-        }
+
         // One or more of the supplied mode's credentials is blank
         $this->messageManager->addWarningMessage(
             __(
