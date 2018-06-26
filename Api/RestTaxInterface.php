@@ -25,14 +25,15 @@ interface RestTaxInterface extends \ClassyLlama\AvaTax\Api\RestInterface
      * REST call to post tax transaction
      *
      * @param \Magento\Framework\DataObject $request
-     * @param null|string $mode
-     * @param null|string|int $scopeId
-     * @param string $scopeType
-     * @param array $params
+     * @param null|string                   $isProduction
+     * @param null|string|int               $scopeId
+     * @param string                        $scopeType
+     * @param array                         $params
+     *
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws AvataxConnectionException
      * @throws \Exception
      */
-    public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = []);
+    public function getTax( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = []);
 }

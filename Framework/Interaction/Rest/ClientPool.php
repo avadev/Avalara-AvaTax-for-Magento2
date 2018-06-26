@@ -66,9 +66,9 @@ class ClientPool
     /**
      * Get an AvaTax REST API client object
      *
-     * @param null|string     $isProduction
-     * @param null|string|int $scopeId
-     * @param string          $scopeType
+     * @param bool|null $isProduction
+     * @param int|null  $scopeId
+     * @param string    $scopeType
      *
      * @return AvaTaxClient
      * @throws \InvalidArgumentException

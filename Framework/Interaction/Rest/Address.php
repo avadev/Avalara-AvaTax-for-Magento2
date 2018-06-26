@@ -15,13 +15,12 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use Psr\Log\LoggerInterface;
-use Magento\Framework\DataObjectFactory;
-use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
-use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
-use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\ResultFactory as AddressResultFactory;
+use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
+use Magento\Framework\DataObjectFactory;
+use Psr\Log\LoggerInterface;
 
 class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestAddressInterface
@@ -56,16 +55,22 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * Perform REST request to validate address
      *
      * @param \Magento\Framework\DataObject $request
-     * @param string|null $mode
-     * @param string|int|null $scopeId
-     * @param string $scopeType
+     * @param bool|null                     $isProduction
+     * @param string|int|null               $scopeId
+     * @param string|null                   $scopeType
+     *
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result
      * @throws AddressValidateException
      * @throws AvataxConnectionException
      */
-    public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function validate(
+        $request,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
     {
-        $client = $this->getClient($mode, $scopeId, $scopeType);
+        $client = $this->getClient( $isProduction, $scopeId, $scopeType );
 
         $address = $request->getAddress();
         $textCase = $request->getTextCase();

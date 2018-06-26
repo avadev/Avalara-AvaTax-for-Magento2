@@ -23,7 +23,7 @@ interface RestCompanyInterface extends RestInterface
      * Perform REST request to get companies associated with the account
      *
      * @param DataObject|null $request
-     * @param string|null     $mode
+     * @param bool|null       $isProduction
      * @param string|int|null $scopeId
      * @param string          $scopeType
      *
@@ -32,7 +32,7 @@ interface RestCompanyInterface extends RestInterface
      */
     public function getCompanies(
         $request = null,
-        $mode = null,
+        $isProduction = null,
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     );

@@ -17,12 +17,13 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
 use ClassyLlama\AvaTax\Api\RestCompanyInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
+use Magento\Framework\DataObject;
 
 class Company extends Rest implements RestCompanyInterface
 {
     /**
      * @param \Avalara\AvaTaxClient $client
-     * @param null                  $request
+     * @param DataObject|null       $request
      *
      * @return mixed
      * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
@@ -52,28 +53,28 @@ class Company extends Rest implements RestCompanyInterface
      */
     public function getCompanies(
         $request = null,
-        $mode = null,
+        $isProduction = null,
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     )
     {
-        $client = $this->getClient( $mode, $scopeId, $scopeType );
+        $client = $this->getClient( $isProduction, $scopeId, $scopeType );
 
         return $this->getCompaniesFromClient( $client, $request );
     }
 
     /**
-     * @param      $accountNumber
-     * @param      $password
-     * @param null $request
-     * @param null $mode
+     * @param string          $accountNumber
+     * @param string          $password
+     * @param DataObject|null $request
+     * @param bool|null       $isProduction
      *
      * @return mixed
      * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
      */
-    public function getCompaniesWithSecurity( $accountNumber, $password, $request = null, $mode = null )
+    public function getCompaniesWithSecurity( $accountNumber, $password, $request = null, $isProduction = null )
     {
-        $client = $this->getClient( $mode );
+        $client = $this->getClient( $isProduction );
         $client->withSecurity( $accountNumber, $password );
 
         return $this->getCompaniesFromClient( $client, $request );

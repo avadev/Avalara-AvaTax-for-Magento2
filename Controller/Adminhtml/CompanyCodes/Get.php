@@ -41,24 +41,24 @@ class Get extends \Magento\Backend\App\Action
     {
         $companies = [];
         $postValue = $this->getRequest()->getPostValue();
-        $mode = $this->getRequest()->getParam( 'mode' );
+        $isProduction = (bool)$this->getRequest()->getParam( 'mode' );
         $resultJson = $this->resultPageFactory->create();
         $scope = isset( $postValue['scope'] ) ? $postValue['scope'] : null;
         $scopeType = $postValue['scope_type'] === 'global' ? \Magento\Store\Model\ScopeInterface::SCOPE_STORE : $postValue['scope_type'];
-        $currentCompanyCode = $this->config->getCompanyCode( $scope, $scopeType, (int) $mode );
+        $currentCompanyCode = $this->config->getCompanyCode( $scope, $scopeType, $isProduction );
 
         try
         {
             if (!isset( $postValue['license_key'] ))
             {
-                $postValue['license_key'] = $this->config->getLicenseKey( $scope, $scopeType, (int) $mode );
+                $postValue['license_key'] = $this->config->getLicenseKey( $scope, $scopeType, $isProduction );
             }
 
             $companies = $this->company->getCompaniesWithSecurity(
                 $postValue['account_number'],
                 $postValue['license_key'],
                 null,
-                $mode
+                $isProduction
             );
         }
         catch (AvataxConnectionException $e)

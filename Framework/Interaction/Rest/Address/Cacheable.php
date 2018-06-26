@@ -71,16 +71,17 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
      * Cache validated response
      *
      * @param \Magento\Framework\DataObject $request
-     * @param string|null $mode
-     * @param string|int|null $scopeId
-     * @param string $scopeType
+     * @param string|null                   $isProduction
+     * @param string|int|null               $scopeId
+     * @param string                        $scopeType
+     *
      * @return AddressResult
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws AvataxConnectionException
      * @throws AddressValidateException
      * @throws \Exception
      */
-    public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function validate( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
         $addressCacheKey = $this->getCacheKey($request->getAddress()) . $scopeId;
         $validateResult = @unserialize($this->cache->load($addressCacheKey));
@@ -127,17 +128,17 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
     /**
      * @inheritdoc
      */
-    public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function getClient( $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
-        return $this->interactionAddress->getClient($mode, $scopeId, $scopeType);
+        return $this->interactionAddress->getClient( $isProduction, $scopeId, $scopeType);
     }
 
     /**
      * @inheritdoc
      */
-    public function ping($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function ping( $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
-        return $this->interactionAddress->ping($mode, $scopeId, $scopeType);
+        return $this->interactionAddress->ping( $isProduction, $scopeId, $scopeType);
     }
 
     /**
