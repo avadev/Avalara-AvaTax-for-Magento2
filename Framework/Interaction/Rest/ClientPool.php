@@ -99,10 +99,7 @@ class ClientPool
             );
 
             $accountNumber = $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction );
-            $licenseKey = $isProduction ? $this->config->getLicenseKey(
-                $scopeId,
-                $scopeType
-            ) : $this->config->getDevelopmentLicenseKey( $scopeId, $scopeType );
+            $licenseKey = $this->config->getLicenseKey( $scopeId, $scopeType, $isProduction );
 
             $avaTaxClient->withSecurity( $accountNumber, $licenseKey );
 

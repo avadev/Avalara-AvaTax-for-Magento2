@@ -528,7 +528,58 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Gets a config value based on the mode
+     *
+     * @param bool        $isProduction
+     * @param string      $productionConfig
+     * @param string      $developmentConfig
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return mixed
+     */
+    protected function getConfigByMode(
+        $productionConfig,
+        $developmentConfig,
+        $isProduction = null,
+        $store = null,
+        $scopeType = ScopeInterface::SCOPE_STORE
+    )
+    {
+        if ($isProduction === null)
+        {
+            $isProduction = $this->isProductionMode( $store, $scopeType );
+        }
+
+        return $this->scopeConfig->getValue(
+            $isProduction ? $productionConfig : $developmentConfig,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
      * Get account number from config
+     *
+     * @param int|null $store
+     * @param string|null $scopeType
+     * @param bool|null $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
+     * @return string
+     */
+    public function getAccountNumber( $store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null )
+    {
+        return (string) $this->getConfigByMode(
+            self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
+            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
+            $isProduction,
+            $store,
+            $scopeType
+        );
+    }
+
+    /**
+     * Get license key from config
      *
      * @param int|null    $store
      * @param string|null $scopeType
@@ -536,33 +587,14 @@ class Config extends AbstractHelper
      *
      * @return string
      */
-    public function getAccountNumber( $store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null )
+    public function getLicenseKey( $store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null )
     {
-        if ($isProduction === null)
-        {
-            $isProduction = $this->isProductionMode( $store, $scopeType );
-        }
-
-        return (string) $this->scopeConfig->getValue(
-            $isProduction ? self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER : self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get license key from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
+        return (string) $this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
-            $scopeType,
-            $store
+            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
+            $isProduction,
+            $store,
+            $scopeType
         );
     }
 
@@ -578,22 +610,6 @@ class Config extends AbstractHelper
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get development license key from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
             $scopeType,
             $store
         );

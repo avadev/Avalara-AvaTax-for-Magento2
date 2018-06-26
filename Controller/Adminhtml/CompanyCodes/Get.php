@@ -61,18 +61,15 @@ class Get extends \Magento\Backend\App\Action
         {
             if (!isset( $postValue['license_key'] ))
             {
-                switch ((int) $mode)
-                {
-                    case \ClassyLlama\AvaTax\Model\Config\Source\Mode::DEVELOPMENT:
-                        $postValue['license_key'] = $this->config->getDevelopmentLicenseKey( $scope, $scopeType );
-                        break;
-                    case \ClassyLlama\AvaTax\Model\Config\Source\Mode::PRODUCTION:
-                        $postValue['license_key'] = $this->config->getLicenseKey( $scope, $scopeType );
-                        break;
-                }
+                $postValue['license_key'] = $this->config->getLicenseKey( $scope, $scopeType, (int) $mode );
             }
 
-            $companies = $this->company->getCompaniesWithSecurity( $postValue['account_number'], $postValue['license_key'], null, $mode );
+            $companies = $this->company->getCompaniesWithSecurity(
+                $postValue['account_number'],
+                $postValue['license_key'],
+                null,
+                $mode
+            );
         }
         catch (AvataxConnectionException $e)
         {

@@ -207,7 +207,7 @@ class ConfigSaveObserver implements ObserverInterface
         {
             if (
                 $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction ) !== ''
-                && $this->config->getLicenseKey( $scopeId, $scopeType ) != ''
+                && $this->config->getLicenseKey( $scopeId, $scopeType, $isProduction ) !== ''
                 && $this->config->getCompanyCode( $scopeId, $scopeType ) != ''
             )
             {
@@ -218,7 +218,7 @@ class ConfigSaveObserver implements ObserverInterface
         {
             if (
                 $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction ) != ''
-                && $this->config->getDevelopmentLicenseKey( $scopeId, $scopeType ) != ''
+                && $this->config->getLicenseKey( $scopeId, $scopeType, $isProduction ) != ''
                 && $this->config->getDevelopmentCompanyCode( $scopeId, $scopeType ) != ''
             )
             {
