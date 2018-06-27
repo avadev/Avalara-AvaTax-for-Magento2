@@ -22,7 +22,7 @@ interface CrossBorderClassInterface
     const CROSS_BORDER_TYPE = 'cross_border_type';
     const HS_CODE = 'hs_code';
     const UNIT_NAME = 'unit_name';
-    const UNIT_AMOUNT = 'unit_amount_attr_code';
+    const UNIT_AMOUNT = 'unit_amount_product_attr';
     const PREF_PROGRAM_IND = 'pref_program_indicator';
 
     /**

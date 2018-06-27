@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Api\Data;
 
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
+use ClassyLlama\AvaTax\Exception\InvalidTypeException;
 
 interface CrossBorderClassRepositoryInterface
 {
@@ -26,6 +27,7 @@ interface CrossBorderClassRepositoryInterface
      * @return CrossBorderClassInterface
      *
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws InvalidTypeException
      */
     public function getById($classId);
 
@@ -33,20 +35,22 @@ interface CrossBorderClassRepositoryInterface
      * Create a blank Cross-Border Class
      *
      * @return CrossBorderClassInterface
+     * @throws InvalidTypeException
      */
     public function create();
 
     /**
      * Save a Cross-Border Class
      *
-     * @param CrossBorderClassInterface $classDataModel
+     * @param CrossBorderClassInterface $class
      * @return CrossBorderClassInterface
      *
      * @throws \Magento\Framework\Exception\AlreadyExistsException
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws InvalidTypeException
      * @throws \Exception
      */
-    public function save($classDataModel);
+    public function save($class);
 
     /**
      * Delete a Cross-Border Class

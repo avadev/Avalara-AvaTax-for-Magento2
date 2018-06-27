@@ -29,7 +29,7 @@
     <preference for="ClassyLlama\AvaTax\Api\RestInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest" />
     <preference for="ClassyLlama\AvaTax\Api\RestTaxInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax" />
     <preference for="ClassyLlama\AvaTax\Api\RestAddressInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Address" />
-    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface" type="ClassyLlama\AvaTax\Model\Data\CrossBorderClass" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface" type="\ClassyLlama\AvaTax\Model\CrossBorderClass" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderClassRepository" />
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">

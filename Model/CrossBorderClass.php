@@ -18,7 +18,7 @@ namespace ClassyLlama\AvaTax\Model;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterfaceFactory;
 
-class CrossBorderClass extends \Magento\Framework\Model\AbstractModel
+class CrossBorderClass extends \Magento\Framework\Model\AbstractModel implements CrossBorderClassInterface
 {
     /**
      * @var CrossBorderClassInterfaceFactory
@@ -54,49 +54,98 @@ class CrossBorderClass extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Retrieve data model with cross-border class data
-     *
-     * @return CrossBorderClassInterface
+     * @inheritdoc
      */
-    public function getDataModel()
+    public function getDestinationCountries()
     {
-        $dataObject = $this->createDataModel();
-
-        $dataObject->setId($this->getClassId());
-        $dataObject->setDestinationCountries($this->getDestinationCountryCodes());
-        $dataObject->setCrossBorderType($this->getCrossBorderType());
-        $dataObject->setHsCode($this->getHsCode());
-        $dataObject->setUnitName($this->getUnitName());
-        $dataObject->setUnitAmountAttrCode($this->getUnitAmountProductAttr());
-        $dataObject->setPrefProgramIndicator($this->getPrefProgramIndicator());
-
-        return $dataObject;
+        return $this->_getData(CrossBorderClassInterface::DESTINATION_COUNTRIES);
     }
 
     /**
-     * Create a new instance of a data model
-     *
-     * @return CrossBorderClassInterface
+     * @inheritdoc
      */
-    public function createDataModel()
+    public function setDestinationCountries($countries)
     {
-        /**
-         * @var CrossBorderClassInterface $dataObject
-         */
-        $dataObject = $this->crossBorderClassFactory->create();
-        return $dataObject;
+        return $this->setData(CrossBorderClassInterface::DESTINATION_COUNTRIES, $countries);
     }
 
     /**
-     * Get array of the applicable destination country codes
-     *
-     * @return array
+     * @inheritdoc
      */
-    public function getDestinationCountryCodes()
+    public function getCrossBorderType()
     {
-        // TODO: Replace with actual logic
-        return [
-            'US', 'DE'
-        ];
+        return $this->_getData(CrossBorderClassInterface::CROSS_BORDER_TYPE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setCrossBorderType($type)
+    {
+        return $this->setData(CrossBorderClassInterface::CROSS_BORDER_TYPE, $type);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHsCode()
+    {
+        return $this->_getData(CrossBorderClassInterface::HS_CODE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setHsCode($code)
+    {
+        return $this->setData(CrossBorderClassInterface::HS_CODE, $code);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUnitName()
+    {
+        return $this->_getData(CrossBorderClassInterface::UNIT_NAME);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setUnitName($name)
+    {
+        return $this->setData(CrossBorderClassInterface::UNIT_NAME, $name);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUnitAmountAttrCode()
+    {
+        return $this->_getData(CrossBorderClassInterface::UNIT_AMOUNT);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setUnitAmountAttrCode($attrCode)
+    {
+        return $this->setData(CrossBorderClassInterface::UNIT_AMOUNT, $attrCode);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPrefProgramIndicator()
+    {
+        return $this->_getData(CrossBorderClassInterface::PREF_PROGRAM_IND);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setPrefProgramIndicator($indicator)
+    {
+        return $this->setData(CrossBorderClassInterface::PREF_PROGRAM_IND, $indicator);
     }
 }

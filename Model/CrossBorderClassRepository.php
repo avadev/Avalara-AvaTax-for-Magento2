@@ -15,12 +15,13 @@
 
 namespace ClassyLlama\AvaTax\Model;
 
+use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
 use ClassyLlama\AvaTax\Model\CrossBorderClassFactory;
 use ClassyLlama\AvaTax\Model\CrossBorderClass;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClassFactory as CrossBorderClassResourceFactory;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassResource;
-use ClassyLlama\AvaTax\Model\Data\CrossBorderClassFactory as CrossBorderClassDataFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
+use ClassyLlama\AvaTax\Exception\InvalidTypeException;
 
 class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface
 {
@@ -35,11 +36,6 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     protected $crossBorderClassResourceFactory;
 
     /**
-     * @var CrossBorderClassDataFactory
-     */
-    protected $crossBorderClassDataFactory;
-
-    /**
      * @var CrossBorderClassResource
      */
     protected $crossBorderClassResource;
@@ -47,16 +43,13 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     /**
      * @param CrossBorderClassFactory $crossBorderClassFactory
      * @param CrossBorderClassResourceFactory $crossBorderClassResourceFactory
-     * @param CrossBorderClassDataFactory $crossBorderClassDataFactory
      */
     public function __construct(
         CrossBorderClassFactory $crossBorderClassFactory,
-        CrossBorderClassResourceFactory $crossBorderClassResourceFactory,
-        CrossBorderClassDataFactory $crossBorderClassDataFactory
+        CrossBorderClassResourceFactory $crossBorderClassResourceFactory
     ) {
         $this->crossBorderClassFactory = $crossBorderClassFactory;
         $this->crossBorderClassResourceFactory = $crossBorderClassResourceFactory;
-        $this->crossBorderClassDataFactory = $crossBorderClassDataFactory;
 
         $this->crossBorderClassResource = $this->crossBorderClassResourceFactory->create();
     }
@@ -68,7 +61,11 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     {
         $crossBorderClass = $this->loadModel($classId);
 
-        return $crossBorderClass->getDataModel();
+        if (!($crossBorderClass instanceof CrossBorderClassInterface)) {
+            throw new InvalidTypeException(__('CrossBorderClassRepository implementation must be changed if CrossBorderClassInterface implementation changes'));
+        }
+
+        return $crossBorderClass;
     }
 
     /**
@@ -76,37 +73,29 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
      */
     public function create()
     {
-        return $this->crossBorderClassDataFactory->create();
+        $result = $this->crossBorderClassFactory->create();
+
+        if (!($result instanceof CrossBorderClassInterface)) {
+            throw new InvalidTypeException(__('CrossBorderClassRepository implementation must be changed if CrossBorderClassInterface implementation changes'));
+        }
+
+        return $result;
     }
 
     /**
      * @inheritdoc
      *
      */
-    public function save($classDataModel)
+    public function save($class)
     {
-        $classResource = $this->crossBorderClassResourceFactory->create();
-
-        $classData = [
-            'cross_border_type' => $classDataModel->getCrossBorderType(),
-            'hs_code' => $classDataModel->getHsCode(),
-            'unit_name' => $classDataModel->getUnitName(),
-            'unit_amount_product_attr' => $classDataModel->getUnitAmountAttrCode(),
-            'pref_program_indicator' => $classDataModel->getPrefProgramIndicator(),
-        ];
-
-        $class = $this->crossBorderClassFactory->create();
-        if ($classDataModel->getId()) {
-            $classResource->load($class, $classDataModel->getId());
-            $classData['class_id'] = $classDataModel->getId();
+        if (!($class instanceof CrossBorderClass)) {
+            throw new InvalidTypeException(__('CrossBorderClassRepository implementation must be changed if CrossBorderClassInterface implementation changes'));
         }
 
-        $class->setData($classData);
-
+        $classResource = $this->crossBorderClassResourceFactory->create();
         $classResource->save($class);
-        $classDataModel->setId($class->getId());
 
-        return $this->getById($class->getId());
+        return $class;
     }
 
     /**
@@ -115,7 +104,6 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     public function deleteById($classId)
     {
         $crossBorderClass = $this->loadModel($classId);
-
         $this->crossBorderClassResource->delete($crossBorderClass);
     }
 
@@ -135,7 +123,7 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
 
         $this->crossBorderClassResource->load($crossBorderClass, $classId);
 
-        if (!$crossBorderClass->getClassId()) {
+        if (!$crossBorderClass->getId()) {
             throw new NoSuchEntityException(__('Cross-border Class w/ ID %1 does not exist', $classId));
         }
 

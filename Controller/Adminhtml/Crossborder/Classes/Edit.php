@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\Classes;
 
+use ClassyLlama\AvaTax\Exception\InvalidTypeException;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Backend\App\Action\Context;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
@@ -63,6 +64,11 @@ class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
                 $crossBorderClass = $this->crossBorderClassRepository->getById($classId);
             } catch (NoSuchEntityException $e) {
                 $this->messageManager->addExceptionMessage($e, __('Cross-Border Class does not exist'));
+                $resultRedirect = $this->resultRedirectFactory->create();
+                $resultRedirect->setPath('*/*/index');
+                return $resultRedirect;
+            } catch (\Exception $e) {
+                $this->messageManager->addExceptionMessage($e, __('An error occurred while loading the class'));
                 $resultRedirect = $this->resultRedirectFactory->create();
                 $resultRedirect->setPath('*/*/index');
                 return $resultRedirect;
