@@ -45,7 +45,7 @@ class Get extends \Magento\Backend\App\Action
         $resultJson = $this->resultPageFactory->create();
         $scope = isset( $postValue['scope'] ) ? $postValue['scope'] : null;
         $scopeType = $postValue['scope_type'] === 'global' ? \Magento\Store\Model\ScopeInterface::SCOPE_STORE : $postValue['scope_type'];
-        $currentCompanyCode = $this->config->getCompanyCode( $scope, $scopeType, $isProduction );
+        $currentCompanyId = $this->config->getCompanyId( $scope, $scopeType, $isProduction );
 
         try
         {
@@ -71,12 +71,12 @@ class Get extends \Magento\Backend\App\Action
                 [
                     'companies'    => [
                         [
-                            'account_id'   => null,
+                            'company_id'   => null,
                             'company_code' => null,
                             'name'         => __( 'No available companies' ),
                         ]
                     ],
-                    'current_code' => $currentCompanyCode
+                    'current_id' => $currentCompanyId
                 ]
             );
         }
@@ -87,14 +87,14 @@ class Get extends \Magento\Backend\App\Action
                     function ( $company ) {
                         /** @var DataObject $company */
                         return [
-                            'account_id'   => $company->getData( 'account_id' ),
+                            'company_id'   => $company->getData( 'id' ),
                             'company_code' => $company->getData( 'company_code' ),
                             'name'         => $company->getData( 'name' ),
                         ];
                     },
                     $companies
                 ),
-                'current_code' => $currentCompanyCode
+                'current_id' => $currentCompanyId
             ]
         );
     }

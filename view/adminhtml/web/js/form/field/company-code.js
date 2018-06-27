@@ -14,22 +14,22 @@ define(['jquery', 'mage/url'], function (jQuery) {
         };
     }
 
-    return function companyCode(config, companyCodeElement) {
-        var companyCodeToAccountNumberMap = [],
+    return function companyCode(config, idElement) {
+        var companyIdToCompanyCodeMap = [],
             url = config.url,
             accountNumberElement = document.getElementById(config.account_number_id),
             licenseKeyElement = document.getElementById(config.license_key_id),
-            companyIdElement = document.getElementById(config.company_id_id);
+            companyCodeElement = document.getElementById(config.company_code_id);
 
-        if (accountNumberElement === null || licenseKeyElement === null || companyIdElement === null) {
+        if (accountNumberElement === null || licenseKeyElement === null || companyCodeElement === null) {
             return;
         }
 
-        function updateCompanyId() {
-            companyIdElement.value = companyCodeToAccountNumberMap[companyCodeElement.item(companyCodeElement.selectedIndex).value];
+        function updateCompanyCode() {
+            companyCodeElement.value = companyIdToCompanyCodeMap[idElement.item(idElement.selectedIndex).value];
         }
 
-        function updateCompanyCode() {
+        function updateCompanyId() {
             // If either account number or license key is null, we can't make any request
             if (accountNumberElement.value === '' || licenseKeyElement.value === '') {
                 return jQuery.Deferred().reject();
@@ -54,26 +54,26 @@ define(['jquery', 'mage/url'], function (jQuery) {
                 beforeSend: function () {
                 }
             }).then(function (response) {
-                companyCodeElement.innerHTML = '';
+                idElement.innerHTML = '';
 
                 response.companies.forEach(function (company) {
-                    companyCodeToAccountNumberMap[company.company_code] = company.account_id;
-                    companyCodeElement.add(new Option(company.name, company.company_code, false, company.company_code === response.current_code));
-                    updateCompanyId();
+                    companyIdToCompanyCodeMap[company.company_id] = company.company_code;
+                    idElement.add(new Option(company.company_code + ' - ' + company.name, company.company_id, false, company.company_id === response.current_id));
+                    updateCompanyCode();
                 })
             });
         }
 
-        if (accountNumberElement === null || licenseKeyElement === null || companyCodeElement === null) {
+        if (accountNumberElement === null || licenseKeyElement === null || idElement === null) {
             return;
         }
 
-        accountNumberElement.addEventListener('change', updateCompanyCode);
-        licenseKeyElement.addEventListener('change', updateCompanyCode);
-        companyCodeElement.addEventListener('change', updateCompanyId);
+        accountNumberElement.addEventListener('change', updateCompanyId);
+        licenseKeyElement.addEventListener('change', updateCompanyId);
+        idElement.addEventListener('change', updateCompanyCode);
 
         if (accountNumberElement.value !== null && licenseKeyElement.value !== null) {
-            updateCompanyCode();
+            updateCompanyId();
         }
     }
 });

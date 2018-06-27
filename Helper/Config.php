@@ -629,17 +629,23 @@ class Config extends AbstractHelper
      * @param string|null $scopeType
      * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
      *
-     * @return string
+     * @return int|null
      */
     public function getCompanyId($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
     {
-        return (string) $this->getConfigByMode(
+        $companyId = $this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_ID,
             self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_ID,
             $isProduction,
             $store,
             $scopeType
         );
+
+        if($companyId !== null) {
+            $companyId = (int)$companyId;
+        }
+
+        return $companyId;
     }
 
     /**
