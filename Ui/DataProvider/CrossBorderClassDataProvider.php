@@ -13,13 +13,13 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Model\CrossBorderClass;
+namespace ClassyLlama\AvaTax\Ui\DataProvider;
 
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\Collection as CrossBorderClassCollection;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CollectionFactory as CrossBorderClassCollectionFactory;
 use Magento\Framework\App\Request\DataPersistorInterface;
 
-class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
+class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
 {
     /**
      * @var CrossBorderClassCollectionFactory

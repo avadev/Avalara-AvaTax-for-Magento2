@@ -16,19 +16,12 @@
 namespace ClassyLlama\AvaTax\Model;
 
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
-use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterfaceFactory;
 
 class CrossBorderClass extends \Magento\Framework\Model\AbstractModel implements CrossBorderClassInterface
 {
     /**
-     * @var CrossBorderClassInterfaceFactory
-     */
-    protected $crossBorderClassFactory;
-
-    /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
-     * @param CrossBorderClassInterfaceFactory $crossBorderClassFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
@@ -36,12 +29,10 @@ class CrossBorderClass extends \Magento\Framework\Model\AbstractModel implements
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
-        CrossBorderClassInterfaceFactory $crossBorderClassFactory,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        $this->crossBorderClassFactory = $crossBorderClassFactory;
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 

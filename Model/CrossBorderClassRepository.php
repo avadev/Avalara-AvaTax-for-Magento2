@@ -22,6 +22,9 @@ use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClassFactory as CrossBorde
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassResource;
 use Magento\Framework\Exception\NoSuchEntityException;
 use ClassyLlama\AvaTax\Exception\InvalidTypeException;
+use ClassyLlama\AvaTax\Model\CrossBorderClass\CountryLink;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\Collection as CountryLinkCollection;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\CollectionFactory as CountryLinkCollectionFactory;
 
 class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface
 {
@@ -36,6 +39,11 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     protected $crossBorderClassResourceFactory;
 
     /**
+     * @var CountryLinkCollectionFactory
+     */
+    protected $countryLinkCollectionFactory;
+
+    /**
      * @var CrossBorderClassResource
      */
     protected $crossBorderClassResource;
@@ -43,13 +51,16 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     /**
      * @param CrossBorderClassFactory $crossBorderClassFactory
      * @param CrossBorderClassResourceFactory $crossBorderClassResourceFactory
+     * @param CountryLinkCollectionFactory
      */
     public function __construct(
         CrossBorderClassFactory $crossBorderClassFactory,
-        CrossBorderClassResourceFactory $crossBorderClassResourceFactory
+        CrossBorderClassResourceFactory $crossBorderClassResourceFactory,
+        CountryLinkCollectionFactory $countryLinkCollectionFactory
     ) {
         $this->crossBorderClassFactory = $crossBorderClassFactory;
         $this->crossBorderClassResourceFactory = $crossBorderClassResourceFactory;
+        $this->countryLinkCollectionFactory = $countryLinkCollectionFactory;
 
         $this->crossBorderClassResource = $this->crossBorderClassResourceFactory->create();
     }
@@ -64,6 +75,8 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
         if (!($crossBorderClass instanceof CrossBorderClassInterface)) {
             throw new InvalidTypeException(__('CrossBorderClassRepository implementation must be changed if CrossBorderClassInterface implementation changes'));
         }
+
+        $this->addCountriesToClass($crossBorderClass);
 
         return $crossBorderClass;
     }
@@ -95,6 +108,8 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
         $classResource = $this->crossBorderClassResourceFactory->create();
         $classResource->save($class);
 
+        // TODO: Implement saving of country associations
+
         return $class;
     }
 
@@ -105,6 +120,77 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     {
         $crossBorderClass = $this->loadModel($classId);
         $this->crossBorderClassResource->delete($crossBorderClass);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCountriesForClass($classId)
+    {
+        /**
+         * @var CountryLinkCollection $countryLinkCollection
+         */
+        $countryLinkCollection = $this->countryLinkCollectionFactory->create();
+        $countryLinkCollection->addFieldToFilter('class_id', $classId);
+
+        /**
+         * @var CountryLink $countryLink
+         */
+        $result = [];
+        foreach ($countryLinkCollection as $countryLink) {
+            $result[] = $countryLink->getCountryId();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCountriesForClasses($classIds)
+    {
+        /**
+         * @var CountryLinkCollection $countryLinkCollection
+         */
+        $countryLinkCollection = $this->countryLinkCollectionFactory->create();
+        $countryLinkCollection->addFieldToFilter('class_id', ['in' => $classIds]);
+
+        /**
+         * @var CountryLink $countryLink
+         */
+        $result = [];
+        foreach ($countryLinkCollection as $countryLink) {
+            if (!isset($result[$countryLink->getClassId()])) {
+                $result[$countryLink->getClassId()] = [];
+            }
+
+            $result[$countryLink->getClassId()][] = $countryLink->getCountryId();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addCountriesToClass($class, $countries = null)
+    {
+        if (is_null($countries)) {
+            $countries = $this->getCountriesForClass($class->getId());
+        }
+
+        $result = [];
+        foreach ($countries as $country) {
+            if ($country instanceof CountryLink) {
+                $country = $country->getCountryId();
+            }
+
+            $result[] = $country;
+        }
+
+        $class->setDestinationCountries($result);
+
+        return $class;
     }
 
     /**

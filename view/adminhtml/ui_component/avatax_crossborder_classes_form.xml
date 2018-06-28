@@ -46,7 +46,7 @@
         <settings>
             <submitUrl path="avatax/crossborder_classes/save"/>
         </settings>
-        <dataProvider class="ClassyLlama\AvaTax\Model\CrossBorderClass\DataProvider" name="avatax_crossborder_classes_data_source">
+        <dataProvider class="ClassyLlama\AvaTax\Ui\DataProvider\CrossBorderClassDataProvider" name="avatax_crossborder_classes_data_source">
             <settings>
                 <requestFieldName>id</requestFieldName>
                 <primaryFieldName>class_id</primaryFieldName>

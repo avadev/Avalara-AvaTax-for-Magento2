@@ -63,4 +63,29 @@ interface CrossBorderClassRepositoryInterface
      * @throws \Exception
      */
     public function deleteById($classId);
+
+    /**
+     * Get countries associated with a class
+     *
+     * @param int $classId
+     * @return string[]
+     */
+    public function getCountriesForClass($classId);
+
+    /**
+     * Get countries associated with multiple classes
+     *
+     * @param int[] $classIds
+     * @return array
+     */
+    public function getCountriesForClasses($classIds);
+
+    /**
+     * Add associated countries to a class in a standard format
+     *
+     * @param CrossBorderClassInterface $class
+     * @param null|string[]|\ClassyLlama\AvaTax\Model\CrossBorderClass\CountryLink[] $countries
+     * @return CrossBorderClassInterface
+     */
+    public function addCountriesToClass($class, $countries = null);
 }
