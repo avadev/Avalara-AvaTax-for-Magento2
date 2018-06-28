@@ -9,6 +9,7 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml;
 
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Customer;
+use ClassyLlama\AvaTax\Helper\UrlSigner;
 use Magento\Backend\Block\Template;
 use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\DataObject;
@@ -38,10 +39,16 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     protected $dataObjectFactory;
 
     /**
+     * @var UrlSigner
+     */
+    protected $urlSigner;
+
+    /**
      * @param \Magento\Framework\Registry $coreRegistry
      * @param Template\Context            $context
      * @param Customer                    $customerRest
      * @param DataObjectFactory           $dataObjectFactory
+     * @param UrlSigner                   $urlSigner
      * @param array                       $data
      */
     public function __construct(
@@ -49,6 +56,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         Template\Context $context,
         Customer $customerRest,
         DataObjectFactory $dataObjectFactory,
+        UrlSigner $urlSigner,
         array $data = []
     )
     {
@@ -57,6 +65,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         $this->coreRegistry = $coreRegistry;
         $this->customerRest = $customerRest;
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->urlSigner = $urlSigner;
 
         $this->prepareData();
     }
@@ -154,5 +163,22 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     public function isHidden()
     {
         return false;
+    }
+
+    public function getCertificateUrl( $certificateId )
+    {
+        $parameters = [
+            'certificate_id' => $certificateId,
+            'customer_id'    => $this->coreRegistry->registry(
+                RegistryConstants::CURRENT_CUSTOMER_ID
+            ),
+            'expires'        => time() + (60 * 60 * 24) // 24 hour access
+        ];
+
+        $parameters['signature'] = $this->urlSigner->signParameters($parameters);
+        // This messes with URL signing as the parameter is added after the fact. Don't use url keys for certificate downloads
+        $parameters['_nosecret'] = true;
+
+        return $this->getUrl('avatax/certificates/download', $parameters);
     }
 }

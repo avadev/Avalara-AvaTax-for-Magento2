@@ -85,6 +85,35 @@ class Customer extends Rest implements RestCustomerInterface
 
         $this->validateResult( $clientResult, $request );
 
-        return $this->formatResult( $clientResult )->getValue();
+        $certificates = $this->formatResult( $clientResult )->getValue();
+
+        return $certificates;
+    }
+
+    /**
+     * Perform REST request to get companies associated with the account
+     *
+     * @param DataObject      $request
+     * @param bool|null       $isProduction
+     * @param string|int|null $scopeId
+     * @param string          $scopeType
+     *
+     * @return mixed
+     */
+    public function downloadCertificate(
+        $request,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    {
+        $client = $this->getClient( $isProduction, $scopeId, $scopeType );
+
+        return $client->downloadCertificateImage(
+            $this->config->getCompanyId( $scopeId, $scopeType ),
+            $request->getData( 'id' ),
+            $request->getData( 'page' ),
+            $request->getData( 'type' )
+        );
     }
 }

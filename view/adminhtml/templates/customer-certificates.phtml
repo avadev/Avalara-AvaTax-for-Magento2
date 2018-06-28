@@ -28,7 +28,7 @@
                     <td><?php echo $certificate->getData( 'valid' ) ? 'Approved' : 'Denied'; ?></td>
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
-                            <a href="javascript:void(0)">View Certificate</a>
+                            <a target="_blank" href="<?php echo $block->getCertificateUrl($certificate->getData('id')) ?>">View Certificate</a>
                         <?php endif ?>
                     </td>
                     <td>
