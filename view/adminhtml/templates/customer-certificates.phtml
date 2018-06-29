@@ -6,6 +6,14 @@
  */
 /** @var \ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificates $block */
 ?>
+<?php if ($block->shouldShowWarning()): ?>
+    <p class="message">
+        Please note that you can only view certificates for a customer from the website/store that customer
+        is associated to. This means if you have 2 different Avalara credetials for 2 different stores and one customer
+        uploads certificates to both, only certificates uploaded through the store that customer is associated to will
+        be visible here.
+    </p>
+<?php endif ?>
 <div id="<?= $block->escapeHtml( $block->getId() ) ?>" data-grid-id="<?= $block->escapeHtml( $block->getId() ) ?>">
     <div class="admin__data-grid-wrap admin__data-grid-wrap-static">
         <table class="data-grid" id="<?= $block->escapeHtml( $block->getId() ) ?>_table">

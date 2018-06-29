@@ -51,13 +51,19 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     protected $authorization;
 
     /**
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param Template\Context $context
-     * @param Customer $customerRest
-     * @param DataObjectFactory $dataObjectFactory
-     * @param UrlSigner $urlSigner
-     * @param \Magento\Framework\AuthorizationInterface $authorization
-     * @param array $data
+     * @var \Magento\Config\Model\ResourceModel\Config
+     */
+    protected $configResourceModel;
+
+    /**
+     * @param \Magento\Framework\Registry                $coreRegistry
+     * @param Template\Context                           $context
+     * @param Customer                                   $customerRest
+     * @param DataObjectFactory                          $dataObjectFactory
+     * @param UrlSigner                                  $urlSigner
+     * @param \Magento\Framework\AuthorizationInterface  $authorization
+     * @param \Magento\Config\Model\ResourceModel\Config $configResourceModel
+     * @param array                                      $data
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
@@ -66,6 +72,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         DataObjectFactory $dataObjectFactory,
         UrlSigner $urlSigner,
         \Magento\Framework\AuthorizationInterface $authorization,
+        \Magento\Config\Model\ResourceModel\Config $configResourceModel,
         array $data = []
     )
     {
@@ -78,6 +85,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         $this->authorization = $authorization;
 
         $this->prepareData();
+        $this->configResourceModel = $configResourceModel;
     }
 
     protected function prepareData()
@@ -175,6 +183,17 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     public function isHidden()
     {
         return false;
+    }
+
+    public function shouldShowWarning()
+    {
+        $connection = $this->configResourceModel->getConnection();
+        $select = $connection->select()
+            ->from( $this->configResourceModel->getMainTable(), 'count(*) as count' )
+            ->oRwhere( 'path = ?', \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE )
+            ->oRwhere( 'path = ?', \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE );
+
+        return (int)$connection->fetchOne($select) > 2;
     }
 
     public function getCertificateUrl( $certificateId )
