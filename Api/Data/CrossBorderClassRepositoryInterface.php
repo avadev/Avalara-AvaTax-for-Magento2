@@ -83,7 +83,7 @@ interface CrossBorderClassRepositoryInterface
     /**
      * Add associated countries to a class in a standard format
      *
-     * @param CrossBorderClassInterface $class
+     * @param CrossBorderClassInterface|\Magento\Framework\Api\Search\DocumentInterface $class
      * @param null|string[]|\ClassyLlama\AvaTax\Model\CrossBorderClass\CountryLink[] $countries
      * @return CrossBorderClassInterface
      */

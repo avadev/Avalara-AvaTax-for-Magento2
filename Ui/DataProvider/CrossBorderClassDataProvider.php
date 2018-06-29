@@ -86,10 +86,9 @@ class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractData
         }
 
         $collection = $this->getCollection();
-        $items = $collection->getItems();
 
         /** @var \ClassyLlama\AvaTax\Model\CrossBorderClass $class */
-        foreach ($items as $class) {
+        foreach ($collection as $class) {
             $this->loadedData[$class->getId()] = $class->getData();
         }
 
