@@ -14,7 +14,7 @@
 define([
     'jquery',
     'Magento_Ui/js/modal/alert',
-    'ClassyLlama_AvaTax/js/view/address-validation-form-admin',
+    'ClassyLlama_AvaTax/js/view/address-validation-form',
     'ClassyLlama_AvaTax/js/model/address-model',
     'ClassyLlama_AvaTax/js/action/validate-address-request',
     'ClassyLlama_AvaTax/js/view/validation-response-handler',
