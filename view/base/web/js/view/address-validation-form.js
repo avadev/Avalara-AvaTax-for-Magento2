@@ -128,7 +128,7 @@ define(
                 var parent = this;
 
                 // Name
-                result += this.encodeHtml(originalAddress.firstname + " "  + originalAddress.lastname) + "<br/>";
+                result += this.encodeHtml(originalAddress.firstname + " " + originalAddress.lastname) + "<br/>";
 
                 // Streets
                 $.each(originalAddress.street, function (index, value) {
