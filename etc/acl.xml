@@ -21,6 +21,9 @@
                 <resource id="Magento_Backend::stores">
                     <resource id="ClassyLlama_AvaTax::manage_avatax" title="AvaTax" sortOrder="25" />
                 </resource>
+                <resource id="Magento_Customer::customer">
+                    <resource id="ClassyLlama_AvaTax::customer_certificates" sortOrder="50" title="AvaTax Certificates" translate="title"/>
+                </resource>
             </resource>
         </resources>
     </acl>

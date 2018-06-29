@@ -23,6 +23,8 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
 {
     protected $_template = 'ClassyLlama_AvaTax::customer-certificates.phtml';
 
+    const CERTIFICATES_RESOURCE = 'ClassyLlama_AvaTax::customer_certificates';
+
     /**
      * @var \Magento\Framework\Registry
      */
@@ -44,12 +46,18 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     protected $urlSigner;
 
     /**
+     * @var \Magento\Framework\AuthorizationInterface
+     */
+    protected $authorization;
+
+    /**
      * @param \Magento\Framework\Registry $coreRegistry
-     * @param Template\Context            $context
-     * @param Customer                    $customerRest
-     * @param DataObjectFactory           $dataObjectFactory
-     * @param UrlSigner                   $urlSigner
-     * @param array                       $data
+     * @param Template\Context $context
+     * @param Customer $customerRest
+     * @param DataObjectFactory $dataObjectFactory
+     * @param UrlSigner $urlSigner
+     * @param \Magento\Framework\AuthorizationInterface $authorization
+     * @param array $data
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
@@ -57,6 +65,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         Customer $customerRest,
         DataObjectFactory $dataObjectFactory,
         UrlSigner $urlSigner,
+        \Magento\Framework\AuthorizationInterface $authorization,
         array $data = []
     )
     {
@@ -66,6 +75,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         $this->customerRest = $customerRest;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->urlSigner = $urlSigner;
+        $this->authorization = $authorization;
 
         $this->prepareData();
     }
@@ -152,7 +162,9 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
      */
     public function canShowTab()
     {
-        return $this->coreRegistry->registry( RegistryConstants::CURRENT_CUSTOMER_ID ) !== null;
+        return $this->coreRegistry->registry(
+                RegistryConstants::CURRENT_CUSTOMER_ID
+            ) !== null && $this->authorization->isAllowed( self::CERTIFICATES_RESOURCE );
     }
 
     /**
@@ -175,10 +187,10 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
             'expires'        => time() + (60 * 60 * 24) // 24 hour access
         ];
 
-        $parameters['signature'] = $this->urlSigner->signParameters($parameters);
+        $parameters['signature'] = $this->urlSigner->signParameters( $parameters );
         // This messes with URL signing as the parameter is added after the fact. Don't use url keys for certificate downloads
         $parameters['_nosecret'] = true;
 
-        return $this->getUrl('avatax/certificates/download', $parameters);
+        return $this->getUrl( 'avatax/certificates/download', $parameters );
     }
 }

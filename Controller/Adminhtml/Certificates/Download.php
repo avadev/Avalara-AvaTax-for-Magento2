@@ -30,6 +30,13 @@ class Download extends \Magento\Backend\App\Action
         $this->downloadController = $downloadController;
     }
 
+    protected function _isAllowed()
+    {
+        return $this->_authorization->isAllowed(
+            \ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificates::CERTIFICATES_RESOURCE
+        );
+    }
+
     /**
      * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
      * @throws \Exception
