@@ -1,8 +1,16 @@
 <?php
 /**
- * @category    ClassyLlama
- * @copyright   Copyright (c) 2018 Classy Llama Studios, LLC
- * @author      sean.templeton
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace ClassyLlama\AvaTax\Block\Adminhtml;
@@ -76,7 +84,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         array $data = []
     )
     {
-        parent::__construct( $context, $data );
+        parent::__construct($context, $data);
 
         $this->coreRegistry = $coreRegistry;
         $this->customerRest = $customerRest;
@@ -92,8 +100,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     {
         $certificates = [];
 
-        try
-        {
+        try {
             $certificates = $this->customerRest->getCertificatesList(
                 $this->dataObjectFactory->create(
                     [
@@ -105,37 +112,32 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
                     ]
                 )
             );
-        }
-        catch (AvataxConnectionException $e)
-        {
+        } catch (AvataxConnectionException $e) {
         }
 
-        $this->setCertificates( $certificates );
+        $this->setCertificates($certificates);
     }
 
     /**
      * Return Tab label
-     *
      * @return string
      */
     public function getTabLabel()
     {
-        return __( 'Tax Certificates' );
+        return __('Tax Certificates');
     }
 
     /**
      * Return Tab title
-     *
      * @return string
      */
     public function getTabTitle()
     {
-        return __( 'Tax Certificates' );
+        return __('Tax Certificates');
     }
 
     /**
      * Tab class getter
-     *
      * @return string
      */
     public function getTabClass()
@@ -145,7 +147,6 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
 
     /**
      * Return URL link to Tab content
-     *
      * @return string
      */
     public function getTabUrl()
@@ -155,7 +156,6 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
 
     /**
      * Tab should be loaded trough Ajax call
-     *
      * @return bool
      */
     public function isAjaxLoaded()
@@ -165,19 +165,17 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
 
     /**
      * Can show tab in tabs
-     *
      * @return boolean
      */
     public function canShowTab()
     {
         return $this->coreRegistry->registry(
                 RegistryConstants::CURRENT_CUSTOMER_ID
-            ) !== null && $this->authorization->isAllowed( self::CERTIFICATES_RESOURCE );
+            ) !== null && $this->authorization->isAllowed(self::CERTIFICATES_RESOURCE);
     }
 
     /**
      * Tab is hidden
-     *
      * @return boolean
      */
     public function isHidden()
@@ -188,28 +186,28 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     public function shouldShowWarning()
     {
         $connection = $this->configResourceModel->getConnection();
-        $select = $connection->select()
-            ->from( $this->configResourceModel->getMainTable(), 'count(*) as count' )
-            ->oRwhere( 'path = ?', \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE )
-            ->oRwhere( 'path = ?', \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE );
+        $select = $connection->select()->from($this->configResourceModel->getMainTable(), 'count(*) as count')->oRwhere(
+                'path = ?',
+                \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE
+            )->oRwhere('path = ?', \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE);
 
         return (int)$connection->fetchOne($select) > 2;
     }
 
-    public function getCertificateUrl( $certificateId )
+    public function getCertificateUrl($certificateId)
     {
         $parameters = [
             'certificate_id' => $certificateId,
-            'customer_id'    => $this->coreRegistry->registry(
+            'customer_id' => $this->coreRegistry->registry(
                 RegistryConstants::CURRENT_CUSTOMER_ID
             ),
-            'expires'        => time() + (60 * 60 * 24) // 24 hour access
+            'expires' => time() + (60 * 60 * 24) // 24 hour access
         ];
 
-        $parameters['signature'] = $this->urlSigner->signParameters( $parameters );
+        $parameters['signature'] = $this->urlSigner->signParameters($parameters);
         // This messes with URL signing as the parameter is added after the fact. Don't use url keys for certificate downloads
         $parameters['_nosecret'] = true;
 
-        return $this->getUrl( 'avatax/certificates/download', $parameters );
+        return $this->getUrl('avatax/certificates/download', $parameters);
     }
 }

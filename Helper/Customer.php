@@ -1,8 +1,16 @@
 <?php
 /**
- * @category    ClassyLlama
- * @copyright   Copyright (c) 2018 Classy Llama Studios, LLC
- * @author      sean.templeton
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace ClassyLlama\AvaTax\Helper;
@@ -35,7 +43,7 @@ class Customer extends AbstractHelper
         Context $context
     )
     {
-        parent::__construct( $context );
+        parent::__construct($context);
 
         $this->config = $config;
         $this->customerRepository = $customerRepository;
@@ -46,19 +54,14 @@ class Customer extends AbstractHelper
      *
      * @return \Magento\Customer\Api\Data\CustomerInterface|null
      */
-    protected function getCustomerById( $customerId )
+    protected function getCustomerById($customerId)
     {
         $customer = null;
 
-        try
-        {
-            $customer = $this->customerRepository->getById( $customerId );
-        }
-        catch (\Magento\Framework\Exception\NoSuchEntityException $noSuchEntityException)
-        {
-        }
-        catch (LocalizedException $localizedException)
-        {
+        try {
+            $customer = $this->customerRepository->getById($customerId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $noSuchEntityException) {
+        } catch (LocalizedException $localizedException) {
         }
 
         return $customer;
@@ -73,19 +76,17 @@ class Customer extends AbstractHelper
      *
      * @return mixed
      */
-    protected function retrieveCustomerCode( $customer, $customerCode )
+    protected function retrieveCustomerCode($customer, $customerCode)
     {
         // Convert provided customer code to getter name
-        $getCustomerCode = 'get' . str_replace( '_', '', ucwords( $customerCode, '_' ) );
-        if (method_exists( $customer, $getCustomerCode ))
-        {
+        $getCustomerCode = 'get' . str_replace('_', '', ucwords($customerCode, '_'));
+        if (method_exists($customer, $getCustomerCode)) {
             // A method exists with this getter name, call it
             return $customer->{$getCustomerCode}();
         }
         // This was not a system-defined customer attribute, retrieve it as a custom attribute
-        $attribute = $customer->getCustomAttribute( $customerCode );
-        if (is_null( $attribute ))
-        {
+        $attribute = $customer->getCustomAttribute($customerCode);
+        if (is_null($attribute)) {
             // Retrieving the custom attribute failed, or no value was set, return null
             return null;
         }
@@ -99,13 +100,12 @@ class Customer extends AbstractHelper
      *
      * @return string
      */
-    public function getCustomerCodeFromNameId( $customer = null )
+    public function getCustomerCodeFromNameId($customer = null)
     {
         $name = Config::CUSTOMER_MISSING_NAME;
         $id = Config::CUSTOMER_GUEST_ID;
 
-        if ($customer !== null && $customer->getId() !== null)
-        {
+        if ($customer !== null && $customer->getId() !== null) {
             $name = "{$customer->getFirstname()} {$customer->getLastname()}";
             $id = $customer->getId();
         }
@@ -119,18 +119,16 @@ class Customer extends AbstractHelper
      *
      * @return mixed
      */
-    public function getCustomerCodeFromAttribute( $customer, $attribute )
+    public function getCustomerCodeFromAttribute($customer, $attribute)
     {
         // Retrieve attribute value using provided attribute code
-        $attributeValue = $this->retrieveCustomerCode( $customer, $attribute );
+        $attributeValue = $this->retrieveCustomerCode($customer, $attribute);
 
-        if ($attributeValue === null && $attribute === Config::CUSTOMER_FORMAT_OPTION_EMAIL)
-        {
+        if ($attributeValue === null && $attribute === Config::CUSTOMER_FORMAT_OPTION_EMAIL) {
             return Config::CUSTOMER_MISSING_EMAIL;
         }
 
-        if ($attributeValue !== null && (is_string( $attributeValue ) || is_numeric( $attributeValue )))
-        {
+        if ($attributeValue !== null && (is_string($attributeValue) || is_numeric($attributeValue))) {
             // Customer has a value defined for provided attribute code and the provided value is a string
             return $attributeValue;
         }
@@ -147,30 +145,27 @@ class Customer extends AbstractHelper
      *
      * @return string
      */
-    public function getCustomerCode( $customerId, $guestId = null, $storeId = null )
+    public function getCustomerCode($customerId, $guestId = null, $storeId = null)
     {
         // Retrieve the customer code configuration value
-        $customerCodeFormat = $this->config->getCustomerCodeFormat( $storeId );
-        $customerCode = $customerId ?: strtolower( Config::CUSTOMER_GUEST_ID ) . "-{$guestId}";
+        $customerCodeFormat = $this->config->getCustomerCodeFormat($storeId);
+        $customerCode = $customerId ?: strtolower(Config::CUSTOMER_GUEST_ID) . "-{$guestId}";
 
         // This is the default value, ignore handling
-        if ($customerCodeFormat === Config::CUSTOMER_FORMAT_OPTION_ID)
-        {
+        if ($customerCodeFormat === Config::CUSTOMER_FORMAT_OPTION_ID) {
             return $customerCode;
         }
 
-        $customer = $this->getCustomerById( $customerId );
+        $customer = $this->getCustomerById($customerId);
 
         // Customer code is the combination of the customer name and their Magento Customer ID
-        if ($customerCodeFormat === Config::CUSTOMER_FORMAT_OPTION_NAME_ID)
-        {
-            return $this->getCustomerCodeFromNameId( $customer );
+        if ($customerCodeFormat === Config::CUSTOMER_FORMAT_OPTION_NAME_ID) {
+            return $this->getCustomerCodeFromNameId($customer);
         }
 
         // Customer code is defined on a customer attribute
-        if ($customerId !== null)
-        {
-            return $this->getCustomerCodeFromAttribute( $customer, $customerCodeFormat ) ?: $customerCode;
+        if ($customerId !== null) {
+            return $this->getCustomerCodeFromAttribute($customer, $customerCodeFormat) ?: $customerCode;
         }
 
         // This is a guest so no attribute value exists and neither does a customer ID
