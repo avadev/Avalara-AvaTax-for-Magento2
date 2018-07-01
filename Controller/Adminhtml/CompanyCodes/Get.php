@@ -20,6 +20,9 @@ use Magento\Framework\DataObject;
 
 class Get extends \Magento\Backend\App\Action
 {
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
     protected $resultPageFactory;
 
     /**
@@ -32,6 +35,12 @@ class Get extends \Magento\Backend\App\Action
      */
     private $config;
 
+    /**
+     * @param \Magento\Backend\App\Action\Context                    $context
+     * @param \Magento\Framework\Controller\Result\JsonFactory       $resultPageFactory
+     * @param \ClassyLlama\AvaTax\Framework\Interaction\Rest\Company $company
+     * @param \ClassyLlama\AvaTax\Helper\Config                      $config
+     */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $resultPageFactory,
@@ -45,11 +54,21 @@ class Get extends \Magento\Backend\App\Action
         $this->config = $config;
     }
 
+    protected function _isAllowed()
+    {
+        return $this->_authorization->isAllowed('Magento_Tax::config_tax');
+    }
+
+    /**
+     * @return \Magento\Framework\Controller\Result\Json
+     */
     public function execute()
     {
         $companies = [];
-        $postValue = $this->getRequest()->getPostValue();
-        $isProduction = (bool)$this->getRequest()->getParam('mode');
+        /** @var \Magento\Framework\HTTP\PhpEnvironment\Request $request */
+        $request = $this->getRequest();
+        $postValue = $request->getPostValue();
+        $isProduction = (bool)$request->getParam('mode');
         $resultJson = $this->resultPageFactory->create();
         $scope = isset($postValue['scope']) ? $postValue['scope'] : null;
         $scopeType = $postValue['scope_type'] === 'global' ? \Magento\Store\Model\ScopeInterface::SCOPE_STORE
