@@ -88,6 +88,9 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
             if (isset($data['pref_program_indicator'])) {
                 $class->setPrefProgramIndicator($data['pref_program_indicator']);
             }
+            if (isset($data['destination_countries'])) {
+                $class->setDestinationCountries($data['destination_countries']);
+            }
 
             try {
                 $this->crossBorderClassRepository->save($class);

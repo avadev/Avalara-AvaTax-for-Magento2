@@ -108,8 +108,6 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
         $classResource = $this->crossBorderClassResourceFactory->create();
         $classResource->save($class);
 
-        // TODO: Implement saving of country associations
-
         return $class;
     }
 

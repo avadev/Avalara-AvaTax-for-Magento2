@@ -15,13 +15,115 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel;
 
+use ClassyLlama\AvaTax\Model\CrossBorderClass\CountryLink;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\Collection as CountryLinkCollection;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\CollectionFactory as CountryLinkCollectionFactory;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink as CountryLinkResource;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLinkFactory as CountryLinkResourceFactory;
+use ClassyLlama\AvaTax\Model\CrossBorderClass\CountryLinkFactory;
+
 class CrossBorderClass extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
+    /**
+     * @var CountryLinkCollectionFactory
+     */
+    protected $countryLinkCollectionFactory;
+
+    /**
+     * @var CountryLinkResourceFactory
+     */
+    protected $countryLinkResourceFactory;
+
+    /**
+     * @var CountryLinkFactory
+     */
+    protected $countryLinkFactory;
+
+    /**=
+     * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
+     * @param CountryLinkCollectionFactory $countryLinkCollectionFactory
+     * @param CountryLinkResourceFactory $countryLinkResourceFactory
+     * @param CountryLinkFactory $countryLinkFactory
+     * @param string $connectionName
+     */
+    public function __construct(
+        \Magento\Framework\Model\ResourceModel\Db\Context $context,
+        CountryLinkCollectionFactory $countryLinkCollectionFactory,
+        CountryLinkResourceFactory $countryLinkResourceFactory,
+        CountryLinkFactory $countryLinkFactory,
+        $connectionName = null
+    ) {
+        parent::__construct($context, $connectionName);
+        $this->countryLinkCollectionFactory = $countryLinkCollectionFactory;
+        $this->countryLinkResourceFactory = $countryLinkResourceFactory;
+        $this->countryLinkFactory = $countryLinkFactory;
+    }
+
     /**
      * @return void
      */
     protected function _construct()
     {
         $this->_init('avatax_cross_border_class', 'class_id');
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * @throws \Exception
+     */
+    protected function _afterSave(\Magento\Framework\Model\AbstractModel $object)
+    {
+        $countries = $object->getDestinationCountries();
+        if (!is_null($countries)) {
+            // Get existing country associations
+            /**
+             * @var CountryLinkCollection $countryLinkCollection
+             */
+            $countryLinkCollection = $this->countryLinkCollectionFactory->create();
+            $countryLinkCollection->addFieldToFilter('class_id', $object->getId());
+
+            /**
+             * @var CountryLink $countryLink
+             */
+            $existingCountriesByCode = [];
+            foreach ($countryLinkCollection as $countryLink) {
+                $existingCountriesByCode[$countryLink->getCountryId()] = $countryLink;
+            }
+
+            $existingCountries = array_keys($existingCountriesByCode);
+
+            $countriesToDelete = array_diff($existingCountries, $countries);
+            $countriesToAdd = array_diff($countries, $existingCountries);
+
+            if (!empty($countriesToDelete) || !empty($countriesToAdd)) {
+                /**
+                 * @var CountryLinkResource $countryLinkResource
+                 */
+                $countryLinkResource = $this->countryLinkResourceFactory->create();
+
+                // Delete country associations
+                if (!empty($countriesToDelete)) {
+                    foreach ($countriesToDelete as $countryToDelete) {
+                        if (isset($existingCountriesByCode[$countryToDelete])) {
+                            $countryLinkResource->delete($existingCountriesByCode[$countryToDelete]);
+                        }
+                    }
+                }
+
+                // Add country associations
+                if (!empty($countriesToAdd)) {
+                    foreach ($countriesToAdd as $countryToAdd) {
+                        $countryLink = $this->countryLinkFactory->create();
+                        $countryLink->setData([
+                            'class_id' => $object->getId(),
+                            'country_id' => $countryToAdd,
+                        ]);
+
+                        $countryLinkResource->save($countryLink);
+                    }
+                }
+            }
+        }
     }
 }

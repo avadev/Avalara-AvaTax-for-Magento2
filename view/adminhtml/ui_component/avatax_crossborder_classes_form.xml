@@ -57,6 +57,23 @@
         <settings>
             <label/>
         </settings>
+        <field name="destination_countries" sortOrder="5" formElement="multiselect">
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>int</dataType>
+                <label translate="true">Destination Countries</label>
+                <dataScope>destination_countries</dataScope>
+            </settings>
+            <formElements>
+                <multiselect>
+                    <settings>
+                        <options class="Magento\Directory\Model\Config\Source\Country"/>
+                    </settings>
+                </multiselect>
+            </formElements>
+        </field>
         <field name="cross_border_type" sortOrder="10" formElement="input">
             <settings>
                 <validation>
