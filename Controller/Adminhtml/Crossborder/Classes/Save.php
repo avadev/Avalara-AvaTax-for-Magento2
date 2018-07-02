@@ -89,7 +89,14 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
                 $class->setPrefProgramIndicator($data['pref_program_indicator']);
             }
             if (isset($data['destination_countries'])) {
-                $class->setDestinationCountries($data['destination_countries']);
+                $countries = $data['destination_countries'];
+
+                // If one of the selected country options is "Any", don't associate any specific countries
+                if (in_array(\ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Countries::OPTION_VAL_ANY, $countries)) {
+                    $class->setDestinationCountries([]);
+                } else {
+                    $class->setDestinationCountries($countries);
+                }
             }
 
             try {

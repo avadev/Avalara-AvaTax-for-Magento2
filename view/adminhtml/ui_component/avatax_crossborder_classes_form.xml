@@ -58,6 +58,11 @@
             <label/>
         </settings>
         <field name="destination_countries" sortOrder="5" formElement="multiselect">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">0</item>
+                </item>
+            </argument>
             <settings>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
@@ -69,7 +74,7 @@
             <formElements>
                 <multiselect>
                     <settings>
-                        <options class="Magento\Directory\Model\Config\Source\Country"/>
+                        <options class="ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Countries"/>
                     </settings>
                 </multiselect>
             </formElements>

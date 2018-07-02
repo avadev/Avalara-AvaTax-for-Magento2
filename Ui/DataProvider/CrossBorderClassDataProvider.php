@@ -100,6 +100,13 @@ class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractData
         /** @var \ClassyLlama\AvaTax\Model\CrossBorderClass $class */
         foreach ($collection as $class) {
             $this->crossBorderClassRepository->addCountriesToClass($class);
+
+            $countries = $class->getDestinationCountries();
+            if (empty($countries)) {
+                // Select "any" option if no countries
+                $class->setDestinationCountries([\ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Countries::OPTION_VAL_ANY]);
+            }
+
             $this->loadedData[$class->getId()] = $class->getData();
         }
 

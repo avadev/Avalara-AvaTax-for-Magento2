@@ -18,11 +18,19 @@ define([
     'use strict';
 
     return Column.extend({
+        defaults: {
+            bodyTmpl: 'ClassyLlama_AvaTax/ui/grid/cells/comma-separated'
+        },
+
+        hasValues: function(row) {
+            return (row[this.index].length > 0);
+        },
+
         /**
          * @param {Object} row - Data to be preprocessed
          * @returns {String}
          */
-        getLabel: function (row) {
+        getLabel: function(row) {
             return row[this.index].join(', ');
         },
     });
