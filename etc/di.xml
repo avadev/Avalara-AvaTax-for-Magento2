@@ -15,16 +15,6 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <type name="Magento\Framework\Console\CommandListInterface">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="avaTaxTest" xsi:type="object">ClassyLlama\AvaTax\Console\Command\Test</item>
-            </argument>
-        </arguments>
-    </type>
-
-
-
     <preference for="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" type="ClassyLlama\AvaTax\Model\ValidAddressManagement" />
     <preference for="ClassyLlama\AvaTax\Api\RestInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest" />
     <preference for="ClassyLlama\AvaTax\Api\RestTaxInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax" />
