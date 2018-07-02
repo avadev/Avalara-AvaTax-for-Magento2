@@ -15,9 +15,11 @@
 
 namespace ClassyLlama\AvaTax\Ui\DataProvider;
 
+use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\Collection as CrossBorderClassCollection;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CollectionFactory as CrossBorderClassCollectionFactory;
 use Magento\Framework\App\Request\DataPersistorInterface;
+use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
 
 class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
 {
@@ -32,6 +34,11 @@ class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractData
     protected $dataPersistor;
 
     /**
+     * @var CrossBorderClassRepositoryInterface
+     */
+    protected $crossBorderClassRepository;
+
+    /**
      * @var array
      */
     protected $loadedData;
@@ -42,6 +49,7 @@ class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractData
      * @param $requestFieldName
      * @param CrossBorderClassCollectionFactory $crossBorderClassCollectionFactory
      * @param DataPersistorInterface $dataPersistor
+     * @param CrossBorderClassRepositoryInterface $crossBorderClassRepository
      * @param array $meta
      * @param array $data
      */
@@ -51,12 +59,14 @@ class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractData
         $requestFieldName,
         CrossBorderClassCollectionFactory $crossBorderClassCollectionFactory,
         DataPersistorInterface $dataPersistor,
+        CrossBorderClassRepositoryInterface $crossBorderClassRepository,
         array $meta = [],
         array $data = []
     ) {
         parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data);
         $this->crossBorderClassCollectionFactory = $crossBorderClassCollectionFactory;
         $this->dataPersistor = $dataPersistor;
+        $this->crossBorderClassRepository = $crossBorderClassRepository;
     }
 
     /**
@@ -89,6 +99,7 @@ class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractData
 
         /** @var \ClassyLlama\AvaTax\Model\CrossBorderClass $class */
         foreach ($collection as $class) {
+            $this->crossBorderClassRepository->addCountriesToClass($class);
             $this->loadedData[$class->getId()] = $class->getData();
         }
 
