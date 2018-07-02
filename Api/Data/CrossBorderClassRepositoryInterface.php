@@ -21,7 +21,7 @@ use ClassyLlama\AvaTax\Exception\InvalidTypeException;
 interface CrossBorderClassRepositoryInterface
 {
     /**
-     * Get a specific Cross-Border Class
+     * Get a specific Cross Border Class
      *
      * @param int $classId
      * @return CrossBorderClassInterface
@@ -32,7 +32,7 @@ interface CrossBorderClassRepositoryInterface
     public function getById($classId);
 
     /**
-     * Create a blank Cross-Border Class
+     * Create a blank Cross Border Class
      *
      * @return CrossBorderClassInterface
      * @throws InvalidTypeException
@@ -40,7 +40,7 @@ interface CrossBorderClassRepositoryInterface
     public function create();
 
     /**
-     * Save a Cross-Border Class
+     * Save a Cross Border Class
      *
      * @param CrossBorderClassInterface $class
      * @return CrossBorderClassInterface
@@ -53,7 +53,7 @@ interface CrossBorderClassRepositoryInterface
     public function save($class);
 
     /**
-     * Delete a Cross-Border Class
+     * Delete a Cross Border Class
      *
      * @param int $classId
      * @return void

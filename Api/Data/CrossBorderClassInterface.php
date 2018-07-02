@@ -26,14 +26,14 @@ interface CrossBorderClassInterface
     const PREF_PROGRAM_IND = 'pref_program_indicator';
 
     /**
-     * Get cross-border class ID
+     * Get cross border class ID
      *
      * @return int
      */
     public function getId();
 
     /**
-     * Set cross-border class ID
+     * Set cross border class ID
      *
      * @param int $id
      * @return $this

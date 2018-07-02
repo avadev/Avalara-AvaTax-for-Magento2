@@ -31,7 +31,7 @@ abstract class ClassesAbstract extends \Magento\Backend\App\Action
     }
 
     /**
-     * Index page for managing cross-border classes
+     * Index page for managing cross border classes
      *
      * @return \Magento\Backend\Model\View\Result\Page
      */
@@ -40,7 +40,7 @@ abstract class ClassesAbstract extends \Magento\Backend\App\Action
         /** @var Page $pageResult */
         $pageResult = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
         $pageResult->setActiveMenu('ClassyLlama_AvaTax::avatax_cross_border_classes');
-        $pageResult->getConfig()->getTitle()->prepend(__('AvaTax Cross-Border Classes'));
+        $pageResult->getConfig()->getTitle()->prepend(__('AvaTax Cross Border Classes'));
         return $pageResult;
     }
 }

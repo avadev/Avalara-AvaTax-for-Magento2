@@ -152,7 +152,7 @@
         <column name="cross_border_type">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="label" xsi:type="string" translate="true">Cross-Border Type</item>
+                    <item name="label" xsi:type="string" translate="true">Cross Border Type</item>
                     <item name="sortOrder" xsi:type="number">30</item>
                 </item>
             </argument>

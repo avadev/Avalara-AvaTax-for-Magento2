@@ -208,7 +208,7 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
         $this->crossBorderClassResource->load($crossBorderClass, $classId);
 
         if (!$crossBorderClass->getId()) {
-            throw new NoSuchEntityException(__('Cross-border Class w/ ID %1 does not exist', $classId));
+            throw new NoSuchEntityException(__('Cross Border Class w/ ID %1 does not exist', $classId));
         }
 
         return $crossBorderClass;

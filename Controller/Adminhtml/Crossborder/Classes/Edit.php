@@ -63,7 +63,7 @@ class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
             try {
                 $crossBorderClass = $this->crossBorderClassRepository->getById($classId);
             } catch (NoSuchEntityException $e) {
-                $this->messageManager->addExceptionMessage($e, __('Cross-Border Class does not exist'));
+                $this->messageManager->addExceptionMessage($e, __('Cross Border Class does not exist'));
                 $resultRedirect = $this->resultRedirectFactory->create();
                 $resultRedirect->setPath('*/*/index');
                 return $resultRedirect;
