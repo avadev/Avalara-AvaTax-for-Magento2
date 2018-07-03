@@ -53,6 +53,22 @@
             </item>
         </argument>
     </dataSource>
+
+    <container name="release_notification_text" template="ui/form/components/complex">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string"/>
+                <item name="additionalClasses" xsi:type="string">release-notification-text</item>
+                <item name="text" xsi:type="string" translate="true"><![CDATA[
+                    <p>If Customs Duty and Import Tax is enabled, calculation of duties and taxes requires accurate HS codes be associated with each product in a given transaction.
+                    HS codes depend on both the classification of the product and the destination country. Cross Border Classes allow you to configure the HS codes you will use,
+                    associating them with appropriate destination countries and unit information.
+                    <a href="https://www.avalara.com/hs-codes/" target="_blank">Browse for appropriate HS codes for your products</a>.</p>
+                ]]></item>
+            </item>
+        </argument>
+    </container>
+
     <fieldset name="general">
         <argument name="data" xsi:type="array">
             <item name="config" xsi:type="array">
@@ -105,9 +121,8 @@
                     <item name="validation" xsi:type="array">
                         <item name="required-entry" xsi:type="boolean">true</item>
                     </item>
-                    <!-- TODO: Add link -->
                     <item name="notice" xsi:type="string" translate="true">
-                        Browse for appropriate HS codes for your products.
+                        See above for information on browsing for HS codes.
                     </item>
                 </item>
             </argument>
