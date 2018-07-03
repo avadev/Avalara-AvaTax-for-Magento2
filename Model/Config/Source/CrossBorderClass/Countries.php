@@ -27,7 +27,7 @@ class Countries extends \Magento\Directory\Model\Config\Source\Country
         $results = parent::toOptionArray(true, \ClassyLlama\AvaTax\Helper\Config::$taxCalculationCountriesDefault);
 
         // Add "Any" option
-        array_unshift($results, ['value' => self::OPTION_VAL_ANY, 'label' => __('-- Any --'), 'is_region_visible' => true]);
+        array_unshift($results, ['value' => self::OPTION_VAL_ANY, 'label' => __('-- Any Country --'), 'is_region_visible' => true]);
 
         return $results;
     }
