@@ -16,10 +16,10 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use Avalara\AvaTaxClient;
-use Psr\Log\LoggerInterface;
-use Magento\Framework\DataObjectFactory;
-use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
+use Magento\Framework\DataObjectFactory;
+use Psr\Log\LoggerInterface;
 
 class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
 {
@@ -63,31 +63,36 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
     /**
      * Get an AvaTax REST API client object
      *
-     * @param null|string $mode
+     * @param null|bool       $isProduction
      * @param null|string|int $scopeId
-     * @param string $scopeType
+     * @param string          $scopeType
+     *
      * @return AvaTaxClient
      * @throws \InvalidArgumentException
      */
-    public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function getClient(
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
     {
-        return $this->clientPool->getClient($mode, $scopeId, $scopeType);
+        return $this->clientPool->getClient( $isProduction, $scopeId, $scopeType );
     }
 
     /**
      * Ping AvaTax REST service to verify connection/authentication
      *
-     * @param null|string $mode
+     * @param null|bool       $isProduction
      * @param null|string|int $scopeId
-     * @param string $scopeType
+     * @param string          $scopeType
+     *
      * @return bool
      * @throws AvataxConnectionException
      * @throws \InvalidArgumentException
      */
-    public function ping($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function ping( $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
-        $client = $this->getClient($mode, $scopeId, $scopeType);
-        $result = $client->ping();
+        $result = $this->getClient( $isProduction, $scopeId, $scopeType)->ping();
 
         $this->validateResult($result);
 

@@ -25,5 +25,44 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Config\Model\Config\Structure\ConcealInProductionConfigList">
+        <arguments>
+            <argument name="configs" xsi:type="array">
+                <item name="tax/avatax_general/production_company_id" xsi:type="const">Magento\Config\Model\Config\Structure\ElementVisibilityInterface::DISABLED</item>
+                <item name="tax/avatax_general/development_company_id" xsi:type="const">Magento\Config\Model\Config\Structure\ElementVisibilityInterface::DISABLED</item>
+            </argument>
+        </arguments>
+    </type>
     <preference for="Magento\Tax\Block\Adminhtml\Rule\Edit\Form" type="ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit\Form" />
+
+    <virtualType name="developmentCompanyCodeFrontendModel" type="ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CompanyCode">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="account_number_id" xsi:type="string">tax_avatax_general_development_account_number</item>
+                <item name="license_key_id" xsi:type="string">tax_avatax_general_development_license_key</item>
+                <item name="company_code_id" xsi:type="string">tax_avatax_general_development_company_code</item>
+                <item name="company_code_group" xsi:type="string">avatax</item>
+                <item name="company_code_field" xsi:type="string">development_company_code</item>
+                <item name="company_id_id" xsi:type="string">tax_avatax_general_development_company_id</item>
+                <item name="avatax_mode" xsi:type="const">\ClassyLlama\AvaTax\Model\Config\Source\Mode::DEVELOPMENT</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="productionCompanyCodeFrontendModel" type="ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CompanyCode">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="account_number_id" xsi:type="string">tax_avatax_general_production_account_number</item>
+                <item name="license_key_id" xsi:type="string">tax_avatax_general_production_license_key</item>
+                <item name="company_code_id" xsi:type="string">tax_avatax_general_production_company_code</item>
+                <item name="company_code_group" xsi:type="string">avatax</item>
+                <item name="company_code_field" xsi:type="string">production_company_code</item>
+                <item name="company_id_id" xsi:type="string">tax_avatax_general_production_company_id</item>
+                <item name="avatax_mode" xsi:type="const">\ClassyLlama\AvaTax\Model\Config\Source\Mode::PRODUCTION</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Config\Model\Config">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxConfig" type="ClassyLlama\AvaTax\Plugin\Model\ConfigPlugin"/>
+    </type>
 </config>

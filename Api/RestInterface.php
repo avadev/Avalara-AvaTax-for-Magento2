@@ -22,23 +22,33 @@ interface RestInterface
     /**
      * Get an AvaTax REST API client object
      *
-     * @param null|string $mode
+     * @param null|bool       $isProduction
      * @param null|string|int $scopeId
-     * @param string $scopeType
+     * @param string          $scopeType
+     *
      * @return \Avalara\AvaTaxClient
      * @throws \InvalidArgumentException
      */
-    public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    public function getClient(
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    );
 
     /**
      * Ping AvaTax REST service to verify connection/authentication
      *
-     * @param null|string $mode
+     * @param null|bool       $isProduction
      * @param null|string|int $scopeId
-     * @param string $scopeType
+     * @param string          $scopeType
+     *
      * @return bool
      * @throws AvataxConnectionException
      * @throws \InvalidArgumentException
      */
-    public function ping($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    public function ping(
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    );
 }

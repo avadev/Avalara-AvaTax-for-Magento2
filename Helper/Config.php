@@ -16,19 +16,17 @@
 namespace ClassyLlama\AvaTax\Helper;
 
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Helper\Context;
-use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Framework\Phrase;
-use Magento\Shipping\Model\Config as ShippingConfig;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\Store;
-use Magento\Framework\App\State;
-use Magento\Tax\Api\TaxClassRepositoryInterface;
-use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Address as TaxAddress;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\App\State;
+use Magento\Framework\DataObjectFactory;
+use Magento\Shipping\Model\Config as ShippingConfig;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Tax\Api\TaxClassRepositoryInterface;
 
 /**
  * AvaTax Config model
@@ -58,11 +56,15 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE = 'tax/avatax/production_company_code';
 
+    const XML_PATH_AVATAX_PRODUCTION_COMPANY_ID = 'tax/avatax/production_company_id';
+
     const XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER = 'tax/avatax/development_account_number';
 
     const XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY = 'tax/avatax/development_license_key';
 
     const XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE = 'tax/avatax/development_company_code';
+
+    const XML_PATH_AVATAX_DEVELOPMENT_COMPANY_ID = 'tax/avatax/development_company_id';
 
     const XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT = 'tax/avatax/customer_code_format';
 
@@ -139,6 +141,8 @@ class Config extends AbstractHelper
      * List of countries that are enabled by default
      */
     static public $taxCalculationCountriesDefault = ['US', 'CA'];
+
+    const DOCUMENT_MANAGEMENT_COUNTRIES_DEFAULT = ['US', 'CA'];
 
     /**#@+
      * Customer Code Format Options
@@ -499,18 +503,60 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Get Live vs. Development mode of the module
+     * Get Production vs. Development mode of the module
      *
-     * Must be configured at default level as it is difficult to pass store in all contexts this is used
+     * @param int|null    $store
+     * @param string|null $scopeType
      *
-     * @param $store
-     * @param string $scopeType
      * @return bool
      */
-    public function getLiveMode($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function isProductionMode( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
     {
-        return (bool)$this->scopeConfig->getValue(
+        return (bool) $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LIVE_MODE,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Returns a string representing the mode
+     *
+     * @param bool $isProductionMode
+     *
+     * @return string
+     */
+    public function getMode( $isProductionMode )
+    {
+        return $isProductionMode ? self::API_PROFILE_NAME_PROD : self::API_PROFILE_NAME_DEV;
+    }
+
+    /**
+     * Gets a config value based on the mode
+     *
+     * @param bool        $isProduction
+     * @param string      $productionConfig
+     * @param string      $developmentConfig
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return mixed
+     */
+    protected function getConfigByMode(
+        $productionConfig,
+        $developmentConfig,
+        $isProduction = null,
+        $store = null,
+        $scopeType = ScopeInterface::SCOPE_STORE
+    )
+    {
+        if ($isProduction === null)
+        {
+            $isProduction = $this->isProductionMode( $store, $scopeType );
+        }
+
+        return $this->scopeConfig->getValue(
+            $isProduction ? $productionConfig : $developmentConfig,
             $scopeType,
             $store
         );
@@ -519,96 +565,87 @@ class Config extends AbstractHelper
     /**
      * Get account number from config
      *
-     * @param $store
-     * @param $scopeType
+     * @param int|null $store
+     * @param string|null $scopeType
+     * @param bool|null $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
      * @return string
      */
-    public function getAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function getAccountNumber( $store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null )
     {
-        return (string)$this->scopeConfig->getValue(
+        return (string) $this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
-            $scopeType,
-            $store
+            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
+            $isProduction,
+            $store,
+            $scopeType
         );
     }
 
     /**
      * Get license key from config
      *
-     * @param $store
-     * @param $scopeType
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
      * @return string
      */
-    public function getLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function getLicenseKey( $store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null )
     {
-        return (string)$this->scopeConfig->getValue(
+        return (string) $this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
-            $scopeType,
-            $store
+            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
+            $isProduction,
+            $store,
+            $scopeType
         );
     }
 
     /**
      * Get company code from config
      *
-     * @param $store
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
      * @return string
      */
-    public function getCompanyCode($store)
+    public function getCompanyCode($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
     {
-        return (string)$this->scopeConfig->getValue(
+        return (string) $this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get development account number from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get development license key from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get development company code from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
-            $scopeType,
-            $store
+            $isProduction,
+            $store,
+            $scopeType
         );
+    }
+
+    /**
+     * Get company code from config
+     *
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
+     * @return int|null
+     */
+    public function getCompanyId($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
+    {
+        $companyId = $this->getConfigByMode(
+            self::XML_PATH_AVATAX_PRODUCTION_COMPANY_ID,
+            self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_ID,
+            $isProduction,
+            $store,
+            $scopeType
+        );
+
+        if($companyId !== null) {
+            $companyId = (int)$companyId;
+        }
+
+        return $companyId;
     }
 
     /**

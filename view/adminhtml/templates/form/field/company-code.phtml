@@ -1,0 +1,20 @@
+<?php $url = $this->getUrl(
+    'avatax/companycodes/get',
+    ['form_key' => $this->getFormKey(), 'mode' => $this->getData( 'avatax_mode' )]
+); ?>
+<input id="<?php echo $this->getData( 'company_code_id' ) ?>"
+       name="groups[<?php echo $this->getData( 'company_code_group' ) ?>][fields][<?php echo $this->getData(
+           'company_code_field'
+       ) ?>][value]" value="" type="hidden">
+<script type="text/x-magento-init">
+{
+    "#<?php echo $this->getData( 'company_id_id' ) ?>": {
+        "companyCode": {
+            "url": "<?php echo $url ?>",
+            "accountNumberId": "<?php echo $this->getData( 'account_number_id' ) ?>",
+            "licenseKeyId": "<?php echo $this->getData( 'license_key_id' ) ?>",
+            "companyCodeId": "<?php echo $this->getData( 'company_code_id' ) ?>"
+        }
+    }
+}
+</script>

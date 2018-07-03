@@ -24,12 +24,13 @@ interface RestAddressInterface extends \ClassyLlama\AvaTax\Api\RestInterface
      * Perform REST request to validate address
      *
      * @param \Magento\Framework\DataObject $request
-     * @param string|null $mode
-     * @param string|int|null $scopeId
-     * @param string $scopeType
+     * @param string|null                   $isProduction
+     * @param string|int|null               $scopeId
+     * @param string                        $scopeType
+     *
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result
      * @throws AddressValidateException
      * @throws AvataxConnectionException
      */
-    public function validate($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    public function validate( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 }

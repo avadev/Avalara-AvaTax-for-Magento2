@@ -118,11 +118,12 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_company_code" translate="label" type="text" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <config_path>tax/avatax/production_company_code</config_path>
-                    <label>Company Code (Production)</label>
-                    <frontend_class>validate-length maximum-length-25</frontend_class>
-                    <comment>This can be found in your AvaTax Dashboard. This may be different from the actual company name.</comment>
+                <field id="production_company_id" translate="label" type="select" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/production_company_id</config_path>
+                    <label>Company (Production)</label>
+                    <frontend_model>productionCompanyCodeFrontendModel</frontend_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CompanyCode</source_model>
+                    <comment><![CDATA[Choose the company to use. If you don't see values in this dropdown, then enter values into the <strong>Account Number</strong> and <strong>License Key</strong> fields above.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -143,11 +144,12 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="development_company_code" translate="label" type="text" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <config_path>tax/avatax/development_company_code</config_path>
-                    <label>Company Code (Development)</label>
-                    <frontend_class>validate-length maximum-length-25</frontend_class>
-                    <comment>This can be found in your AvaTax Dashboard. This may be different from the actual company name.</comment>
+                <field id="development_company_id" translate="label" type="select" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/development_company_id</config_path>
+                    <label>Company (Development)</label>
+                    <frontend_model>developmentCompanyCodeFrontendModel</frontend_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CompanyCode</source_model>
+                    <comment><![CDATA[Choose the company to use. If you don't see values in this dropdown, then enter values into the <strong>Account Number</strong> and <strong>License Key</strong> fields above.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -447,7 +449,8 @@
                     <comment>Automatic log file rotation will allow you to control how much history is maintained in
                         the AvaTax log files, and separate them by day. For more efficient management of log files you
                         should disable this option and use something like logrotate to handle the rotation of log files
-                        at the system level.</comment>
+                        at the system level.
+                    </comment>
                 </field>
                 <field id="logging_file_builtin_rotation_max_files" translate="label" type="text" sortOrder="5070" showInDefault="1" showInWebsite="0" showInStore="0">
                     <config_path>tax/avatax/logging_file_builtin_rotation_max_files</config_path>
