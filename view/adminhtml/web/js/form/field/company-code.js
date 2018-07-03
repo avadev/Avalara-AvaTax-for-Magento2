@@ -8,31 +8,13 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
             companyCodeId: null
         },
 
-        // Returns the scope from the form action to determine how to load the save config settings
-        getScope: function getScope() {
-            var formScope = document.getElementById('config-edit-form').action.match(/section\/\w+\/(website|store)\/(\d+)/i);
-
-            if (formScope === null) {
-                return {
-                    scope_type: 'global'
-                };
-            }
-
-            return {
-                scope: formScope[2],
-                scope_type: formScope[1]
-            };
-        },
-
-        fetchAndUpdateCompanies: function () {
-            this.fetchCompanies(
-                this.accountNumberElement.value,
-                this.licenseKeyElement.value
-            ).then((function (response) {
-                    this.updateCompanyIds(response.companies, response.current_id)
-            }).bind(this));
-        },
-
+        /**
+         * Initialize component
+         *
+         * @param {Object} config
+         * @param {DOMElement} idElement
+         * @returns {Element}
+         */
         initialize: function(config, idElement) {
 
             this._super();
@@ -55,14 +37,55 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
             if (this.accountNumberElement.value !== null && this.licenseKeyElement.value !== null) {
                 this.fetchAndUpdateCompanies();
             }
+
+            return this;
         },
 
-        // Set the company code hidden input based on the selected company
+        /**
+         * Returns the scope from the form action to determine how to load the save config settings
+         *
+         * @returns {Object}
+         */
+        getScope: function() {
+            var formScope = document.getElementById('config-edit-form').action.match(/section\/\w+\/(website|store)\/(\d+)/i);
+
+            if (formScope === null) {
+                return {
+                    scope_type: 'global'
+                };
+            }
+
+            return {
+                scope: formScope[2],
+                scope_type: formScope[1]
+            };
+        },
+
+        /**
+         * Fetch company options and update the drop-down
+         */
+        fetchAndUpdateCompanies: function() {
+            this.fetchCompanies(
+                this.accountNumberElement.value,
+                this.licenseKeyElement.value
+            ).then((function (response) {
+                this.updateCompanyIds(response.companies, response.current_id)
+            }).bind(this));
+        },
+
+        /**
+         * Set the company code hidden input based on the selected company
+         */
         updateCompanyCodeFromCompanyId: function() {
             this.companyCodeElement.value = this.companyIdToCompanyCodeMap[this.idElement.item(this.idElement.selectedIndex).value];
         },
 
-        // Build the company select, and select the currently saved company
+        /**
+         * Build the company select, and select the currently saved company
+         *
+         * @param {Array} companies
+         * @param {int} currentId
+         */
         updateCompanyIds: function(companies, currentId) {
             this.idElement.innerHTML = '';
 
@@ -79,7 +102,13 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
             }.bind(this))
         },
 
-        // Grab the companies from the API
+        /**
+         * Grab the companies from the API
+         *
+         * @param {string} accountNumber
+         * @param {string} licenseKey
+         * @returns {Object}
+         */
         fetchCompanies: function(accountNumber, licenseKey) {
             if (this.url == null) {
                 return;
