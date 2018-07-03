@@ -86,6 +86,11 @@
                     <item name="validation" xsi:type="array">
                         <item name="required-entry" xsi:type="boolean">true</item>
                     </item>
+                    <item name="notice" xsi:type="string" translate="true">
+                        Your Cross Border Types will be assigned to specific products.
+                        A product’s Cross Border Type, combined with the destination country of a given transaction,
+                        will determine the appropriate Cross Border Class that applies (including its HS code and unit information).
+                    </item>
                 </item>
             </argument>
         </field>
@@ -100,6 +105,10 @@
                     <item name="validation" xsi:type="array">
                         <item name="required-entry" xsi:type="boolean">true</item>
                     </item>
+                    <!-- TODO: Add link -->
+                    <item name="notice" xsi:type="string" translate="true">
+                        Browse for appropriate HS codes for your products.
+                    </item>
                 </item>
             </argument>
         </field>
@@ -111,6 +120,9 @@
                     <item name="formElement" xsi:type="string">input</item>
                     <item name="dataScope" xsi:type="string">unit_name</item>
                     <item name="sortOrder" xsi:type="number">40</item>
+                    <item name="notice" xsi:type="string" translate="true">
+                        If relevant, enter an HS Code Unit of Measure. If left blank, this value won’t be sent to Avalara.
+                    </item>
                 </item>
             </argument>
         </field>
@@ -122,6 +134,10 @@
                     <item name="formElement" xsi:type="string">input</item>
                     <item name="dataScope" xsi:type="string">unit_amount_product_attr</item>
                     <item name="sortOrder" xsi:type="number">50</item>
+                    <item name="notice" xsi:type="string" translate="true">
+                        <![CDATA[Only select a product attribute if you’ve input a "Unit Name" above.
+                        The value of the selected attribute for a given product will be sent to Avalara as the unit amount.]]>
+                    </item>
                 </item>
             </argument>
         </field>
