@@ -1,10 +1,11 @@
 define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
     return Element.extend({
         defaults: {
+            url: null,
             companyIdToCompanyCodeMap: [],
-            account_number_id: null,
-            license_key_id: null,
-            company_code_id: null
+            accountNumberId: null,
+            licenseKeyId: null,
+            companyCodeId: null
         },
 
         // Returns the scope from the form action to determine how to load the save config settings
@@ -23,46 +24,49 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
             };
         },
 
-        initialize: function initialize(config, idElement) {
-            var fetchAndUpdateCompanies = (function () {
-                this.fetchCompanies(this.accountNumberElement.value, this.licenseKeyElement.value)
-                    .then((function onCompanyFetch(response) {
-                        this.updateCompanyIds(response.companies, response.current_id)
-                    }).bind(this));
-            }).bind(this);
+        fetchAndUpdateCompanies: function () {
+            this.fetchCompanies(
+                this.accountNumberElement.value,
+                this.licenseKeyElement.value
+            ).then((function (response) {
+                    this.updateCompanyIds(response.companies, response.current_id)
+            }).bind(this));
+        },
+
+        initialize: function(config, idElement) {
 
             this._super();
 
             this.idElement = idElement;
-            this.accountNumberElement = document.getElementById(this.account_number_id);
-            this.licenseKeyElement = document.getElementById(this.license_key_id);
-            this.companyCodeElement = document.getElementById(this.company_code_id);
+            this.accountNumberElement = document.getElementById(this.accountNumberId);
+            this.licenseKeyElement = document.getElementById(this.licenseKeyId);
+            this.companyCodeElement = document.getElementById(this.companyCodeId);
 
             if (this.accountNumberElement === null || this.licenseKeyElement === null || this.companyCodeElement === null) {
                 return;
             }
 
             // Watch for changes so we can provide instant company codes without the user needing to save the config
-            this.accountNumberElement.addEventListener('change', fetchAndUpdateCompanies);
-            this.licenseKeyElement.addEventListener('change', fetchAndUpdateCompanies);
+            this.accountNumberElement.addEventListener('change', this.fetchAndUpdateCompanies.bind(this));
+            this.licenseKeyElement.addEventListener('change', this.fetchAndUpdateCompanies.bind(this));
             this.idElement.addEventListener('change', this.updateCompanyCodeFromCompanyId.bind(this));
 
             // If we already have values for credentials, fetch company ids
             if (this.accountNumberElement.value !== null && this.licenseKeyElement.value !== null) {
-                fetchAndUpdateCompanies();
+                this.fetchAndUpdateCompanies();
             }
         },
 
         // Set the company code hidden input based on the selected company
-        updateCompanyCodeFromCompanyId: function updateCompanyCodeFromCompanyId() {
+        updateCompanyCodeFromCompanyId: function() {
             this.companyCodeElement.value = this.companyIdToCompanyCodeMap[this.idElement.item(this.idElement.selectedIndex).value];
         },
 
         // Build the company select, and select the currently saved company
-        updateCompanyIds: function updateCompanyIds(companies, currentId) {
+        updateCompanyIds: function(companies, currentId) {
             this.idElement.innerHTML = '';
 
-            companies.forEach(function (company) {
+            companies.forEach(function(company) {
                 var companyNameDisplay = company.name;
 
                 if (company.company_code !== null) {
@@ -76,7 +80,11 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
         },
 
         // Grab the companies from the API
-        fetchCompanies: function fetchCompanies(accountNumber, licenseKey) {
+        fetchCompanies: function(accountNumber, licenseKey) {
+            if (this.url == null) {
+                return;
+            }
+
             // If either account number or license key is null, we can't make any request
             if (accountNumber === '' || licenseKey === '') {
                 return jQuery.Deferred().reject();
@@ -97,9 +105,7 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
                 url: this.url,
                 showLoader: true,
                 type: 'post',
-                data: data,
-                beforeSend: function () {
-                }
+                data: data
             });
         }
     });
