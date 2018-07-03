@@ -337,7 +337,12 @@
                 <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable Customs Duty &amp; Import Tax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Customs Duty & Import Tax include duties, fees and taxes relevant to cross border shipments. This feature must be enabled in your Avalara account. Note that the proper use of this feature requires appropriate configuration of <strong>Cross Border Classes</strong> and assignment of Cross Border Types to products.]]></comment>
+                    <comment><![CDATA[
+                        Customs Duty & Import Tax include duties, fees and taxes relevant to cross border shipments.
+                        This feature must be enabled in your Avalara account. Note that the proper use of this feature requires appropriate
+                        configuration of <strong>Cross Border Classes</strong> (see Stores -> Taxes -> AvaTax Cross Border Classes) and assignment
+                        of Cross Border Types to products.
+                    ]]></comment>
                 </field>
             </group>
             <group id="avatax_advanced" translate="label" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
