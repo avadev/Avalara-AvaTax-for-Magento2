@@ -9,24 +9,24 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace ClassyLlama\AvaTax\Helper;
 
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Helper\Context;
-use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Shipping\Model\Config as ShippingConfig;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Framework\App\State;
-use Magento\Tax\Api\TaxClassRepositoryInterface;
-use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\Address as TaxAddress;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\App\State;
+use Magento\Framework\DataObjectFactory;
+use Magento\Shipping\Model\Config as ShippingConfig;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Tax\Api\TaxClassRepositoryInterface;
 
 /**
  * AvaTax Config model
@@ -200,8 +200,7 @@ class Config extends AbstractHelper
     const API_PROFILE_NAME_PROD = 'Production';
     /**#@-*/
 
-    const AVATAX_DOCUMENTATION_TAX_CODE_LINK
-        = 'https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes/Tax_Codes_-_Frequently_Asked_Questions';
+    const AVATAX_DOCUMENTATION_TAX_CODE_LINK = 'https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes/Tax_Codes_-_Frequently_Asked_Questions';
 
     /**
      * Magento version prefix
@@ -251,13 +250,13 @@ class Config extends AbstractHelper
     /**
      * Class constructor
      *
-     * @param Context $context
-     * @param ProductMetadataInterface $magentoProductMetadata
-     * @param State $appState
-     * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param Context                             $context
+     * @param ProductMetadataInterface            $magentoProductMetadata
+     * @param State                               $appState
+     * @param TaxClassRepositoryInterface         $taxClassRepository
      * @param \Magento\Backend\Model\UrlInterface $backendUrl
-     * @param DataObjectFactory $dataObjectFactory
-     * @param MetaDataObjectFactory $metaDataObjectFactory
+     * @param DataObjectFactory                   $dataObjectFactory
+     * @param MetaDataObjectFactory               $metaDataObjectFactory
      */
     public function __construct(
         Context $context,
@@ -267,13 +266,16 @@ class Config extends AbstractHelper
         \Magento\Backend\Model\UrlInterface $backendUrl,
         DataObjectFactory $dataObjectFactory,
         MetaDataObjectFactory $metaDataObjectFactory
-    ) {
+    )
+    {
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->backendUrl = $backendUrl;
         $this->dataObjectFactory = $dataObjectFactory;
-        $this->addressMetaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => TaxAddress::$validFields]);
+        $this->addressMetaDataObject = $metaDataObjectFactory->create(
+            ['metaDataProperties' => TaxAddress::$validFields]
+        );
         parent::__construct($context);
     }
 
@@ -281,7 +283,8 @@ class Config extends AbstractHelper
      * Return whether module is enabled
      *
      * @param null $store
-     * @param $scopeType
+     * @param      $scopeType
+     *
      * @return mixed
      */
     public function isModuleEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -297,6 +300,7 @@ class Config extends AbstractHelper
      * Return tax mode
      *
      * @param $store
+     *
      * @return mixed
      */
     public function getTaxMode($store)
@@ -312,6 +316,7 @@ class Config extends AbstractHelper
      * Return whether to commit submitted transactions
      *
      * @param $store
+     *
      * @return mixed
      */
     public function getCommitSubmittedTransactions($store)
@@ -326,6 +331,7 @@ class Config extends AbstractHelper
     /**
      * @param $store
      * @param $scopeType
+     *
      * @return mixed
      */
     public function getTaxCalculationCountriesEnabled($store, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -339,6 +345,7 @@ class Config extends AbstractHelper
 
     /**
      * @param $store
+     *
      * @return mixed
      */
     protected function getFilterTaxByRegion($store)
@@ -352,6 +359,7 @@ class Config extends AbstractHelper
 
     /**
      * @param $store
+     *
      * @return mixed
      */
     protected function getRegionFilterList($store)
@@ -367,7 +375,8 @@ class Config extends AbstractHelper
      * Determine whether address is taxable, based on either country or region
      *
      * @param \Magento\Framework\DataObject $address
-     * @param $storeId
+     * @param                               $storeId
+     *
      * @return bool
      */
     public function isAddressTaxable(\Magento\Framework\DataObject $address, $storeId)
@@ -380,7 +389,7 @@ class Config extends AbstractHelper
             if (!in_array($countryId, $countryFilters)) {
                 $isTaxable = false;
             }
-        // Filtering by region within countries
+            // Filtering by region within countries
         } else {
             $regionFilters = explode(',', $this->getRegionFilterList($storeId));
             $entityId = $address->getRegionId() ?: $address->getCountryId();
@@ -388,6 +397,7 @@ class Config extends AbstractHelper
                 $isTaxable = false;
             }
         }
+
         return $isTaxable;
     }
 
@@ -395,6 +405,7 @@ class Config extends AbstractHelper
      * Return origin address
      *
      * @param int|\Magento\Store\Api\Data\StoreInterface $store
+     *
      * @return array
      */
     public function getOriginAddress($store)
@@ -448,6 +459,7 @@ class Config extends AbstractHelper
      * Get Customer code format to pass to AvaTax API
      *
      * @param $store
+     *
      * @return mixed
      */
     public function getCustomerCodeFormat($store)
@@ -503,8 +515,9 @@ class Config extends AbstractHelper
      *
      * Must be configured at default level as it is difficult to pass store in all contexts this is used
      *
-     * @param $store
+     * @param        $store
      * @param string $scopeType
+     *
      * @return bool
      */
     public function getLiveMode($store, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -521,6 +534,7 @@ class Config extends AbstractHelper
      *
      * @param $store
      * @param $scopeType
+     *
      * @return string
      */
     public function getAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -537,6 +551,7 @@ class Config extends AbstractHelper
      *
      * @param $store
      * @param $scopeType
+     *
      * @return string
      */
     public function getLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -552,6 +567,7 @@ class Config extends AbstractHelper
      * Get company code from config
      *
      * @param $store
+     *
      * @return string
      */
     public function getCompanyCode($store)
@@ -568,6 +584,7 @@ class Config extends AbstractHelper
      *
      * @param $store
      * @param $scopeType
+     *
      * @return string
      */
     public function getDevelopmentAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -584,6 +601,7 @@ class Config extends AbstractHelper
      *
      * @param $store
      * @param $scopeType
+     *
      * @return string
      */
     public function getDevelopmentLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -600,6 +618,7 @@ class Config extends AbstractHelper
      *
      * @param $store
      * @param $scopeType
+     *
      * @return string
      */
     public function getDevelopmentCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -615,6 +634,7 @@ class Config extends AbstractHelper
      * Get SKU for Shipping
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuShipping($store)
@@ -630,6 +650,7 @@ class Config extends AbstractHelper
      * Get SKU for Gift Wrap at the Order Level
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuGiftWrapOrder($store)
@@ -645,6 +666,7 @@ class Config extends AbstractHelper
      * Get SKU for Gift Wrap at the Item Level
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuShippingGiftWrapItem($store)
@@ -660,6 +682,7 @@ class Config extends AbstractHelper
      * Get SKU for Gift Wrap card
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuShippingGiftWrapCard($store)
@@ -675,6 +698,7 @@ class Config extends AbstractHelper
      * Get SKU for positive adjustment
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuAdjustmentPositive($store)
@@ -690,6 +714,7 @@ class Config extends AbstractHelper
      * Get SKU for negative adjustment
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuAdjustmentNegative($store)
@@ -705,6 +730,7 @@ class Config extends AbstractHelper
      * Get Location Code
      *
      * @param $store
+     *
      * @return string
      */
     public function getLocationCode($store)
@@ -750,6 +776,7 @@ class Config extends AbstractHelper
      * Get whether should use Business Identification Number (VAT)
      *
      * @param $store
+     *
      * @return string
      */
     public function getUseBusinessIdentificationNumber($store)
@@ -765,6 +792,7 @@ class Config extends AbstractHelper
      * Get action to take when error occurs
      *
      * @param $store
+     *
      * @return string
      */
     public function getErrorAction($store)
@@ -780,6 +808,7 @@ class Config extends AbstractHelper
      * Return "disable checkout" error message based on the current area context
      *
      * @param $store
+     *
      * @return \Magento\Framework\Phrase
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -800,6 +829,7 @@ class Config extends AbstractHelper
      * Get "disable checkout" error message for frontend user
      *
      * @param $store
+     *
      * @return string
      */
     protected function getErrorActionDisableCheckoutMessageFrontend($store)
@@ -815,6 +845,7 @@ class Config extends AbstractHelper
      * Get "disable checkout" error message for backend user
      *
      * @param $store
+     *
      * @return string
      */
     protected function getErrorActionDisableCheckoutMessageBackend($store)
@@ -830,6 +861,7 @@ class Config extends AbstractHelper
      * Return if address validation is enabled
      *
      * @param null $store
+     *
      * @return mixed
      */
     public function isAddressValidationEnabled($store)
@@ -845,6 +877,7 @@ class Config extends AbstractHelper
      * Returns if user is allowed to choose between the original address and the validated address
      *
      * @param null $store
+     *
      * @return mixed
      */
     public function allowUserToChooseAddress($store)
@@ -860,6 +893,7 @@ class Config extends AbstractHelper
      * Instructions for the user if they have a choice between the original address and validated address
      *
      * @param $store
+     *
      * @return string
      */
     public function getAddressValidationInstructionsWithChoice($store)
@@ -875,6 +909,7 @@ class Config extends AbstractHelper
      * Instructions for the user if they do not have a choice between the original address and the validated address
      *
      * @param $store
+     *
      * @return string
      */
     public function getAddressValidationInstructionsWithoutChoice($store)
@@ -890,6 +925,7 @@ class Config extends AbstractHelper
      * Instructions for the user if there was an error in validating their address
      *
      * @param $store
+     *
      * @return string
      */
     public function getAddressValidationErrorInstructions($store)
@@ -905,6 +941,7 @@ class Config extends AbstractHelper
      * Returns which countries were enabled to validate the users address
      *
      * @param $store
+     *
      * @return mixed
      */
     public function getAddressValidationCountriesEnabled($store)

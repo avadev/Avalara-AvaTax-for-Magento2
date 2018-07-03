@@ -1,8 +1,16 @@
 <?php
 /**
- * @category    ClassyLlama
- * @copyright   Copyright (c) 2018 Classy Llama Studios, LLC
- * @author      sean.templeton
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace ClassyLlama\AvaTax\Helper;
@@ -26,63 +34,107 @@ class DocumentManagementConfig extends AbstractHelper
 
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CHECKOUT_LINK_TEXT_MANAGE_EXISTING_CERTS = 'tax/avatax_document_management/checkout_link_text_manage_existing_certs';
 
-    public function getEnabled( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return bool
+     */
+    public function getEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        return (bool)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ENABLED,
             $scopeType,
             $store
         );
     }
 
-    public function getEnabledCountries( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return array
+     */
+    public function getEnabledCountries($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        $enabledCountries = $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ENABLED_COUNTRIES,
             $scopeType,
             $store
         );
+
+        return array_filter(explode(',', $enabledCountries));
     }
 
-    public function getEcommerceSdkCompanyId( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return string
+     */
+    public function getEcommerceSdkCompanyId($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ECOMMERCE_SDK_COMPANY_ID,
             $scopeType,
             $store
         );
     }
 
-    public function getEcommerceSdkKey( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return string
+     */
+    public function getEcommerceSdkKey($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ECOMMERCE_SDK_KEY,
             $scopeType,
             $store
         );
     }
 
-    public function getCheckoutLinkTextNewCertNoCertsExist( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return string
+     */
+    public function getCheckoutLinkTextNewCertNoCertsExist($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CHECKOUT_LINK_TEXT_NEW_CERT_NO_CERTS_EXIST,
             $scopeType,
             $store
         );
     }
 
-    public function getCheckoutLinkTextNewCertCertsExist( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return string
+     */
+    public function getCheckoutLinkTextNewCertCertsExist($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CHECKOUT_LINK_TEXT_NEW_CERT_CERTS_EXIST,
             $scopeType,
             $store
         );
     }
 
-    public function getCheckoutLinkTextManageExistingCert( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return string
+     */
+    public function getCheckoutLinkTextManageExistingCert($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CHECKOUT_LINK_TEXT_MANAGE_EXISTING_CERTS,
             $scopeType,
             $store
