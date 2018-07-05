@@ -44,9 +44,9 @@ class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractData
     protected $loadedData;
 
     /**
-     * @param $name
-     * @param $primaryFieldName
-     * @param $requestFieldName
+     * @param string $name
+     * @param string $primaryFieldName
+     * @param string $requestFieldName
      * @param CrossBorderClassCollectionFactory $crossBorderClassCollectionFactory
      * @param DataPersistorInterface $dataPersistor
      * @param CrossBorderClassRepositoryInterface $crossBorderClassRepository
