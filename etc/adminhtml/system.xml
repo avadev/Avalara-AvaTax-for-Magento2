@@ -128,15 +128,6 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="production_company_id" translate="label" type="text" sortOrder="1055" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <config_path>tax/avatax/production_company_id</config_path>
-                    <label>Company Id (Production)</label>
-                    <comment>This value is automatically determined by the Company Code you have entered and cannot be edited.</comment>
-                    <!-- Can't use depends when disabling a field. TODO: Make a core magento bug report on this -->
-                    <!--<depends>-->
-                    <!--<field id="enabled">1</field>-->
-                    <!--</depends>-->
-                </field>
                 <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <config_path>tax/avatax/development_account_number</config_path>
                     <label>Account Number (Development)</label>
