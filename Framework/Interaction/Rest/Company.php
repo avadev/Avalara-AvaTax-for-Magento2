@@ -25,7 +25,7 @@ class Company extends Rest implements RestCompanyInterface
      * @param \Avalara\AvaTaxClient $client
      * @param DataObject|null       $request
      *
-     * @return mixed
+     * @return DataObject[]
      * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
      */
     protected function getCompaniesFromClient( $client, $request = null )
@@ -36,16 +36,16 @@ class Company extends Rest implements RestCompanyInterface
         }
 
         $clientResult = $client->queryCompanies(
-            $request->getInclude(),
-            $request->getFilter(),
-            $request->getTop(),
-            $request->getSkip(),
-            $request->getOrderBy()
+            $request->getData('include'),
+            $request->getData('filter'),
+            $request->getData('top'),
+            $request->getData('skip'),
+            $request->getData('order_by')
         );
 
         $this->validateResult( $clientResult, $request );
 
-        return $this->formatResult( $clientResult )->getValue();
+        return $this->formatResult( $clientResult )->getData('value');
     }
 
     /**
@@ -69,12 +69,13 @@ class Company extends Rest implements RestCompanyInterface
      * @param DataObject|null $request
      * @param bool|null       $isProduction
      *
-     * @return mixed
+     * @return DataObject[]
      * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
      */
     public function getCompaniesWithSecurity( $accountNumber, $password, $request = null, $isProduction = null )
     {
         $client = $this->getClient( $isProduction );
+        // Override security credentials with custom ones
         $client->withSecurity( $accountNumber, $password );
 
         return $this->getCompaniesFromClient( $client, $request );

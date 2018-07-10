@@ -223,6 +223,151 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ->setComment('AvaTax Sales Credit Memo Table');
             $setup->getConnection(self::$connectionName)->createTable($table);
         }
+
+        if (version_compare($context->getVersion(), '2.0.1', '<')) {
+            /**
+             * Create table 'avatax_cross_border_class'
+             */
+            $table = $setup->getConnection(self::$connectionName)
+                ->newTable(
+                    $setup->getTable('avatax_cross_border_class')
+                )
+                ->addColumn(
+                    'class_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'nullable' => false,
+                        'identity' => true,
+                        'primary' => true
+                    ],
+                    'Class ID'
+                )
+                ->addColumn(
+                    'cross_border_type',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    [
+                        'nullable' => true,
+                    ],
+                    'Cross Border Type'
+                )
+                ->addColumn(
+                    'hs_code',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    [
+                        'nullable' => false,
+                        'default' => '',
+                    ],
+                    'HS Code'
+                )
+                ->addColumn(
+                    'unit_name',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    [
+                        'nullable' => true,
+                    ],
+                    'Unit Name'
+                )
+                ->addColumn(
+                    'unit_amount_product_attr',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    [
+                        'nullable' => true,
+                    ],
+                    'Unit Amount Product Attribute'
+                )
+                ->addColumn(
+                    'pref_program_indicator',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    [
+                        'nullable' => true,
+                    ],
+                    'Pref. Program Indicator'
+                )
+                ->setComment('Cross Border Class');
+
+            $setup->getConnection(self::$connectionName)->createTable($table);
+
+
+            /**
+             * Create table 'avatax_cross_border_class_country'
+             */
+            $table = $setup->getConnection(self::$connectionName)
+                ->newTable(
+                    $setup->getTable('avatax_cross_border_class_country')
+                )
+                ->addColumn(
+                    'link_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'nullable' => false,
+                        'identity' => true,
+                        'primary' => true
+                    ],
+                    'Link ID'
+                )
+                ->addColumn(
+                    'class_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'nullable' => false,
+                    ],
+                    'Class ID'
+                )
+                ->addColumn(
+                    'country_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    2,
+                    [
+                        'nullable' => false,
+                    ],
+                    'Country ID'
+                )
+                ->addIndex(
+                    $setup->getIdxName(
+                        'avatax_cross_border_class_country',
+                        ['class_id', 'country_id'],
+                        \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                    ),
+                    ['class_id', 'country_id'],
+                    ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+                )
+                ->addForeignKey(
+                    $setup->getFkName(
+                        'avatax_cross_border_class_country',
+                        'class_id',
+                        'avatax_cross_border_class',
+                        'class_id'
+                    ),
+                    'class_id',
+                    $setup->getTable('avatax_cross_border_class'),
+                    'class_id',
+                    Table::ACTION_CASCADE
+                )
+                ->addForeignKey(
+                    $setup->getFkName(
+                        'avatax_cross_border_class_country',
+                        'country_id',
+                        'directory_country',
+                        'country_id'
+                    ),
+                    'country_id',
+                    $setup->getTable('directory_country'),
+                    'country_id',
+                    Table::ACTION_CASCADE
+                )
+                ->setComment('AvaTax Sales Credit Memo Table');
+
+            $setup->getConnection(self::$connectionName)->createTable($table);
+        }
+
         $setup->endSetup();
     }
 }

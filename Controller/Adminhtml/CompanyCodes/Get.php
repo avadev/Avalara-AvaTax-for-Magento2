@@ -55,13 +55,23 @@ class Get extends \Magento\Backend\App\Action
     }
 
     /**
+     * {@inheritDoc}
+     */
+    protected function _isAllowed()
+    {
+        return $this->_authorization->isAllowed('Magento_Tax::config_tax');
+    }
+
+    /**
      * @return \Magento\Framework\Controller\Result\Json
      */
     public function execute()
     {
         $companies = [];
-        $postValue = $this->getRequest()->getPostValue();
-        $isProduction = (bool)$this->getRequest()->getParam('mode');
+        /** @var \Magento\Framework\HTTP\PhpEnvironment\Request $request */
+        $request = $this->getRequest();
+        $postValue = $request->getPostValue();
+        $isProduction = (bool)$request->getParam('mode');
         $resultJson = $this->resultPageFactory->create();
         $scope = isset($postValue['scope']) ? $postValue['scope'] : null;
         $scopeType = $postValue['scope_type'] === 'global' ? \Magento\Store\Model\ScopeInterface::SCOPE_STORE
@@ -79,7 +89,10 @@ class Get extends \Magento\Backend\App\Action
                 null,
                 $isProduction
             );
-        } catch (AvataxConnectionException $e) {
+        }
+        catch (AvataxConnectionException $e)
+        {
+            // If for any reason we couldn't get any companies, just ignore and no companies will be returned
         }
 
         if (\count($companies) === 0) {

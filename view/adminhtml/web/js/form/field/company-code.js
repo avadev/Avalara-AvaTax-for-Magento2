@@ -1,79 +1,139 @@
-define(['jquery', 'mage/url'], function (jQuery) {
-    function getScope() {
-        var formScope = document.getElementById('config-edit-form').action.match(/section\/\w+\/(website|store)\/(\d+)/i);
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+define(['jquery', 'uiElement', 'underscore', 'mage/url'], function (jQuery, Element, _) {
+    return Element.extend({
+        defaults: {
+            url: null,
+            companyIdToCompanyCodeMap: [],
+            accountNumberId: null,
+            licenseKeyId: null,
+            companyCodeId: null
+        },
 
-        if (formScope === null) {
+        /**
+         * Initialize component
+         *
+         * @param {Object} config
+         * @param {HTMLElement} idElement
+         * @returns {Element}
+         */
+        initialize: function initialize(config, idElement) {
+            this._super();
+
+            _.bindAll(this, 'fetchAndUpdateCompanies', 'updateCompanyCodeFromCompanyId');
+
+            this.idElement = idElement;
+            this.accountNumberElement = document.getElementById(this.accountNumberId);
+            this.licenseKeyElement = document.getElementById(this.licenseKeyId);
+            this.companyCodeElement = document.getElementById(this.companyCodeId);
+
+            if (this.accountNumberElement === null || this.licenseKeyElement === null || this.companyCodeElement === null) {
+                return this;
+            }
+
+            // Watch for changes so we can provide instant company codes without the user needing to save the config
+            this.accountNumberElement.addEventListener('change', this.fetchAndUpdateCompanies);
+            this.licenseKeyElement.addEventListener('change', this.fetchAndUpdateCompanies);
+            this.idElement.addEventListener('change', this.updateCompanyCodeFromCompanyId);
+
+            // If we already have values for credentials, fetch company ids
+            if (this.accountNumberElement.value !== null && this.licenseKeyElement.value !== null) {
+                this.fetchAndUpdateCompanies();
+            }
+
+            return this;
+        },
+
+        /**
+         * Returns the scope from the form action to determine how to load the save config settings
+         *
+         * @returns {Object}
+         */
+        getScope: function getScope() {
+            var formScope = document.getElementById('config-edit-form').action.match(/section\/\w+\/(website|store)\/(\d+)/i);
+
+            if (formScope === null) {
+                return {
+                    scope_type: 'global'
+                };
+            }
+
             return {
-                scope_type: 'global'
+                scope: formScope[2],
+                scope_type: formScope[1]
             };
-        }
+        },
 
-        return {
-            scope: formScope[2],
-            scope_type: formScope[1]
-        };
-    }
+        /**
+         * Set the company code hidden input based on the selected company
+         */
+        updateCompanyCodeFromCompanyId: function updateCompanyCodeFromCompanyId() {
+            this.companyCodeElement.value = this.companyIdToCompanyCodeMap[this.idElement.item(this.idElement.selectedIndex).value];
+        },
 
-    return function companyCode(config, idElement) {
-        var companyIdToCompanyCodeMap = [],
-            url = config.url,
-            accountNumberElement = document.getElementById(config.account_number_id),
-            licenseKeyElement = document.getElementById(config.license_key_id),
-            companyCodeElement = document.getElementById(config.company_code_id);
+        /**
+         * Build the company select, and select the currently saved company
+         *
+         * @param {Array} companies
+         * @param {int} currentId
+         */
+        updateCompanyIds: function updateCompanyIds(companies, currentId) {
+            this.idElement.innerHTML = '';
 
-        if (accountNumberElement === null || licenseKeyElement === null || companyCodeElement === null) {
-            return;
-        }
+            companies.forEach(function (company) {
+                var companyNameDisplay = company.name;
 
-        function updateCompanyCode() {
-            companyCodeElement.value = companyIdToCompanyCodeMap[idElement.item(idElement.selectedIndex).value];
-        }
+                if (company.company_code !== null) {
+                    companyNameDisplay = company.company_code + ' - ' + companyNameDisplay;
+                }
 
-        function updateCompanyId() {
-            // If either account number or license key is null, we can't make any request
-            if (accountNumberElement.value === '' || licenseKeyElement.value === '') {
+                this.companyIdToCompanyCodeMap[company.company_id] = company.company_code;
+                this.idElement.add(new Option(companyNameDisplay, company.company_id, false, company.company_id === currentId));
+                this.updateCompanyCodeFromCompanyId();
+            }.bind(this))
+        },
+
+        /**
+         * Fetch company options and update the drop-down
+         *
+         * @returns {Deferred}
+         */
+        fetchAndUpdateCompanies: function fetchAndUpdateCompanies() {
+            // If account number, license key, or url is null, we can't make any request
+            if (this.url === null || this.accountNumberElement.value === '' || this.licenseKeyElement.value === '') {
                 return jQuery.Deferred().reject();
             }
 
-            var data = getScope();
+            var data = this.getScope();
 
-            data['account_number'] = accountNumberElement.value;
+            data['account_number'] = this.accountNumberElement.value;
 
             // If license key is obscured, don't send it and use the saved config value
-            if (!RegExp("^[*]+$").test(licenseKeyElement.value)) {
-                data['license_key'] = licenseKeyElement.value;
+            if (!RegExp("^[*]+$").test(this.licenseKeyElement.value)) {
+                data['license_key'] = this.licenseKeyElement.value;
             }
 
             // We have to manually build the request and prevent native Magento's beforeSend handler,
             // otherwise the first request when the page loads doesn't work
-            jQuery.ajax({
-                url: url,
+            return jQuery.ajax({
+                url: this.url,
                 showLoader: true,
                 type: 'post',
-                data: data,
-                beforeSend: function () {
-                }
-            }).then(function (response) {
-                idElement.innerHTML = '';
-
-                response.companies.forEach(function (company) {
-                    companyIdToCompanyCodeMap[company.company_id] = company.company_code;
-                    idElement.add(new Option(company.company_code + ' - ' + company.name, company.company_id, false, company.company_id === response.current_id));
-                    updateCompanyCode();
-                })
-            });
+                data: data
+            }).then((function (response) {
+                this.updateCompanyIds(response.companies, response.current_id)
+            }).bind(this));
         }
-
-        if (accountNumberElement === null || licenseKeyElement === null || idElement === null) {
-            return;
-        }
-
-        accountNumberElement.addEventListener('change', updateCompanyId);
-        licenseKeyElement.addEventListener('change', updateCompanyId);
-        idElement.addEventListener('change', updateCompanyCode);
-
-        if (accountNumberElement.value !== null && licenseKeyElement.value !== null) {
-            updateCompanyId();
-        }
-    }
+    });
 });

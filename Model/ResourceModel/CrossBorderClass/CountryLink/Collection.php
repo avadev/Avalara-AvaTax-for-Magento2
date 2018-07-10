@@ -13,15 +13,15 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Model\Config\Source;
+namespace ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink;
 
-class CompanyCode implements \Magento\Framework\Option\ArrayInterface
+class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
-     * @return array
+     * @return void
      */
-    public function toOptionArray()
+    protected function _construct()
     {
-        return [['value' => null, 'label' => __('No available companies')]];
+        $this->_init(\ClassyLlama\AvaTax\Model\CrossBorderClass\CountryLink::class, \ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink::class);
     }
 }

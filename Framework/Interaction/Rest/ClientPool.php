@@ -51,12 +51,18 @@ class ClientPool
         $this->avaTaxClientFactory = $avaTaxClientFactory;
     }
 
-    protected function getClientCacheKey( $isProduction, $scopeType, $scopeId = null )
+    /**
+     * @param bool     $isProduction
+     * @param string   $scopeType
+     * @param int|null $scopeId
+     *
+     * @return string
+     */
+    protected function getClientCacheKey($isProduction, $scopeType, $scopeId = null)
     {
-        $cacheKey = $this->config->getMode( $isProduction );
+        $cacheKey = $this->config->getMode($isProduction);
 
-        if ($scopeId !== null)
-        {
+        if ($scopeId !== null) {
             $cacheKey .= "-{$scopeId}";
         }
 
@@ -79,33 +85,31 @@ class ClientPool
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     )
     {
-        if ($isProduction === null)
-        {
-            $isProduction = $this->config->isProductionMode( $scopeId, $scopeType );
+        if ($isProduction === null) {
+            $isProduction = $this->config->isProductionMode($scopeId, $scopeType);
         }
 
-        $cacheKey = $this->getClientCacheKey( $isProduction, $scopeType, $scopeId );
+        $cacheKey = $this->getClientCacheKey($isProduction, $scopeType, $scopeId);
 
-        if (!isset( $this->clients[ $cacheKey ] ))
-        {
+        if (!isset($this->clients[$cacheKey])) {
             /** @var AvaTaxClient $avaTaxClient */
             $avaTaxClient = $this->avaTaxClientFactory->create(
                 [
-                    'appName'     => $this->config->getApplicationName(),
-                    'appVersion'  => $this->config->getApplicationVersion(),
+                    'appName' => $this->config->getApplicationName(),
+                    'appVersion' => $this->config->getApplicationVersion(),
                     'machineName' => $this->config->getApplicationDomain(),
                     'environment' => $isProduction ? self::API_MODE_PROD : self::API_MODE_DEV,
                 ]
             );
 
-            $accountNumber = $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction );
-            $licenseKey = $this->config->getLicenseKey( $scopeId, $scopeType, $isProduction );
+            $accountNumber = $this->config->getAccountNumber($scopeId, $scopeType, $isProduction);
+            $licenseKey = $this->config->getLicenseKey($scopeId, $scopeType, $isProduction);
 
-            $avaTaxClient->withSecurity( $accountNumber, $licenseKey );
+            $avaTaxClient->withSecurity($accountNumber, $licenseKey);
 
-            $this->clients[ $cacheKey ] = $avaTaxClient;
+            $this->clients[$cacheKey] = $avaTaxClient;
         }
 
-        return $this->clients[ $cacheKey ];
+        return $this->clients[$cacheKey];
     }
 }

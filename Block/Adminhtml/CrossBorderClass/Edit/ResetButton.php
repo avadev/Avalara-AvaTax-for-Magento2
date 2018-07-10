@@ -13,15 +13,22 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Model\Config\Source;
+namespace ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit;
 
-class CompanyCode implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
+
+class ResetButton implements ButtonProviderInterface
 {
     /**
      * @return array
      */
-    public function toOptionArray()
+    public function getButtonData()
     {
-        return [['value' => null, 'label' => __('No available companies')]];
+        return [
+            'label' => __('Reset'),
+            'class' => 'reset',
+            'on_click' => 'location.reload();',
+            'sort_order' => 30
+        ];
     }
 }
