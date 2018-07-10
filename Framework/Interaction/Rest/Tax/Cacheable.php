@@ -77,16 +77,17 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
      * Cache validated response
      *
      * @param \Magento\Framework\DataObject $request
-     * @param null|string $mode
-     * @param null|string|int $scopeId
-     * @param string $scopeType
-     * @param array $params
+     * @param null|string                   $isProduction
+     * @param null|string|int               $scopeId
+     * @param string                        $scopeType
+     * @param array                         $params
+     *
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws AvataxConnectionException
      * @throws \Exception
      */
-    public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
+    public function getTax( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
         $forceNew = false;
         if (isset($params[\ClassyLlama\AvaTax\Api\RestTaxInterface::FLAG_FORCE_NEW_RATES])) {
@@ -131,17 +132,17 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
     /**
      * @inheritdoc
      */
-    public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function getClient( $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
-        return $this->taxInteraction->getClient($mode, $scopeId, $scopeType);
+        return $this->taxInteraction->getClient( $isProduction, $scopeId, $scopeType);
     }
 
     /**
      * @inheritdoc
      */
-    public function ping($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function ping( $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
-        return $this->taxInteraction->ping($mode, $scopeId, $scopeType);
+        return $this->taxInteraction->ping( $isProduction, $scopeId, $scopeType);
     }
 
     /**

@@ -15,13 +15,12 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use Psr\Log\LoggerInterface;
-use Magento\Framework\DataObjectFactory;
-use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
-use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResultFactory;
 use Avalara\TransactionBuilderFactory;
-use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResultFactory;
+use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
+use Magento\Framework\DataObjectFactory;
+use Psr\Log\LoggerInterface;
 
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestTaxInterface
@@ -67,18 +66,19 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * REST call to post tax transaction
      *
      * @param \Magento\Framework\DataObject $request
-     * @param null|string $mode
-     * @param null|string|int $scopeId
-     * @param string $scopeType
-     * @param array $params
+     * @param null|bool                     $isProduction
+     * @param null|string|int               $scopeId
+     * @param string                        $scopeType
+     * @param array                         $params
+     *
      * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws AvataxConnectionException
      * @throws \Exception
      */
-    public function getTax($request, $mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
+    public function getTax( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
-        $client = $this->getClient($mode, $scopeId, $scopeType);
+        $client = $this->getClient( $isProduction, $scopeId, $scopeType);
 
         /** @var \Avalara\TransactionBuilder $transactionBuilder */
         $transactionBuilder = $this->transactionBuilderFactory->create([

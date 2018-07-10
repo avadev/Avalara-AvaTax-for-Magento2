@@ -15,9 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use ClassyLlama\AvaTax\Helper\Config;
 use Avalara\AvaTaxClient;
 use Avalara\AvaTaxClientFactory;
+use ClassyLlama\AvaTax\Helper\Config;
 
 class ClientPool
 {
@@ -39,49 +39,71 @@ class ClientPool
     protected $clients = [];
 
     /**
-     * @param Config $config
+     * @param Config              $config
      * @param AvaTaxClientFactory $avaTaxClientFactory
      */
     public function __construct(
         Config $config,
         AvaTaxClientFactory $avaTaxClientFactory
-    ) {
+    )
+    {
         $this->config = $config;
         $this->avaTaxClientFactory = $avaTaxClientFactory;
     }
 
     /**
+     * @param bool     $isProduction
+     * @param string   $scopeType
+     * @param int|null $scopeId
+     *
+     * @return string
+     */
+    protected function getClientCacheKey($isProduction, $scopeType, $scopeId = null)
+    {
+        $cacheKey = $this->config->getMode($isProduction);
+
+        if ($scopeId !== null) {
+            $cacheKey .= "-{$scopeId}";
+        }
+
+        return "{$cacheKey}-{$scopeType}";
+    }
+
+    /**
      * Get an AvaTax REST API client object
      *
-     * @param null|string $mode
-     * @param null|string|int $scopeId
-     * @param string $scopeType
+     * @param bool|null $isProduction
+     * @param int|null  $scopeId
+     * @param string    $scopeType
+     *
      * @return AvaTaxClient
      * @throws \InvalidArgumentException
      */
-    public function getClient($mode = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function getClient(
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
     {
-        if (is_null($mode)) {
-            $mode = $this->config->getLiveMode($scopeId, $scopeType) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
+        if ($isProduction === null) {
+            $isProduction = $this->config->isProductionMode($scopeId, $scopeType);
         }
 
-        $cacheKey = $mode;
-        if (!is_null($scopeId)) {
-            $cacheKey .= '-' . $scopeId;
-        }
-        $cacheKey .= '-' . $scopeType;
+        $cacheKey = $this->getClientCacheKey($isProduction, $scopeType, $scopeId);
 
         if (!isset($this->clients[$cacheKey])) {
             /** @var AvaTaxClient $avaTaxClient */
-            $avaTaxClient = $this->avaTaxClientFactory->create([
-                'appName' => $this->config->getApplicationName(),
-                'appVersion' => $this->config->getApplicationVersion(),
-                'machineName' => $this->config->getApplicationDomain(),
-                'environment' => ($mode == Config::API_PROFILE_NAME_PROD) ? self::API_MODE_PROD : self::API_MODE_DEV,
-            ]);
+            $avaTaxClient = $this->avaTaxClientFactory->create(
+                [
+                    'appName' => $this->config->getApplicationName(),
+                    'appVersion' => $this->config->getApplicationVersion(),
+                    'machineName' => $this->config->getApplicationDomain(),
+                    'environment' => $isProduction ? self::API_MODE_PROD : self::API_MODE_DEV,
+                ]
+            );
 
-            $accountNumber = ($mode == Config::API_PROFILE_NAME_PROD) ? $this->config->getAccountNumber($scopeId, $scopeType) : $this->config->getDevelopmentAccountNumber($scopeId, $scopeType);
-            $licenseKey = ($mode == Config::API_PROFILE_NAME_PROD) ? $this->config->getLicenseKey($scopeId, $scopeType) : $this->config->getDevelopmentLicenseKey($scopeId, $scopeType);
+            $accountNumber = $this->config->getAccountNumber($scopeId, $scopeType, $isProduction);
+            $licenseKey = $this->config->getLicenseKey($scopeId, $scopeType, $isProduction);
 
             $avaTaxClient->withSecurity($accountNumber, $licenseKey);
 
