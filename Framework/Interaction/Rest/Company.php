@@ -75,6 +75,7 @@ class Company extends Rest implements RestCompanyInterface
     public function getCompaniesWithSecurity( $accountNumber, $password, $request = null, $isProduction = null )
     {
         $client = $this->getClient( $isProduction );
+        // Override security credentials with custom ones
         $client->withSecurity( $accountNumber, $password );
 
         return $this->getCompaniesFromClient( $client, $request );

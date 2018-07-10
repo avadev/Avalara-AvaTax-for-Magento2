@@ -22,6 +22,6 @@ class CompanyCode implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
-        return [['value' => null, 'label' => 'No available companies']];
+        return [['value' => null, 'label' => __('No available companies')]];
     }
 }

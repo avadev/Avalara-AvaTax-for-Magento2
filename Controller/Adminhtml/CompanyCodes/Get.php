@@ -54,6 +54,9 @@ class Get extends \Magento\Backend\App\Action
         $this->config = $config;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function _isAllowed()
     {
         return $this->_authorization->isAllowed('Magento_Tax::config_tax');
@@ -87,6 +90,7 @@ class Get extends \Magento\Backend\App\Action
                 $isProduction
             );
         } catch (AvataxConnectionException $e) {
+            // If for any reason we couldn't get any companies, just ignore and no companies will be returned
         }
 
         if (\count($companies) === 0) {
