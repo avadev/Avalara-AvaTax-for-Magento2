@@ -11,7 +11,7 @@
  * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
+define(['jquery', 'uiElement', 'underscore', 'mage/url'], function (jQuery, Element, _) {
     return Element.extend({
         defaults: {
             url: null,
@@ -25,12 +25,13 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
          * Initialize component
          *
          * @param {Object} config
-         * @param {DOMElement} idElement
+         * @param {HTMLElement} idElement
          * @returns {Element}
          */
-        initialize: function(config, idElement) {
-
+        initialize: function initialize(config, idElement) {
             this._super();
+
+            _.bindAll(this, 'fetchAndUpdateCompanies', 'updateCompanyCodeFromCompanyId');
 
             this.idElement = idElement;
             this.accountNumberElement = document.getElementById(this.accountNumberId);
@@ -38,13 +39,13 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
             this.companyCodeElement = document.getElementById(this.companyCodeId);
 
             if (this.accountNumberElement === null || this.licenseKeyElement === null || this.companyCodeElement === null) {
-                return;
+                return this;
             }
 
             // Watch for changes so we can provide instant company codes without the user needing to save the config
-            this.accountNumberElement.addEventListener('change', this.fetchAndUpdateCompanies.bind(this));
-            this.licenseKeyElement.addEventListener('change', this.fetchAndUpdateCompanies.bind(this));
-            this.idElement.addEventListener('change', this.updateCompanyCodeFromCompanyId.bind(this));
+            this.accountNumberElement.addEventListener('change', this.fetchAndUpdateCompanies);
+            this.licenseKeyElement.addEventListener('change', this.fetchAndUpdateCompanies);
+            this.idElement.addEventListener('change', this.updateCompanyCodeFromCompanyId);
 
             // If we already have values for credentials, fetch company ids
             if (this.accountNumberElement.value !== null && this.licenseKeyElement.value !== null) {
@@ -59,7 +60,7 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
          *
          * @returns {Object}
          */
-        getScope: function() {
+        getScope: function getScope() {
             var formScope = document.getElementById('config-edit-form').action.match(/section\/\w+\/(website|store)\/(\d+)/i);
 
             if (formScope === null) {
@@ -75,21 +76,9 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
         },
 
         /**
-         * Fetch company options and update the drop-down
-         */
-        fetchAndUpdateCompanies: function() {
-            this.fetchCompanies(
-                this.accountNumberElement.value,
-                this.licenseKeyElement.value
-            ).then((function (response) {
-                this.updateCompanyIds(response.companies, response.current_id)
-            }).bind(this));
-        },
-
-        /**
          * Set the company code hidden input based on the selected company
          */
-        updateCompanyCodeFromCompanyId: function() {
+        updateCompanyCodeFromCompanyId: function updateCompanyCodeFromCompanyId() {
             this.companyCodeElement.value = this.companyIdToCompanyCodeMap[this.idElement.item(this.idElement.selectedIndex).value];
         },
 
@@ -99,10 +88,10 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
          * @param {Array} companies
          * @param {int} currentId
          */
-        updateCompanyIds: function(companies, currentId) {
+        updateCompanyIds: function updateCompanyIds(companies, currentId) {
             this.idElement.innerHTML = '';
 
-            companies.forEach(function(company) {
+            companies.forEach(function (company) {
                 var companyNameDisplay = company.name;
 
                 if (company.company_code !== null) {
@@ -116,29 +105,23 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
         },
 
         /**
-         * Grab the companies from the API
+         * Fetch company options and update the drop-down
          *
-         * @param {string} accountNumber
-         * @param {string} licenseKey
-         * @returns {Object}
+         * @returns {Deferred}
          */
-        fetchCompanies: function(accountNumber, licenseKey) {
-            if (this.url == null) {
-                return;
-            }
-
-            // If either account number or license key is null, we can't make any request
-            if (accountNumber === '' || licenseKey === '') {
+        fetchAndUpdateCompanies: function fetchAndUpdateCompanies() {
+            // If account number, license key, or url is null, we can't make any request
+            if (this.url === null || this.accountNumberElement.value === '' || this.licenseKeyElement.value === '') {
                 return jQuery.Deferred().reject();
             }
 
             var data = this.getScope();
 
-            data['account_number'] = accountNumber;
+            data['account_number'] = this.accountNumberElement.value;
 
             // If license key is obscured, don't send it and use the saved config value
-            if (!RegExp("^[*]+$").test(licenseKey)) {
-                data['license_key'] = licenseKey;
+            if (!RegExp("^[*]+$").test(this.licenseKeyElement.value)) {
+                data['license_key'] = this.licenseKeyElement.value;
             }
 
             // We have to manually build the request and prevent native Magento's beforeSend handler,
@@ -148,7 +131,9 @@ define(['jquery', 'uiElement', 'mage/url'], function (jQuery, Element) {
                 showLoader: true,
                 type: 'post',
                 data: data
-            });
+            }).then((function (response) {
+                this.updateCompanyIds(response.companies, response.current_id)
+            }).bind(this));
         }
     });
 });
