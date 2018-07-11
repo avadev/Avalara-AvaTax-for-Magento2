@@ -17,7 +17,7 @@ namespace ClassyLlama\AvaTax\Block\Checkout;
 
 use ClassyLlama\AvaTax\Helper\Config;
 
-class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
+class AddressValidationLayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
 {
     /**
      * @const Path to template
@@ -37,7 +37,7 @@ class LayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcesso
     protected $storeManager;
 
     /**
-     * LayoutProcessor constructor.
+     * AddressValidationLayoutProcessor constructor.
      * @param Config $config
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
