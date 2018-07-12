@@ -15,7 +15,11 @@
         </div>
         <each args="data: getRegion($group().displayArea), as: 'method'" render=""/>
     </div>
-    <div class="certificates"><a attr="{href: certificatesLink}">Manage existing certificates</a></div>
+    <!-- // BEGIN EDIT - Show certificates management link -->
+    <div class="certificates" data-bind="if: ifShowCertificateLink()">
+        <a data-bind="attr: {href: certificatesLink}, i18n: 'Manage existing certificates'"></a>
+    </div>
+    <!-- // END EDIT -->
 </div>
 <div ifnot="isPaymentMethodsAvailable()"
      class="no-payments-block"

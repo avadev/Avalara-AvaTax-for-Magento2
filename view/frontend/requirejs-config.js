@@ -23,5 +23,15 @@ var config = {
             // Add the following alias to provide compatibility with Magento 2.2
             addressValidation: 'ClassyLlama_AvaTax/js/addressValidation'
         }
+    },
+    config: {
+        mixins: {
+            'Magento_Checkout/js/view/payment/list': {
+                'ClassyLlama_AvaTax/js/view/payment/list/certificates-link': true
+            },
+            'Magento_Tax/js/view/checkout/summary/tax': {
+                'ClassyLlama_AvaTax/js/view/payment/list/certificates-link': true
+            }
+        }
     }
 };
