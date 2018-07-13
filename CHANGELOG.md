@@ -1,3 +1,8 @@
+### 1.4.3 (2018-07-13)
+
+* Fix issue where address validation in admin while editing customer doesn't display region in original address [#135](https://github.com/classyllama/ClassyLlama_AvaTax/issues/135)
+* Fix issue Save Address button remains disabled after closing address validation modal [#139](https://github.com/classyllama/ClassyLlama_AvaTax/issues/139)
+
 ### 1.4.2 (2018-06-25)
 
 * Fix issue where Magento error isn't clear as to why a user can't proceed to payment method during checkout [#132](https://github.com/classyllama/ClassyLlama_AvaTax/issues/132)
