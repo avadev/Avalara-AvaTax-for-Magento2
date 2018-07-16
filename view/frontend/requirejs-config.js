@@ -20,7 +20,8 @@ var config = {
             "Magento_Tax/template/checkout/cart/totals/tax": 'ClassyLlama_AvaTax/template/checkout/cart/totals/tax',
             "Magento_Tax/template/checkout/summary/tax": 'ClassyLlama_AvaTax/template/checkout/summary/tax',
             // Add the following alias to provide compatibility with Magento 2.2
-            addressValidation: 'ClassyLlama_AvaTax/js/addressValidation'
+            addressValidation: 'ClassyLlama_AvaTax/js/addressValidation',
+            sdkToken: 'ClassyLlama_AvaTax/js/action/get-sdk-token'
         }
     }
 };
