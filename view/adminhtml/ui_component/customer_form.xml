@@ -39,4 +39,7 @@
             </argument>
         </container>
     </fieldset>
+    <htmlContent name="customer_edit_tab_certificates_content">
+        <block class="ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificates" name="customer_edit_tab_certificates" />
+    </htmlContent>
 </form>

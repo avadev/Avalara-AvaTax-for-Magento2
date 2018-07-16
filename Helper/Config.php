@@ -451,14 +451,16 @@ class Config extends AbstractHelper
     /**
      * Get Customer code format to pass to AvaTax API
      *
-     * @param $store
-     * @return mixed
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return string|null
      */
-    public function getCustomerCodeFormat($store)
+    public function getCustomerCodeFormat( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT,
-            ScopeInterface::SCOPE_STORE,
+            $scopeType,
             $store
         );
     }
