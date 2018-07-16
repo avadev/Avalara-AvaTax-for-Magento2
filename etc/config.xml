@@ -62,6 +62,11 @@
             <avatax_customs>
                 <enabled>0</enabled>
             </avatax_customs>
+            <avatax_document_management>
+                <checkout_link_text_new_cert_no_certs_exist>Is this purchase tax-exempt?</checkout_link_text_new_cert_no_certs_exist>
+                <checkout_link_text_new_cert_certs_exist>Add a new certificate</checkout_link_text_new_cert_certs_exist>
+                <checkout_link_text_manage_existing_certs>Manage existing certificates</checkout_link_text_manage_existing_certs>
+            </avatax_document_management>
         </tax>
     </default>
 </config>
