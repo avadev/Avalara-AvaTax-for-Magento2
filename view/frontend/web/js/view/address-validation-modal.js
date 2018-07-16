@@ -78,6 +78,11 @@ define([
             });
         },
 
+        closeModal: function () {
+            this._super();
+            this.enableSubmit($(this.formSelector));
+        },
+
         handleFormSubmit: function () {
             var self = this;
 
