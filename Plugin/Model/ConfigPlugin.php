@@ -18,8 +18,10 @@ namespace ClassyLlama\AvaTax\Plugin\Model;
 class ConfigPlugin
 {
 
-    public function after__call(\Magento\Config\Model\Config $subject, $result, $methodName)
+    public function around__call(\Magento\Config\Model\Config $subject, $proceeed, $methodName, $args)
     {
+        $result = $proceeed($methodName, $args);
+
         if ($methodName !== 'getGroups') {
             return $result;
         }
