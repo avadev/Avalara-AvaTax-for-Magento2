@@ -20,6 +20,5 @@ interface AppInterface
     /**
      * If this is updated it must also be updated in composer.json
      */
-    // TODO: Update version here
-    const APP_VERSION = '1.4.0';
+    const APP_VERSION = '1.4.3';
 }

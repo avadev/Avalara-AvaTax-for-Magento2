@@ -25,14 +25,6 @@
             </argument>
         </arguments>
     </type>
-    <type name="Magento\Config\Model\Config\Structure\ConcealInProductionConfigList">
-        <arguments>
-            <argument name="configs" xsi:type="array">
-                <item name="tax/avatax_general/production_company_id" xsi:type="const">Magento\Config\Model\Config\Structure\ElementVisibilityInterface::DISABLED</item>
-                <item name="tax/avatax_general/development_company_id" xsi:type="const">Magento\Config\Model\Config\Structure\ElementVisibilityInterface::DISABLED</item>
-            </argument>
-        </arguments>
-    </type>
     <preference for="Magento\Tax\Block\Adminhtml\Rule\Edit\Form" type="ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit\Form" />
 
     <virtualType name="developmentCompanyCodeFrontendModel" type="ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CompanyCode">
