@@ -102,6 +102,9 @@ class Line
             'type' => 'array',
             'subtype' => ['*' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject']],
         ],
+        'unit_name' => ['type' => 'string', 'length' => 255],
+        'unit_amount' => ['type' => 'double'],
+        'preference_program' => ['type' => 'string', 'length' => 255],
     ];
 
     /**

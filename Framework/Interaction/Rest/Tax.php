@@ -21,10 +21,15 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResult
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Framework\DataObjectFactory;
 use Psr\Log\LoggerInterface;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestTaxInterface
 {
+    const LINE_PARAM_NAME_UNIT_NAME = 'AvaTax.LandedCost.UnitName';
+    const LINE_PARAM_NAME_UNIT_AMT = 'AvaTax.LandedCost.UnitAmount';
+    const LINE_PARAM_NAME_PREF_PROGRAM = 'AvaTax.LandedCost.PreferenceProgram';
+
     /**
      * @var TransactionBuilderFactory
      */
@@ -183,6 +188,13 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                 }
                 if ($line->hasRef1() || $line->hasRef2()) {
                     $transactionBuilder->withLineCustomFields($line->getRef1(), $line->getRef2());
+                }
+
+                if ($line->hasUnitName()) {
+                    $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_NAME, $line->getUnitName());
+                }
+                if ($line->hasUnitAmount()) {
+                    $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_AMT, $line->getUnitAmount());
                 }
 
                 /**
