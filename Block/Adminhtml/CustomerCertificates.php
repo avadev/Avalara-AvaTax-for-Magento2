@@ -23,10 +23,6 @@ use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 
-/**
- * @method setCertificates(DataObject[] $certificates)
- * @method DataObject[] getCertificates()
- */
 class CustomerCertificates extends Template implements \Magento\Ui\Component\Layout\Tabs\TabInterface
 {
     protected $_template = 'ClassyLlama_AvaTax::customer-certificates.phtml';
@@ -59,19 +55,24 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     protected $authorization;
 
     /**
-     * @var \Magento\Config\Model\ResourceModel\Config
+     * @var \ClassyLlama\AvaTax\Model\ResourceModel\Config
      */
     protected $configResourceModel;
 
     /**
-     * @param \Magento\Framework\Registry                $coreRegistry
-     * @param Template\Context                           $context
-     * @param Customer                                   $customerRest
-     * @param DataObjectFactory                          $dataObjectFactory
-     * @param UrlSigner                                  $urlSigner
-     * @param \Magento\Framework\AuthorizationInterface  $authorization
-     * @param \Magento\Config\Model\ResourceModel\Config $configResourceModel
-     * @param array                                      $data
+     * @var DataObject[]
+     */
+    protected $certificates;
+
+    /**
+     * @param \Magento\Framework\Registry                    $coreRegistry
+     * @param Template\Context                               $context
+     * @param Customer                                       $customerRest
+     * @param DataObjectFactory                              $dataObjectFactory
+     * @param UrlSigner                                      $urlSigner
+     * @param \Magento\Framework\AuthorizationInterface      $authorization
+     * @param \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel
+     * @param array                                          $data
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
@@ -80,7 +81,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         DataObjectFactory $dataObjectFactory,
         UrlSigner $urlSigner,
         \Magento\Framework\AuthorizationInterface $authorization,
-        \Magento\Config\Model\ResourceModel\Config $configResourceModel,
+        \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel,
         array $data = []
     )
     {
@@ -91,36 +92,11 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         $this->dataObjectFactory = $dataObjectFactory;
         $this->urlSigner = $urlSigner;
         $this->authorization = $authorization;
-
-        $this->prepareData();
         $this->configResourceModel = $configResourceModel;
     }
 
-    protected function prepareData()
-    {
-        $certificates = [];
-
-        try {
-            $certificates = $this->customerRest->getCertificatesList(
-                $this->dataObjectFactory->create(
-                    [
-                        'data' => [
-                            'customer_id' => $this->coreRegistry->registry(
-                                RegistryConstants::CURRENT_CUSTOMER_ID
-                            )
-                        ]
-                    ]
-                )
-            );
-        } catch (AvataxConnectionException $e) {
-        }
-
-        $this->setCertificates($certificates);
-    }
-
     /**
-     * Return Tab label
-     * @return string
+     * {@inheritdoc}
      */
     public function getTabLabel()
     {
@@ -128,8 +104,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     }
 
     /**
-     * Return Tab title
-     * @return string
+     * {@inheritdoc}
      */
     public function getTabTitle()
     {
@@ -137,8 +112,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     }
 
     /**
-     * Tab class getter
-     * @return string
+     * {@inheritdoc}
      */
     public function getTabClass()
     {
@@ -146,8 +120,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     }
 
     /**
-     * Return URL link to Tab content
-     * @return string
+     * {@inheritdoc}
      */
     public function getTabUrl()
     {
@@ -155,8 +128,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     }
 
     /**
-     * Tab should be loaded trough Ajax call
-     * @return bool
+     * {@inheritdoc}
      */
     public function isAjaxLoaded()
     {
@@ -164,43 +136,53 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     }
 
     /**
-     * Can show tab in tabs
-     * @return boolean
+     * {@inheritdoc}
      */
     public function canShowTab()
     {
-        return $this->coreRegistry->registry(
-                RegistryConstants::CURRENT_CUSTOMER_ID
-            ) !== null && $this->authorization->isAllowed(self::CERTIFICATES_RESOURCE);
+        return $this->getCustomerId() !== null && $this->authorization->isAllowed(self::CERTIFICATES_RESOURCE);
     }
 
     /**
-     * Tab is hidden
-     * @return boolean
+     * {@inheritdoc}
      */
     public function isHidden()
     {
         return false;
     }
 
-    public function shouldShowWarning()
+    /**
+     * @return int
+     */
+    protected function getCustomerId()
     {
-        $connection = $this->configResourceModel->getConnection();
-        $select = $connection->select()->from($this->configResourceModel->getMainTable(), 'count(*) as count')->oRwhere(
-                'path = ?',
-                \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE
-            )->oRwhere('path = ?', \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE);
-
-        return (int)$connection->fetchOne($select) > 2;
+        return (int)$this->coreRegistry->registry(RegistryConstants::CURRENT_CUSTOMER_ID);
     }
 
+    /**
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function shouldShowWarning()
+    {
+        return $this->configResourceModel->getConfigCount(
+                [
+                    \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
+                    \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE
+                ]
+            ) > 2;
+    }
+
+    /**
+     * @param $certificateId
+     *
+     * @return string
+     */
     public function getCertificateUrl($certificateId)
     {
         $parameters = [
             'certificate_id' => $certificateId,
-            'customer_id' => $this->coreRegistry->registry(
-                RegistryConstants::CURRENT_CUSTOMER_ID
-            ),
+            'customer_id' => $this->getCustomerId(),
             'expires' => time() + (60 * 60 * 24) // 24 hour access
         ];
 
@@ -209,5 +191,31 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         $parameters['_nosecret'] = true;
 
         return $this->getUrl('avatax/certificates/download', $parameters);
+    }
+
+    /**
+     * @return DataObject[]
+     */
+    public function getCertificates()
+    {
+        if ($this->certificates !== null) {
+            return $this->certificates;
+        }
+
+        $this->certificates = [];
+        $customerId = $this->getCustomerId();
+
+        if ($customerId === null) {
+            return $this->certificates;
+        }
+
+        try {
+            $this->certificates = $this->customerRest->getCertificatesList(
+                $this->dataObjectFactory->create(['data' => ['customer_id' => $customerId]])
+            );
+        } catch (AvataxConnectionException $e) {
+        }
+
+        return $this->certificates;
     }
 }
