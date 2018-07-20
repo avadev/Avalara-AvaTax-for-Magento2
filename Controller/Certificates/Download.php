@@ -15,7 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Controller\Certificates;
 
-use ClassyLlama\AvaTax\Framework\Interaction\Rest\Customer;
 use ClassyLlama\AvaTax\Helper\UrlSigner;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\DataObjectFactory;
@@ -34,7 +33,7 @@ class Download extends \Magento\Framework\App\Action\Action
     protected $fileFactory;
 
     /**
-     * @var Customer
+     * @var \ClassyLlama\AvaTax\Api\RestCustomerInterface
      */
     protected $customerRest;
 
@@ -56,18 +55,18 @@ class Download extends \Magento\Framework\App\Action\Action
     /**
      * Download constructor.
      *
-     * @param \Magento\Framework\Controller\Result\RawFactory $resultRawFactory
+     * @param \Magento\Framework\Controller\Result\RawFactory  $resultRawFactory
      * @param \Magento\Framework\App\Response\Http\FileFactory $fileFactory
-     * @param Customer $customerRest
-     * @param UrlSigner $urlSigner
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param DataObjectFactory $dataObjectFactory
-     * @param \Magento\Backend\App\Action\Context $context
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface    $customerRest
+     * @param UrlSigner                                        $urlSigner
+     * @param CustomerRepositoryInterface                      $customerRepository
+     * @param DataObjectFactory                                $dataObjectFactory
+     * @param \Magento\Backend\App\Action\Context              $context
      */
     public function __construct(
         \Magento\Framework\Controller\Result\RawFactory $resultRawFactory,
         \Magento\Framework\App\Response\Http\FileFactory $fileFactory,
-        Customer $customerRest,
+        \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
         UrlSigner $urlSigner,
         CustomerRepositoryInterface $customerRepository,
         DataObjectFactory $dataObjectFactory,
@@ -122,10 +121,10 @@ class Download extends \Magento\Framework\App\Action\Action
 
         $resultRaw = $this->resultRawFactory->create();
         $resultRaw->setHeader('Content-type', 'application/pdf', true)->setHeader(
-                'Content-Disposition',
-                'inline; filename="certificate.pdf"',
-                true
-            )->setContents($certificateStream); //set content for download file here
+            'Content-Disposition',
+            'inline; filename="certificate.pdf"',
+            true
+        )->setContents($certificateStream); //set content for download file here
 
         return $resultRaw;
     }

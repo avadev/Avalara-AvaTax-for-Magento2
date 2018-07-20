@@ -16,7 +16,6 @@
 namespace ClassyLlama\AvaTax\Block\ViewModel;
 
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
-use ClassyLlama\AvaTax\Framework\Interaction\Rest\Customer;
 use ClassyLlama\AvaTax\Helper\UrlSigner;
 use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\DataObject;
@@ -31,7 +30,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
     protected $coreRegistry;
 
     /**
-     * @var Customer
+     * @var \ClassyLlama\AvaTax\Api\RestCustomerInterface
      */
     protected $customerRest;
 
@@ -62,7 +61,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
 
     /**
      * @param \Magento\Framework\Registry                    $coreRegistry
-     * @param Customer                                       $customerRest
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface  $customerRest
      * @param DataObjectFactory                              $dataObjectFactory
      * @param UrlSigner                                      $urlSigner
      * @param \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel
@@ -70,7 +69,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
-        Customer $customerRest,
+        \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
         DataObjectFactory $dataObjectFactory,
         UrlSigner $urlSigner,
         \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel,

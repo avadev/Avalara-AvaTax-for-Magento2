@@ -36,4 +36,21 @@ interface RestCustomerInterface extends RestInterface
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     );
+
+    /**
+     * Perform REST request to get oclet stream of certificate PDF
+     *
+     * @param DataObject      $request
+     * @param bool|null       $isProduction
+     * @param string|int|null $scopeId
+     * @param string          $scopeType
+     *
+     * @return mixed
+     */
+    public function downloadCertificate(
+        $request,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    );
 }
