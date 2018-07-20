@@ -91,13 +91,13 @@
                 </item>
             </argument>
         </field>
-        <field name="cross_border_type">
+        <field name="cross_border_type_id">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Cross Border Type</item>
-                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="dataType" xsi:type="string">number</item>
                     <item name="formElement" xsi:type="string">input</item>
-                    <item name="dataScope" xsi:type="string">cross_border_type</item>
+                    <item name="dataScope" xsi:type="string">cross_border_type_id</item>
                     <item name="sortOrder" xsi:type="number">20</item>
                     <item name="validation" xsi:type="array">
                         <item name="required-entry" xsi:type="boolean">true</item>
