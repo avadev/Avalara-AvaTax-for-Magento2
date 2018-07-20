@@ -19,6 +19,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class Customer extends AbstractHelper
 {
@@ -47,24 +48,6 @@ class Customer extends AbstractHelper
 
         $this->config = $config;
         $this->customerRepository = $customerRepository;
-    }
-
-    /**
-     * @param int $customerId
-     *
-     * @return \Magento\Customer\Api\Data\CustomerInterface|null
-     */
-    protected function getCustomerById($customerId)
-    {
-        $customer = null;
-
-        try {
-            $customer = $this->customerRepository->getById($customerId);
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $noSuchEntityException) {
-        } catch (LocalizedException $localizedException) {
-        }
-
-        return $customer;
     }
 
     /**
@@ -150,13 +133,20 @@ class Customer extends AbstractHelper
         // Retrieve the customer code configuration value
         $customerCodeFormat = $this->config->getCustomerCodeFormat($storeId);
         $customerCode = $customerId ?: strtolower(Config::CUSTOMER_GUEST_ID) . "-{$guestId}";
+        $customer = null;
 
         // This is the default value, ignore handling
         if ($customerCodeFormat === Config::CUSTOMER_FORMAT_OPTION_ID) {
             return $customerCode;
         }
 
-        $customer = $this->getCustomerById($customerId);
+        try {
+            $customer = $this->customerRepository->getById($customerId);
+        } catch (NoSuchEntityException $e) {
+            // Don't need to handle this, we expect the possibility of null
+        } catch (LocalizedException $e) {
+            // Don't need to handle this, we expect the possibility of null
+        }
 
         // Customer code is the combination of the customer name and their Magento Customer ID
         if ($customerCodeFormat === Config::CUSTOMER_FORMAT_OPTION_NAME_ID) {
@@ -164,7 +154,7 @@ class Customer extends AbstractHelper
         }
 
         // Customer code is defined on a customer attribute
-        if ($customerId !== null) {
+        if ($customer !== null) {
             return $this->getCustomerCodeFromAttribute($customer, $customerCodeFormat) ?: $customerCode;
         }
 

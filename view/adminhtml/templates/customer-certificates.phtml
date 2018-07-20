@@ -14,6 +14,14 @@
  */
 /** @var \ClassyLlama\AvaTax\Block\ViewModel\CustomerCertificates $viewModel */
 $viewModel = $this->getViewModel();
+$certificates = [];
+
+try {
+    $certificates = $viewModel->getCertificates();
+} catch (\ClassyLlama\AvaTax\Exception\AvataxConnectionException $e) {
+    // We will just show an empty list
+}
+
 ?>
 <?php if ($viewModel->shouldShowWarning()): ?>
     <p class="message">
@@ -37,7 +45,7 @@ $viewModel = $this->getViewModel();
             </thead>
 
             <tbody>
-                <?php foreach ($viewModel->getCertificates() as $certificate): ?>
+                <?php foreach ($certificates as $certificate): ?>
                     <tr data-role="row">
                         <td><?php echo $certificate->getData('exposure_zone')->getData('name'); ?></td>
                         <td><?php echo $certificate->getData('signed_date'); ?></td>
@@ -64,7 +72,7 @@ $viewModel = $this->getViewModel();
                     </tr>
                 <?php endforeach; ?>
 
-                <?php if (count($viewModel->getCertificates()) === 0): ?>
+                <?php if (count($certificates) === 0): ?>
                     <tr class="data-grid-tr-no-data even">
                         <td class="empty-text" colspan="7"><?= __('No certificates found for this customer') ?></td>
                     </tr>

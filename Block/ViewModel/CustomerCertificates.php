@@ -131,6 +131,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
 
     /**
      * @return DataObject[]
+     * @throws AvataxConnectionException
      */
     public function getCertificates()
     {
@@ -145,12 +146,9 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
             return $this->certificates;
         }
 
-        try {
-            $this->certificates = $this->customerRest->getCertificatesList(
-                $this->dataObjectFactory->create(['data' => ['customer_id' => $customerId]])
-            );
-        } catch (AvataxConnectionException $e) {
-        }
+        $this->certificates = $this->customerRest->getCertificatesList(
+            $this->dataObjectFactory->create(['data' => ['customer_id' => $customerId]])
+        );
 
         return $this->certificates;
     }
