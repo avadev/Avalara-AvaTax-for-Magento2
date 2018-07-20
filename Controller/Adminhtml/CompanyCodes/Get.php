@@ -98,13 +98,7 @@ class Get extends \Magento\Backend\App\Action
         if (\count($companies) === 0) {
             return $resultJson->setData(
                 [
-                    'companies' => [
-                        [
-                            'company_id' => null,
-                            'company_code' => null,
-                            'name' => __('No available companies'),
-                        ]
-                    ],
+                    'companies' => [],
                     'current_id' => $currentCompanyId
                 ]
             );
