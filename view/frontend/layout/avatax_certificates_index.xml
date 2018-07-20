@@ -21,7 +21,11 @@
     </head>
     <body>
         <referenceContainer name="content">
-            <block name="customer.certificates" class="ClassyLlama\AvaTax\Block\Certificates\CustomerCertificates" template="ClassyLlama_AvaTax::certificates/list.phtml"/>
+            <block name="customer.certificates" class="Magento\Framework\View\Element\Template" template="ClassyLlama_AvaTax::certificates/list.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">\ClassyLlama\AvaTax\Block\ViewModel\CustomerCertificates</argument>
+                </arguments>
+            </block>
         </referenceContainer>
     </body>
 </page>

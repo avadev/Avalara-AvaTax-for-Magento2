@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Controller\Certificates;
 
 use ClassyLlama\AvaTax\Helper\CertificateDownloadControllerHelper;
+use Magento\Framework\App\RequestInterface;
 
 class Download extends \Magento\Framework\App\Action\Action
 {
