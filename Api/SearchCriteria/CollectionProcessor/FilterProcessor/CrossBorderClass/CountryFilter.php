@@ -27,11 +27,18 @@ class CountryFilter implements CustomFilterInterface
      * @param Filter $filter
      * @param AbstractDb $collection
      * @return bool
+     *
+     * @throws \Magento\Framework\Exception\InputException
      */
     public function apply(Filter $filter, AbstractDb $collection)
     {
+        $countries = $filter->getValue();
+        if (!is_array($countries)) {
+            throw new \Magento\Framework\Exception\InputException(__('Countries filter must be an array'));
+        }
+
         /** @var \ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\Collection $collection */
-        $collection->filterByCountries($filter->getValue());
+        $collection->filterByCountries($countries);
 
         return true;
     }
