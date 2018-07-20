@@ -83,10 +83,10 @@ class Index extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        // Add the ID to the registry to allow for reusability with admin block
+        // Add the ID to the registry to provide data to the ViewModel
         $this->coreRegistry->register(
             RegistryConstants::CURRENT_CUSTOMER_ID,
-            1
+            $this->session->getCustomerId()
         );
 
         return $this->resultPageFactory->create();
