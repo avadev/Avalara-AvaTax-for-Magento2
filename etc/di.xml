@@ -21,6 +21,7 @@
     <preference for="ClassyLlama\AvaTax\Api\RestAddressInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Address" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface" type="\ClassyLlama\AvaTax\Model\CrossBorderClass" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderClassRepository" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
@@ -165,6 +166,28 @@
     <type name="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get">
         <arguments>
             <argument name="taxService" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Cacheable</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\CrossBorderClassFilterProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
+        <arguments>
+            <argument name="customFilters" xsi:type="array">
+                <item name="country_ids" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CrossBorderClass\CountryFilter</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ClassyLlama\AvaTax\Api\SearchCriteria\CrossBorderClassCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\CrossBorderClassFilterProcessor</item>
+                <item name="sorting" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\SortingProcessor</item>
+                <item name="pagination" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\PaginationProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="ClassyLlama\AvaTax\Model\CrossBorderClassRepository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CrossBorderClassCollectionProcessor</argument>
         </arguments>
     </type>
 
