@@ -15,42 +15,45 @@
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Certificates;
 
+use ClassyLlama\AvaTax\Helper\CertificateDownloadControllerHelper;
+
 class Download extends \Magento\Backend\App\Action
 {
     protected $_publicActions = ['download'];
 
     /**
-     * @var Download
+     * @var CertificateDownloadControllerHelper
      */
-    protected $downloadController;
+    protected $certificateDownloadControllerHelper;
 
     /**
-     * @param \ClassyLlama\AvaTax\Controller\Certificates\Download $downloadController
-     * @param \Magento\Backend\App\Action\Context                  $context
+     * @param CertificateDownloadControllerHelper $certificateDownloadControllerHelper
+     * @param \Magento\Backend\App\Action\Context $context
      */
     public function __construct(
-        \ClassyLlama\AvaTax\Controller\Certificates\Download $downloadController,
+        CertificateDownloadControllerHelper $certificateDownloadControllerHelper,
         \Magento\Backend\App\Action\Context $context
     )
     {
         parent::__construct($context);
-
-        $this->downloadController = $downloadController;
+        $this->certificateDownloadControllerHelper = $certificateDownloadControllerHelper;
     }
 
     protected function _isAllowed()
     {
         return $this->_authorization->isAllowed(
-            \ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificates::CERTIFICATES_RESOURCE
+            \ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificatesTab::CERTIFICATES_RESOURCE
         );
     }
 
     /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
-     * @throws \Exception
+     * @return \Magento\Framework\Controller\Result\Raw
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\NotFoundException
      */
     public function execute()
     {
-        return $this->downloadController->execute();
+        return $this->certificateDownloadControllerHelper->getDownloadRawResult();
     }
 }

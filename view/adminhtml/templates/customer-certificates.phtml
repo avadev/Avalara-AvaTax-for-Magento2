@@ -12,14 +12,23 @@
  * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-/** @var \ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificates $block */
+/** @var \ClassyLlama\AvaTax\Block\ViewModel\CustomerCertificates $viewModel */
+$viewModel = $this->getViewModel();
+$certificates = [];
+
+try {
+    $certificates = $viewModel->getCertificates();
+} catch (\ClassyLlama\AvaTax\Exception\AvataxConnectionException $e) {
+    // We will just show an empty list
+}
+
 ?>
-<?php if ($block->shouldShowWarning()): ?>
+<?php if ($viewModel->shouldShowWarning()): ?>
     <p class="message">
-        Please note that you can only view certificates for a customer from the website/store that customer
-        is associated to. This means if you have 2 different Avalara credetials for 2 different stores and one customer
+        <?= __('Please note that you can only view certificates for a customer from the website/store that customer
+        is associated to. This means if you have 2 different Avalara credentials for 2 different stores and one customer
         uploads certificates to both, only certificates uploaded through the store that customer is associated to will
-        be visible here.
+        be visible here.') ?>
     </p>
 <?php endif ?>
 <div id="<?= $block->escapeHtml($block->getId()) ?>" data-grid-id="<?= $block->escapeHtml($block->getId()) ?>">
@@ -36,35 +45,36 @@
             </thead>
 
             <tbody>
-                <?php foreach ($block->getCertificates() as $certificate): ?>
+                <?php foreach ($certificates as $certificate): ?>
                     <tr data-role="row">
                         <td><?php echo $certificate->getData('exposure_zone')->getData('name'); ?></td>
                         <td><?php echo $certificate->getData('signed_date'); ?></td>
                         <td><?php echo $certificate->getData('expiration_date'); ?></td>
-                        <td><?php echo $certificate->getData('valid') ? 'Approved' : 'Denied'; ?></td>
+                        <td><?php echo $certificate->getData('valid') ? __('Approved') : __('Denied'); ?></td>
                         <td>
                             <?php if ($certificate->getData('valid')): ?>
                                 <a target="_blank"
-                                   href="<?php echo $block->getCertificateUrl($certificate->getData('id')) ?>">View
-                                    Certificate</a>
+                                   href="<?php echo $viewModel->getCertificateUrl($certificate->getData('id')) ?>">
+                                    <?= __('View Certificate') ?>
+                                </a>
                             <?php endif ?>
                         </td>
                         <td>
                             <?php if ($certificate->getData('valid')): ?>
-                                <a href="javascript:void(0)">Renew Certificate</a>
+                                <a href="javascript:void(0)"><?= __('Renew Certificate') ?></a>
                             <?php endif ?>
                         </td>
                         <td>
                             <?php if ($certificate->getData('valid')): ?>
-                                <a href="javascript:void(0)">Delete Certificate</a>
+                                <a href="javascript:void(0)"><?= __('Delete Certificate') ?></a>
                             <?php endif ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
 
-                <?php if (count($block->getCertificates()) === 0): ?>
+                <?php if (count($certificates) === 0): ?>
                     <tr class="data-grid-tr-no-data even">
-                        <td class="empty-text" colspan="7">No certificates found for this customer</td>
+                        <td class="empty-text" colspan="7"><?= __('No certificates found for this customer') ?></td>
                     </tr>
                 <?php endif; ?>
             </tbody>

@@ -57,15 +57,7 @@ class Customer extends Rest implements RestCustomerInterface
     }
 
     /**
-     * Perform REST request to get companies associated with the account
-     *
-     * @param DataObject      $request
-     * @param bool|null       $isProduction
-     * @param string|int|null $scopeId
-     * @param string          $scopeType
-     *
-     * @return DataObject[]
-     * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
+     * {@inheritDoc}
      */
     public function getCertificatesList(
         $request,
@@ -98,14 +90,7 @@ class Customer extends Rest implements RestCustomerInterface
     }
 
     /**
-     * Perform REST request to get companies associated with the account
-     *
-     * @param DataObject      $request
-     * @param bool|null       $isProduction
-     * @param string|int|null $scopeId
-     * @param string          $scopeType
-     *
-     * @return mixed
+     * {@inheritDoc}
      */
     public function downloadCertificate(
         $request,
