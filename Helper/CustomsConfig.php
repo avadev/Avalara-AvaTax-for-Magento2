@@ -28,6 +28,8 @@ class CustomsConfig extends AbstractHelper
 {
     const XML_PATH_AVATAX_CUSTOMS_ENABLED = 'tax/avatax_customs/enabled';
 
+    const PRODUCT_ATTR_CROSS_BORDER_TYPE = 'avatax_cross_border_type';
+
     /**
      * @var Config
      */

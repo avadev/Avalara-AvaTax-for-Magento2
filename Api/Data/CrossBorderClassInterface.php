@@ -19,7 +19,7 @@ interface CrossBorderClassInterface
 {
     const ID = 'class_id';
     const DESTINATION_COUNTRIES = 'destination_countries';
-    const CROSS_BORDER_TYPE = 'cross_border_type';
+    const CROSS_BORDER_TYPE = 'cross_border_type_id';
     const HS_CODE = 'hs_code';
     const UNIT_NAME = 'unit_name';
     const UNIT_AMOUNT = 'unit_amount_product_attr';
@@ -56,19 +56,19 @@ interface CrossBorderClassInterface
     public function setDestinationCountries($countries);
 
     /**
-     * Get the cross border type associated with this class
+     * Get the cross border type ID associated with this class
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getCrossBorderType();
+    public function getCrossBorderTypeId();
 
     /**
-     * Set the cross border type
+     * Set the cross border type ID
      *
-     * @param string|null $type
+     * @param int|null $id
      * @return $this
      */
-    public function setCrossBorderType($type);
+    public function setCrossBorderTypeId($id);
 
     /**
      * Get the HS code

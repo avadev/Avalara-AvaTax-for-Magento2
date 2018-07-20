@@ -73,8 +73,8 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
                 return $resultRedirect->setPath('*/*');
             }
 
-            if (isset($data['cross_border_type'])) {
-                $class->setCrossBorderType($data['cross_border_type']);
+            if (isset($data['cross_border_type_id'])) {
+                $class->setCrossBorderTypeId($data['cross_border_type_id']);
             }
             if (isset($data['hs_code'])) {
                 $class->setHsCode($data['hs_code']);
