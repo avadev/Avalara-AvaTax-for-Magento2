@@ -47,23 +47,24 @@ try {
                     <td data-th="<?php echo __('Expiration Date') ?>"><?php echo $certificate->getData(
                             'expiration_date'
                         ); ?></td>
-                    <td data-th="<?php echo __('Status') ?>"><?php echo $certificate->getData('valid') ? 'Approved'
-                            : 'Denied'; ?></td>
+                    <td data-th="<?php echo __('Status') ?>"><?php echo $certificate->getData('valid') ? __('Approved')
+                            : __('Denied'); ?></td>
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
                             <a target="_blank"
-                               href="<?php echo $viewModel->getCertificateUrl($certificate->getData('id')) ?>">View
-                                Certificate</a>
+                               href="<?php echo $viewModel->getCertificateUrl($certificate->getData('id')) ?>">
+                                <?= __('View Certificate') ?>
+                            </a>
                         <?php endif ?>
                     </td>
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
-                            <a href="javascript:void(0)">Renew Certificate</a>
+                            <a href="javascript:void(0)"><?= __('Renew Certificate') ?></a>
                         <?php endif ?>
                     </td>
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
-                            <a href="javascript:void(0)">Delete Certificate</a>
+                            <a href="javascript:void(0)"><?= __('Delete Certificate') ?></a>
                         <?php endif ?>
                     </td>
                 </tr>
@@ -71,7 +72,7 @@ try {
 
             <?php if (count($certificates) === 0): ?>
                 <tr class="data-grid-tr-no-data even">
-                    <td class="empty-text" colspan="7">No certificates found for this customer</td>
+                    <td class="empty-text" colspan="7"><?= __('No certificates found for this customer') ?></td>
                 </tr>
             <?php endif; ?>
         </tbody>
