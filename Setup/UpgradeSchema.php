@@ -368,6 +368,23 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getConnection(self::$connectionName)->createTable($table);
         }
 
+        // TODO: Consolidate with initial table creation above
+        if (version_compare($context->getVersion(), '2.0.3', '<')) {
+            $setup->getConnection()->changeColumn(
+                $setup->getTable('avatax_cross_border_class'),
+                'cross_border_type',
+                'cross_border_type_id',
+                [
+                    'type' => 'integer',
+                    'unsigned' => true,
+                    'nullable' => true,
+                    'length' => 11,
+                ]
+            );
+        }
+
+        // TODO: Add foreign key on avatax_cross_border_class.cross_border_type
+
         $setup->endSetup();
     }
 }

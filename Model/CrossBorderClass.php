@@ -63,7 +63,7 @@ class CrossBorderClass extends \Magento\Framework\Model\AbstractModel implements
     /**
      * @inheritdoc
      */
-    public function getCrossBorderType()
+    public function getCrossBorderTypeId()
     {
         return $this->_getData(CrossBorderClassInterface::CROSS_BORDER_TYPE);
     }
@@ -71,9 +71,9 @@ class CrossBorderClass extends \Magento\Framework\Model\AbstractModel implements
     /**
      * @inheritdoc
      */
-    public function setCrossBorderType($type)
+    public function setCrossBorderTypeId($id)
     {
-        return $this->setData(CrossBorderClassInterface::CROSS_BORDER_TYPE, $type);
+        return $this->setData(CrossBorderClassInterface::CROSS_BORDER_TYPE, $id);
     }
 
     /**
