@@ -13,22 +13,18 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Block\Adminhtml;
+namespace ClassyLlama\AvaTax\Block\ViewModel;
 
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Customer;
 use ClassyLlama\AvaTax\Helper\UrlSigner;
-use Magento\Backend\Block\Template;
 use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
 
-class CustomerCertificates extends Template implements \Magento\Ui\Component\Layout\Tabs\TabInterface
+class CustomerCertificates implements \Magento\Framework\View\Element\Block\ArgumentInterface
 {
-    protected $_template = 'ClassyLlama_AvaTax::customer-certificates.phtml';
-
-    const CERTIFICATES_RESOURCE = 'ClassyLlama_AvaTax::customer_certificates';
-
     /**
      * @var \Magento\Framework\Registry
      */
@@ -50,11 +46,6 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     protected $urlSigner;
 
     /**
-     * @var \Magento\Framework\AuthorizationInterface
-     */
-    protected $authorization;
-
-    /**
      * @var \ClassyLlama\AvaTax\Model\ResourceModel\Config
      */
     protected $configResourceModel;
@@ -65,112 +56,58 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
     protected $certificates;
 
     /**
+     * @var \Magento\Framework\UrlInterface
+     */
+    protected $urlBuilder;
+
+    /**
      * @param \Magento\Framework\Registry                    $coreRegistry
-     * @param Template\Context                               $context
      * @param Customer                                       $customerRest
      * @param DataObjectFactory                              $dataObjectFactory
      * @param UrlSigner                                      $urlSigner
-     * @param \Magento\Framework\AuthorizationInterface      $authorization
      * @param \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel
-     * @param array                                          $data
+     * @param \Magento\Framework\UrlInterface                $urlBuilder
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
-        Template\Context $context,
         Customer $customerRest,
         DataObjectFactory $dataObjectFactory,
         UrlSigner $urlSigner,
-        \Magento\Framework\AuthorizationInterface $authorization,
         \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel,
-        array $data = []
+        \Magento\Framework\UrlInterface $urlBuilder
     )
     {
-        parent::__construct($context, $data);
-
         $this->coreRegistry = $coreRegistry;
         $this->customerRest = $customerRest;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->urlSigner = $urlSigner;
-        $this->authorization = $authorization;
         $this->configResourceModel = $configResourceModel;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTabLabel()
-    {
-        return __('Tax Certificates');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTabTitle()
-    {
-        return __('Tax Certificates');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTabClass()
-    {
-        return '';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTabUrl()
-    {
-        return '';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isAjaxLoaded()
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function canShowTab()
-    {
-        return $this->getCustomerId() !== null && $this->authorization->isAllowed(self::CERTIFICATES_RESOURCE);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isHidden()
-    {
-        return false;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
      * @return int
      */
-    protected function getCustomerId()
+    public function getCustomerId()
     {
         return (int)$this->coreRegistry->registry(RegistryConstants::CURRENT_CUSTOMER_ID);
     }
 
     /**
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function shouldShowWarning()
     {
-        return $this->configResourceModel->getConfigCount(
-                [
-                    \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
-                    \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE
-                ]
-            ) > 2;
+        try {
+            return $this->configResourceModel->getConfigCount(
+                    [
+                        \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
+                        \ClassyLlama\AvaTax\Helper\Config::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE
+                    ]
+                ) > 2;
+        } catch (LocalizedException $e) {
+            return false;
+        }
     }
 
     /**
@@ -190,7 +127,7 @@ class CustomerCertificates extends Template implements \Magento\Ui\Component\Lay
         // This messes with URL signing as the parameter is added after the fact. Don't use url keys for certificate downloads
         $parameters['_nosecret'] = true;
 
-        return $this->getUrl('avatax/certificates/download', $parameters);
+        return $this->urlBuilder->getUrl('avatax/certificates/download', $parameters);
     }
 
     /**

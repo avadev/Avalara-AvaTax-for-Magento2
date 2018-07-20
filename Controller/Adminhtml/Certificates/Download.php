@@ -41,7 +41,7 @@ class Download extends \Magento\Backend\App\Action
     protected function _isAllowed()
     {
         return $this->_authorization->isAllowed(
-            \ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificates::CERTIFICATES_RESOURCE
+            \ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificatesTab::CERTIFICATES_RESOURCE
         );
     }
 
