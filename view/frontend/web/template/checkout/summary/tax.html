@@ -19,6 +19,13 @@
     </td>
 </tr>
 <!-- /ko -->
+<!-- // BEGIN EDIT - Show certificates management link -->
+<tr class="totals-tax" data-bind="if: ifShowCertificateLink()">
+    <td class="mark" colspan="2">
+        <a data-bind="attr: {href: certificatesLink}, i18n: 'Manage existing certificates'"></a>
+    </td>
+</tr>
+<!-- // END EDIT -->
 <!-- ko if: ifShowValue() && ifShowDetails() -->
     <tr class="totals-tax-summary"
         data-bind="mageInit: {'toggleAdvanced':{'selectorsToggleClass': 'shown', 'baseToggleClass': 'expanded', 'toggleContainers': '.totals-tax-details'}}">

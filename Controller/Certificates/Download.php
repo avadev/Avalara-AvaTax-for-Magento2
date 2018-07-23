@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Controller\Certificates;
 
 use ClassyLlama\AvaTax\Helper\CertificateDownloadControllerHelper;
+use Magento\Framework\App\RequestInterface;
 
 class Download extends \Magento\Framework\App\Action\Action
 {
@@ -25,19 +26,41 @@ class Download extends \Magento\Framework\App\Action\Action
     protected $certificateDownloadControllerHelper;
 
     /**
+     * @var \Magento\Customer\Model\Session
+     */
+    protected $session;
+
+    /**
      * Download constructor.
      *
      * @param CertificateDownloadControllerHelper $certificateDownloadControllerHelper
-     * @param \Magento\Backend\App\Action\Context $context
+     * @param \Magento\Backend\App\Action\Context $context* @param \Magento\Customer\Model\Session                  $session
      */
     public function __construct(
         CertificateDownloadControllerHelper $certificateDownloadControllerHelper,
-        \Magento\Backend\App\Action\Context $context
+        \Magento\Backend\App\Action\Context $context,
+        \Magento\Customer\Model\Session $session
     )
     {
         parent::__construct($context);
 
         $this->certificateDownloadControllerHelper = $certificateDownloadControllerHelper;
+        $this->session = $session;
+    }
+
+    /**
+     * @param RequestInterface $request
+     *
+     * @return \Magento\Framework\App\ResponseInterface
+     * @throws \Magento\Framework\Exception\NotFoundException
+     */
+    public function dispatch(RequestInterface $request)
+    {
+        if (!$this->session->authenticate()) {
+            $this->_actionFlag->set('', self::FLAG_NO_DISPATCH, true);
+        }
+
+        return parent::dispatch($request);
     }
 
     /**
