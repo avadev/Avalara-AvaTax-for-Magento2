@@ -143,10 +143,19 @@
         </field>
         <field name="unit_amount_product_attr">
             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\ProductAttributes</item>
                 <item name="config" xsi:type="array">
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="filterOptions" xsi:type="string">true</item>
+                    <item name="elementTmpl" xsi:type="string">ui/grid/filters/elements/ui-select</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="visible" xsi:type="string">1</item>
+                    <item name="required" xsi:type="string">1</item>
+                    <item name="multiple" xsi:type="boolean">false</item>
                     <item name="label" xsi:type="string" translate="true">Unit Amount Product Attribute</item>
+                    <item name="component" xsi:type="string">Magento_Catalog/js/components/attribute-set-select</item>
                     <item name="dataType" xsi:type="string">text</item>
-                    <item name="formElement" xsi:type="string">input</item>
                     <item name="dataScope" xsi:type="string">unit_amount_product_attr</item>
                     <item name="sortOrder" xsi:type="number">50</item>
                     <item name="notice" xsi:type="string" translate="true">
