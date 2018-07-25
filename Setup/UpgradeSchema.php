@@ -34,6 +34,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
     /**
      * {@inheritdoc}
+     * @throws \Zend_Db_Exception
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -381,6 +382,36 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'length' => 11,
                 ]
             );
+        }
+
+        if(version_compare($context->getVersion(), '2.0.4', '<')) {
+            $installer = $setup;
+            $installer->startSetup();
+
+            $table_classyllama_avatax_crossbordertype = $setup->getConnection()->newTable($setup->getTable('classyllama_avatax_crossbordertype'));
+
+
+            $table_classyllama_avatax_crossbordertype->addColumn(
+                'entity_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                array('identity' => true,'nullable' => false,'primary' => true,'unsigned' => true,),
+                'Entity ID'
+            );
+
+
+            $table_classyllama_avatax_crossbordertype->addColumn(
+                'type',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                ['nullable' => False],
+                'type'
+            );
+
+
+            $setup->getConnection()->createTable($table_classyllama_avatax_crossbordertype);
+
+            $setup->endSetup();
         }
 
         // TODO: Add foreign key on avatax_cross_border_class.cross_border_type
