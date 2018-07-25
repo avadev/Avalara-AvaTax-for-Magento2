@@ -93,10 +93,10 @@
         </field>
         <field name="cross_border_type_id">
             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\CrossBorderType</item>
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Cross Border Type</item>
                     <item name="dataType" xsi:type="string">number</item>
-                    <item name="formElement" xsi:type="string">input</item>
                     <item name="dataScope" xsi:type="string">cross_border_type_id</item>
                     <item name="sortOrder" xsi:type="number">20</item>
                     <item name="validation" xsi:type="array">
@@ -107,6 +107,15 @@
                         A product’s Cross Border Type, combined with the destination country of a given transaction,
                         will determine the appropriate Cross Border Class that applies (including its HS code and unit information).
                     </item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="filterOptions" xsi:type="string">true</item>
+                    <item name="elementTmpl" xsi:type="string">ui/grid/filters/elements/ui-select</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="visible" xsi:type="string">1</item>
+                    <item name="required" xsi:type="string">1</item>
+                    <item name="multiple" xsi:type="boolean">false</item>
+                    <item name="component" xsi:type="string">Magento_Catalog/js/components/attribute-set-select</item>
                 </item>
             </argument>
         </field>
