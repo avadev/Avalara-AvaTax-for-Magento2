@@ -105,7 +105,8 @@ class ConfigSaveObserver implements ObserverInterface
         $errors = array();
         $errors = array_merge(
             $errors,
-            $this->sendPing($scopeId, $scopeType)
+            $this->sendPing($scopeId, $scopeType),
+            $this->checkConflictingShippingMethods($scopeId, $scopeType)
         );
 
         return $errors;
@@ -128,6 +129,23 @@ class ConfigSaveObserver implements ObserverInterface
         );
 
         return $notices;
+    }
+
+    protected function checkConflictingShippingMethods($scopeId, $scopeType)
+    {
+        $errors = [];
+
+        $groundShippingMethods = $this->config->getGroundShippingMethods($scopeId, $scopeType);
+        $oceanShippingMethods = $this->config->getOceanShippingMethods($scopeId, $scopeType);
+        $airShippingMethods = $this->config->getAirShippingMethods($scopeId, $scopeType);
+
+        $shippingMethods = array_merge($groundShippingMethods, $oceanShippingMethods, $airShippingMethods);
+
+        if(\count($shippingMethods) !== \count(\array_flip($shippingMethods))) {
+            $errors[] = __('Cannot have duplicate shipping methods across ground, ocean, and air.');
+        }
+
+        return $errors;
     }
 
     /**

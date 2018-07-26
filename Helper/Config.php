@@ -135,6 +135,12 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
 
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
+
+    const XML_PATH_AVATAX_CROSS_BORDER_GROUND_SHIPPING_METHODS = 'tax/avatax_customs/ground_shipping_methods';
+
+    const XML_PATH_AVATAX_CROSS_BORDER_OCEAN_SHIPPING_METHODS = 'tax/avatax_customs/ocean_shipping_methods';
+
+    const XML_PATH_AVATAX_CROSS_BORDER_AIR_SHIPPING_METHODS = 'tax/avatax_customs/air_shipping_methods';
     /**#@-*/
 
     /**
@@ -1096,5 +1102,59 @@ class Config extends AbstractHelper
     public function isNativeTaxRulesIgnored()
     {
         return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES);
+    }
+
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return array
+     */
+    public function getGroundShippingMethods($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return explode(
+            ',',
+            $this->scopeConfig->getValue(
+                self::XML_PATH_AVATAX_CROSS_BORDER_GROUND_SHIPPING_METHODS,
+                $scopeType,
+                $store
+            )
+        );
+    }
+
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return array
+     */
+    public function getOceanShippingMethods($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return explode(
+            ',',
+            $this->scopeConfig->getValue(
+                self::XML_PATH_AVATAX_CROSS_BORDER_OCEAN_SHIPPING_METHODS,
+                $scopeType,
+                $store
+            )
+        );
+    }
+
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return array
+     */
+    public function getAirShippingMethods($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return explode(
+            ',',
+            $this->scopeConfig->getValue(
+                self::XML_PATH_AVATAX_CROSS_BORDER_AIR_SHIPPING_METHODS,
+                $scopeType,
+                $store
+            )
+        );
     }
 }
