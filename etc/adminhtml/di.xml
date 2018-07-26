@@ -25,7 +25,7 @@
             </argument>
         </arguments>
     </type>
-    <preference for="Magento\Tax\Block\Adminhtml\Rule\Edit\Form" type="ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit\Form" />
+    <preference for="Magento\Tax\Block\Adminhtml\Rule\Edit\Form" type="ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit\Form"/>
 
     <virtualType name="developmentCompanyCodeFrontendModel" type="ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CompanyCode">
         <arguments>
@@ -56,5 +56,46 @@
     </virtualType>
     <type name="Magento\Config\Model\Config">
         <plugin sortOrder="1" name="classyLlamaAvaTaxConfig" type="ClassyLlama\AvaTax\Plugin\Model\ConfigPlugin"/>
+    </type>
+
+    <virtualType name="uspsCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">usps</item>
+                <item name="carrier_label" xsi:type="string">USPS</item>
+                <item name="config_path" xsi:type="string">carriers/usps/allowed_methods</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\USPS</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="upsCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">ups</item>
+                <item name="carrier_label" xsi:type="string">UPS</item>
+                <item name="config_path" xsi:type="string">carriers/ups/allowed_methods</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\UPS</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="fedexCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">fedex</item>
+                <item name="carrier_label" xsi:type="string">Fedex</item>
+                <item name="config_path" xsi:type="string">carriers/fedex/allowed_methods</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\Fedex</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods">
+        <arguments>
+            <argument name="carrierMethodsProviders" xsi:type="array">
+                <item name="uspsCarrierProvider" xsi:type="object">uspsCarrierProvider</item>
+                <item name="upsCarrierProvider" xsi:type="object">upsCarrierProvider</item>
+                <item name="fedexCarrierProvider" xsi:type="object">fedexCarrierProvider</item>
+            </argument>
+        </arguments>
     </type>
 </config>
