@@ -379,7 +379,7 @@
                 </field>
                 <field id="default_shipping_mode" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Shipping Mode</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\DefaultCrossBorderType</source_model>
                     <comment><![CDATA[The shipping mode that should be sent to AvaTax if the shipping method is not mapped in the multiselects above.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
