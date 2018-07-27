@@ -22,6 +22,7 @@
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface" type="\ClassyLlama\AvaTax\Model\CrossBorderClass" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderClassRepository" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\ProductCrossBorderDetailsInterface" type="ClassyLlama\AvaTax\Model\ProductCrossBorderDetails" />
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
