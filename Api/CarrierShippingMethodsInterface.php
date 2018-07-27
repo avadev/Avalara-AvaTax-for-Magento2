@@ -21,4 +21,9 @@ interface CarrierShippingMethodsInterface
      * @return array
      */
     public function getCarrierMethods();
+
+    /**
+     * @return array
+     */
+    public function getConfiguredMethods();
 }

@@ -37,4 +37,12 @@ class Fedex implements \ClassyLlama\AvaTax\Api\CarrierShippingMethodsInterface
     {
         return $this->carrier->getCode('method');
     }
+
+    /**
+     * @return array
+     */
+    public function getConfiguredMethods()
+    {
+        return explode(",", $this->carrier->getConfigData('allowed_methods'));
+    }
 }

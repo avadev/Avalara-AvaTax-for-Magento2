@@ -22,7 +22,6 @@ use Magento\Framework\DataObject;
 /**
  * @method string getCarrierLabel
  * @method string getCarrierCode
- * @method string getConfigPath
  */
 class CarrierShippingMethodsProvider extends DataObject
 {
@@ -100,7 +99,7 @@ class CarrierShippingMethodsProvider extends DataObject
     {
         $options = [];
         $carrierCode = $this->getCarrierCode();
-        $values = $this->getCarrierConfig($this->getConfigPath());
+        $values = $this->carrierShippingMethods->getConfiguredMethods();
         $configData = $this->carrierShippingMethods->getCarrierMethods();
 
         foreach ($values as $value) {
@@ -109,6 +108,10 @@ class CarrierShippingMethodsProvider extends DataObject
             }
 
             $options[] = ['value' => "{$carrierCode}_{$value}", 'label' => __($configData[$value])];
+        }
+
+        if (\count($options) === 0) {
+            return [];
         }
 
         return [

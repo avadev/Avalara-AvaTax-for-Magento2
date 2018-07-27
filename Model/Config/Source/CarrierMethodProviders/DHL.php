@@ -15,25 +15,20 @@
 
 namespace ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders;
 
-class UPS implements \ClassyLlama\AvaTax\Api\CarrierShippingMethodsInterface
+use Magento\Framework\Exception\LocalizedException;
+
+class DHL implements \ClassyLlama\AvaTax\Api\CarrierShippingMethodsInterface
 {
     /**
-     * @var \Magento\Ups\Helper\Config
-     */
-    protected $config;
-
-    /**
-     * @var \Magento\Ups\Model\Carrier
+     * @var \Magento\Dhl\Model\Carrier
      */
     protected $carrier;
 
     /**
-     * @param \Magento\Ups\Helper\Config $config
-     * @param \Magento\Ups\Model\Carrier $carrier
+     * @param \Magento\Dhl\Model\Carrier $carrier
      */
-    public function __construct(\Magento\Ups\Helper\Config $config, \Magento\Ups\Model\Carrier $carrier)
+    public function __construct(\Magento\Dhl\Model\Carrier $carrier)
     {
-        $this->config = $config;
         $this->carrier = $carrier;
     }
 
@@ -42,7 +37,7 @@ class UPS implements \ClassyLlama\AvaTax\Api\CarrierShippingMethodsInterface
      */
     public function getCarrierMethods()
     {
-        return $this->config->getCode('method');
+        return $this->carrier->getDhlProducts($this->carrier->getConfigData('content_type'));
     }
 
     /**
@@ -50,6 +45,10 @@ class UPS implements \ClassyLlama\AvaTax\Api\CarrierShippingMethodsInterface
      */
     public function getConfiguredMethods()
     {
-        return explode(",", $this->carrier->getConfigData('allowed_methods'));
+        try {
+            return array_keys($this->carrier->getAllowedMethods());
+        } catch (LocalizedException $e) {
+            return [];
+        }
     }
 }

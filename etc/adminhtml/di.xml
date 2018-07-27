@@ -63,7 +63,6 @@
             <argument name="data" xsi:type="array">
                 <item name="carrier_code" xsi:type="string">usps</item>
                 <item name="carrier_label" xsi:type="string">USPS</item>
-                <item name="config_path" xsi:type="string">carriers/usps/allowed_methods</item>
             </argument>
             <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\USPS</argument>
         </arguments>
@@ -73,7 +72,6 @@
             <argument name="data" xsi:type="array">
                 <item name="carrier_code" xsi:type="string">ups</item>
                 <item name="carrier_label" xsi:type="string">UPS</item>
-                <item name="config_path" xsi:type="string">carriers/ups/allowed_methods</item>
             </argument>
             <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\UPS</argument>
         </arguments>
@@ -83,9 +81,17 @@
             <argument name="data" xsi:type="array">
                 <item name="carrier_code" xsi:type="string">fedex</item>
                 <item name="carrier_label" xsi:type="string">Fedex</item>
-                <item name="config_path" xsi:type="string">carriers/fedex/allowed_methods</item>
             </argument>
             <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\Fedex</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="dhlCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">dhl</item>
+                <item name="carrier_label" xsi:type="string">DHL</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\DHL</argument>
         </arguments>
     </virtualType>
 
@@ -95,6 +101,7 @@
                 <item name="uspsCarrierProvider" xsi:type="object">uspsCarrierProvider</item>
                 <item name="upsCarrierProvider" xsi:type="object">upsCarrierProvider</item>
                 <item name="fedexCarrierProvider" xsi:type="object">fedexCarrierProvider</item>
+                <item name="dhlCarrierProvider" xsi:type="object">dhlCarrierProvider</item>
             </argument>
         </arguments>
     </type>

@@ -35,12 +35,14 @@ class AvailableShippingMethods implements \Magento\Framework\Option\ArrayInterfa
      */
     public function toOptionArray()
     {
-        return array_map(
-            function ($carrierProvider) {
-                /** @var CarrierShippingMethodsProvider $carrierProvider */
-                return $carrierProvider->getCarrierOptions();
-            },
-            $this->carrierMethodsProviders
+        return array_filter(
+            array_map(
+                function ($carrierProvider) {
+                    /** @var CarrierShippingMethodsProvider $carrierProvider */
+                    return $carrierProvider->getCarrierOptions();
+                },
+                $this->carrierMethodsProviders
+            )
         );
     }
 }
