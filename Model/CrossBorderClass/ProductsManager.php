@@ -146,6 +146,8 @@ class ProductsManager
             }
         }
 
+        $this->loaded = true;
+
         return $this;
     }
 
