@@ -47,6 +47,13 @@
         <attribute code="tax" type="float" />
     </extension_attributes>
 
+    <extension_attributes for="Magento\Quote\Api\Data\CartItemInterface">
+        <attribute code="hs_code" type="string" />
+        <attribute code="unit_name" type="string" />
+        <attribute code="unit_amount" type="float" />
+        <attribute code="pref_program_indicator" type="string" />
+    </extension_attributes>
+
     <!--
     /**
      * Add and redefine extension attributes to display tax summary information on frontend
