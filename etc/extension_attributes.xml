@@ -30,6 +30,10 @@
         <attribute code="avatax_description" type="string" />
         <attribute code="avatax_ref1" type="string" />
         <attribute code="avatax_ref2" type="string" />
+        <attribute code="hs_code" type="string" />
+        <attribute code="unit_name" type="string" />
+        <attribute code="unit_amount" type="float" />
+        <attribute code="pref_program_indicator" type="string" />
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\InvoiceInterface">
         <attribute code="avatax_is_unbalanced" type="string" />

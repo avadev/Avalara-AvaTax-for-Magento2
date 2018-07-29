@@ -22,6 +22,7 @@ use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Framework\DataObjectFactory;
 use Psr\Log\LoggerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 
 class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestTaxInterface
@@ -46,12 +47,18 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     protected $restConfig;
 
     /**
+     * @var CustomsConfig
+     */
+    protected $customsConfigHelper;
+
+    /**
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
      * @param TransactionBuilderFactory $transactionBuilderFactory
      * @param TaxResultFactory $taxResultFactory
      * @param RestConfig $restConfig
+     * @param CustomsConfig $customsConfigHelper
      */
     public function __construct(
         LoggerInterface $logger,
@@ -59,12 +66,14 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         ClientPool $clientPool,
         TransactionBuilderFactory $transactionBuilderFactory,
         TaxResultFactory $taxResultFactory,
-        RestConfig $restConfig
+        RestConfig $restConfig,
+        CustomsConfig $customsConfigHelper
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->transactionBuilderFactory = $transactionBuilderFactory;
         $this->taxResultFactory = $taxResultFactory;
         $this->restConfig = $restConfig;
+        $this->customsConfigHelper = $customsConfigHelper;
     }
 
     /**
@@ -190,11 +199,19 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                     $transactionBuilder->withLineCustomFields($line->getRef1(), $line->getRef2());
                 }
 
-                if ($line->hasUnitName()) {
-                    $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_NAME, $line->getUnitName());
-                }
-                if ($line->hasUnitAmount()) {
-                    $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_AMT, $line->getUnitAmount());
+                if ($this->customsConfigHelper->enabled()) {
+                    if ($line->hasHsCode()) {
+                        $transactionBuilder->withLineHsCode($line->getHsCode());
+                    }
+                    if ($line->hasUnitName()) {
+                        $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_NAME, $line->getUnitName());
+                    }
+                    if ($line->hasUnitAmount()) {
+                        $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_AMT, $line->getUnitAmount());
+                    }
+                    if ($line->hasPreferenceProgram()) {
+                        $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_PREF_PROGRAM, $line->getPreferenceProgram());
+                    }
                 }
 
                 /**

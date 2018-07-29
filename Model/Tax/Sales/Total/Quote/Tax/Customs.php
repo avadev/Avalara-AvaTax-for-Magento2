@@ -62,14 +62,23 @@ class Customs
 
             // TODO: Tighten up this section once cross border type is being loaded on quote items
             if ($item->getHasChildren() && $item->isChildrenCalculated()) {
+                $parentCrossBorderType = $item->getProduct()->getAvataxCrossBorderType();
+
                 foreach ($item->getChildren() as $childItem) {
-                    $productCrossBorderTypes[$childItem->getProduct()->getId()] = $childItem->getProduct()->getAvataxCrossBorderType();
+                    $crossBorderType = $childItem->getProduct()->getAvataxCrossBorderType();
+                    if (!$crossBorderType) {
+                        $crossBorderType = $parentCrossBorderType;
+                    }
+                    $productCrossBorderTypes[$childItem->getProduct()->getId()] = $crossBorderType;
                 }
             } else {
                 $productCrossBorderTypes[$item->getProduct()->getId()] = $item->getProduct()->getAvataxCrossBorderType();
             }
         }
 
+        /**
+         * @var ProductsManager $crossBorderProductsManager
+         */
         $crossBorderProductsManager = $this->crossBorderProductsManagerFactory->create([
             'destinationCountry' => $destinationCountry,
             'productCrossBorderTypes' => $productCrossBorderTypes,
