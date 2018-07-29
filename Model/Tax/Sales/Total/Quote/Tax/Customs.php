@@ -45,6 +45,7 @@ class Customs
      * Assign cross border details to quote items
      *
      * @param ShippingAssignmentInterface $shippingAssignment
+     * @throws \Magento\Framework\Exception\InputException
      */
     public function assignCrossBorderDetails($shippingAssignment)
     {
@@ -60,7 +61,6 @@ class Customs
                 continue;
             }
 
-            // TODO: Tighten up this section once cross border type is being loaded on quote items
             if ($item->getHasChildren() && $item->isChildrenCalculated()) {
                 $parentCrossBorderType = $item->getProduct()->getAvataxCrossBorderType();
 
@@ -69,9 +69,12 @@ class Customs
                     if (!$crossBorderType) {
                         $crossBorderType = $parentCrossBorderType;
                     }
-                    $productCrossBorderTypes[$childItem->getProduct()->getId()] = $crossBorderType;
+
+                    if ($crossBorderType) {
+                        $productCrossBorderTypes[$childItem->getProduct()->getId()] = $crossBorderType;
+                    }
                 }
-            } else {
+            } elseif ($item->getProduct()->getAvataxCrossBorderType()) {
                 $productCrossBorderTypes[$item->getProduct()->getId()] = $item->getProduct()->getAvataxCrossBorderType();
             }
         }
@@ -107,6 +110,10 @@ class Customs
      */
     protected function assignDetailsToItem($item, $crossBorderDetails)
     {
+        if (is_null($crossBorderDetails)) {
+            return;
+        }
+
         $quoteItemExtension = $item->getExtensionAttributes();
 
         if (!$quoteItemExtension) {
@@ -116,7 +123,9 @@ class Customs
 
         $quoteItemExtension->setHsCode($crossBorderDetails->getHsCode());
         $quoteItemExtension->setUnitName($crossBorderDetails->getUnitName());
-        // TODO: Get value for unit amount
         $quoteItemExtension->setPrefProgramIndicator($crossBorderDetails->getPrefProgramIndicator());
+
+        $unitAmountAttr = $crossBorderDetails->getUnitAmountAttrCode();
+        $quoteItemExtension->setUnitAmount($item->getProduct()->getData($unitAmountAttr));
     }
 }

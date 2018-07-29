@@ -287,10 +287,18 @@ class Line
         ];
 
         if ($this->customsConfigHelper->enabled() && $extensionAttributes) {
-            $data['hs_code'] = $extensionAttributes->getHsCode();
-            $data['unit_name'] = $extensionAttributes->getUnitName();
-            $data['unit_amount'] = $extensionAttributes->getUnitAmount();
-            $data['preference_program'] = $extensionAttributes->getPrefProgramIndicator();
+            if ($extensionAttributes->getHsCode() !== null) {
+                $data['hs_code'] = $extensionAttributes->getHsCode();
+            }
+            if ($extensionAttributes->getUnitName() !== null) {
+                $data['unit_name'] = $extensionAttributes->getUnitName();
+            }
+            if ($extensionAttributes->getUnitAmount() !== null) {
+                $data['unit_amount'] = $extensionAttributes->getUnitAmount();
+            }
+            if ($extensionAttributes->getPrefProgramIndicator() !== null) {
+                $data['preference_program'] = $extensionAttributes->getPrefProgramIndicator();
+            }
         }
 
         /** @var \Magento\Framework\DataObject $line */

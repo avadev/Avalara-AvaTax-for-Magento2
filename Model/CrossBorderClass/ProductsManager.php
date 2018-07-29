@@ -155,10 +155,9 @@ class ProductsManager
      * Get the cross border details for a specific product ID
      *
      * @param int $productId
-     * @return ProductCrossBorderDetailsInterface
+     * @return ProductCrossBorderDetailsInterface|null
      *
      * @throws InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getCrossBorderDetails($productId)
     {
@@ -168,10 +167,6 @@ class ProductsManager
 
         $this->loadData();
 
-        if (!isset($this->productDetailResults[$productId])) {
-            throw new \Magento\Framework\Exception\NoSuchEntityException(__('No cross border class information was found for product ID %1', $productId));
-        }
-
-        return $this->productDetailResults[$productId];
+        return (isset($this->productDetailResults[$productId])) ? $this->productDetailResults[$productId] : null;
     }
 }
