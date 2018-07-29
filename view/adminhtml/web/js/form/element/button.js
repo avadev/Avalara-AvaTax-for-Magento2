@@ -18,7 +18,7 @@ define([
     'ClassyLlama_AvaTax/js/action/validate-address-request',
     'ClassyLlama_AvaTax/js/model/address-model',
     'ClassyLlama_AvaTax/js/view/validation-response-handler',
-    'ClassyLlama_AvaTax/js/view/address-validation-form',
+    'ClassyLlama_AvaTax/js/view/address-validation-form-admin',
 
     // No object assigned to below dependencies
     'ClassyLlama_AvaTax/js/lib/serialize-form'
