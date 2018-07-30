@@ -94,6 +94,24 @@
             <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\DHL</argument>
         </arguments>
     </virtualType>
+    <virtualType name="flatRateCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">flatrate</item>
+                <item name="carrier_label" xsi:type="string">FlatRate</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\FlatRate</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="freeShippingCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">freeshipping</item>
+                <item name="carrier_label" xsi:type="string">Free Shipping</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\FreeShipping</argument>
+        </arguments>
+    </virtualType>
 
     <type name="ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods">
         <arguments>
@@ -102,6 +120,8 @@
                 <item name="upsCarrierProvider" xsi:type="object">upsCarrierProvider</item>
                 <item name="fedexCarrierProvider" xsi:type="object">fedexCarrierProvider</item>
                 <item name="dhlCarrierProvider" xsi:type="object">dhlCarrierProvider</item>
+                <item name="flatRateCarrierProvider" xsi:type="object">flatRateCarrierProvider</item>
+                <item name="freeShippingCarrierProvider" xsi:type="object">freeShippingCarrierProvider</item>
             </argument>
         </arguments>
     </type>
