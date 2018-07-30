@@ -55,6 +55,7 @@ class Customs
 
         $destinationCountry = $shippingAssignment->getShipping()->getAddress()->getCountryId();
 
+        // TODO: Logic for default cross border type
         $productCrossBorderTypes = [];
         foreach ($shippingAssignment->getItems() as $item) {
             if ($item->getParentItem()) {

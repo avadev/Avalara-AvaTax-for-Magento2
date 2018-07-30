@@ -57,6 +57,24 @@
         <attribute code="unit_amount" type="float" />
         <attribute code="pref_program_indicator" type="string" />
     </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\OrderItemExtensionInterface">
+        <attribute code="hs_code" type="string" />
+        <attribute code="unit_name" type="string" />
+        <attribute code="unit_amount" type="float" />
+        <attribute code="pref_program_indicator" type="string" />
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\InvoiceItemExtensionInterface">
+        <attribute code="hs_code" type="string" />
+        <attribute code="unit_name" type="string" />
+        <attribute code="unit_amount" type="float" />
+        <attribute code="pref_program_indicator" type="string" />
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\CreditmemoItemExtensionInterface">
+        <attribute code="hs_code" type="string" />
+        <attribute code="unit_name" type="string" />
+        <attribute code="unit_amount" type="float" />
+        <attribute code="pref_program_indicator" type="string" />
+    </extension_attributes>
 
     <!--
     /**

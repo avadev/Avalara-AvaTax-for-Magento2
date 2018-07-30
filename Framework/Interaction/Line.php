@@ -189,6 +189,22 @@ class Line
             'ref_2' => $itemData['productRef2']
         ];
 
+        $extensionAttributes = $item->getExtensionAttributes();
+        if ($this->customsConfigHelper->enabled() && $extensionAttributes) {
+            if ($extensionAttributes->getHsCode() !== null) {
+                $data['hs_code'] = $extensionAttributes->getHsCode();
+            }
+            if ($extensionAttributes->getUnitName() !== null) {
+                $data['unit_name'] = $extensionAttributes->getUnitName();
+            }
+            if ($extensionAttributes->getUnitAmount() !== null) {
+                $data['unit_amount'] = $extensionAttributes->getUnitAmount();
+            }
+            if ($extensionAttributes->getPrefProgramIndicator() !== null) {
+                $data['preference_program'] = $extensionAttributes->getPrefProgramIndicator();
+            }
+        }
+
         /** @var \Magento\Framework\DataObject $line */
         $line = $this->dataObjectFactory->create(['data' => $data]);
 
@@ -239,6 +255,22 @@ class Line
             'ref_1' => $itemData['productRef1'],
             'ref_2' => $itemData['productRef2']
         ];
+
+        $extensionAttributes = $item->getExtensionAttributes();
+        if ($this->customsConfigHelper->enabled() && $extensionAttributes) {
+            if ($extensionAttributes->getHsCode() !== null) {
+                $data['hs_code'] = $extensionAttributes->getHsCode();
+            }
+            if ($extensionAttributes->getUnitName() !== null) {
+                $data['unit_name'] = $extensionAttributes->getUnitName();
+            }
+            if ($extensionAttributes->getUnitAmount() !== null) {
+                $data['unit_amount'] = $extensionAttributes->getUnitAmount();
+            }
+            if ($extensionAttributes->getPrefProgramIndicator() !== null) {
+                $data['preference_program'] = $extensionAttributes->getPrefProgramIndicator();
+            }
+        }
 
         /** @var \Magento\Framework\DataObject $line */
         $line = $this->dataObjectFactory->create(['data' => $data]);
