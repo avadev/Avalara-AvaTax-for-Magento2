@@ -197,23 +197,29 @@ class Tax
     const DEFAULT_EXCHANGE_RATE = 1;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\CustomsConfig
+     */
+    protected $customsConfig;
+
+    /**
      * Class constructor
      *
-     * @param Address $address
-     * @param Config $config
-     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param Address                                       $address
+     * @param Config                                        $config
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass           $taxClassHelper
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
-     * @param MetaDataObjectFactory $metaDataObjectFactory
-     * @param DataObjectFactory $dataObjectFactory
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param OrderRepositoryInterface $orderRepository
-     * @param StoreRepositoryInterface $storeRepository
-     * @param PriceCurrencyInterface $priceCurrency
-     * @param TimezoneInterface $localeDate
-     * @param Line $interactionLine
-     * @param TaxCalculation $taxCalculation
-     * @param RestConfig $restConfig
+     * @param MetaDataObjectFactory                         $metaDataObjectFactory
+     * @param DataObjectFactory                             $dataObjectFactory
+     * @param CustomerRepositoryInterface                   $customerRepository
+     * @param InvoiceRepositoryInterface                    $invoiceRepository
+     * @param OrderRepositoryInterface                      $orderRepository
+     * @param StoreRepositoryInterface                      $storeRepository
+     * @param PriceCurrencyInterface                        $priceCurrency
+     * @param TimezoneInterface                             $localeDate
+     * @param Line                                          $interactionLine
+     * @param TaxCalculation                                $taxCalculation
+     * @param RestConfig                                    $restConfig
+     * @param \ClassyLlama\AvaTax\Helper\CustomsConfig      $customsConfig
      */
     public function __construct(
         Address $address,
@@ -230,7 +236,8 @@ class Tax
         TimezoneInterface $localeDate,
         Line $interactionLine,
         TaxCalculation $taxCalculation,
-        RestConfig $restConfig
+        RestConfig $restConfig,
+        \ClassyLlama\AvaTax\Helper\CustomsConfig $customsConfig
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -248,6 +255,7 @@ class Tax
         $this->interactionLine = $interactionLine;
         $this->taxCalculation = $taxCalculation;
         $this->restConfig = $restConfig;
+        $this->customsConfig = $customsConfig;
     }
 
     /**
@@ -449,7 +457,7 @@ class Tax
             'lines' => $lines,
             'purchase_order_no' => $quote->getReservedOrderId(),
             'parameters' => [
-                'AvaTax.LandedCost.ShippingMode' => $this->config->getShippingTypeForMethod(
+                'AvaTax.LandedCost.ShippingMode' => $this->customsConfig->getShippingTypeForMethod(
                     $shippingAddress->getMethod(),
                     $quote->getStoreId()
                 )

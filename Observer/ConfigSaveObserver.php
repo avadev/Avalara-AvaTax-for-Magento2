@@ -17,6 +17,7 @@ namespace ClassyLlama\AvaTax\Observer;
 
 use ClassyLlama\AvaTax\Api\RestInterface;
 use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
@@ -45,16 +46,23 @@ class ConfigSaveObserver implements ObserverInterface
     protected $interactionRest;
 
     /**
+     * @var CustomsConfig
+     */
+    protected $customsConfig;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
-     * @param Config $config
-     * @param \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks
-     * @param RestInterface $interactionRest
+     * @param Config                                      $config
+     * @param CustomsConfig                               $customsConfig
+     * @param \ClassyLlama\AvaTax\Helper\ModuleChecks     $moduleChecks
+     * @param RestInterface                               $interactionRest
      */
     public function __construct(
         \Magento\Framework\Message\ManagerInterface $messageManager,
         Config $config,
+        CustomsConfig $customsConfig,
         \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks,
         RestInterface $interactionRest
     ) {
@@ -62,6 +70,7 @@ class ConfigSaveObserver implements ObserverInterface
         $this->config = $config;
         $this->moduleChecks = $moduleChecks;
         $this->interactionRest = $interactionRest;
+        $this->customsConfig = $customsConfig;
     }
 
     /**
@@ -135,9 +144,9 @@ class ConfigSaveObserver implements ObserverInterface
     {
         $errors = [];
 
-        $groundShippingMethods = $this->config->getGroundShippingMethods($scopeId, $scopeType);
-        $oceanShippingMethods = $this->config->getOceanShippingMethods($scopeId, $scopeType);
-        $airShippingMethods = $this->config->getAirShippingMethods($scopeId, $scopeType);
+        $groundShippingMethods = $this->customsConfig->getGroundShippingMethods($scopeId, $scopeType);
+        $oceanShippingMethods = $this->customsConfig->getOceanShippingMethods($scopeId, $scopeType);
+        $airShippingMethods = $this->customsConfig->getAirShippingMethods($scopeId, $scopeType);
 
         $shippingMethods = array_merge($groundShippingMethods, $oceanShippingMethods, $airShippingMethods);
 
