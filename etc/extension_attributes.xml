@@ -52,10 +52,26 @@
     </extension_attributes>
 
     <extension_attributes for="Magento\Quote\Api\Data\CartItemInterface">
-        <attribute code="hs_code" type="string" />
-        <attribute code="unit_name" type="string" />
-        <attribute code="unit_amount" type="float" />
-        <attribute code="pref_program_indicator" type="string" />
+        <attribute code="hs_code" type="string">
+            <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">
+                <field>hs_code</field>
+            </join>
+        </attribute>
+        <attribute code="unit_name" type="string">
+            <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">
+                <field>unit_name</field>
+            </join>
+        </attribute>
+        <attribute code="unit_amount" type="float">
+            <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">
+                <field>unit_amount</field>
+            </join>
+        </attribute>
+        <attribute code="pref_program_indicator" type="string">
+            <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">
+                <field>pref_program_indicator</field>
+            </join>
+        </attribute>
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\OrderItemExtensionInterface">
         <attribute code="hs_code" type="string" />

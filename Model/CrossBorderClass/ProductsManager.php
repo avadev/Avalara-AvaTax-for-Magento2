@@ -162,7 +162,7 @@ class ProductsManager
     public function getCrossBorderDetails($productId)
     {
         if (!isset($this->productCrossBorderTypes[$productId])) {
-            throw new InputException(__('Product ID %1 was not initialized in manager', $productId));
+            return null;
         }
 
         $this->loadData();
