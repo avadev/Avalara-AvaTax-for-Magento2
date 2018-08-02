@@ -5,7 +5,7 @@
  * @author      sean.templeton
  */
 
-namespace ClassyLlama\AvaTax\Plugin\Model\ResourceModel\Quote;
+namespace ClassyLlama\AvaTax\Plugin\Model\ResourceModel;
 
 use Magento\Framework\Api\ExtensionAttribute\Config\Converter;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorHelper;
@@ -64,11 +64,23 @@ class ExtensionAttributesPersistencePlugin
         return $joinDirectives;
     }
 
-    protected function getDataFromExtensionAttributes($extensionAttributes, $key)
+    protected function getExtensionAttributeMethodName($key)
     {
-        $methodCall = 'get' . str_replace(' ', '', ucwords(str_replace('_', ' ', $key)));
+        return str_replace(' ', '', ucwords(str_replace('_', ' ', $key)));
+    }
+
+    protected function getExtensionAttribute($extensionAttributes, $key)
+    {
+        $methodCall = 'get' . $this->getExtensionAttributeMethodName($key);
 
         return $extensionAttributes->{$methodCall}();
+    }
+
+    protected function setExtensionAttribute($extensionAttributes, $key, $value)
+    {
+        $methodCall = 'set' . $this->getExtensionAttributeMethodName($key);
+
+        return $extensionAttributes->{$methodCall}($value);
     }
 
     /**
@@ -95,7 +107,7 @@ class ExtensionAttributesPersistencePlugin
         $tableFields = [];
 
         foreach ($joinDirectives as $attributeCode => $directive) {
-            $attributeData = $this->getDataFromExtensionAttributes($extensionAttributes, $attributeCode);
+            $attributeData = $this->getExtensionAttribute($extensionAttributes, $attributeCode);
 
             $tablesToUpdate[] = $directive['join_reference_table'];
             $dataToSave = [$directive['join_reference_field'] => $object->getId()];
@@ -133,6 +145,57 @@ class ExtensionAttributesPersistencePlugin
     {
         /** @var DataObject $object */
         $proceed($object, $value, $field);
+
+        $joinDirectives = $this->getJoinDirectivesForType(get_class($object));
+        $tablesToUpdate = [];
+        $tableFields = [];
+
+        $extensionAttributes = $object->getData('extension_attributes');
+
+        if ($extensionAttributes === null) {
+            $extensionAttributes = $this->extensionAttributesFactory->create(get_class($object), []);
+        }
+
+        foreach ($joinDirectives as $attributeCode => $directive) {
+            if (!isset($tablesToUpdate[$directive['join_reference_table']])) {
+                $tablesToUpdate[$directive['join_reference_table']] = [
+                    'join_reference_field' => $directive['join_reference_field'],
+                    'join_reference_field_value' => $object->getData($directive['join_on_field']),
+                    'attribute_codes' => []
+                ];
+            }
+
+            $fields = [];
+
+            foreach ($directive['fields'] as $fieldDirective) {
+                $fields[] = $fieldDirective['field'];
+            }
+
+            if (!isset($tableFields[$directive['join_reference_table']])) {
+                $tableFields[$directive['join_reference_table']] = [];
+            }
+
+            $tableFields[$directive['join_reference_table']][] = $fields;
+            $tablesToUpdate[$directive['join_reference_table']]['attribute_codes'][$attributeCode] = $fields;
+        }
+
+        foreach (array_unique($tablesToUpdate) as $tableName => $tableDirective) {
+            $fields = array_merge(...$tableFields[$tableName]);
+            $select = $subject->getConnection()->select()->from($tableName)->columns($fields)->where(
+                $tablesToUpdate[$tableName]['join_reference_field'],
+                $tablesToUpdate[$tableName]['join_reference_field_value']
+            );
+
+            $data = $subject->getConnection()->fetchRow($select);
+
+            foreach ($tablesToUpdate[$tableName]['attribute_codes'] as $attributeCode => $fields) {
+                foreach ($fields as $field) {
+                    $this->setExtensionAttribute($extensionAttributes, $attributeCode, $data[$field]);
+                }
+            }
+        }
+
+        $object->setData('extension_attributes', $extensionAttributes);
 
         return $subject;
     }
