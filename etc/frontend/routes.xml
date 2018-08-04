@@ -1,3 +1,5 @@
+<?xml version="1.0"?>
+<!--
 /**
  * ClassyLlama_AvaTax
  *
@@ -11,17 +13,11 @@
  * @copyright  Copyright (c) 2016 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-@import '_address-validation.less';
-
-& when (@media-common = true) {
-    .items.payment-methods .certificates {
-        text-align: center;
-        padding-bottom: 10px;
-    }
-}
-
-.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
-    .items.payment-methods .certificates {
-        text-align: right;
-    }
-}
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="avatax" frontName="avatax">
+            <module name="ClassyLlama_AvaTax" />
+        </route>
+    </router>
+</config>

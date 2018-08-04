@@ -18,10 +18,21 @@ var config = {
             "Magento_Checkout/js/model/shipping-save-processor/default": 'ClassyLlama_AvaTax/js/model/shipping-save-processor/default',
             "Magento_Checkout/js/model/shipping-save-processor/gift-registry": 'ClassyLlama_AvaTax/js/model/shipping-save-processor/gift-registry',
             "Magento_Tax/template/checkout/cart/totals/tax": 'ClassyLlama_AvaTax/template/checkout/cart/totals/tax',
+            "Magento_Checkout/template/payment-methods/list": 'ClassyLlama_AvaTax/template/payment-methods/list',
             "Magento_Tax/template/checkout/summary/tax": 'ClassyLlama_AvaTax/template/checkout/summary/tax',
             // Add the following alias to provide compatibility with Magento 2.2
             addressValidation: 'ClassyLlama_AvaTax/js/addressValidation',
             sdkToken: 'ClassyLlama_AvaTax/js/action/get-sdk-token'
+        }
+    },
+    config: {
+        mixins: {
+            'Magento_Checkout/js/view/payment/list': {
+                'ClassyLlama_AvaTax/js/view/payment/list/certificates-link': true
+            },
+            'Magento_Tax/js/view/checkout/summary/tax': {
+                'ClassyLlama_AvaTax/js/view/payment/list/certificates-link': true
+            }
         }
     }
 };

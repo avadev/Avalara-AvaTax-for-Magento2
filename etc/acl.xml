@@ -23,6 +23,9 @@
                         <resource id="ClassyLlama_AvaTax::manage_crossborder_classes" title="AvaTax Cross Border Classes" sortOrder="10" />
                     </resource>
                 </resource>
+                <resource id="Magento_Customer::customer">
+                    <resource id="ClassyLlama_AvaTax::customer_certificates" sortOrder="50" title="AvaTax Certificates" translate="title"/>
+                </resource>
             </resource>
         </resources>
     </acl>

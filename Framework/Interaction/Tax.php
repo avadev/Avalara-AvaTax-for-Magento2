@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\Customer;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\DataObjectFactory;
@@ -197,23 +198,27 @@ class Tax
     const DEFAULT_EXCHANGE_RATE = 1;
 
     /**
-     * Class constructor
-     *
-     * @param Address $address
-     * @param Config $config
-     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @var Customer
+     */
+    protected $customer;
+
+    /**
+     * @param Address                                       $address
+     * @param Config                                        $config
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass           $taxClassHelper
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
-     * @param MetaDataObjectFactory $metaDataObjectFactory
-     * @param DataObjectFactory $dataObjectFactory
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param OrderRepositoryInterface $orderRepository
-     * @param StoreRepositoryInterface $storeRepository
-     * @param PriceCurrencyInterface $priceCurrency
-     * @param TimezoneInterface $localeDate
-     * @param Line $interactionLine
-     * @param TaxCalculation $taxCalculation
-     * @param RestConfig $restConfig
+     * @param MetaDataObjectFactory                         $metaDataObjectFactory
+     * @param DataObjectFactory                             $dataObjectFactory
+     * @param CustomerRepositoryInterface                   $customerRepository
+     * @param InvoiceRepositoryInterface                    $invoiceRepository
+     * @param OrderRepositoryInterface                      $orderRepository
+     * @param StoreRepositoryInterface                      $storeRepository
+     * @param PriceCurrencyInterface                        $priceCurrency
+     * @param TimezoneInterface                             $localeDate
+     * @param Line                                          $interactionLine
+     * @param TaxCalculation                                $taxCalculation
+     * @param RestConfig                                    $restConfig
+     * @param Customer                                      $customer
      */
     public function __construct(
         Address $address,
@@ -230,7 +235,8 @@ class Tax
         TimezoneInterface $localeDate,
         Line $interactionLine,
         TaxCalculation $taxCalculation,
-        RestConfig $restConfig
+        RestConfig $restConfig,
+        Customer $customer
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -248,6 +254,7 @@ class Tax
         $this->interactionLine = $interactionLine;
         $this->taxCalculation = $taxCalculation;
         $this->restConfig = $restConfig;
+        $this->customer = $customer;
     }
 
     /**
@@ -259,55 +266,35 @@ class Tax
     protected function getCustomerCode($data)
     {
         // Retrieve the customer code configuration value
-        $customerCode = $this->config->getCustomerCodeFormat($data->getStoreId());
-        switch ($customerCode) {
-            case Config::CUSTOMER_FORMAT_OPTION_EMAIL:
-                // Use email address
-                $email = $data->getCustomerEmail();
-                return $email ?: Config::CUSTOMER_MISSING_EMAIL;
-                break;
-            case Config::CUSTOMER_FORMAT_OPTION_NAME_ID:
-                // Use name and ID
-                $customer = $this->getCustomerById($data->getCustomerId());
-                if ($customer && $customer->getId()) {
-                    $name = $customer->getFirstname() . ' ' . $customer->getLastname();
-                    $id = $customer->getId();
-                } else {
-                    if (!$data->getIsVirtual()) {
-                        $address = $data->getShippingAddress();
-                    } else {
-                        $address = $data->getBillingAddress();
-                    }
-                    $name = $address->getFirstname() . ' ' . $address->getLastname();
-                    if (!trim($name)) {
-                        $name = Config::CUSTOMER_MISSING_NAME;
-                    }
-                    $id = Config::CUSTOMER_GUEST_ID;
-                }
-                return sprintf(Config::CUSTOMER_FORMAT_NAME_ID, $name, $id);
-                break;
-            case Config::CUSTOMER_FORMAT_OPTION_ID:
-                // Use customer ID
-                return $data->getCustomerId() ?: strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $data->getId();
-                break;
-            default:
-                // Use other customer attribute
-                if (!$data->getCustomerId()) {
-                    // This is a guest so no attribute value exists and neither does a customer ID
-                    return strtolower(Config::CUSTOMER_GUEST_ID) . '-' . $data->getId();
-                }
-                // Retrieve customer by ID
-                $customer = $this->getCustomerById($data->getCustomerId());
-                // Retrieve attribute value using provided attribute code
-                $attributeValue = $this->retrieveCustomerCode($customer, $customerCode);
-                if (!is_null($attributeValue) && (is_string($attributeValue) || is_numeric($attributeValue))) {
-                    // Customer has a value defined for provided attribute code and the provided value is a string
-                    return $attributeValue;
-                }
-                // No value set for provided attr code (or not a string), but this is not a guest so use customer ID
-                return $data->getCustomerId();
-                break;
+        $customerCode = $this->config->getCustomerCodeFormat( $data->getStoreId() );
+
+        // We already have email information, just use that
+        if ($customerCode === Config::CUSTOMER_FORMAT_OPTION_EMAIL)
+        {
+            return $data->getCustomerEmail() ?: Config::CUSTOMER_MISSING_EMAIL;
         }
+
+        // If we can't grab a customer, we should use the information we have instead of guest id an missing name
+        if ($customerCode === Config::CUSTOMER_FORMAT_OPTION_NAME_ID)
+        {
+            $customer = $this->getCustomerById( $data->getCustomerId() );
+
+            if ($customer === null || $customer->getId() === null)
+            {
+                $address = $data->getIsVirtual() ? $data->getBillingAddress() : $data->getShippingAddress();
+                $name = "{$address->getFirstname()} {$address->getLastname()}";
+
+                return sprintf(
+                    Config::CUSTOMER_FORMAT_NAME_ID,
+                    trim( $name ) ?: Config::CUSTOMER_MISSING_NAME,
+                    Config::CUSTOMER_GUEST_ID
+                );
+            }
+
+            return $this->customer->getCustomerCodeFromNameId( $customer );
+        }
+
+        return $this->customer->getCustomerCode( $data->getCustomerId(), $data->getId(), $data->getStoreId() );
     }
 
     /**
@@ -825,31 +812,5 @@ class Tax
             }
         }
         return false;
-    }
-
-    /**
-     * This method will attempt to retrieve the provided customer code value as a system-defined customer attribute; if
-     * that fails, then it will attempt to retrieve the value as a custom attribute
-     *
-     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
-     * @param string $customerCode
-     * @return mixed
-     */
-    protected function retrieveCustomerCode($customer, $customerCode)
-    {
-        // Convert provided customer code to getter name
-        $getCustomerCode = 'get' . str_replace('_', '', ucwords($customerCode, '_'));
-        if (method_exists($customer, $getCustomerCode)) {
-            // A method exists with this getter name, call it
-            return $customer->{$getCustomerCode}();
-        }
-        // This was not a system-defined customer attribute, retrieve it as a custom attribute
-        $attribute = $customer->getCustomAttribute($customerCode);
-        if (is_null($attribute)) {
-            // Retrieving the custom attribute failed, or no value was set, return null
-            return null;
-        }
-        // Return value of custom attribute
-        return $attribute->getValue();
     }
 }

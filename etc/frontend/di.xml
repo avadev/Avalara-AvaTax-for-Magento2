@@ -19,7 +19,8 @@
     <type name="Magento\Checkout\Block\Onepage">
         <arguments>
             <argument name="layoutProcessors" xsi:type="array">
-                <item name="addressValidationLayout" xsi:type="object">ClassyLlama\AvaTax\Block\Checkout\LayoutProcessor</item>
+                <item name="addressValidationLayoutProcessor" xsi:type="object">\ClassyLlama\AvaTax\Block\Checkout\AddressValidationLayoutProcessor</item>
+                <item name="certificatesLayoutProcessor" xsi:type="object">\ClassyLlama\AvaTax\Block\Checkout\CertificatesLayoutProcessor</item>
             </argument>
         </arguments>
     </type>

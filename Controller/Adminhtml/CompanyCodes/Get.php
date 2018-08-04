@@ -89,20 +89,16 @@ class Get extends \Magento\Backend\App\Action
                 null,
                 $isProduction
             );
-        } catch (AvataxConnectionException $e) {
+        }
+        catch (AvataxConnectionException $e)
+        {
             // If for any reason we couldn't get any companies, just ignore and no companies will be returned
         }
 
         if (\count($companies) === 0) {
             return $resultJson->setData(
                 [
-                    'companies' => [
-                        [
-                            'company_id' => null,
-                            'company_code' => null,
-                            'name' => __('No available companies'),
-                        ]
-                    ],
+                    'companies' => [],
                     'current_id' => $currentCompanyId
                 ]
             );

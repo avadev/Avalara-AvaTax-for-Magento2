@@ -9,6 +9,9 @@ namespace ClassyLlama\AvaTax\Setup;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Eav\Setup\EavSetup;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 
 class UpgradeData implements UpgradeDataInterface
 {
@@ -18,6 +21,20 @@ class UpgradeData implements UpgradeDataInterface
      * @var string
      */
     private static $connectionName = 'sales';
+
+    /**
+     * @var EavSetupFactory
+     */
+    protected $eavSetupFactory;
+
+    /**
+     * @param EavSetupFactory $eavSetupFactory
+     */
+    public function __construct(
+        EavSetupFactory $eavSetupFactory
+    ) {
+        $this->eavSetupFactory = $eavSetupFactory;
+    }
     
     /**
      * Upgrade scripts
@@ -27,6 +44,12 @@ class UpgradeData implements UpgradeDataInterface
      */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context) {
         $setup->startSetup();
+
+        /**
+         * \Magento\Eav\Setup\EavSetup $eavSetup
+         */
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+
         if (version_compare($context->getVersion(), '1.0.0', '<' )) {
 
             // Only copy data and drop columns from "sales_invoice" if the columns exist
@@ -138,6 +161,25 @@ class UpgradeData implements UpgradeDataInterface
                 ]);
             $sql = $select->deleteFromSelect('main');
             $connection->query($sql);
+        }
+
+        /**
+         * Create cross border type product attribute
+         */
+        if (version_compare($context->getVersion(), '2.0.2', '<')) {
+            $eavSetup->addAttribute(
+                \Magento\Catalog\Model\Product::ENTITY,
+                strtolower(\ClassyLlama\AvaTax\Helper\CustomsConfig::PRODUCT_ATTR_CROSS_BORDER_TYPE),
+                [
+                    'group' => 'AvaTax',
+                    'type' => 'int',
+                    'label' => 'AvaTax Cross Border Type',
+                    'input' => 'text',                      // TODO: Update input type and add source model once Cross Border Type entity is available
+                    'sort_order' => 10,
+                    'required' => false,
+                    'global' => ScopedAttributeInterface::SCOPE_STORE,
+                ]
+            );
         }
 
         $setup->endSetup();
