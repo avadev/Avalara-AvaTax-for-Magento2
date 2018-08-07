@@ -12,6 +12,10 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Eav\Setup\EavSetup;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
+use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Customer\Model\Customer;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 
 class UpgradeData implements UpgradeDataInterface
 {
@@ -28,12 +32,26 @@ class UpgradeData implements UpgradeDataInterface
     protected $eavSetupFactory;
 
     /**
+     * @var CustomerSetupFactory
+     */
+    protected $customerSetupFactory;
+
+    /**
+     * @var AttributeSetFactory
+     */
+    private $attributeSetFactory;
+
+    /**
      * @param EavSetupFactory $eavSetupFactory
      */
     public function __construct(
-        EavSetupFactory $eavSetupFactory
+        EavSetupFactory $eavSetupFactory,
+        CustomerSetupFactory $customerSetupFactory,
+        AttributeSetFactory $attributeSetupFactory
     ) {
         $this->eavSetupFactory = $eavSetupFactory;
+        $this->customerSetupFactory = $customerSetupFactory;
+        $this->attributeSetFactory = $attributeSetupFactory;
     }
     
     /**
@@ -180,6 +198,48 @@ class UpgradeData implements UpgradeDataInterface
                     'global' => ScopedAttributeInterface::SCOPE_STORE,
                 ]
             );
+        }
+
+        /**
+         * Create Importer of Record Override Option
+         */
+
+        /** @var CustomerSetup $customerSetup */
+
+
+        if (version_compare($context->getVersion(), '2.0.3', '<')) {
+
+            $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
+            $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
+            $attributeSetId = $customerEntity->getDefaultAttributeSetId();
+
+            /** @var $attributeSet AttributeSet */
+            $attributeSet = $this->attributeSetFactory->create();
+            $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
+            $customerSetup->addAttribute(
+                Customer::ENTITY,
+                CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE,
+                [
+                    'type' => 'text',
+                    'label' => 'Override Avatax "Is Seller Importer of Record” setting',
+                    'input' => 'select',
+                    'visible' => true,
+                    'user_defined' => 0,
+                    'required' => false,
+                    'sort_order' => 999,
+                    'position' => 999,
+                    'system' => 0,
+                    'backend' => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
+                    'source' => \ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Customer\ImporterOfRecord::class
+                ]
+            );
+            $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE)
+                ->addData([
+                    'attribute_set_id' => $attributeSetId,
+                    'attribute_group_id' => $attributeGroupId,
+                    'used_in_forms' => ['adminhtml_customer'],
+                ]);
+            $attribute->save();
         }
 
         $setup->endSetup();

@@ -31,6 +31,18 @@ class CustomsConfig extends AbstractHelper
     const PRODUCT_ATTR_CROSS_BORDER_TYPE = 'avatax_cross_border_type';
 
     /**
+     * Importer of Record Override Values
+     */
+
+    const CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE = 'override_importer_of_record';
+
+    const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT = 'default';
+
+    const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_YES = "override_yes";
+
+    const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_NO = "override_no";
+
+    /**
      * @var Config
      */
     protected $mainConfig;
