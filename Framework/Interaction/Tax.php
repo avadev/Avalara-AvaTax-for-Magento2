@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\DataObjectFactory;
@@ -526,6 +527,21 @@ class Tax
         $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $this->addGetTaxRequestFields($request, $store, $shippingAddress, $quote->getCustomerId());
 
+        /**
+         *  Adding importer of record override
+         */
+        if ($quote->getCustomerId()) {
+
+            $customer = $this->getCustomerById($quote->getCustomerId());
+            $cdata = $customer->getData();
+            $override_value = $cdata[CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE];
+
+            if($override_value != CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT) {
+
+                $request->setData('is_seller_importer_of_record', $override_value);
+            }
+        }
+
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
             $request->setData($validatedData);
@@ -682,6 +698,18 @@ class Tax
             'purchase_order_no' => $object->getIncrementId(),
             'reference_code' => $orderIncrementId,
         ];
+
+        /**
+         * Adding importer of record override
+         */
+
+        $cdata = $customer->getData();
+        $override_value = $cdata[CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE];
+
+        if($override_value != CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT) {
+
+            $data['is_seller_importer_of_record'] = $override_value;
+        }
 
         $request = $this->dataObjectFactory->create(['data' => $data]);
 
