@@ -219,10 +219,38 @@
         </arguments>
     </type>
 
+    <!--region Extension Attribute Persistence -->
+    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_creditmemo_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_creditmemo_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order\Invoice\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_invoice_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="\Magento\Sales\Model\ResourceModel\Order\Invoice\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_invoice_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_order_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_order_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
     <type name="Magento\Quote\Model\ResourceModel\Quote\Item">
-        <plugin sortOrder="1" name="classyLlamaAvaTaxItem" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+        <plugin sortOrder="1" name="classyllama_avatax_quote_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
     </type>
     <type name="Magento\Quote\Model\ResourceModel\Quote\Item\Collection">
-        <plugin sortOrder="1" name="classyLlamaAvaTaxAbstractDb" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+        <plugin sortOrder="1" name="classyllama_avatax_quote_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+    <!--endregion-->
+
+    <!-- Plugin to transfer extension attributes from Order -> Invoice -> CreditMemo -->
+    <type name="Magento\Sales\Model\Convert\Order">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxOrder" type="ClassyLlama\AvaTax\Plugin\Model\Convert\OrderPlugin"/>
     </type>
 </config>

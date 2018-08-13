@@ -7,8 +7,8 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Model\ResourceModel;
 
+use ClassyLlama\AvaTax\Helper\ExtensionAttributeMerger;
 use Magento\Framework\Api\ExtensionAttribute\Config\Converter;
-use Magento\Framework\Api\ExtensionAttribute\JoinProcessorHelper;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
@@ -17,44 +17,35 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 class ExtensionAttributesPersistencePlugin
 {
     /**
-     * @var JoinProcessorHelper
-     */
-    protected $joinProcessorHelper;
-
-    /**
      * @var ExtensionAttributesFactory
      */
     protected $extensionAttributesFactory;
 
     /**
-     * @param JoinProcessorHelper        $joinProcessorHelper
+     * @var ExtensionAttributeMerger
+     */
+    protected $extensionAttributeMerger;
+
+    /**
      * @param ExtensionAttributesFactory $extensionAttributesFactory
+     * @param ExtensionAttributeMerger   $extensionAttributeMerger
      */
     public function __construct(
-        JoinProcessorHelper $joinProcessorHelper,
-        ExtensionAttributesFactory $extensionAttributesFactory
+        ExtensionAttributesFactory $extensionAttributesFactory,
+        ExtensionAttributeMerger $extensionAttributeMerger
     )
     {
-        $this->joinProcessorHelper = $joinProcessorHelper;
         $this->extensionAttributesFactory = $extensionAttributesFactory;
+        $this->extensionAttributeMerger = $extensionAttributeMerger;
     }
 
     protected function getJoinDirectivesForType($extensibleEntityClass)
     {
-        $extensibleInterfaceName = $this->extensionAttributesFactory->getExtensibleInterfaceName(
-            $extensibleEntityClass
-        );
-        $extensibleInterfaceName = ltrim($extensibleInterfaceName, '\\');
-        $config = $this->joinProcessorHelper->getConfigData();
-
-        if (!isset($config[$extensibleInterfaceName])) {
-            return [];
-        }
-
-        $typeAttributesConfig = $config[$extensibleInterfaceName];
         $joinDirectives = [];
 
-        foreach ($typeAttributesConfig as $attributeCode => $attributeConfig) {
+        foreach ($this->extensionAttributeMerger->getExtensibleConfig(
+            $extensibleEntityClass
+        ) as $attributeCode => $attributeConfig) {
             if (isset($attributeConfig[Converter::JOIN_DIRECTIVE])) {
                 $joinDirectives[$attributeCode] = $attributeConfig[Converter::JOIN_DIRECTIVE];
                 $joinDirectives[$attributeCode][Converter::DATA_TYPE] = $attributeConfig[Converter::DATA_TYPE];
@@ -62,25 +53,6 @@ class ExtensionAttributesPersistencePlugin
         }
 
         return $joinDirectives;
-    }
-
-    protected function getExtensionAttributeMethodName($key)
-    {
-        return str_replace(' ', '', ucwords(str_replace('_', ' ', $key)));
-    }
-
-    protected function getExtensionAttribute($extensionAttributes, $key)
-    {
-        $methodCall = 'get' . $this->getExtensionAttributeMethodName($key);
-
-        return $extensionAttributes->{$methodCall}();
-    }
-
-    protected function setExtensionAttribute($extensionAttributes, $key, $value)
-    {
-        $methodCall = 'set' . $this->getExtensionAttributeMethodName($key);
-
-        return $extensionAttributes->{$methodCall}($value);
     }
 
     /**
@@ -94,22 +66,25 @@ class ExtensionAttributesPersistencePlugin
     {
         $proceed($object);
 
-        $extensionAttributes = $object->getData('extension_attributes');
-
-        if ($extensionAttributes === null) {
-            return $subject;
-        }
-
-        $joinDirectives = $this->getJoinDirectivesForType(get_class($object));
-
         $tablesToUpdate = [];
         $tableData = [];
         $tableFields = [];
 
-        foreach ($joinDirectives as $attributeCode => $directive) {
-            $attributeData = $this->getExtensionAttribute($extensionAttributes, $attributeCode);
+        $extensionAttributes = $object->getData('extension_attributes');
 
-            $tablesToUpdate[] = $directive['join_reference_table'];
+        $joinDirectives = $this->getJoinDirectivesForType(get_class($object));
+
+        foreach ($joinDirectives as $attributeCode => $directive) {
+            $attributeData = [];
+
+            if ($extensionAttributes !== null) {
+                $attributeData = $this->extensionAttributeMerger->getExtensionAttribute(
+                    $extensionAttributes,
+                    $attributeCode
+                );
+            }
+
+            $tablesToUpdate[$directive['join_reference_table']] = $directive;
             $dataToSave = [$directive['join_reference_field'] => $object->getId()];
             $fields = [];
 
@@ -130,7 +105,34 @@ class ExtensionAttributesPersistencePlugin
             $tableFields[$directive['join_reference_table']][] = $fields;
         }
 
-        foreach (array_unique($tablesToUpdate) as $tableName) {
+        foreach (array_keys($tablesToUpdate) as $tableName) {
+            $data = array_merge(...$tableData[$tableName]);
+            $joinReferenceField = $tablesToUpdate[$tableName]['join_reference_field'];
+            // If a user switches their destination address from one that has cross border data to one that doesn't
+            $allValuesAreNull = \count(
+                    array_filter(
+                        array_values(
+                            array_diff_assoc(
+                                $data,
+                                [$joinReferenceField => $data[$joinReferenceField]]
+                            )
+                        )
+                    )
+                ) === 0;
+
+            if ($extensionAttributes === null || $allValuesAreNull) {
+                $deleteId = $object->getData(
+                    $tablesToUpdate[$tableName]['join_on_field']
+                );
+
+                $subject->getConnection()->delete(
+                    $tableName,
+                    "{$joinReferenceField} = {$deleteId}"
+                );
+
+                continue;
+            }
+
             $subject->getConnection()->insertOnDuplicate(
                 $tableName,
                 array_merge(...$tableData[$tableName]),
@@ -190,7 +192,11 @@ class ExtensionAttributesPersistencePlugin
 
             foreach ($tablesToUpdate[$tableName]['attribute_codes'] as $attributeCode => $fields) {
                 foreach ($fields as $field) {
-                    $this->setExtensionAttribute($extensionAttributes, $attributeCode, $data[$field]);
+                    $this->extensionAttributeMerger->setExtensionAttribute(
+                        $extensionAttributes,
+                        $attributeCode,
+                        $data[$field]
+                    );
                 }
             }
         }

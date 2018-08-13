@@ -73,23 +73,71 @@
             </join>
         </attribute>
     </extension_attributes>
-    <extension_attributes for="Magento\Sales\Api\Data\OrderItemExtensionInterface">
-        <attribute code="hs_code" type="string" />
-        <attribute code="unit_name" type="string" />
-        <attribute code="unit_amount" type="float" />
-        <attribute code="pref_program_indicator" type="string" />
+    <extension_attributes for="Magento\Sales\Api\Data\OrderItemInterface">
+        <attribute code="hs_code" type="string">
+            <join reference_table="avatax_sales_order_item" reference_field="order_item_id" join_on_field="item_id">
+                <field>hs_code</field>
+            </join>
+        </attribute>
+        <attribute code="unit_name" type="string">
+            <join reference_table="avatax_sales_order_item" reference_field="order_item_id" join_on_field="item_id">
+                <field>unit_name</field>
+            </join>
+        </attribute>
+        <attribute code="unit_amount" type="float">
+            <join reference_table="avatax_sales_order_item" reference_field="order_item_id" join_on_field="item_id">
+                <field>unit_amount</field>
+            </join>
+        </attribute>
+        <attribute code="pref_program_indicator" type="string">
+            <join reference_table="avatax_sales_order_item" reference_field="order_item_id" join_on_field="item_id">
+                <field>pref_program_indicator</field>
+            </join>
+        </attribute>
     </extension_attributes>
-    <extension_attributes for="Magento\Sales\Api\Data\InvoiceItemExtensionInterface">
-        <attribute code="hs_code" type="string" />
-        <attribute code="unit_name" type="string" />
-        <attribute code="unit_amount" type="float" />
-        <attribute code="pref_program_indicator" type="string" />
+    <extension_attributes for="Magento\Sales\Api\Data\InvoiceItemInterface">
+        <attribute code="hs_code" type="string">
+            <join reference_table="avatax_sales_invoice_item" reference_field="invoice_item_id" join_on_field="entity_id">
+                <field>hs_code</field>
+            </join>
+        </attribute>
+        <attribute code="unit_name" type="string">
+            <join reference_table="avatax_sales_invoice_item" reference_field="invoice_item_id" join_on_field="entity_id">
+                <field>unit_name</field>
+            </join>
+        </attribute>
+        <attribute code="unit_amount" type="float">
+            <join reference_table="avatax_sales_invoice_item" reference_field="invoice_item_id" join_on_field="entity_id">
+                <field>unit_amount</field>
+            </join>
+        </attribute>
+        <attribute code="pref_program_indicator" type="string">
+            <join reference_table="avatax_sales_invoice_item" reference_field="invoice_item_id" join_on_field="entity_id">
+                <field>pref_program_indicator</field>
+            </join>
+        </attribute>
     </extension_attributes>
-    <extension_attributes for="Magento\Sales\Api\Data\CreditmemoItemExtensionInterface">
-        <attribute code="hs_code" type="string" />
-        <attribute code="unit_name" type="string" />
-        <attribute code="unit_amount" type="float" />
-        <attribute code="pref_program_indicator" type="string" />
+    <extension_attributes for="Magento\Sales\Api\Data\CreditmemoItemInterface">
+        <attribute code="hs_code" type="string">
+            <join reference_table="avatax_sales_creditmemo_item" reference_field="creditmemo_item_id" join_on_field="entity_id">
+                <field>hs_code</field>
+            </join>
+        </attribute>
+        <attribute code="unit_name" type="string">
+            <join reference_table="avatax_sales_creditmemo_item" reference_field="creditmemo_item_id" join_on_field="entity_id">
+                <field>unit_name</field>
+            </join>
+        </attribute>
+        <attribute code="unit_amount" type="float">
+            <join reference_table="avatax_sales_creditmemo_item" reference_field="creditmemo_item_id" join_on_field="entity_id">
+                <field>unit_amount</field>
+            </join>
+        </attribute>
+        <attribute code="pref_program_indicator" type="string">
+            <join reference_table="avatax_sales_creditmemo_item" reference_field="creditmemo_item_id" join_on_field="entity_id">
+                <field>pref_program_indicator</field>
+            </join>
+        </attribute>
     </extension_attributes>
 
     <!--

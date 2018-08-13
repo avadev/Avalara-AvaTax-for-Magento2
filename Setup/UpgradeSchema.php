@@ -385,38 +385,38 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         // TODO: Add foreign key on avatax_cross_border_class.cross_border_type
 
-        if (version_compare($context->getVersion(), '2.0.4', '<')) {
-            $extensionTables = [
-                'avatax_quote_item' => [
-                    'id_field' => 'quote_item_id',
-                    'id_field_label' => 'Quote Item ID',
-                    'foreign_table' => 'quote_item',
-                    'foreign_field' => 'item_id',
-                    'comment' => 'AvaTax Quote Item Extension',
-                ],
-                'avatax_sales_order_item' => [
-                    'id_field' => 'order_item_id',
-                    'id_field_label' => 'Order Item ID',
-                    'foreign_table' => 'sales_order_item',
-                    'foreign_field' => 'item_id',
-                    'comment' => 'AvaTax Order Item Extension',
-                ],
-                'avatax_sales_invoice_item' => [
-                    'id_field' => 'invoice_item_id',
-                    'id_field_label' => 'Invoice Item ID',
-                    'foreign_table' => 'sales_invoice_item',
-                    'foreign_field' => 'entity_id',
-                    'comment' => 'AvaTax Invoice Item Extension',
-                ],
-                'avatax_sales_creditmemo_item' => [
-                    'id_field' => 'creditmemo_item_id',
-                    'id_field_label' => 'Credit Memo Item ID',
-                    'foreign_table' => 'sales_creditmemo_item',
-                    'foreign_field' => 'entity_id',
-                    'comment' => 'AvaTax Credit Memo Item Extension',
-                ],
-            ];
+        $extensionTables = [
+            'avatax_quote_item' => [
+                'id_field' => 'quote_item_id',
+                'id_field_label' => 'Quote Item ID',
+                'foreign_table' => 'quote_item',
+                'foreign_field' => 'item_id',
+                'comment' => 'AvaTax Quote Item Extension',
+            ],
+            'avatax_sales_order_item' => [
+                'id_field' => 'order_item_id',
+                'id_field_label' => 'Order Item ID',
+                'foreign_table' => 'sales_order_item',
+                'foreign_field' => 'item_id',
+                'comment' => 'AvaTax Order Item Extension',
+            ],
+            'avatax_sales_invoice_item' => [
+                'id_field' => 'invoice_item_id',
+                'id_field_label' => 'Invoice Item ID',
+                'foreign_table' => 'sales_invoice_item',
+                'foreign_field' => 'entity_id',
+                'comment' => 'AvaTax Invoice Item Extension',
+            ],
+            'avatax_sales_creditmemo_item' => [
+                'id_field' => 'creditmemo_item_id',
+                'id_field_label' => 'Credit Memo Item ID',
+                'foreign_table' => 'sales_creditmemo_item',
+                'foreign_field' => 'entity_id',
+                'comment' => 'AvaTax Credit Memo Item Extension',
+            ],
+        ];
 
+        if (version_compare($context->getVersion(), '2.0.4', '<')) {
             foreach ($extensionTables as $tableName => $tableInfo) {
                 $table = $setup->getConnection(self::$connectionName)
                     ->newTable(
@@ -491,9 +491,34 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         $tableInfo['foreign_field'],
                         Table::ACTION_CASCADE
                     )
+                    ->addIndex(
+                        $setup->getIdxName(
+                            $tableName,
+                            [$tableInfo['foreign_field']],
+                            \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                        ),
+                        [$tableInfo['foreign_field']],
+                        ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+                    )
                     ->setComment($tableInfo['comment']);
 
                 $setup->getConnection(self::$connectionName)->createTable($table);
+            }
+        }
+
+        if (version_compare($context->getVersion(), '2.0.5', '<')) {
+            foreach ($extensionTables as $tableName => $tableInfo) {
+                $setup->getConnection(self::$connectionName)
+                    ->addIndex(
+                        $tableName,
+                        $setup->getIdxName(
+                            $tableName,
+                            [$tableInfo['id_field']],
+                            \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                        ),
+                        [$tableInfo['id_field']],
+                        \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                    );
             }
         }
 

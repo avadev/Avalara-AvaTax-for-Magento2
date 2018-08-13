@@ -19,9 +19,8 @@ use ClassyLlama\AvaTax\Api\Data\ProductCrossBorderDetailsInterface;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use ClassyLlama\AvaTax\Model\CrossBorderClass\ProductsManager;
 use ClassyLlama\AvaTax\Model\CrossBorderClass\ProductsManagerFactory;
-use Magento\Quote\Api\Data\ShippingAssignmentInterface;
-use Magento\Quote\Api\Data\CartItemExtensionInterface;
 use Magento\Quote\Api\Data\CartItemExtensionInterfaceFactory;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 
 class Customs
 {
@@ -106,27 +105,34 @@ class Customs
     }
 
     /**
-     * @param $item
+     * @param                                    $item
      * @param ProductCrossBorderDetailsInterface $crossBorderDetails
      */
     protected function assignDetailsToItem($item, $crossBorderDetails)
     {
-        if (is_null($crossBorderDetails)) {
-            return;
+        $hsCode = null;
+        $unitName = null;
+        $preferenceProgramIndicator = null;
+        $unitAmount = null;
+
+        if (!is_null($crossBorderDetails)) {
+            $hsCode = $crossBorderDetails->getHsCode();
+            $unitName = $crossBorderDetails->getUnitName();
+            $preferenceProgramIndicator = $crossBorderDetails->getPrefProgramIndicator();
+            $unitAmount = $item->getProduct()->getData($crossBorderDetails->getUnitAmountAttrCode());
         }
 
         $quoteItemExtension = $item->getExtensionAttributes();
 
         if (!$quoteItemExtension) {
             $quoteItemExtension = $this->quoteItemExtensionFactory->create();
-            $item->setExtensionAttributes($quoteItemExtension);
         }
 
-        $quoteItemExtension->setHsCode($crossBorderDetails->getHsCode());
-        $quoteItemExtension->setUnitName($crossBorderDetails->getUnitName());
-        $quoteItemExtension->setPrefProgramIndicator($crossBorderDetails->getPrefProgramIndicator());
+        $quoteItemExtension->setHsCode($hsCode);
+        $quoteItemExtension->setUnitName($unitName);
+        $quoteItemExtension->setPrefProgramIndicator($preferenceProgramIndicator);
+        $quoteItemExtension->setUnitAmount($unitAmount);
 
-        $unitAmountAttr = $crossBorderDetails->getUnitAmountAttrCode();
-        $quoteItemExtension->setUnitAmount($item->getProduct()->getData($unitAmountAttr));
+        $item->setExtensionAttributes($quoteItemExtension);
     }
 }
