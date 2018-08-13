@@ -356,7 +356,7 @@
                 <field id="ground_shipping_methods" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Ground Shipping Methods</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
-                    <comment><![CDATA[Select all ground shipping methods]]></comment>
+                    <comment><![CDATA[Select all ground shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -364,7 +364,7 @@
                 <field id="air_shipping_methods" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Air Shipping Methods</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
-                    <comment><![CDATA[Select all air shipping methods]]></comment>
+                    <comment><![CDATA[Select all air shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -372,7 +372,7 @@
                 <field id="ocean_shipping_methods" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Ocean Shipping Methods</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
-                    <comment><![CDATA[Select all ocean shipping methods]]></comment>
+                    <comment><![CDATA[Select all ocean shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
