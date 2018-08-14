@@ -54,7 +54,7 @@ class ProductAttributes implements \Magento\Framework\Option\ArrayInterface
         $collection = $this->collectionFactory->create();
         $collection->addFieldToSelect('attribute_code')
             ->addFieldToSelect('frontend_label')
-            ->addFieldToFilter('backend_type', ['in' => ['int', 'varchar']])
+            ->addFieldToFilter('backend_type', ['in' => ['int', 'varchar', 'decimal', 'integer']])
             ->addFieldToFilter('frontend_label', ['notnull' => true])
             ->setEntityTypeFilter($entityTypeId)
             ->setOrder('frontend_label', Collection::SORT_ORDER_ASC);
