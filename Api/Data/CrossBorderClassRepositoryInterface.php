@@ -32,6 +32,14 @@ interface CrossBorderClassRepositoryInterface
     public function getById($classId);
 
     /**
+     * Get list of Cross Border Classes
+     *
+     * @param $criteria \Magento\Framework\Api\SearchCriteriaInterface
+     * @return \ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterface
+     */
+    public function getList($criteria);
+
+    /**
      * Create a blank Cross Border Class
      *
      * @return CrossBorderClassInterface

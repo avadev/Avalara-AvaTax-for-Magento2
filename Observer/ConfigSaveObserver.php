@@ -105,7 +105,8 @@ class ConfigSaveObserver implements ObserverInterface
         $errors = array();
         $errors = array_merge(
             $errors,
-            $this->sendPing($scopeId, $scopeType)
+            $this->sendPing($scopeId, $scopeType),
+            $this->checkConflictingShippingMethods($scopeId, $scopeType)
         );
 
         return $errors;
@@ -128,6 +129,23 @@ class ConfigSaveObserver implements ObserverInterface
         );
 
         return $notices;
+    }
+
+    protected function checkConflictingShippingMethods($scopeId, $scopeType)
+    {
+        $errors = [];
+
+        $groundShippingMethods = $this->config->getGroundShippingMethods($scopeId, $scopeType);
+        $oceanShippingMethods = $this->config->getOceanShippingMethods($scopeId, $scopeType);
+        $airShippingMethods = $this->config->getAirShippingMethods($scopeId, $scopeType);
+
+        $shippingMethods = array_merge($groundShippingMethods, $oceanShippingMethods, $airShippingMethods);
+
+        if(\count($shippingMethods) !== \count(\array_flip($shippingMethods))) {
+            $errors[] = __('There are shipping method(s) that have erroneously been selected in multiple Shipping Method lists (Ground Shipping Methods, Ocean Shipping Methods, and Air Shipping Methods). Ensure that the shipping methods selected in one list are not selected in either of the other lists and then save this page.');
+        }
+
+        return $errors;
     }
 
     /**

@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Plugin\Quote\Model\Quote;
 
 use Magento\Quote\Model\Quote\Config as QuoteConfig;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 
 /**
  * Class Config
@@ -28,11 +29,21 @@ class Config
     protected $config = null;
 
     /**
+     * @var CustomsConfig
+     */
+    protected $customsConfigHelper;
+
+    /**
      * Config constructor.
      * @param \ClassyLlama\AvaTax\Helper\Config $config
+     * @param CustomsConfig $customsConfigHelper
      */
-    public function __construct(\ClassyLlama\AvaTax\Helper\Config $config) {
+    public function __construct(
+        \ClassyLlama\AvaTax\Helper\Config $config,
+        CustomsConfig $customsConfigHelper
+    ) {
         $this->config = $config;
+        $this->customsConfigHelper = $customsConfigHelper;
     }
 
     /**
@@ -53,6 +64,15 @@ class Config
         if ($this->config->getUpcAttribute()) {
             $attributes[] = $this->config->getUpcAttribute();
         }
+
+        if ($this->customsConfigHelper->enabled()) {
+            $attributes[] = 'avatax_cross_border_type';
+
+            foreach ($this->customsConfigHelper->getUnitAmountAttributes() as $attrCode) {
+                $attributes[] = $attrCode;
+            }
+        }
+
         return array_unique($attributes);
     }
 }
