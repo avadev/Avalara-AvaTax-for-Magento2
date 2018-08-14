@@ -39,6 +39,15 @@ class ExtensionAttributesPersistencePlugin
         $this->extensionAttributeMerger = $extensionAttributeMerger;
     }
 
+    /**
+     * Gets join directives from extension attributes
+     *
+     * Copied from @see \Magento\Framework\Api\ExtensionAttribute\JoinProcessor::getJoinDirectivesForType
+     *
+     * @param $extensibleEntityClass
+     *
+     * @return array
+     */
     protected function getJoinDirectivesForType($extensibleEntityClass)
     {
         $joinDirectives = [];
@@ -74,6 +83,7 @@ class ExtensionAttributesPersistencePlugin
 
         $joinDirectives = $this->getJoinDirectivesForType(get_class($object));
 
+        // Compile join data with extension attribute data for building SQL queries
         foreach ($joinDirectives as $attributeCode => $directive) {
             $attributeData = [];
 
@@ -105,6 +115,7 @@ class ExtensionAttributesPersistencePlugin
             $tableFields[$directive['join_reference_table']][] = $fields;
         }
 
+        // Update each table reference with extension attribute data
         foreach (array_keys($tablesToUpdate) as $tableName) {
             $data = array_merge(...$tableData[$tableName]);
             $joinReferenceField = $tablesToUpdate[$tableName]['join_reference_field'];
@@ -143,6 +154,17 @@ class ExtensionAttributesPersistencePlugin
         return $subject;
     }
 
+    /**
+     * Grabs data from extension attribute join tables and sets them on the object's extension attributes
+     *
+     * @param AbstractDb    $subject
+     * @param callable      $proceed
+     * @param AbstractModel $object
+     * @param               $value
+     * @param null          $field
+     *
+     * @return AbstractDb
+     */
     public function aroundLoad(AbstractDb $subject, callable $proceed, AbstractModel $object, $value, $field = null)
     {
         /** @var DataObject $object */

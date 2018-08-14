@@ -43,11 +43,24 @@ class ExtensionAttributeMerger
         $this->joinProcessorHelper = $joinProcessorHelper;
     }
 
+    /**
+     * @param $key
+     *
+     * @see \Magento\Framework\DataObject::setDataUsingMethod
+     *
+     * @return mixed
+     */
     protected function getExtensionAttributeMethodName($key)
     {
         return str_replace(' ', '', ucwords(str_replace('_', ' ', $key)));
     }
 
+    /**
+     * @param $extensionAttributes
+     * @param $key
+     *
+     * @return mixed
+     */
     public function getExtensionAttribute($extensionAttributes, $key)
     {
         $methodCall = 'get' . $this->getExtensionAttributeMethodName($key);
@@ -55,6 +68,13 @@ class ExtensionAttributeMerger
         return $extensionAttributes->{$methodCall}();
     }
 
+    /**
+     * @param $extensionAttributes
+     * @param $key
+     * @param $value
+     *
+     * @return mixed
+     */
     public function setExtensionAttribute($extensionAttributes, $key, $value)
     {
         $methodCall = 'set' . $this->getExtensionAttributeMethodName($key);
@@ -62,6 +82,11 @@ class ExtensionAttributeMerger
         return $extensionAttributes->{$methodCall}($value);
     }
 
+    /**
+     * @param $extensibleEntityClass
+     *
+     * @return array
+     */
     public function getExtensibleConfig($extensibleEntityClass)
     {
         $extensibleInterfaceName = $this->extensionAttributesFactory->getExtensibleInterfaceName(
@@ -91,6 +116,10 @@ class ExtensionAttributeMerger
         );
     }
 
+    /**
+     * @param \Magento\Framework\Model\AbstractExtensibleModel $from
+     * @param \Magento\Framework\Model\AbstractExtensibleModel $to
+     */
     public function copyAttributes(
         \Magento\Framework\Model\AbstractExtensibleModel $from,
         \Magento\Framework\Model\AbstractExtensibleModel $to

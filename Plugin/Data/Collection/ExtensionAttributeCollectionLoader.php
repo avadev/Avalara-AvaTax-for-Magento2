@@ -22,6 +22,11 @@ class ExtensionAttributeCollectionLoader
         $this->joinProcessor = $joinProcessor;
     }
 
+    /**
+     * @param \Magento\Framework\Data\Collection\AbstractDb $subject
+     * @param bool                                          $printQuery
+     * @param bool                                          $logQuery
+     */
     public function beforeLoad(
         \Magento\Framework\Data\Collection\AbstractDb $subject,
         $printQuery = false,

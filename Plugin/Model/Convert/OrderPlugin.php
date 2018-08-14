@@ -22,6 +22,13 @@ class OrderPlugin
         $this->extensionAttributeMerger = $extensionAttributeMerger;
     }
 
+    /**
+     * @param \Magento\Sales\Model\Convert\Order $subject
+     * @param callable                           $proceed
+     * @param \Magento\Sales\Model\Order\Item    $item
+     *
+     * @return mixed
+     */
     public function aroundItemToInvoiceItem(
         \Magento\Sales\Model\Convert\Order $subject,
         callable $proceed,
@@ -35,6 +42,13 @@ class OrderPlugin
         return $invoiceItem;
     }
 
+    /**
+     * @param \Magento\Sales\Model\Convert\Order $subject
+     * @param callable                           $proceed
+     * @param \Magento\Sales\Model\Order\Item    $item
+     *
+     * @return mixed
+     */
     public function aroundItemToCreditmemoItem(
         \Magento\Sales\Model\Convert\Order $subject,
         callable $proceed,
