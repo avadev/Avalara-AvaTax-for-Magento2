@@ -63,7 +63,8 @@
                 <item name="avatax_tax_classes_product_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Product\Collection</item>
                 <item name="avatax_crossborder_classes_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\Grid\Collection</item>
                 <item name="avatax_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
-                <item name="avatax_queue_listing_data_source" xsi:type="string">AvaTaxQueueGridDataProvider</item>
+                <item name="avatax_queue_listing_data_source" xsi:type="string">AvaTaxQueueGridDataProvider</item>\
+                <item name="classyllama_avatax_crossbordertype_grid_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Grid\Collection</item>
             </argument>
         </arguments>
     </type>
@@ -196,19 +197,12 @@
     </type>
 
     <preference for="ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderTypeRepository"/>
-	<preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterface" type="ClassyLlama\AvaTax\Model\CrossBorderType"/>
-	<preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderTypeSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
-	<virtualType name="ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
-		<arguments>
-			<argument name="mainTable" xsi:type="string">classyllama_avatax_crossbordertype</argument>
-			<argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Collection</argument>
-		</arguments>
-	</virtualType>
-	<type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-		<arguments>
-			<argument name="collections" xsi:type="array">
-				<item name="classyllama_avatax_crossbordertype_grid_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Grid\Collection</item>
-			</argument>
-		</arguments>
-	</type>
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterface" type="ClassyLlama\AvaTax\Model\CrossBorderType"/>
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderTypeSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <virtualType name="ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">classyllama_avatax_crossbordertype</argument>
+            <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Collection</argument>
+        </arguments>
+    </virtualType>
 </config>

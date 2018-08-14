@@ -20,7 +20,6 @@ use Magento\Framework\Exception\LocalizedException;
 
 class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
 {
-
     /**
      * @var \Magento\Framework\View\Result\PageFactory
      */
@@ -57,7 +56,7 @@ class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
      */
     public function execute()
     {
-        // 1. Get ID and create model
+        // Get ID and create model
         $id = $this->getRequest()->getParam('entity_id');
         $model = null;
 
@@ -75,7 +74,7 @@ class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
             }
         }
 
-        // 3. Build edit form
+        // Build edit form
         /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
         $resultPage = $this->resultPageFactory->create();
         $this->initPage($resultPage)->addBreadcrumb(
