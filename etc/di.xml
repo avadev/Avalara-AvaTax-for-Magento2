@@ -21,6 +21,8 @@
     <preference for="ClassyLlama\AvaTax\Api\RestAddressInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Address" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface" type="\ClassyLlama\AvaTax\Model\CrossBorderClass" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderClassRepository" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\ProductCrossBorderDetailsInterface" type="ClassyLlama\AvaTax\Model\ProductCrossBorderDetails" />
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
@@ -168,6 +170,28 @@
         </arguments>
     </type>
 
+    <virtualType name="ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\CrossBorderClassFilterProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
+        <arguments>
+            <argument name="customFilters" xsi:type="array">
+                <item name="country_ids" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CrossBorderClass\CountryFilter</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ClassyLlama\AvaTax\Api\SearchCriteria\CrossBorderClassCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\CrossBorderClassFilterProcessor</item>
+                <item name="sorting" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\SortingProcessor</item>
+                <item name="pagination" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\PaginationProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="ClassyLlama\AvaTax\Model\CrossBorderClassRepository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CrossBorderClassCollectionProcessor</argument>
+        </arguments>
+    </type>
+
     <!--
     /**
      * The following code will rewrite the connection name to connect to 'sales' database on split database install;
@@ -193,5 +217,40 @@
         <arguments>
             <argument name="connectionName" xsi:type="string">sales</argument>
         </arguments>
+    </type>
+
+    <!--region Extension Attribute Persistence -->
+    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_creditmemo_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_creditmemo_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order\Invoice\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_invoice_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="\Magento\Sales\Model\ResourceModel\Order\Invoice\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_invoice_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_order_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_order_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
+    <type name="Magento\Quote\Model\ResourceModel\Quote\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_quote_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="Magento\Quote\Model\ResourceModel\Quote\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_quote_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+    <!--endregion-->
+
+    <!-- Plugin to transfer extension attributes from Order -> Invoice -> CreditMemo -->
+    <type name="Magento\Sales\Model\Convert\Order">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxOrder" type="ClassyLlama\AvaTax\Plugin\Model\Convert\OrderPlugin"/>
     </type>
 </config>
