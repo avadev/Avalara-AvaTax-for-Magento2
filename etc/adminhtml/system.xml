@@ -344,6 +344,47 @@
                         of Cross Border Types to products.
                     ]]></comment>
                 </field>
+                <field id="map_shipping_methods" translate="label" type="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[<strong>Map Shipping Methods</strong>]]></label>
+                    <comment><![CDATA[Customs tax calculations may vary based on what type of shipping method is being used. Each of the Magento enabled shipping methods need to be mapped to an AvaTax Shipping Mode in order to ensure accurate calculations. NOTE that you must enable a shipping method at the currently viewed admin scope in order for it to be available here.]]></comment>
+                    <!-- Reference: https://github.com/magento/magento2/issues/2340
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    -->
+                </field>
+                <field id="ground_shipping_methods" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ground Shipping Methods</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
+                    <comment><![CDATA[Select all ground shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="air_shipping_methods" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Air Shipping Methods</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
+                    <comment><![CDATA[Select all air shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="ocean_shipping_methods" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ocean Shipping Methods</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
+                    <comment><![CDATA[Select all ocean shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="default_shipping_mode" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Shipping Mode</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\DefaultCrossBorderType</source_model>
+                    <comment><![CDATA[The shipping mode that should be sent to AvaTax if the shipping method is not mapped in the multiselects above.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
             </group>
             <group id="avatax_advanced" translate="label" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax - Advanced</label>

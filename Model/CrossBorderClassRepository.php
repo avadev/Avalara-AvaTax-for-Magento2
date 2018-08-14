@@ -20,11 +20,16 @@ use ClassyLlama\AvaTax\Model\CrossBorderClassFactory;
 use ClassyLlama\AvaTax\Model\CrossBorderClass;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClassFactory as CrossBorderClassResourceFactory;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassResource;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\Collection as CrossBorderClassCollection;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CollectionFactory as CrossBorderClassCollectionFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use ClassyLlama\AvaTax\Exception\InvalidTypeException;
 use ClassyLlama\AvaTax\Model\CrossBorderClass\CountryLink;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\Collection as CountryLinkCollection;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\CollectionFactory as CountryLinkCollectionFactory;
+use ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterface;
+use ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterfaceFactory;
+use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 
 class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface
 {
@@ -39,6 +44,11 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     protected $crossBorderClassResourceFactory;
 
     /**
+     * @var CrossBorderClassCollectionFactory
+     */
+    protected $crossBorderClassCollectionFactory;
+
+    /**
      * @var CountryLinkCollectionFactory
      */
     protected $countryLinkCollectionFactory;
@@ -49,18 +59,37 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
     protected $crossBorderClassResource;
 
     /**
+     * @var CrossBorderClassSearchResultsInterfaceFactory
+     */
+    protected $searchResultsFactory;
+
+    /**
+     * @var CollectionProcessorInterface
+     */
+    protected $collectionProcessor;
+
+    /**
      * @param CrossBorderClassFactory $crossBorderClassFactory
      * @param CrossBorderClassResourceFactory $crossBorderClassResourceFactory
-     * @param CountryLinkCollectionFactory
+     * @param CrossBorderClassCollectionFactory $crossBorderClassCollectionFactory
+     * @param CountryLinkCollectionFactory $countryLinkCollectionFactory
+     * @param CrossBorderClassSearchResultsInterfaceFactory $searchResultsFactory
+     * @param CollectionProcessorInterface $collectionProcessor
      */
     public function __construct(
         CrossBorderClassFactory $crossBorderClassFactory,
         CrossBorderClassResourceFactory $crossBorderClassResourceFactory,
-        CountryLinkCollectionFactory $countryLinkCollectionFactory
+        CrossBorderClassCollectionFactory $crossBorderClassCollectionFactory,
+        CountryLinkCollectionFactory $countryLinkCollectionFactory,
+        CrossBorderClassSearchResultsInterfaceFactory $searchResultsFactory,
+        CollectionProcessorInterface $collectionProcessor
     ) {
         $this->crossBorderClassFactory = $crossBorderClassFactory;
         $this->crossBorderClassResourceFactory = $crossBorderClassResourceFactory;
+        $this->crossBorderClassCollectionFactory = $crossBorderClassCollectionFactory;
         $this->countryLinkCollectionFactory = $countryLinkCollectionFactory;
+        $this->searchResultsFactory = $searchResultsFactory;
+        $this->collectionProcessor = $collectionProcessor;
 
         $this->crossBorderClassResource = $this->crossBorderClassResourceFactory->create();
     }
@@ -79,6 +108,41 @@ class CrossBorderClassRepository implements \ClassyLlama\AvaTax\Api\Data\CrossBo
         $this->addCountriesToClass($crossBorderClass);
 
         return $crossBorderClass;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getList($criteria)
+    {
+        /**
+         * @var CrossBorderClassCollection $collection
+         */
+        $collection = $this->crossBorderClassCollectionFactory->create();
+
+        $this->collectionProcessor->process($criteria, $collection);
+
+        $items = $collection->getItems();
+        $classIds = array_keys($items);
+        $countriesByClass = $this->getCountriesForClasses($classIds);
+        /**
+         * @var CrossBorderClassInterface $crossBorderClass
+         */
+        foreach ($collection as $crossBorderClass) {
+            if (isset($countriesByClass[$crossBorderClass->getId()])) {
+                $this->addCountriesToClass($crossBorderClass, $countriesByClass[$crossBorderClass->getId()]);
+            }
+        }
+
+        /**
+         * @var CrossBorderClassSearchResultsInterface $searchResults
+         */
+        $searchResults = $this->searchResultsFactory->create();
+        $searchResults->setSearchCriteria($criteria);
+        $searchResults->setItems($collection->getItems());
+        $searchResults->setTotalCount($collection->getSize());
+
+        return $searchResults;
     }
 
     /**

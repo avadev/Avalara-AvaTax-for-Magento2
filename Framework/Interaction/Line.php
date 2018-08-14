@@ -19,6 +19,7 @@ use Magento\Framework\DataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 
 class Line
 {
@@ -41,6 +42,11 @@ class Line
      * @var DataObjectFactory
      */
     protected $dataObjectFactory;
+
+    /**
+     * @var CustomsConfig
+     */
+    protected $customsConfigHelper;
 
     /**
      * @var MetaData\MetaDataObject|null
@@ -102,6 +108,10 @@ class Line
             'type' => 'array',
             'subtype' => ['*' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject']],
         ],
+        'hs_code' => ['type' => 'string', 'length' => 255],
+        'unit_name' => ['type' => 'string', 'length' => 255],
+        'unit_amount' => ['type' => 'double'],
+        'preference_program' => ['type' => 'string', 'length' => 255],
     ];
 
     /**
@@ -119,19 +129,22 @@ class Line
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param DataObjectFactory $dataObjectFactory
+     * @param CustomsConfig $customsConfigHelper
      */
     public function __construct(
         Config $config,
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
         \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
         MetaDataObjectFactory $metaDataObjectFactory,
-        DataObjectFactory $dataObjectFactory
+        DataObjectFactory $dataObjectFactory,
+        CustomsConfig $customsConfigHelper
     ) {
         $this->config = $config;
         $this->taxClassHelper = $taxClassHelper;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->customsConfigHelper = $customsConfigHelper;
     }
 
     /**
@@ -175,6 +188,22 @@ class Line
             'ref_1' => $itemData['productRef1'],
             'ref_2' => $itemData['productRef2']
         ];
+
+        $extensionAttributes = $item->getExtensionAttributes();
+        if ($this->customsConfigHelper->enabled() && $extensionAttributes) {
+            if ($extensionAttributes->getHsCode() !== null) {
+                $data['hs_code'] = $extensionAttributes->getHsCode();
+            }
+            if ($extensionAttributes->getUnitName() !== null) {
+                $data['unit_name'] = $extensionAttributes->getUnitName();
+            }
+            if ($extensionAttributes->getUnitAmount() !== null) {
+                $data['unit_amount'] = $extensionAttributes->getUnitAmount();
+            }
+            if ($extensionAttributes->getPrefProgramIndicator() !== null) {
+                $data['preference_program'] = $extensionAttributes->getPrefProgramIndicator();
+            }
+        }
 
         /** @var \Magento\Framework\DataObject $line */
         $line = $this->dataObjectFactory->create(['data' => $data]);
@@ -227,6 +256,22 @@ class Line
             'ref_2' => $itemData['productRef2']
         ];
 
+        $extensionAttributes = $item->getExtensionAttributes();
+        if ($this->customsConfigHelper->enabled() && $extensionAttributes) {
+            if ($extensionAttributes->getHsCode() !== null) {
+                $data['hs_code'] = $extensionAttributes->getHsCode();
+            }
+            if ($extensionAttributes->getUnitName() !== null) {
+                $data['unit_name'] = $extensionAttributes->getUnitName();
+            }
+            if ($extensionAttributes->getUnitAmount() !== null) {
+                $data['unit_amount'] = $extensionAttributes->getUnitAmount();
+            }
+            if ($extensionAttributes->getPrefProgramIndicator() !== null) {
+                $data['preference_program'] = $extensionAttributes->getPrefProgramIndicator();
+            }
+        }
+
         /** @var \Magento\Framework\DataObject $line */
         $line = $this->dataObjectFactory->create(['data' => $data]);
 
@@ -272,6 +317,21 @@ class Line
             'ref_1' => $ref1,
             'ref_2' => $ref2,
         ];
+
+        if ($this->customsConfigHelper->enabled() && $extensionAttributes) {
+            if ($extensionAttributes->getHsCode() !== null) {
+                $data['hs_code'] = $extensionAttributes->getHsCode();
+            }
+            if ($extensionAttributes->getUnitName() !== null) {
+                $data['unit_name'] = $extensionAttributes->getUnitName();
+            }
+            if ($extensionAttributes->getUnitAmount() !== null) {
+                $data['unit_amount'] = $extensionAttributes->getUnitAmount();
+            }
+            if ($extensionAttributes->getPrefProgramIndicator() !== null) {
+                $data['preference_program'] = $extensionAttributes->getPrefProgramIndicator();
+            }
+        }
 
         /** @var \Magento\Framework\DataObject $line */
         $line = $this->dataObjectFactory->create(['data' => $data]);

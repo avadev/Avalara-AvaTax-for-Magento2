@@ -20,6 +20,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use ClassyLlama\AvaTax\Helper\Config as MainConfig;
 use Magento\Store\Model\ScopeInterface;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassResource;
 
 /**
  * AvaTax Config model
@@ -36,14 +37,22 @@ class CustomsConfig extends AbstractHelper
     protected $mainConfig;
 
     /**
+     * @var CrossBorderClassResource
+     */
+    protected $crossBorderClassResource;
+
+    /**
      * @param Context $context
      * @param MainConfig $mainConfig
+     * @param CrossBorderClassResource $crossBorderClassResource
      */
     public function __construct(
         Context $context,
-        MainConfig $mainConfig
+        MainConfig $mainConfig,
+        CrossBorderClassResource $crossBorderClassResource
     ) {
         $this->mainConfig = $mainConfig;
+        $this->crossBorderClassResource = $crossBorderClassResource;
         parent::__construct($context);
     }
 
@@ -63,5 +72,15 @@ class CustomsConfig extends AbstractHelper
             $scopeType,
             $store
         );
+    }
+
+    /**
+     * Get list of product attribute codes that are used for unit amount
+     *
+     * return array     Array of attribute codes
+     */
+    public function getUnitAmountAttributes()
+    {
+        return $this->crossBorderClassResource->getUnitAmountAttributes();
     }
 }
