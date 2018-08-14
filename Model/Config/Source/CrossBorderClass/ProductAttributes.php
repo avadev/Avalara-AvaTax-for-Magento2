@@ -25,34 +25,45 @@ class ProductAttributes implements \Magento\Framework\Option\ArrayInterface
     protected $collectionFactory;
 
     /**
-     * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $collectionFactory
+     * @var \Magento\Eav\Model\Config
      */
-    public function __construct(\Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $collectionFactory)
+    protected $eavConfig;
+
+    /**
+     * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $collectionFactory
+     * @param \Magento\Eav\Model\Config                                           $eavConfig
+     */
+    public function __construct(
+        \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $collectionFactory,
+        \Magento\Eav\Model\Config $eavConfig
+    )
     {
         $this->collectionFactory = $collectionFactory;
+        $this->eavConfig = $eavConfig;
     }
 
     /**
      * @inheritdoc
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function toOptionArray($isMultiselect = true, $foregroundCountries = '')
     {
+        $entityTypeId = $this->eavConfig->getEntityType(\Magento\Catalog\Model\Product::ENTITY)->getId();
+
         /** @var Collection $collection */
         $collection = $this->collectionFactory->create();
         $collection->addFieldToSelect('attribute_code')
             ->addFieldToSelect('frontend_label')
             ->addFieldToFilter('backend_type', ['in' => ['int', 'varchar']])
             ->addFieldToFilter('frontend_label', ['notnull' => true])
-            ->setEntityTypeFilter(4)
+            ->setEntityTypeFilter($entityTypeId)
             ->setOrder('frontend_label', Collection::SORT_ORDER_ASC);
 
         $data = $collection->getData();
 
-        return array_map(
-            function ($attribute) {
-                return ['value' => $attribute['attribute_code'], 'label' => $attribute['frontend_label']];
-            },
-            $data
-        );
+        return array_map(function ($attribute) {
+            return ['value' => $attribute['attribute_code'], 'label' => $attribute['frontend_label']];
+        },
+            $data);
     }
 }
