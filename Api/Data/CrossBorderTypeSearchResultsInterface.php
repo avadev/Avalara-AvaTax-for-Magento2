@@ -17,8 +17,6 @@ namespace ClassyLlama\AvaTax\Api\Data;
 
 interface CrossBorderTypeSearchResultsInterface extends \Magento\Framework\Api\SearchResultsInterface
 {
-
-
     /**
      * Get CrossBorderType list.
      * @return \ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterface[]

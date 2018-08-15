@@ -20,7 +20,9 @@ use ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterfaceFactory;
 
 class InlineEdit extends \Magento\Backend\App\Action
 {
-
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
     protected $jsonFactory;
 
     /**

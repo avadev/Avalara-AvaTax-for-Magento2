@@ -61,6 +61,7 @@
             </avatax>
             <avatax_customs>
                 <enabled>0</enabled>
+                <default_shipping_mode>ground</default_shipping_mode>
             </avatax_customs>
         </tax>
     </default>

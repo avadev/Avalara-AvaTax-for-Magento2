@@ -47,7 +47,7 @@ abstract class CrossBorderType extends \Magento\Backend\App\Action
     public function initPage($resultPage)
     {
         $resultPage->setActiveMenu(self::ADMIN_RESOURCE)
-            ->addBreadcrumb(__('Classy Llama'), __('Classy Llama'))
+            ->addBreadcrumb(__('AvaTax'), __('AvaTax'))
             ->addBreadcrumb(__('Cross Border Type'), __('Cross Border Type'));
         return $resultPage;
     }

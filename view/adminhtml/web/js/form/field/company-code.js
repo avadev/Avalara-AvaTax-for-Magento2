@@ -11,7 +11,7 @@
  * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-define(['jquery', 'uiElement', 'underscore', 'mage/url'], function (jQuery, Element, _) {
+define(['jquery', 'uiElement', 'underscore', 'mage/translate', 'mage/url'], function (jQuery, Element, _, $t) {
     return Element.extend({
         defaults: {
             url: null,
@@ -90,6 +90,8 @@ define(['jquery', 'uiElement', 'underscore', 'mage/url'], function (jQuery, Elem
          */
         updateCompanyIds: function updateCompanyIds(companies, currentId) {
             this.idElement.innerHTML = '';
+
+            this.idElement.add(new Option(companies.length > 0 ? $t('--Select a Company--') : $t('No available companies'), '', true, true));
 
             companies.forEach(function (company) {
                 var companyNameDisplay = company.name;
