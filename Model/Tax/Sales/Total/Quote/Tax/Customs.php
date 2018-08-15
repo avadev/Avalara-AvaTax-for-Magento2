@@ -17,33 +17,81 @@ namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax;
 
 use ClassyLlama\AvaTax\Api\Data\ProductCrossBorderDetailsInterface;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
-use ClassyLlama\AvaTax\Model\CrossBorderClass\ProductsManager;
 use ClassyLlama\AvaTax\Model\CrossBorderClass\ProductsManagerFactory;
 use Magento\Quote\Api\Data\CartItemExtensionInterfaceFactory;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 
 class Customs
 {
+    /**
+     * @var CustomsConfig
+     */
     protected $customsConfigHelper;
 
+    /**
+     * @var ProductsManagerFactory
+     */
     protected $crossBorderProductsManagerFactory;
 
+    /** @var CartItemExtensionInterfaceFactory */
     protected $quoteItemExtensionFactory;
 
+    /**
+     * @param CustomsConfig                     $customsConfigHelper
+     * @param ProductsManagerFactory            $crossBorderProductsManagerFactory
+     * @param CartItemExtensionInterfaceFactory $quoteItemExtensionFactory
+     */
     public function __construct(
         CustomsConfig $customsConfigHelper,
         ProductsManagerFactory $crossBorderProductsManagerFactory,
         CartItemExtensionInterfaceFactory $quoteItemExtensionFactory
-    ) {
+    )
+    {
         $this->customsConfigHelper = $customsConfigHelper;
         $this->crossBorderProductsManagerFactory = $crossBorderProductsManagerFactory;
         $this->quoteItemExtensionFactory = $quoteItemExtensionFactory;
     }
 
     /**
+     * @param \Magento\Quote\Model\Quote\Item $item
+     *
+     * @return array
+     */
+    protected function getBorderTypeByItemId($item)
+    {
+        $crossBorderType = $item->getProduct()->getAvataxCrossBorderType();
+
+        // Set default cross border type
+        if (!$crossBorderType) {
+            $crossBorderType = $this->customsConfigHelper->getDefaultBorderType();
+        }
+
+        // If there are no children, then just set the type and continue
+        if (!$item->getHasChildren() || !$item->isChildrenCalculated()) {
+            return [$item->getProduct()->getId() => $crossBorderType];
+        }
+
+        $productCrossBorderTypes = [];
+
+        // Set the cross border type for each child
+        foreach ($item->getChildren() as $childItem) {
+            $childCrossBorderType = $childItem->getProduct()->getAvataxCrossBorderType();
+
+            if (!$childCrossBorderType) {
+                $childCrossBorderType = $crossBorderType;
+            }
+
+            $productCrossBorderTypes[$childItem->getProduct()->getId()] = $childCrossBorderType;
+        }
+
+        return $productCrossBorderTypes;
+    }
+
+    /**
      * Assign cross border details to quote items
      *
      * @param ShippingAssignmentInterface $shippingAssignment
+     *
      * @throws \Magento\Framework\Exception\InputException
      */
     public function assignCrossBorderDetails($shippingAssignment)
@@ -53,54 +101,45 @@ class Customs
         }
 
         $destinationCountry = $shippingAssignment->getShipping()->getAddress()->getCountryId();
-
-        // TODO: Logic for default cross border type
         $productCrossBorderTypes = [];
+        $itemsToProcess = [];
+
+        // Gather all items and child items we will add details to, and grab their cross border type by product id
         foreach ($shippingAssignment->getItems() as $item) {
+            /** @var \Magento\Quote\Model\Quote\Item $item */
+
+            // Don't process children as we process them from the parent
             if ($item->getParentItem()) {
                 continue;
             }
 
+            $productCrossBorderTypes[] = $this->getBorderTypeByItemId($item);
+
+            // Cache the items we already looped through so we can reduce the number of total iterations in this op
+            $items = [$item];
+
+            // If we have children we are going to process, replace our items array with them instead
             if ($item->getHasChildren() && $item->isChildrenCalculated()) {
-                $parentCrossBorderType = $item->getProduct()->getAvataxCrossBorderType();
-
-                foreach ($item->getChildren() as $childItem) {
-                    $crossBorderType = $childItem->getProduct()->getAvataxCrossBorderType();
-                    if (!$crossBorderType) {
-                        $crossBorderType = $parentCrossBorderType;
-                    }
-
-                    if ($crossBorderType) {
-                        $productCrossBorderTypes[$childItem->getProduct()->getId()] = $crossBorderType;
-                    }
-                }
-            } elseif ($item->getProduct()->getAvataxCrossBorderType()) {
-                $productCrossBorderTypes[$item->getProduct()->getId()] = $item->getProduct()->getAvataxCrossBorderType();
+                $items = $item->getChildren();
             }
+
+            $itemsToProcess[] = $items;
         }
 
-        /**
-         * @var ProductsManager $crossBorderProductsManager
-         */
-        $crossBorderProductsManager = $this->crossBorderProductsManagerFactory->create([
-            'destinationCountry' => $destinationCountry,
-            'productCrossBorderTypes' => $productCrossBorderTypes,
-        ]);
+        // Create the manage with all our cross border type data
+        $crossBorderProductsManager = $this->crossBorderProductsManagerFactory->create(
+            [
+                'destinationCountry' => $destinationCountry,
+                'productCrossBorderTypes' => array_replace(...$productCrossBorderTypes),
+            ]
+        );
 
-        foreach ($shippingAssignment->getItems() as $item) {
-            if ($item->getParentItem()) {
-                continue;
-            }
-
-            if ($item->getHasChildren() && $item->isChildrenCalculated()) {
-                foreach ($item->getChildren() as $childItem) {
-                    $crossBorderDetails = $crossBorderProductsManager->getCrossBorderDetails($childItem->getProduct()->getId());
-                    $this->assignDetailsToItem($childItem, $crossBorderDetails);
-                }
-            } else {
-                $crossBorderDetails = $crossBorderProductsManager->getCrossBorderDetails($item->getProduct()->getId());
-                $this->assignDetailsToItem($item, $crossBorderDetails);
-            }
+        // Assign cross border details to every item and child items
+        foreach (array_merge(...$itemsToProcess) as $item) {
+            $this->assignDetailsToItem(
+                $item,
+                $crossBorderProductsManager->getCrossBorderDetails($item->getProduct()->getId())
+            );
         }
     }
 
