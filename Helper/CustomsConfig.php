@@ -29,6 +29,8 @@ class CustomsConfig extends AbstractHelper
 {
     const XML_PATH_AVATAX_CUSTOMS_ENABLED = 'tax/avatax_customs/enabled';
 
+    const XML_PATH_AVATAX_DEFAULT_BORDER_TYPE = 'tax/avatax_customs/default_border_type';
+
     const PRODUCT_ATTR_CROSS_BORDER_TYPE = 'avatax_cross_border_type';
 
     /**
@@ -82,5 +84,20 @@ class CustomsConfig extends AbstractHelper
     public function getUnitAmountAttributes()
     {
         return $this->crossBorderClassResource->getUnitAmountAttributes();
+    }
+
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return string
+     */
+    public function getDefaultBorderType($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_DEFAULT_BORDER_TYPE,
+            $scopeType,
+            $store
+        );
     }
 }

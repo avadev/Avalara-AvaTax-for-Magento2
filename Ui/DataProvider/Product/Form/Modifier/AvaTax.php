@@ -58,17 +58,24 @@ class AvaTax extends AbstractModifier
                     'sortOrder' => 20,
                     'disableLabel' => true,
                     'filterOptions' => true,
-                    'elementTmpl' => 'ui/grid/filters/elements/ui-select',
+                    'default' => null,
                     'formElement' => 'select',
                     'componentType' => 'field',
                     'visible' => 1,
-                    'required' => 1,
+                    'required' => 0,
                     'multiple' => false,
-                    'component' => 'Magento_Catalog/js/components/attribute-set-select',
                     'notice' => __(
                         'Your Cross Border Types will be assigned to specific products. A product’s Cross Border Type, combined with the destination country of a given transaction, will determine the appropriate Cross Border Class that applies (including its HS code and unit information).'
                     ),
-                    'validation' => ['required-entry' => true]
+                    /**
+                     * Attempted to migrate searchable select here as well, but empty values weren't supported
+                     * @see https://github.com/classyllama/ClassyLlama_AvaTax/issues/156
+                     */
+                    /*'elementTmpl' => 'ui/grid/filters/elements/ui-select',
+                    'component' => 'Magento_Ui/js/form/element/ui-select',
+                    'selectedPlaceholders' => [
+                        'defaultPlaceholder' => __('-- Please select --'),
+                    ],*/
                 ]
             )
         ];

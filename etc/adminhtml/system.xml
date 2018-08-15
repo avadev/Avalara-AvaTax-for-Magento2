@@ -385,6 +385,14 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <field id="default_border_type" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Border Type</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\CrossBorderType</source_model>
+                    <comment><![CDATA[If a product is not assigned to a Cross Border Type, this will be the default attribute value.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
             </group>
             <group id="avatax_advanced" translate="label" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax - Advanced</label>

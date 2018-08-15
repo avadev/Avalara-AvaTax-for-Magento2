@@ -49,8 +49,12 @@ class CrossBorderType implements \Magento\Framework\Option\ArrayInterface
     {
         $crossBorderTypes = $this->crossBorderTypeRepository->getList($this->criteriaInterfaceFactory->create())->getItems();
 
-        return array_map(function($type) {
+        $types = array_map(function($type) {
             return ['value' => $type->getEntityId(), 'label' => $type->getType()];
         }, $crossBorderTypes);
+
+        array_unshift($types, ['value' => '', 'label' => __('Select Border Type')]);
+
+        return $types;
     }
 }
