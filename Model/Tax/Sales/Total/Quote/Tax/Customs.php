@@ -126,7 +126,7 @@ class Customs
             $itemsToProcess[] = $items;
         }
 
-        // Create the manage with all our cross border type data
+        // Create the manager with all our cross border type data
         $crossBorderProductsManager = $this->crossBorderProductsManagerFactory->create(
             [
                 'destinationCountry' => $destinationCountry,
