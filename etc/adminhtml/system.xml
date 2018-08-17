@@ -356,7 +356,7 @@
                 <field id="ground_shipping_methods" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Ground Shipping Methods</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
-                    <comment><![CDATA[Select all ground shipping methods]]></comment>
+                    <comment><![CDATA[Select all ground shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -364,7 +364,7 @@
                 <field id="air_shipping_methods" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Air Shipping Methods</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
-                    <comment><![CDATA[Select all air shipping methods]]></comment>
+                    <comment><![CDATA[Select all air shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -372,7 +372,7 @@
                 <field id="ocean_shipping_methods" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Ocean Shipping Methods</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
-                    <comment><![CDATA[Select all ocean shipping methods]]></comment>
+                    <comment><![CDATA[Select all ocean shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -389,6 +389,14 @@
                     <label>Default Shipping Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\DefaultCrossBorderType</source_model>
                     <comment><![CDATA[The shipping mode that should be sent to AvaTax if the shipping method is not mapped in the multiselects above.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="default_border_type" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Border Type</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\CrossBorderType</source_model>
+                    <comment><![CDATA[If a product is not assigned to a Cross Border Type, this will be the default attribute value.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

@@ -151,7 +151,7 @@ class ConfigSaveObserver implements ObserverInterface
         $shippingMethods = array_merge($groundShippingMethods, $oceanShippingMethods, $airShippingMethods);
 
         if(\count($shippingMethods) !== \count(\array_flip($shippingMethods))) {
-            $errors[] = __('Cannot have duplicate shipping methods across ground, ocean, and air.');
+            $errors[] = __('There are shipping method(s) that have erroneously been selected in multiple Shipping Method lists (Ground Shipping Methods, Ocean Shipping Methods, and Air Shipping Methods). Ensure that the shipping methods selected in one list are not selected in either of the other lists and then save this page.');
         }
 
         return $errors;

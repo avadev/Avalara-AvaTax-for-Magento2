@@ -20,8 +20,14 @@
             <resource id="Magento_Backend::admin">
                 <resource id="Magento_Backend::stores">
                     <resource id="ClassyLlama_AvaTax::manage_avatax" title="AvaTax" sortOrder="25">
-                        <resource id="ClassyLlama_AvaTax::manage_crossborder_classes" title="AvaTax Cross Border Classes" sortOrder="10" />
+                        <resource id="ClassyLlama_AvaTax::manage_crossborder_classes" title="AvaTax Cross Border Classes" sortOrder="10"/>
                     </resource>
+                </resource>
+                <resource id="ClassyLlama_AvaTax::CrossBorderType" sortOrder="10" title="CrossBorderType">
+                    <resource id="ClassyLlama_AvaTax::CrossBorderType_save" sortOrder="10" title="Save CrossBorderType"/>
+                    <resource id="ClassyLlama_AvaTax::CrossBorderType_delete" sortOrder="20" title="Delete CrossBorderType"/>
+                    <resource id="ClassyLlama_AvaTax::CrossBorderType_update" sortOrder="30" title="Update CrossBorderType"/>
+                    <resource id="ClassyLlama_AvaTax::CrossBorderType_view" sortOrder="40" title="View CrossBorderType"/>
                 </resource>
             </resource>
         </resources>

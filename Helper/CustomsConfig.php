@@ -20,6 +20,7 @@ use ClassyLlama\AvaTax\Helper\Config as MainConfig;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\ScopeInterface;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassResource;
 
 /**
  * AvaTax Config model
@@ -38,12 +39,19 @@ class CustomsConfig extends AbstractHelper
 
     const XML_PATH_AVATAX_CUSTOMS_DEFAULT_SHIPPING_MODE = 'tax/avatax_customs/default_shipping_mode';
 
+    const XML_PATH_AVATAX_DEFAULT_BORDER_TYPE = 'tax/avatax_customs/default_border_type';
+
     const PRODUCT_ATTR_CROSS_BORDER_TYPE = 'avatax_cross_border_type';
 
     /**
      * @var Config
      */
     protected $mainConfig;
+
+    /**
+     * @var CrossBorderClassResource
+     */
+    protected $crossBorderClassResource;
 
     /**
      * @var array
@@ -53,13 +61,16 @@ class CustomsConfig extends AbstractHelper
     /**
      * @param Context    $context
      * @param MainConfig $mainConfig
+     * @param CrossBorderClassResource $crossBorderClassResource
      */
     public function __construct(
         Context $context,
-        MainConfig $mainConfig
+        MainConfig $mainConfig,
+        CrossBorderClassResource $crossBorderClassResource
     )
     {
         $this->mainConfig = $mainConfig;
+        $this->crossBorderClassResource = $crossBorderClassResource;
         parent::__construct($context);
     }
 
@@ -161,6 +172,31 @@ class CustomsConfig extends AbstractHelper
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_CUSTOMS_DEFAULT_SHIPPING_MODE,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Get list of product attribute codes that are used for unit amount
+     *
+     * return array     Array of attribute codes
+     */
+    public function getUnitAmountAttributes()
+    {
+        return $this->crossBorderClassResource->getUnitAmountAttributes();
+    }
+
+    /**
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return string
+     */
+    public function getDefaultBorderType($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_DEFAULT_BORDER_TYPE,
             $scopeType,
             $store
         );
