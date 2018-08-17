@@ -157,6 +157,7 @@ class Tax
         'purchase_order_no' => ['type' => 'string', 'length' => 50],
         'reference_code' => ['type' => 'string', 'length' => 50],
         'tax_override' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject'],
+        'shipping_mode' => ['type' => 'string']
     ];
 
     public static $validTaxOverrideFields = [
@@ -456,12 +457,10 @@ class Tax
             'exchange_rate_effective_date' => $currentDate,
             'lines' => $lines,
             'purchase_order_no' => $quote->getReservedOrderId(),
-            'parameters' => [
-                'AvaTax.LandedCost.ShippingMode' => $this->customsConfig->getShippingTypeForMethod(
-                    $shippingAddress->getMethod(),
-                    $quote->getStoreId()
-                )
-            ]
+            'shipping_mode' => $this->customsConfig->getShippingTypeForMethod(
+                $shippingAddress->getMethod(),
+                $quote->getStoreId()
+            )
         ];
 
         /** @var \Magento\Framework\DataObject $request */
