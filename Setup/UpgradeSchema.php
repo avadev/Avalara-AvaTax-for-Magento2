@@ -522,15 +522,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         $tableInfo['foreign_field'],
                         Table::ACTION_CASCADE
                     )
-                    ->addIndex(
-                        $setup->getIdxName(
-                            $tableName,
-                            [$tableInfo['foreign_field']],
-                            \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
-                        ),
-                        [$tableInfo['foreign_field']],
-                        ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
-                    )
                     ->setComment($tableInfo['comment']);
 
                 $setup->getConnection(self::$connectionName)->createTable($table);
