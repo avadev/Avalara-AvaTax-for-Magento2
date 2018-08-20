@@ -19,6 +19,7 @@ use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\UrlInterface;
+use ClassyLlama\AvaTax\Model\CrossBorderTypeRepository;
 
 class CrossBorderClassActions extends Column
 {
@@ -28,6 +29,11 @@ class CrossBorderClassActions extends Column
      * @var UrlInterface
      */
     protected $urlBuilder;
+
+    /**
+     * @var
+     */
+    protected $crossBorderTypeRepository;
 
     /**
      * @param ContextInterface $context
@@ -40,10 +46,12 @@ class CrossBorderClassActions extends Column
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         UrlInterface $urlBuilder,
+        CrossBorderTypeRepository $crossBorderTypeRepository,
         array $components = [],
         array $data = []
     ) {
         $this->urlBuilder = $urlBuilder;
+        $this->crossBorderTypeRepository = $crossBorderTypeRepository;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -57,6 +65,16 @@ class CrossBorderClassActions extends Column
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as &$item) {
+
+                /**
+                 * overriding cross border type id int with the label
+                 */
+                if(isset($item['cross_border_type_id'])) {
+                    $item['cross_border_type_id'] = $this->fetchCrossBorderTypeValue(
+                        $item['cross_border_type_id']
+                    );
+                }
+
                 $item[$this->getData('name')]['view'] = [
 
                     'href' => $this->urlBuilder->getUrl(self::URL_PATH_VIEW, ['id' => $item['class_id']]),
@@ -66,5 +84,17 @@ class CrossBorderClassActions extends Column
         }
 
         return $dataSource;
+    }
+
+    /**
+     * @param int $type_id
+     *
+     * @return null|string
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function fetchCrossBorderTypeValue(int $type_id)
+    {
+        $type_object = $this->crossBorderTypeRepository->getById($type_id);
+        return $type_object->getType();
     }
 }
