@@ -424,8 +424,8 @@ class Tax
         // they do have a constant for it but not a method in the interface
         //
         // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
-        $shippingAddress = $shippingAssignment->getShipping()->getAddress();
-        $address = $this->address->getAddress($shippingAddress);
+        $shippingAddress = $shippingAssignment->getShipping();
+        $address = $this->address->getAddress($shippingAddress->getAddress());
 
         $store = $this->storeRepository->getById($quote->getStoreId());
         $currentDate = $this->getFormattedDate($store);
@@ -449,6 +449,12 @@ class Tax
             'exchange_rate_effective_date' => $currentDate,
             'lines' => $lines,
             'purchase_order_no' => $quote->getReservedOrderId(),
+            'parameters' => [
+                'AvaTax.LandedCost.ShippingMode' => $this->config->getShippingTypeForMethod(
+                    $shippingAddress->getMethod(),
+                    $quote->getStoreId()
+                )
+            ]
         ];
 
         /** @var \Magento\Framework\DataObject $request */

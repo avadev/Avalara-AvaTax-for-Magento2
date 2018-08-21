@@ -32,6 +32,7 @@ use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
 use Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
+use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax\Customs as CustomsTax;
 
 class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 {
@@ -78,6 +79,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $taxClassHelper;
 
     /**
+     * @var CustomsTax
+     */
+    protected $customsTax;
+
+    /**
      * Registry key to track whether AvaTax GetTaxRequest was successful
      */
     const AVATAX_GET_TAX_REQUEST_ERROR = 'avatax_get_tax_request_error';
@@ -101,6 +107,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param CustomsTax
      */
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
@@ -118,7 +125,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Registry $coreRegistry,
-        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
+        CustomsTax $customsTax
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->taxCalculation = $taxCalculation;
@@ -128,6 +136,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $this->messageManager = $messageManager;
         $this->coreRegistry = $coreRegistry;
         $this->taxClassHelper = $taxClassHelper;
+        $this->customsTax = $customsTax;
         parent::__construct(
             $taxConfig,
             $taxCalculationService,
@@ -183,6 +192,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return $this;
         }
 
+        $this->customsTax->assignCrossBorderDetails($shippingAssignment);
         $taxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, false);
         $baseTaxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, true);
 
@@ -326,6 +336,16 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $extensionAttribute->setAvataxDescription($item->getName());
         $extensionAttribute->setAvataxRef1($this->taxClassHelper->getRef1ForProduct($product));
         $extensionAttribute->setAvataxRef2($this->taxClassHelper->getRef2ForProduct($product));
+
+        // Cross-border details. These should not exist on the quote item if Customs is not enabled.
+        $quoteItemExtAttribute = $item->getExtensionAttributes();
+        if ($quoteItemExtAttribute) {
+            $extensionAttribute->setHsCode($quoteItemExtAttribute->getHsCode());
+            $extensionAttribute->setUnitName($quoteItemExtAttribute->getUnitName());
+            $extensionAttribute->setUnitAmount($quoteItemExtAttribute->getUnitAmount());
+            $extensionAttribute->setPrefProgramIndicator($quoteItemExtAttribute->getPrefProgramIndicator());
+        }
+
         $quoteDetailsItem->setExtensionAttributes($extensionAttribute);
 
         return $quoteDetailsItem;
