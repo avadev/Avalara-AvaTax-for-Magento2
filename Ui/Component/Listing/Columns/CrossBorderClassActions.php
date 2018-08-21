@@ -20,6 +20,7 @@ use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\UrlInterface;
 use ClassyLlama\AvaTax\Model\CrossBorderTypeRepository;
+use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
 
 class CrossBorderClassActions extends Column
 {
@@ -31,7 +32,7 @@ class CrossBorderClassActions extends Column
     protected $urlBuilder;
 
     /**
-     * @var
+     * @var CrossBorderTypeRepository
      */
     protected $crossBorderTypeRepository;
 
@@ -69,9 +70,10 @@ class CrossBorderClassActions extends Column
                 /**
                  * overriding cross border type id int with the label
                  */
-                if(isset($item['cross_border_type_id'])) {
-                    $item['cross_border_type_id'] = $this->fetchCrossBorderTypeValue(
-                        $item['cross_border_type_id']
+                if(isset($item[CrossBorderClassInterface::CROSS_BORDER_TYPE])) {
+
+                    $item[CrossBorderClassInterface::CROSS_BORDER_TYPE] = $this->fetchCrossBorderTypeValue(
+                        $item[CrossBorderClassInterface::CROSS_BORDER_TYPE]
                     );
                 }
 
@@ -87,14 +89,14 @@ class CrossBorderClassActions extends Column
     }
 
     /**
-     * @param int $type_id
+     * returns the text value of the Cross Border Type Id
+     *
+     * @param $type_id
      *
      * @return null|string
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function fetchCrossBorderTypeValue(int $type_id)
+    protected function fetchCrossBorderTypeValue($type_id)
     {
-        $type_object = $this->crossBorderTypeRepository->getById($type_id);
-        return $type_object->getType();
+        return $this->crossBorderTypeRepository->getById($type_id)->getType();
     }
 }
