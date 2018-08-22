@@ -24,6 +24,7 @@ interface CrossBorderClassInterface
     const UNIT_NAME = 'unit_name';
     const UNIT_AMOUNT = 'unit_amount_product_attr';
     const PREF_PROGRAM_IND = 'pref_program_indicator';
+    const NO_CROSS_BORDER_TYPE_TEXT = 'Unknown';
 
     /**
      * Get cross border class ID
