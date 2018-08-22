@@ -77,7 +77,7 @@ class CrossBorderClassActions extends Column
                             $item[CrossBorderClassInterface::CROSS_BORDER_TYPE]
                         );
                     } catch (LocalizedException $e) {
-                        $item[CrossBorderClassInterface::CROSS_BORDER_TYPE] = 'N/A';
+                        $item[CrossBorderClassInterface::CROSS_BORDER_TYPE] = CrossBorderClassInterface::NO_CROSS_BORDER_TYPE_TEXT;
                     }
                 }
 
