@@ -537,9 +537,12 @@ class Tax
         /**
          *  Adding importer of record override
          */
-        if (!is_null($quote->getCustomerId())) {
+        if ($quote->getCustomerId() !== null) {
             $customer = $this->getCustomerById($quote->getCustomerId());
-            $this->setIsImporterOfRecord($customer, $request);
+
+            if($customer !== null) {
+                $this->setIsImporterOfRecord($customer, $request);
+            }
         }
 
         try {
@@ -702,7 +705,10 @@ class Tax
         $request = $this->dataObjectFactory->create(['data' => $data]);
 
         $this->addGetTaxRequestFields($request, $store, $address, $object->getOrder()->getCustomerId());
-        $this->setIsImporterOfRecord($customer, $request);
+
+        if($customer !== null) {
+            $this->setIsImporterOfRecord($customer, $request);
+        }
 
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
@@ -879,7 +885,7 @@ class Tax
     protected function setIsImporterOfRecord($customer, $request)
     {
         $override = $customer->getCustomAttribute(CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE);
-        $overrideValue = ($override ? $override->getValue() : null);
+        $overrideValue = ($override !== null ? $override->getValue() : null);
 
         if($overrideValue !== null && $overrideValue !== CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT) {
             $request->setData('is_seller_importer_of_record',
