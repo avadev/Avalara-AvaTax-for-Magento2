@@ -153,5 +153,12 @@
     <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
         <attribute code="tax_grandtotal_details" type="ClassyLlama\AvaTax\Api\Data\GrandTotalDetailsInterface[]" />
     </extension_attributes>
-    
+    <!--
+    /**
+     * Extension Attributes to allow Importer of Record Override in Admin Sales New Order
+     */
+    -->
+    <extension_attributes for="Magento\Sales\Api\Data\OrderInterface">
+        <attribute code="override_is_importer_of_record" type="ClassyLlama\AvaTax\Api\Data\ImporterOfRecordInterface" />
+    </extension_attributes>
 </config>
