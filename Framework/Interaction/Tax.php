@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\DataObjectFactory;
@@ -157,6 +158,7 @@ class Tax
         'purchase_order_no' => ['type' => 'string', 'length' => 50],
         'reference_code' => ['type' => 'string', 'length' => 50],
         'tax_override' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject'],
+        'is_seller_importer_of_record'=>['type' => 'boolean']
     ];
 
     public static $validTaxOverrideFields = [
@@ -532,6 +534,17 @@ class Tax
         $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $this->addGetTaxRequestFields($request, $store, $shippingAddress, $quote->getCustomerId());
 
+        /**
+         *  Adding importer of record override
+         */
+        if ($quote->getCustomerId() !== null) {
+            $customer = $this->getCustomerById($quote->getCustomerId());
+
+            if($customer !== null) {
+                $this->setIsImporterOfRecord($customer, $request);
+            }
+        }
+
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
             $request->setData($validatedData);
@@ -692,6 +705,10 @@ class Tax
         $request = $this->dataObjectFactory->create(['data' => $data]);
 
         $this->addGetTaxRequestFields($request, $store, $address, $object->getOrder()->getCustomerId());
+
+        if($customer !== null) {
+            $this->setIsImporterOfRecord($customer, $request);
+        }
 
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
@@ -857,5 +874,23 @@ class Tax
         }
         // Return value of custom attribute
         return $attribute->getValue();
+    }
+
+    /**
+     * Checks to see if there is an override for is importer of record and applies this to the request.
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param \Magento\Framework\DataObject $request
+     */
+    protected function setIsImporterOfRecord($customer, $request)
+    {
+        $override = $customer->getCustomAttribute(CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE);
+        $overrideValue = ($override !== null ? $override->getValue() : null);
+
+        if($overrideValue !== null && $overrideValue !== CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT) {
+            $request->setData('is_seller_importer_of_record',
+                $overrideValue === CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_YES
+            );
+        }
     }
 }
