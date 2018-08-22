@@ -24,13 +24,11 @@ use ClassyLlama\AvaTax\Helper\CustomsConfig;
  *
  * Source model for form select field
  */
-
 class ImporterOfRecord extends AbstractSource
 {
     /**
      * @return array
      */
-
     public function getAllOptions()
     {
 

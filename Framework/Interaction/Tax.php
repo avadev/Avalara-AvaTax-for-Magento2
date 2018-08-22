@@ -537,7 +537,7 @@ class Tax
         /**
          *  Adding importer of record override
          */
-        if ($quote->getCustomerId()) {
+        if (!is_null($quote->getCustomerId())) {
             $customer = $this->getCustomerById($quote->getCustomerId());
             $this->setIsImporterOfRecord($customer, $request);
         }
@@ -873,22 +873,18 @@ class Tax
     /**
      * Checks to see if there is an override for is importer of record and applies this to the request.
      *
-     * @param $customer
-     * @param $request
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param \Magento\Framework\DataObject $request
      */
     protected function setIsImporterOfRecord($customer, $request)
     {
-        $override_value = $customer->getCustomAttribute(CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE)
-            ->getValue();
+        $override = $customer->getCustomAttribute(CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE);
+        $overrideValue = ($override ? $override->getValue() : null);
 
-        if($override_value && $override_value !== CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT) {
-            if($override_value === CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_YES) {
-                $override_value = true;
-            } else {
-                $override_value = false;
-            }
-
-            $request->setData('is_seller_importer_of_record', $override_value);
+        if($overrideValue !== null && $overrideValue !== CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT) {
+            $request->setData('is_seller_importer_of_record',
+                $overrideValue === CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_YES
+            );
         }
     }
 }

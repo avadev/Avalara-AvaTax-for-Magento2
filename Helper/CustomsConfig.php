@@ -36,7 +36,6 @@ class CustomsConfig extends AbstractHelper
     /**
      * Importer of Record Override Values
      */
-
     const CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE = 'override_importer_of_record';
 
     const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT = 'default';
