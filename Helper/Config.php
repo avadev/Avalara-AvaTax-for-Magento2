@@ -143,6 +143,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_CROSS_BORDER_AIR_SHIPPING_METHODS = 'tax/avatax_customs/air_shipping_methods';
 
     const XML_PATH_AVATAX_CROSS_BORDER_DEFAULT_SHIPPING_MODE = 'tax/avatax_customs/default_shipping_mode';
+
+    const XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING = 'tax/avatax_advanced/response_logging_enabled';
     /**#@-*/
 
     /**
@@ -308,6 +310,23 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_MODULE_ENABLED,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Return whether response logging is enabled
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return mixed
+     */
+    public function isResponseLoggingEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING,
             $scopeType,
             $store
         );
