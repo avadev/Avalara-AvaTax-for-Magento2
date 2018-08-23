@@ -132,8 +132,8 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         if ($request->getCommit()) {
             $transactionBuilder->withCommit();
         }
-        if ($request->getIsSellerImporterOfRecord()) {
-            $transactionBuilder->withSellerIsImporterOfRecord();
+        if ($request->hasIsSellerImporterOfRecord()) {
+            $transactionBuilder->withSellerIsImporterOfRecord($request->getIsSellerImporterOfRecord());
         }
 
         if ($request->hasCode()) {
