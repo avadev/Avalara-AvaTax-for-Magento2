@@ -47,14 +47,6 @@ class Get
      */
     protected $taxService;
 
-    /**#@+
-     * Keys for non-base and base tax details
-     */
-    const KEY_TAX_DETAILS = 'tax_details';
-
-    const KEY_BASE_TAX_DETAILS = 'base_tax_details';
-    /**#@-*/
-
     /**
      * @param TaxCalculation $taxCalculation
      * @param Tax $interactionTax
@@ -148,7 +140,7 @@ class Get
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-     * @return \Magento\Tax\Api\Data\TaxDetailsInterface[]
+     * @return array
      * @throws \ClassyLlama\AvaTax\Exception\TaxCalculationException
      * @throws \Exception
      */
@@ -181,22 +173,50 @@ class Get
             $getTaxResult = $taxService->getTax($getTaxRequest, null, $storeId);
 
             $store = $quote->getStore();
-            $baseTaxDetails =
-                $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
+            $baseTaxDetails = $this->taxCalculation->calculateTaxDetails(
+                $baseTaxQuoteDetails,
+                $getTaxResult,
+                true,
+                $store
+            );
             /**
              * If quote is using a currency other than the base currency, calculate tax details for both quote
              * currency and base currency. Otherwise use the same tax details object.
              */
             if ($quote->getBaseCurrencyCode() != $quote->getQuoteCurrencyCode()) {
-                $taxDetails =
-                    $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
+                $taxDetails = $this->taxCalculation->calculateTaxDetails(
+                    $taxQuoteDetails,
+                    $getTaxResult,
+                    false,
+                    $store
+                );
             } else {
                 $taxDetails = $baseTaxDetails;
             }
 
+            $avaTaxMessages = [];
+
+            if($getTaxResult->getMessages() !== null) {
+                $landedCostMessages = array_filter(
+                    $getTaxResult->getMessages(),
+                    function ($message) {
+                        return \in_array($message->getRefersTo(), ['Customs', 'LandedCost']);
+                    }
+                );
+
+                $avaTaxMessages = array_map(
+                    function ($message) {
+                        return $message->getSummary();
+                    },
+                    $landedCostMessages
+                );
+            }
+
+
             return [
-                self::KEY_TAX_DETAILS => $taxDetails,
-                self::KEY_BASE_TAX_DETAILS => $baseTaxDetails
+                $taxDetails,
+                $baseTaxDetails,
+                $avaTaxMessages
             ];
         } catch (\Exception $exception) {
             $message = $exception->getMessage();
