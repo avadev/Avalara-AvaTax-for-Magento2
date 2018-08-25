@@ -18,21 +18,18 @@ namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy as InteractionGet;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation\Proxy as TaxCalculation;
 use ClassyLlama\AvaTax\Helper\Config;
-use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Item;
-use Magento\Quote\Model\Quote\Address as QuoteAddress;
+use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax\Customs as CustomsTax;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressFactory;
 use Magento\Customer\Api\Data\RegionInterfaceFactory as CustomerAddressRegionFactory;
-use Magento\Quote\Model\Quote\Address;
-use Magento\Tax\Model\Calculation;
-use Magento\Quote\Api\Data\ShippingAssignmentInterface;
-use Magento\Framework\DataObject;
 use Magento\Framework\Exception\RemoteServiceUnavailableException;
 use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Model\Quote\Item;
 use Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
-use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax\Customs as CustomsTax;
 
 class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 {
@@ -166,6 +163,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
         $address = $shippingAssignment->getShipping()->getAddress();
 
+        // Reset any messaging unless we actually run our collector, useful when estimating tax in non-enabled countries
+        $total->setAvataxMessages(null);
+
         $storeId = $quote->getStoreId();
         // This will allow a merchant to configure default tax settings for their site using Magento's core tax
         // calculation and AvaTax's calculation will only kick in during cart/checkout. This is useful for countries
@@ -198,7 +198,12 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 
         // Get array of tax details
         try {
-            $taxDetailsList = $this->interactionGetTax->getTaxDetailsForQuote($quote, $taxQuoteDetails, $baseTaxQuoteDetails, $shippingAssignment);
+            list($taxDetails, $baseTaxDetails, $avaTaxMessages) = $this->interactionGetTax->getTaxDetailsForQuote(
+                $quote,
+                $taxQuoteDetails,
+                $baseTaxQuoteDetails,
+                $shippingAssignment
+            );
         } catch (\Exception $e) {
             switch ($this->config->getErrorAction($quote->getStoreId())) {
                 case Config::ERROR_ACTION_DISABLE_CHECKOUT:
@@ -217,9 +222,6 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                     break;
             }
         }
-
-        $taxDetails = $taxDetailsList[InteractionGet::KEY_TAX_DETAILS];
-        $baseTaxDetails = $taxDetailsList[InteractionGet::KEY_BASE_TAX_DETAILS];
 
         $itemsByType = $this->organizeItemTaxDetailsByType($taxDetails, $baseTaxDetails);
 
@@ -244,6 +246,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             $total->addTotalAmount('extra_tax', $total->getExtraTaxAmount());
             $total->addBaseTotalAmount('extra_tax', $total->getBaseExtraTaxAmount());
         }
+
+        $total->setAvataxMessages(json_encode($avaTaxMessages));
 
         return $this;
     }

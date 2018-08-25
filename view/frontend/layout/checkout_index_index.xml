@@ -27,6 +27,23 @@
                                         <item name="template" xsi:type="string">ClassyLlama_AvaTax/estimation</item>
                                     </item>
                                 </item>
+                                <item name="sidebar" xsi:type="array">
+                                    <item name="children" xsi:type="array">
+                                        <item name="summary" xsi:type="array">
+                                            <item name="children" xsi:type="array">
+                                                <item name="totals" xsi:type="array">
+                                                    <item name="children" xsi:type="array">
+                                                        <item name="grand-total" xsi:type="array">
+                                                            <item name="config" xsi:type="array">
+                                                                <item name="template" xsi:type="string">ClassyLlama_AvaTax/checkout/summary/grand-total</item>
+                                                            </item>
+                                                        </item>
+                                                    </item>
+                                                </item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
                             </item>
                         </item>
                     </item>
