@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\DataObjectFactory;
@@ -157,6 +158,8 @@ class Tax
         'purchase_order_no' => ['type' => 'string', 'length' => 50],
         'reference_code' => ['type' => 'string', 'length' => 50],
         'tax_override' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject'],
+        'is_seller_importer_of_record'=>['type' => 'boolean'],
+        'shipping_mode' => ['type' => 'string']
     ];
 
     public static $validTaxOverrideFields = [
@@ -197,23 +200,29 @@ class Tax
     const DEFAULT_EXCHANGE_RATE = 1;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\CustomsConfig
+     */
+    protected $customsConfig;
+
+    /**
      * Class constructor
      *
-     * @param Address $address
-     * @param Config $config
-     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param Address                                       $address
+     * @param Config                                        $config
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass           $taxClassHelper
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
-     * @param MetaDataObjectFactory $metaDataObjectFactory
-     * @param DataObjectFactory $dataObjectFactory
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param OrderRepositoryInterface $orderRepository
-     * @param StoreRepositoryInterface $storeRepository
-     * @param PriceCurrencyInterface $priceCurrency
-     * @param TimezoneInterface $localeDate
-     * @param Line $interactionLine
-     * @param TaxCalculation $taxCalculation
-     * @param RestConfig $restConfig
+     * @param MetaDataObjectFactory                         $metaDataObjectFactory
+     * @param DataObjectFactory                             $dataObjectFactory
+     * @param CustomerRepositoryInterface                   $customerRepository
+     * @param InvoiceRepositoryInterface                    $invoiceRepository
+     * @param OrderRepositoryInterface                      $orderRepository
+     * @param StoreRepositoryInterface                      $storeRepository
+     * @param PriceCurrencyInterface                        $priceCurrency
+     * @param TimezoneInterface                             $localeDate
+     * @param Line                                          $interactionLine
+     * @param TaxCalculation                                $taxCalculation
+     * @param RestConfig                                    $restConfig
+     * @param \ClassyLlama\AvaTax\Helper\CustomsConfig      $customsConfig
      */
     public function __construct(
         Address $address,
@@ -230,7 +239,8 @@ class Tax
         TimezoneInterface $localeDate,
         Line $interactionLine,
         TaxCalculation $taxCalculation,
-        RestConfig $restConfig
+        RestConfig $restConfig,
+        \ClassyLlama\AvaTax\Helper\CustomsConfig $customsConfig
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -248,6 +258,7 @@ class Tax
         $this->interactionLine = $interactionLine;
         $this->taxCalculation = $taxCalculation;
         $this->restConfig = $restConfig;
+        $this->customsConfig = $customsConfig;
     }
 
     /**
@@ -448,12 +459,10 @@ class Tax
             'exchange_rate_effective_date' => $currentDate,
             'lines' => $lines,
             'purchase_order_no' => $quote->getReservedOrderId(),
-            'parameters' => [
-                'AvaTax.LandedCost.ShippingMode' => $this->config->getShippingTypeForMethod(
-                    $shippingAddress->getMethod(),
-                    $quote->getStoreId()
-                )
-            ]
+            'shipping_mode' => $this->customsConfig->getShippingTypeForMethod(
+                $shippingAddress->getMethod(),
+                $quote->getStoreId()
+            )
         ];
 
         /** @var \Magento\Framework\DataObject $request */
@@ -531,6 +540,17 @@ class Tax
         $store = $quote->getStore();
         $shippingAddress = $shippingAssignment->getShipping()->getAddress();
         $this->addGetTaxRequestFields($request, $store, $shippingAddress, $quote->getCustomerId());
+
+        /**
+         *  Adding importer of record override
+         */
+        if ($quote->getCustomerId() !== null) {
+            $customer = $this->getCustomerById($quote->getCustomerId());
+
+            if($customer !== null) {
+                $this->setIsImporterOfRecord($customer, $request);
+            }
+        }
 
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
@@ -692,6 +712,10 @@ class Tax
         $request = $this->dataObjectFactory->create(['data' => $data]);
 
         $this->addGetTaxRequestFields($request, $store, $address, $object->getOrder()->getCustomerId());
+
+        if($customer !== null) {
+            $this->setIsImporterOfRecord($customer, $request);
+        }
 
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
@@ -857,5 +881,23 @@ class Tax
         }
         // Return value of custom attribute
         return $attribute->getValue();
+    }
+
+    /**
+     * Checks to see if there is an override for is importer of record and applies this to the request.
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param \Magento\Framework\DataObject $request
+     */
+    protected function setIsImporterOfRecord($customer, $request)
+    {
+        $override = $customer->getCustomAttribute(CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE);
+        $overrideValue = ($override !== null ? $override->getValue() : null);
+
+        if($overrideValue !== null && $overrideValue !== CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT) {
+            $request->setData('is_seller_importer_of_record',
+                $overrideValue === CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_YES
+            );
+        }
     }
 }
