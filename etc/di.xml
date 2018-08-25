@@ -274,4 +274,14 @@
     <type name="Magento\Sales\Model\Convert\Order">
         <plugin sortOrder="1" name="classyLlamaAvaTaxOrder" type="ClassyLlama\AvaTax\Plugin\Model\Convert\OrderPlugin"/>
     </type>
+
+    <type name="Magento\Quote\Model\Cart\TotalsConverter">
+        <!-- We need the tax details plugin to run first -->
+        <plugin sortOrder="1" name="add_tax_details"/>
+        <plugin sortOrder="2" name="classy_llama_ava_tax_grand_total_details_sorter" type="ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter"/>
+    </type>
+
+    <type name="Magento\Quote\Model\Cart\CartTotalRepository">
+        <plugin name="avataxCustomsMessages" type="ClassyLlama\AvaTax\Model\Plugin\CartTotalRepository" />
+    </type>
 </config>

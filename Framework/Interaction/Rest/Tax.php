@@ -30,6 +30,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     const LINE_PARAM_NAME_UNIT_NAME = 'AvaTax.LandedCost.UnitName';
     const LINE_PARAM_NAME_UNIT_AMT = 'AvaTax.LandedCost.UnitAmount';
     const LINE_PARAM_NAME_PREF_PROGRAM = 'AvaTax.LandedCost.PreferenceProgram';
+    const TRANSACTION_PARAM_NAME_SHIPPING_MODE = 'AvaTax.LandedCost.ShippingMode';
 
     /**
      * @var TransactionBuilderFactory
@@ -168,6 +169,9 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
             if (is_object($override)) {
                 $transactionBuilder->withTaxOverride($override->getType(), $override->getReason(), $override->getTaxAmount(), $override->getTaxDate());
             }
+        }
+        if($request->hasShippingMode()) {
+            $transactionBuilder->withParameter(self::TRANSACTION_PARAM_NAME_SHIPPING_MODE, $request->getShippingMode());
         }
     }
 

@@ -17,11 +17,11 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
 use ClassyLlama\AvaTax\Api\RestTaxInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\DataObject;
-use Magento\Framework\ObjectManagerInterface;
 
 class Get
 {
@@ -50,19 +50,10 @@ class Get
      */
     protected $taxService;
 
-    /**#@+
-     * Keys for non-base and base tax details
-     */
-    const KEY_TAX_DETAILS = 'tax_details';
-
-    const KEY_BASE_TAX_DETAILS = 'base_tax_details';
-
     /**
      * @var ExtensionAttributesFactory
      */
     protected $extensionAttributesFactory;
-
-    /**#@-*/
 
     /**
      * @param TaxCalculation             $taxCalculation
@@ -198,7 +189,7 @@ class Get
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface         $baseTaxQuoteDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      *
-     * @return \Magento\Tax\Api\Data\TaxDetailsInterface[]
+     * @return array
      * @throws \ClassyLlama\AvaTax\Exception\TaxCalculationException
      * @throws \Exception
      */
@@ -266,9 +257,29 @@ class Get
                 $taxDetails = $baseTaxDetails;
             }
 
+            $avaTaxMessages = [];
+
+            if($getTaxResult->getMessages() !== null) {
+                $landedCostMessages = array_filter(
+                    $getTaxResult->getMessages(),
+                    function ($message) {
+                        return \in_array($message->getRefersTo(), CustomsConfig::CUSTOMS_NAMES);
+                    }
+                );
+
+                $avaTaxMessages = array_map(
+                    function ($message) {
+                        return $message->getSummary();
+                    },
+                    $landedCostMessages
+                );
+            }
+
+
             return [
-                self::KEY_TAX_DETAILS => $taxDetails,
-                self::KEY_BASE_TAX_DETAILS => $baseTaxDetails
+                $taxDetails,
+                $baseTaxDetails,
+                $avaTaxMessages
             ];
         } catch (\Exception $exception) {
             $message = $exception->getMessage();
