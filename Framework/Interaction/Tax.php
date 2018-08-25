@@ -158,7 +158,7 @@ class Tax
         'purchase_order_no' => ['type' => 'string', 'length' => 50],
         'reference_code' => ['type' => 'string', 'length' => 50],
         'tax_override' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject'],
-        'is_seller_importer_of_record'=>['type' => 'boolean'],
+        'is_seller_importer_of_record' => ['type' => 'boolean'],
         'shipping_mode' => ['type' => 'string']
     ];
 

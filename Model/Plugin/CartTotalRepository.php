@@ -1,7 +1,16 @@
 <?php
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 namespace ClassyLlama\AvaTax\Model\Plugin;
 
@@ -36,6 +45,9 @@ class CartTotalRepository
     }
 
     /**
+     * Takes any messages from AvaTax stored on the quote addresses from collect totals and places them on totals
+     * so that the data is retrievable from the frontend API
+     *
      * @param TotalRepository $subject
      * @param TotalsInterface $totals
      * @param int             $cartId

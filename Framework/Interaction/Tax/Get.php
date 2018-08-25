@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 use ClassyLlama\AvaTax\Api\RestTaxInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
 class Get
@@ -200,7 +201,7 @@ class Get
                 $landedCostMessages = array_filter(
                     $getTaxResult->getMessages(),
                     function ($message) {
-                        return \in_array($message->getRefersTo(), ['Customs', 'LandedCost']);
+                        return \in_array($message->getRefersTo(), CustomsConfig::CUSTOMS_NAMES);
                     }
                 );
 

@@ -27,6 +27,9 @@ use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassR
  */
 class CustomsConfig extends AbstractHelper
 {
+    /**#@+
+     * Customs config paths
+     */
     const XML_PATH_AVATAX_CUSTOMS_ENABLED = 'tax/avatax_customs/enabled';
 
     const XML_PATH_AVATAX_CUSTOMS_GROUND_SHIPPING_METHODS = 'tax/avatax_customs/ground_shipping_methods';
@@ -40,10 +43,9 @@ class CustomsConfig extends AbstractHelper
     const XML_PATH_AVATAX_CUSTOMS_DEFAULT_SHIPPING_MODE = 'tax/avatax_customs/default_shipping_mode';
 
     const XML_PATH_AVATAX_DEFAULT_BORDER_TYPE = 'tax/avatax_customs/default_border_type';
+    /**#@-*/
 
-    const PRODUCT_ATTR_CROSS_BORDER_TYPE = 'avatax_cross_border_type';
-
-    /**
+    /**#@+
      * Importer of Record Override Values
      */
     const CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE = 'override_importer_of_record';
@@ -53,6 +55,20 @@ class CustomsConfig extends AbstractHelper
     const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_YES = "override_yes";
 
     const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_NO = "override_no";
+    /**#@-*/
+
+    /**
+     * @var string
+     */
+    const PRODUCT_ATTR_CROSS_BORDER_TYPE = 'avatax_cross_border_type';
+
+    /**
+     * Defines the strings that come from AvaTax that represent customs. Needed for compatibility for the current
+     * and upcoming versions of the AvaTax API
+     *
+     * @var array
+     */
+    const CUSTOMS_NAMES = ['Customs', 'LandedCost'];
 
     /**
      * @var Config

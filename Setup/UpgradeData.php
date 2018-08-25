@@ -223,7 +223,7 @@ class UpgradeData implements UpgradeDataInterface
                 CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE,
                 [
                     'type' => 'text',
-                    'label' => 'Override Avatax "Is Seller Importer of Record” setting',
+                    'label' => 'Override Avatax "Is Seller Importer of Record" setting',
                     'input' => 'select',
                     'note' => 'Overrides Importer of Record. Select "Use Default" to keep the Avatax setting, "Override '.
                               'to Yes" to set Customer as Importer of record, "Override to No" to set the Customer as '.
