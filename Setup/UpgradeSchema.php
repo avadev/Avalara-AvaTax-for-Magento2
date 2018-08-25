@@ -544,6 +544,86 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
+
+
+        if (version_compare($context->getVersion(), '2.0.7', '<')) {
+            $setup->getConnection(self::$connectionName)
+                ->addColumn(
+                    'avatax_sales_invoice',
+                    'avatax_response',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => null,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'AvaTax Response'
+                    ]
+                );
+
+            $setup->getConnection(self::$connectionName)
+                ->addColumn(
+                    'avatax_sales_creditmemo',
+                    'avatax_response',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => null,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'AvaTax Response'
+                    ]
+                );
+
+            $table = $setup->getConnection(self::$connectionName)
+                ->newTable(
+                    $setup->getTable('avatax_sales_order')
+                )
+                ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'nullable' => false,
+                        'identity' => true,
+                        'primary' => true
+                    ],
+                    'ID'
+                )
+                ->addColumn(
+                    'order_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    [
+                        'nullable' => false,
+                        'unsigned' => true,
+                    ],
+                    'Order id'
+                )
+                ->addColumn(
+                    'avatax_response',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    [
+                        'nullable' => true,
+                    ],
+                    'HS Code'
+                )
+                ->addForeignKey(
+                    $setup->getFkName(
+                        'avatax_sales_order',
+                        'order_id',
+                        'sales_order',
+                        'entity_id'
+                    ),
+                    'order_id',
+                    $setup->getTable('sales_order'),
+                    'entity_id',
+                    Table::ACTION_CASCADE
+                )
+                ->setComment('AvaTax Sales Order');
+
+            $setup->getConnection(self::$connectionName)->createTable($table);
+        }
+
         $setup->endSetup();
     }
 }

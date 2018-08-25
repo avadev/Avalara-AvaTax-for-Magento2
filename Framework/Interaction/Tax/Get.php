@@ -16,9 +16,12 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
 use ClassyLlama\AvaTax\Api\RestTaxInterface;
-use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
+use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\DataObject;
+use Magento\Framework\ObjectManagerInterface;
 
 class Get
 {
@@ -53,33 +56,44 @@ class Get
     const KEY_TAX_DETAILS = 'tax_details';
 
     const KEY_BASE_TAX_DETAILS = 'base_tax_details';
+
+    /**
+     * @var ExtensionAttributesFactory
+     */
+    protected $extensionAttributesFactory;
+
     /**#@-*/
 
     /**
-     * @param TaxCalculation $taxCalculation
-     * @param Tax $interactionTax
-     * @param Get\ResponseFactory $getTaxResponseFactory
-     * @param AvaTaxLogger $avaTaxLogger
-     * @param RestTaxInterface $taxService
+     * @param TaxCalculation             $taxCalculation
+     * @param Tax                        $interactionTax
+     * @param Get\ResponseFactory        $getTaxResponseFactory
+     * @param AvaTaxLogger               $avaTaxLogger
+     * @param RestTaxInterface           $taxService
+     * @param ExtensionAttributesFactory $extensionAttributesFactory
      */
     public function __construct(
         TaxCalculation $taxCalculation,
         Tax $interactionTax,
         Get\ResponseFactory $getTaxResponseFactory,
         AvaTaxLogger $avaTaxLogger,
-        RestTaxInterface $taxService
-    ) {
+        RestTaxInterface $taxService,
+        ExtensionAttributesFactory $extensionAttributesFactory
+    )
+    {
         $this->taxCalculation = $taxCalculation;
         $this->interactionTax = $interactionTax;
         $this->getTaxResponseFactory = $getTaxResponseFactory;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->taxService = $taxService;
+        $this->extensionAttributesFactory = $extensionAttributesFactory;
     }
 
     /**
      * Process invoice or credit memo
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
+     *
      * @return \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface
      * @throws \ClassyLlama\AvaTax\Exception\TaxCalculationException
      */
@@ -105,7 +119,9 @@ class Get
                     ),
                 ]
             );
-            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message . $e->getMessage(), $e->getCode(), $e);
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException(
+                $message . $e->getMessage(), $e->getCode(), $e
+            );
         }
 
         if (is_null($getTaxRequest)) {
@@ -124,14 +140,23 @@ class Get
                 [\ClassyLlama\AvaTax\Api\RestTaxInterface::FLAG_FORCE_NEW_RATES => true]
             );
 
+            if (!$object->getExtensionAttributes()) {
+                /** @var \Magento\Sales\Api\Data\CreditmemoExtensionInterface|\Magento\Sales\Api\Data\InvoiceExtensionInterface $extensionAttributes */
+                $extensionAttributes = $this->extensionAttributesFactory->create(get_class($object));
+                $object->setExtensionAttributes($extensionAttributes);
+            }
+
+            $object->getExtensionAttributes()->setAvataxResponse(
+                \json_encode($this->convertTaxResultToArray($getTaxResult))
+            );
+
             // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
             $avataxTaxAmount = abs($getTaxResult->getTotalTax());
             $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
 
             /** @var $response \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface */
             $response = $this->getTaxResponseFactory->create();
-            $response->setIsUnbalanced($unbalanced)
-                ->setBaseAvataxTaxAmount($avataxTaxAmount);
+            $response->setIsUnbalanced($unbalanced)->setBaseAvataxTaxAmount($avataxTaxAmount);
 
             return $response;
         } catch (\Exception $exception) {
@@ -142,12 +167,37 @@ class Get
     }
 
     /**
+     * Data object's don't convert to an array recursively, so this function will walk them and convert nested
+     * data objects into arrays to be json_encoded
+     *
+     * @param DataObject $taxResult
+     *
+     * @return array
+     */
+    public function convertTaxResultToArray($taxResult)
+    {
+        $array = $taxResult->toArray();
+
+        array_walk_recursive(
+            $array,
+            function (&$property) {
+                if ($property instanceof DataObject) {
+                    $property = $this->convertTaxResultToArray($property);
+                }
+            }
+        );
+
+        return $array;
+    }
+
+    /**
      * Convert quote/order/invoice/creditmemo to the AvaTax object and request tax from the Get Tax API
      *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
-     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails
+     * @param \Magento\Quote\Model\Quote                          $quote
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface         $taxQuoteDetails
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface         $baseTaxQuoteDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
+     *
      * @return \Magento\Tax\Api\Data\TaxDetailsInterface[]
      * @throws \ClassyLlama\AvaTax\Exception\TaxCalculationException
      * @throws \Exception
@@ -157,7 +207,8 @@ class Get
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-    ) {
+    )
+    {
         $storeId = $quote->getStoreId();
         $taxService = $this->taxService;
         try {
@@ -170,8 +221,11 @@ class Get
             // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
             // calculated by multiplying the base tax rates * currency conversion rate.
             /** @var $getTaxRequest \Magento\Framework\DataObject */
-            $getTaxRequest = $this->interactionTax
-                ->getTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
+            $getTaxRequest = $this->interactionTax->getTaxRequestForQuote(
+                $quote,
+                $baseTaxQuoteDetails,
+                $shippingAssignment
+            );
 
             if (is_null($getTaxRequest)) {
                 $message = __('$quote was empty or address was not valid so not running getTax request.');
@@ -180,16 +234,34 @@ class Get
 
             $getTaxResult = $taxService->getTax($getTaxRequest, null, $storeId);
 
+            if (!$quote->getExtensionAttributes()) {
+                /** @var \Magento\Quote\Api\Data\CartExtensionInterface $extensionAttributes */
+                $extensionAttributes = $this->extensionAttributesFactory->create(\Magento\Quote\Model\Quote::class);
+                $quote->setExtensionAttributes($extensionAttributes);
+            }
+
+            $quote->getExtensionAttributes()->setAvataxResponse(
+                \json_encode($this->convertTaxResultToArray($getTaxResult))
+            );
+
             $store = $quote->getStore();
-            $baseTaxDetails =
-                $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
+            $baseTaxDetails = $this->taxCalculation->calculateTaxDetails(
+                $baseTaxQuoteDetails,
+                $getTaxResult,
+                true,
+                $store
+            );
             /**
              * If quote is using a currency other than the base currency, calculate tax details for both quote
              * currency and base currency. Otherwise use the same tax details object.
              */
             if ($quote->getBaseCurrencyCode() != $quote->getQuoteCurrencyCode()) {
-                $taxDetails =
-                    $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
+                $taxDetails = $this->taxCalculation->calculateTaxDetails(
+                    $taxQuoteDetails,
+                    $getTaxResult,
+                    false,
+                    $store
+                );
             } else {
                 $taxDetails = $baseTaxDetails;
             }
