@@ -26,6 +26,12 @@ define(['Magento_Checkout/js/model/totals'], function (totals) {
             return [];
         };
 
+        estimationModule.prototype.hasAvaTaxMessages = function () {
+            var totalsExtensionAttributes = totals.totals().extension_attributes;
+
+            return totalsExtensionAttributes !== void(0) && totalsExtensionAttributes.avatax_messages !== void(0) && totalsExtensionAttributes.avatax_messages.length > 0;
+        };
+
         return estimationModule;
     };
 });
