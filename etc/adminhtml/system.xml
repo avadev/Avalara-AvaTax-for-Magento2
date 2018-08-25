@@ -377,7 +377,15 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="default_shipping_mode" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="custom_shipping_methods_map" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Custom Shipping Mode Mapping</label>
+                    <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CustomShippingMethods</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>
+                        <![CDATA[If using an integration with a third-party shipping service, you can use this custom mapping to associate the specific shipping method codes stored on orders with a shipping mode.]]>
+                    </comment>
+                </field>
+                <field id="default_shipping_mode" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Shipping Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\DefaultCrossBorderType</source_model>
                     <comment><![CDATA[The shipping mode that should be sent to AvaTax if the shipping method is not mapped in the multiselects above.]]></comment>
