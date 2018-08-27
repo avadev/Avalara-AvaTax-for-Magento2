@@ -10,13 +10,15 @@
 define([], function () {
     'use strict';
 
+    var customsTitle = 'Customs Duty and Import Tax';
+
     return function (taxModule) {
         var parentIfShowDetails = taxModule.prototype.ifShowDetails;
 
-        taxModule.prototype.hasCustomsTax = function() {
+        taxModule.prototype.hasCustomsTax = function () {
             return this.getDetails().some(function (detail) {
                 return detail.rates.some(function (rate) {
-                    return rate.title === 'Customs Duty and Import Tax';
+                    return rate.title === customsTitle;
                 });
             });
         };
@@ -28,6 +30,16 @@ define([], function () {
             }
 
             return this.hasCustomsTax();
+        };
+
+        taxModule.prototype.getTaxTitle = function (rate) {
+            var percent = rate.percent;
+
+            if(rate.title === customsTitle) {
+                percent = null;
+            }
+
+            return rate.title + (percent !== null ? ' (' + percent + '%)' : '');
         };
 
         return taxModule;
