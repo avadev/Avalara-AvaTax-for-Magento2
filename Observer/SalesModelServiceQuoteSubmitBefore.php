@@ -48,7 +48,7 @@ class SalesModelServiceQuoteSubmitBefore implements ObserverInterface
         $quoteItemsByQuoteItemId = [];
         $quoteItems = $quote->getItems();
 
-        $this->extensionAttributeMerger->copyAttributes($quote, $order);
+        $this->extensionAttributeMerger->copyAttributes($quote, $order, ['avatax_response']);
 
         // Can't work with the data unless it's an array
         if (!is_array($quoteItems)) {

@@ -165,14 +165,22 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         foreach ($getTaxResult->getSummary() as $key => $row) {
             $arrayKey = "{$row->getJurisCode()}_{$row->getJurisName()}_{$row->getTaxType()}";
             $isCustomsTax = \in_array($row->getTaxType(), $customsTaxTypes);
-            $ratePercent = 0.0;
+            $rate = (float)$row->getRate();
 
-            if (!$isCustomsTax) {
-                // Since the total percent is for display purposes only, round to 5 digits. Since the tax percent returned
-                // from AvaTax is not the actual tax rate, but the effective rate, rounding makes the presentation make more
-                // sense to the user. For example, a tax rate may be 19%, but AvaTax may return a value of 0.189995.
-                $ratePercent = (round((float)$row->getRate(), 4) * Tax::RATE_MULTIPLIER);
+            /**
+             * Magento requires there to be a percentage rate in order to save the taxes to the sales_order_tax table
+             * so we need to calculate a rate that isn't completely bogus (since the one from AvaTax is bogus)
+             *
+             * @see vendor/magento/module-tax/Model/Plugin/OrderSave.php:134
+             */
+            if ($isCustomsTax) {
+                $rate = (float)$row->getTax() / (float)$getTaxResult->getTotalAmount();
             }
+
+            // Since the total percent is for display purposes only, round to 5 digits. Since the tax percent returned
+            // from AvaTax is not the actual tax rate, but the effective rate, rounding makes the presentation make more
+            // sense to the user. For example, a tax rate may be 19%, but AvaTax may return a value of 0.189995.
+            $ratePercent = (round($rate, 4) * Tax::RATE_MULTIPLIER);
 
             /**
              * There are rare situations in which a duplicate rate will have a slightly different percentage (see
@@ -200,7 +208,9 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 'ratePercent' => $ratePercent,
                 'taxName' => $isCustomsTax ? __('Customs Duty and Import Tax') : $row->getTaxName(),
                 // Prepend a string to the juris code to prevent false positives on comparison (e.g. '053' == '53)
-                'jurisCode' => 'AVATAX-' . $row->getJurisCode(),
+                // Also, append the tax type to prevent Magento from trying to create multiple tax rates to the same
+                // item
+                'jurisCode' => "AVATAX-{$row->getJurisCode()}-{$row->getTaxType()}",
                 // These two values will only be used in the conditional below
                 'taxable' => (float)$row->getTaxable(),
                 'tax' => (float)$row->getTax(),
