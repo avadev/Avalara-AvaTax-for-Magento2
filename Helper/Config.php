@@ -135,6 +135,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
 
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
+
+    const XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING = 'tax/avatax_advanced/response_logging_enabled';
     /**#@-*/
 
     /**
@@ -295,6 +297,23 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_MODULE_ENABLED,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Return whether response logging is enabled
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return mixed
+     */
+    public function isResponseLoggingEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING,
             $scopeType,
             $store
         );
