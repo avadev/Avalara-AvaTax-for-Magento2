@@ -36,7 +36,8 @@ $_fullInfo = $block->getFullTaxInfo();
         $block->displayAmount($_source->getTaxAmount(), $_source->getBaseTaxAmount()) ?>
         <!-- BEGIN EDIT -->
         <div class="admin__field-tooltip">
-            <a class="admin__field-tooltip-action action-help" target="_blank" tabindex="1" href="<?= $block->getUrl('avatax/queue/index') ?>">
+            <a class="admin__field-tooltip-action action-help" target="_blank" tabindex="1"
+               href="<?= $block->getUrl('avatax/queue/index') ?>">
                 <div class="admin__field-tooltip-content">
                     Note that this tax total is based on the original calculated tax applied to the order and charged to
                     the customer. Due to rounding issues or changes to tax rates, it is possible for tax calculated by
@@ -67,7 +68,11 @@ $_fullInfo = $block->getFullTaxInfo();
             <?php foreach ($rates as $rate): ?>
                 <tr class="summary-details<?php if ($isTop): echo ' summary-details-first'; endif; ?>"
                     style="display:none;">
-                    <?php if (!is_null($rate['percent'])): ?>
+                    <!-- BEGIN EDIT -->
+                    <?php if (!is_null(
+                            $rate['percent']
+                        ) && $rate['title'] !== \ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                    <!-- END EDIT -->
                         <td class="admin__total-mark"><?= /* @escapeNotVerified */
                             $rate['title'] ?> (<?= (float)$rate['percent'] ?>%)<br/></td>
                     <?php else: ?>
@@ -96,7 +101,11 @@ $_fullInfo = $block->getFullTaxInfo();
 
             <tr class="summary-details<?php if ($isTop): echo ' summary-details-first'; endif; ?>"
                 style="display:none;">
-                <?php if (!is_null($info['percent'])): ?>
+                <!-- BEGIN EDIT -->
+                <?php if (!is_null(
+                        $info['percent']
+                    ) && $info['title'] !== \ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                <!-- END EDIT -->
                     <td class="admin__total-mark"><?= $block->escapeHtml($info['title']) ?>
                         (<?= (float)$info['percent'] ?>%)<br/></td>
                 <?php else: ?>
