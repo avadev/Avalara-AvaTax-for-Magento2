@@ -65,7 +65,8 @@ class ConfigSaveObserver implements ObserverInterface
         CustomsConfig $customsConfig,
         \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks,
         RestInterface $interactionRest
-    ) {
+    )
+    {
         $this->messageManager = $messageManager;
         $this->config = $config;
         $this->moduleChecks = $moduleChecks;
@@ -76,6 +77,7 @@ class ConfigSaveObserver implements ObserverInterface
     /**
      *
      * @param \Magento\Framework\Event\Observer $observer
+     *
      * @return $this
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
@@ -83,7 +85,7 @@ class ConfigSaveObserver implements ObserverInterface
         if ($observer->getStore()) {
             $scopeId = $observer->getStore();
             $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        } elseif ($observer->getWebsite()) {
+        } else if ($observer->getWebsite()) {
             $scopeId = $observer->getWebsite();
             $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE;
         } else {
@@ -107,11 +109,12 @@ class ConfigSaveObserver implements ObserverInterface
      *
      * @param $scopeId
      * @param $scopeType
+     *
      * @return array
      */
     protected function getErrors($scopeId, $scopeType)
     {
-        $errors = array();
+        $errors = [];
         $errors = array_merge(
             $errors,
             $this->sendPing($scopeId, $scopeType),
@@ -128,7 +131,7 @@ class ConfigSaveObserver implements ObserverInterface
      */
     protected function getNotices()
     {
-        $notices = array();
+        $notices = [];
         $notices = array_merge(
             $notices,
             // This check is also being displayed at the top of the page via
@@ -148,10 +151,18 @@ class ConfigSaveObserver implements ObserverInterface
         $oceanShippingMethods = $this->customsConfig->getOceanShippingMethods($scopeId, $scopeType);
         $airShippingMethods = $this->customsConfig->getAirShippingMethods($scopeId, $scopeType);
 
-        $shippingMethods = array_merge($groundShippingMethods, $oceanShippingMethods, $airShippingMethods);
+        $shippingMethods = array_filter(
+            array_merge(
+                $groundShippingMethods,
+                $oceanShippingMethods,
+                $airShippingMethods
+            )
+        );
 
-        if(\count($shippingMethods) !== \count(\array_flip($shippingMethods))) {
-            $errors[] = __('There are shipping method(s) that have erroneously been selected in multiple Shipping Method lists (Ground Shipping Methods, Ocean Shipping Methods, and Air Shipping Methods). Ensure that the shipping methods selected in one list are not selected in either of the other lists and then save this page.');
+        if (\count($shippingMethods) > 0 && \count($shippingMethods) !== \count(\array_flip($shippingMethods))) {
+            $errors[] = __(
+                'There are shipping method(s) that have erroneously been selected in multiple Shipping Method lists (Ground Shipping Methods, Ocean Shipping Methods, and Air Shipping Methods). Ensure that the shipping methods selected in one list are not selected in either of the other lists and then save this page.'
+            );
         }
 
         return $errors;
@@ -165,50 +176,39 @@ class ConfigSaveObserver implements ObserverInterface
      *
      * @return array
      */
-    protected function sendPing( $scopeId, $scopeType )
+    protected function sendPing($scopeId, $scopeType)
     {
         $errors = [];
         $message = '';
 
-        if (!$this->config->isModuleEnabled( $scopeId, $scopeType ))
-        {
+        if (!$this->config->isModuleEnabled($scopeId, $scopeType)) {
             return $errors;
         }
 
-        $isProduction = $this->config->isProductionMode( $scopeId, $scopeType );
-        $mode = $this->config->getMode( $isProduction );
+        $isProduction = $this->config->isProductionMode($scopeId, $scopeType);
+        $mode = $this->config->getMode($isProduction);
 
-        if ($this->checkCredentialsForMode( $scopeId, $scopeType, $isProduction ))
-        {
-            try
-            {
-                $result = $this->interactionRest->ping( $isProduction, $scopeId, $scopeType );
+        if ($this->checkCredentialsForMode($scopeId, $scopeType, $isProduction)) {
+            try {
+                $result = $this->interactionRest->ping($isProduction, $scopeId, $scopeType);
 
-                if ($result)
-                {
+                if ($result) {
                     $this->messageManager->addSuccess(
                         __(
-                            'Successfully connected to AvaTax using the '
-                            . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>',
+                            'Successfully connected to AvaTax using the ' . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>',
                             $mode
                         )
                     );
+                } else {
+                    $message = __('Authentication failed');
                 }
-                else
-                {
-                    $message = __( 'Authentication failed' );
-                }
-            }
-            catch (\Exception $exception)
-            {
+            } catch (\Exception $exception) {
                 $message = $exception->getMessage();
             }
 
-            if ($message)
-            {
+            if ($message) {
                 $errors[] = __(
-                    'Error connecting to AvaTax using the '
-                    . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>: %2',
+                    'Error connecting to AvaTax using the ' . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>: %2',
                     $mode,
                     $message
                 );
@@ -227,15 +227,14 @@ class ConfigSaveObserver implements ObserverInterface
      *
      * @return bool
      */
-    protected function checkCredentialsForMode( $scopeId, $scopeType, $isProduction )
+    protected function checkCredentialsForMode($scopeId, $scopeType, $isProduction)
     {
         // Check that credentials have been set for whichever mode has been chosen
-        if (
-            $this->config->getAccountNumber( $scopeId, $scopeType, $isProduction ) !== ''
-            && $this->config->getLicenseKey( $scopeId, $scopeType, $isProduction ) !== ''
-            && $this->config->getCompanyCode( $scopeId, $scopeType, $isProduction ) !== ''
-        )
-        {
+        if ($this->config->getAccountNumber($scopeId, $scopeType, $isProduction) !== '' && $this->config->getLicenseKey(
+                $scopeId,
+                $scopeType,
+                $isProduction
+            ) !== '' && $this->config->getCompanyCode($scopeId, $scopeType, $isProduction) !== '') {
             return true;
         }
 
@@ -244,7 +243,7 @@ class ConfigSaveObserver implements ObserverInterface
             __(
                 'The AvaTax extension is set to "%1" mode, but %2 credentials are incomplete.',
                 $isProduction,
-                strtolower( $isProduction )
+                strtolower($isProduction)
             )
         );
 
