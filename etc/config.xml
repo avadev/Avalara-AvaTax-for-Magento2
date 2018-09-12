@@ -61,7 +61,11 @@
             </avatax>
             <avatax_customs>
                 <enabled>0</enabled>
+                <default_shipping_mode>ground</default_shipping_mode>
             </avatax_customs>
+            <avatax_advanced>
+                <response_logging_enabled>1</response_logging_enabled>
+            </avatax_advanced>
             <avatax_document_management>
                 <checkout_link_text_new_cert_no_certs_exist>Is this purchase tax-exempt?</checkout_link_text_new_cert_no_certs_exist>
                 <checkout_link_text_new_cert_certs_exist>Add a new certificate</checkout_link_text_new_cert_certs_exist>
