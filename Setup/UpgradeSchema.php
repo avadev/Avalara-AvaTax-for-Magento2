@@ -34,6 +34,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
     /**
      * {@inheritdoc}
+     * @throws \Zend_Db_Exception
      */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -383,7 +384,260 @@ class UpgradeSchema implements UpgradeSchemaInterface
             );
         }
 
+        if(version_compare($context->getVersion(), '2.0.4', '<')) {
+            $installer = $setup;
+            $installer->startSetup();
+
+            $table_classyllama_avatax_crossbordertype = $setup->getConnection()->newTable($setup->getTable('classyllama_avatax_crossbordertype'));
+
+
+            $table_classyllama_avatax_crossbordertype->addColumn(
+                'entity_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                array('identity' => true,'nullable' => false,'primary' => true,'unsigned' => true,),
+                'Entity ID'
+            );
+
+
+            $table_classyllama_avatax_crossbordertype->addColumn(
+                'type',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                ['nullable' => False],
+                'type'
+            );
+
+
+            $setup->getConnection()->createTable($table_classyllama_avatax_crossbordertype);
+
+            $setup->endSetup();
+        }
+
         // TODO: Add foreign key on avatax_cross_border_class.cross_border_type
+
+        $extensionTables = [
+            'avatax_quote_item' => [
+                'id_field' => 'quote_item_id',
+                'id_field_label' => 'Quote Item ID',
+                'foreign_table' => 'quote_item',
+                'foreign_field' => 'item_id',
+                'comment' => 'AvaTax Quote Item Extension',
+            ],
+            'avatax_sales_order_item' => [
+                'id_field' => 'order_item_id',
+                'id_field_label' => 'Order Item ID',
+                'foreign_table' => 'sales_order_item',
+                'foreign_field' => 'item_id',
+                'comment' => 'AvaTax Order Item Extension',
+            ],
+            'avatax_sales_invoice_item' => [
+                'id_field' => 'invoice_item_id',
+                'id_field_label' => 'Invoice Item ID',
+                'foreign_table' => 'sales_invoice_item',
+                'foreign_field' => 'entity_id',
+                'comment' => 'AvaTax Invoice Item Extension',
+            ],
+            'avatax_sales_creditmemo_item' => [
+                'id_field' => 'creditmemo_item_id',
+                'id_field_label' => 'Credit Memo Item ID',
+                'foreign_table' => 'sales_creditmemo_item',
+                'foreign_field' => 'entity_id',
+                'comment' => 'AvaTax Credit Memo Item Extension',
+            ],
+        ];
+
+        if (version_compare($context->getVersion(), '2.0.4', '<')) {
+            foreach ($extensionTables as $tableName => $tableInfo) {
+                $table = $setup->getConnection(self::$connectionName)
+                    ->newTable(
+                        $setup->getTable($tableName)
+                    )
+                    ->addColumn(
+                        'id',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                        null,
+                        [
+                            'nullable' => false,
+                            'identity' => true,
+                            'primary' => true
+                        ],
+                        'ID'
+                    )
+                    ->addColumn(
+                        $tableInfo['id_field'],
+                        \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                        10,
+                        [
+                            'nullable' => false,
+                            'unsigned' => true,
+                        ],
+                        $tableInfo['id_field_label']
+                    )
+                    ->addColumn(
+                        'hs_code',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        255,
+                        [
+                            'nullable' => true,
+                        ],
+                        'HS Code'
+                    )
+                    ->addColumn(
+                        'unit_name',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        255,
+                        [
+                            'nullable' => true,
+                        ],
+                        'Unit Name'
+                    )
+                    ->addColumn(
+                        'unit_amount',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                        '12,4',
+                        [
+                            'nullable' => true,
+                        ],
+                        'Unit Amount'
+                    )
+                    ->addColumn(
+                        'pref_program_indicator',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        255,
+                        [
+                            'nullable' => true,
+                        ],
+                        'Pref. Program Indicator'
+                    )
+                    ->addForeignKey(
+                        $setup->getFkName(
+                            $tableName,
+                            $tableInfo['id_field'],
+                            $tableInfo['foreign_table'],
+                            $tableInfo['foreign_field']
+                        ),
+                        $tableInfo['id_field'],
+                        $setup->getTable($tableInfo['foreign_table']),
+                        $tableInfo['foreign_field'],
+                        Table::ACTION_CASCADE
+                    )
+                    ->setComment($tableInfo['comment']);
+
+                $setup->getConnection(self::$connectionName)->createTable($table);
+            }
+        }
+
+        if (version_compare($context->getVersion(), '2.0.5', '<')) {
+            foreach ($extensionTables as $tableName => $tableInfo) {
+                $setup->getConnection(self::$connectionName)
+                    ->addIndex(
+                        $tableName,
+                        $setup->getIdxName(
+                            $tableName,
+                            [$tableInfo['id_field']],
+                            \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                        ),
+                        [$tableInfo['id_field']],
+                        \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                    );
+            }
+        }
+
+
+
+        if (version_compare($context->getVersion(), '2.0.7', '<')) {
+            $setup->getConnection(self::$connectionName)
+                ->addColumn(
+                    'avatax_sales_invoice',
+                    'avatax_response',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => null,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'AvaTax Response'
+                    ]
+                );
+
+            $setup->getConnection(self::$connectionName)
+                ->addColumn(
+                    'avatax_sales_creditmemo',
+                    'avatax_response',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => null,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'AvaTax Response'
+                    ]
+                );
+
+            $table = $setup->getConnection(self::$connectionName)
+                ->newTable(
+                    $setup->getTable('avatax_sales_order')
+                )
+                ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'nullable' => false,
+                        'identity' => true,
+                        'primary' => true
+                    ],
+                    'ID'
+                )
+                ->addColumn(
+                    'order_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    [
+                        'nullable' => false,
+                        'unsigned' => true,
+                    ],
+                    'Order id'
+                )
+                ->addColumn(
+                    'avatax_response',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    [
+                        'nullable' => true,
+                    ],
+                    'HS Code'
+                )
+                ->addForeignKey(
+                    $setup->getFkName(
+                        'avatax_sales_order',
+                        'order_id',
+                        'sales_order',
+                        'entity_id'
+                    ),
+                    'order_id',
+                    $setup->getTable('sales_order'),
+                    'entity_id',
+                    Table::ACTION_CASCADE
+                )
+                ->setComment('AvaTax Sales Order');
+
+            $setup->getConnection(self::$connectionName)->createTable($table);
+        }
+
+        if (version_compare($context->getVersion(), '2.0.8', '<')) {
+            $setup->getConnection(self::$connectionName)
+                ->addColumn(
+                    'quote_address',
+                    'avatax_messages',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => null,
+                        'nullable' => true,
+                        'default' => null,
+                        'comment' => 'AvaTax Messages'
+                    ]
+                );
+        }
 
         $setup->endSetup();
     }

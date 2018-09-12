@@ -15,22 +15,22 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Tax\Model\TaxDetails\TaxDetails;
-use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Calculation\CalculatorFactory;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Tax\Api\Data\AppliedTaxInterfaceFactory;
+use Magento\Tax\Api\Data\AppliedTaxRateExtensionFactory;
+use Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory;
+use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
+use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\TaxDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
-use Magento\Tax\Model\Config;
 use Magento\Tax\Api\TaxClassManagementInterface;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Pricing\PriceCurrencyInterface;
-use Magento\Tax\Api\Data\AppliedTaxInterfaceFactory;
-use Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory;
-use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
-use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
-use Magento\Tax\Api\Data\AppliedTaxRateExtensionFactory;
-use \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Calculation\CalculatorFactory;
+use Magento\Tax\Model\Config;
+use Magento\Tax\Model\TaxDetails\TaxDetails;
 
 class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 {
@@ -109,16 +109,130 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     }
 
     /**
+     * There are rare situations in which the Tax Summary from AvaTax will contain items that have the same TaxName,
+     * JurisCode, JurisName, and Rate. e.g., an order with shipping with VAT tax from Germany (example below).
+     * To account for this, we need to group rates by a combination of JurisCode and JurisName. Otherwise the same
+     * rate will get added twice. This is problematic for two reasons:
+     *     1. If a merchant has configured Magento to "Display Full Tax Summary" then the user will see the same
+     *        same rate with the same percentage displayed twice. This will be confusing.
+     *     2. When an order is placed, the \Magento\Tax\Model\Plugin\OrderSave::saveOrderTax method populates the
+     *        sales_order_tax[_item] tables with information based on the information contained in the Applied Taxes
+     *        array. Having duplicates rates will throw things off.
+     *
+     * 'TaxSummary' => ['TaxDetail' => [
+     *     // This rate was applied to shipping
+     *     0 => [
+     *         'JurisType' => 'State',
+     *         'JurisCode' => 'DE',
+     *         'TaxType' => 'Sales',
+     *         'Taxable' => '20',
+     *         'Rate' => '0.189995',
+     *         'Tax' => '3.8',
+     *         'JurisName' => 'GERMANY',
+     *         'TaxName' => 'Standard Rate',
+     *         'Country' => 'DE',
+     *         'Region' => 'DE',
+     *         'TaxCalculated' => '3.8',
+     *     ],
+     *     // This rate was applied to products
+     *     1 => [
+     *         'JurisType' => 'State',
+     *         'JurisCode' => 'DE',
+     *         'TaxType' => 'Sales',
+     *         'Base' => '150',
+     *         'Taxable' => '150',
+     *         'Rate' => '0.190000',
+     *         'Tax' => '28.5',
+     *         'JurisName' => 'GERMANY',
+     *         'TaxName' => 'Standard Rate',
+     *         'Country' => 'DE',
+     *         'Region' => 'DE',
+     *         'TaxCalculated' => '28.5',
+     *     ]
+     * ]]
+     *
+     * @param \Magento\Framework\DataObject $getTaxResult
+     *
+     * @return array
+     */
+    protected function getTaxRatesByCode($getTaxResult)
+    {
+        $taxRatesByCode = [];
+
+        $customsTaxTypes = ['Customs', 'LandedCost'];
+
+        /* @var \Magento\Framework\DataObject $row */
+        foreach ($getTaxResult->getSummary() as $key => $row) {
+            $arrayKey = "{$row->getJurisCode()}_{$row->getJurisName()}_{$row->getTaxType()}";
+            $isCustomsTax = \in_array($row->getTaxType(), $customsTaxTypes);
+            $rate = (float)$row->getRate();
+
+            /**
+             * Magento requires there to be a percentage rate in order to save the taxes to the sales_order_tax table
+             * so we need to calculate a rate that isn't completely bogus (since the one from AvaTax is bogus)
+             *
+             * @see vendor/magento/module-tax/Model/Plugin/OrderSave.php:134
+             */
+            if ($isCustomsTax) {
+                $rate = (float)$row->getTax() / (float)$getTaxResult->getTotalAmount();
+            }
+
+            // Since the total percent is for display purposes only, round to 5 digits. Since the tax percent returned
+            // from AvaTax is not the actual tax rate, but the effective rate, rounding makes the presentation make more
+            // sense to the user. For example, a tax rate may be 19%, but AvaTax may return a value of 0.189995.
+            $ratePercent = (round($rate, 4) * Tax::RATE_MULTIPLIER);
+
+            /**
+             * There are rare situations in which a duplicate rate will have a slightly different percentage (see
+             * example in DocBlock above). In these cases, we will just determine the "effective" rate" ourselves.
+             *
+             * In addition, Customs should be merged together
+             */
+            if (isset($taxRatesByCode[$arrayKey]) && ($isCustomsTax || $taxRatesByCode[$arrayKey]['ratePercent'] != $ratePercent)) {
+                $taxRatesByCode[$arrayKey]['taxable'] += (float)$row->getTaxable();
+                $taxRatesByCode[$arrayKey]['tax'] += (float)$row->getTax();
+
+                // Avoid division by 0; the ratePercent is only used in the rare situation where there are different
+                // percents
+                if ($taxRatesByCode[$arrayKey]['taxable'] > 0) {
+                    $blendedRate = $taxRatesByCode[$arrayKey]['tax'] / $taxRatesByCode[$arrayKey]['taxable'];
+                    $taxRatesByCode[$arrayKey]['ratePercent'] = $blendedRate;
+                }
+
+                continue;
+            }
+
+            $taxRatesByCode[$arrayKey] = [
+                // In case jurisdiction codes are duplicated, prepending the $key ensures we have a unique ID
+                'id' => $key . '_' . $row->getJurisCode(),
+                'ratePercent' => $ratePercent,
+                'taxName' => $isCustomsTax ? __('Customs Duty and Import Tax') : $row->getTaxName(),
+                // Prepend a string to the juris code to prevent false positives on comparison (e.g. '053' == '53)
+                // Also, append the tax type to prevent Magento from trying to create multiple tax rates to the same
+                // item
+                'jurisCode' => "AVATAX-{$row->getJurisCode()}-{$row->getTaxType()}",
+                // These two values will only be used in the conditional below
+                'taxable' => (float)$row->getTaxable(),
+                'tax' => (float)$row->getTax(),
+            ];
+        }
+
+        return $taxRatesByCode;
+    }
+
+    /**
      * Calculates tax for each of the items in a quote/order/invoice/credit memo
      *
      * This code is heavily influenced by this method:
      * @see \Magento\Tax\Model\TaxCalculation::calculateTax()
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
-     * @param \Magento\Framework\DataObject $getTaxResult
-     * @param bool $useBaseCurrency
-     * @param \Magento\Framework\App\ScopeInterface $scope
+     * @param \Magento\Framework\DataObject               $getTaxResult
+     * @param bool                                        $useBaseCurrency
+     * @param \Magento\Framework\App\ScopeInterface       $scope
+     *
      * @return \Magento\Tax\Api\Data\TaxDetailsInterface
+     * @throws LocalizedException
      */
     public function calculateTaxDetails(
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
@@ -345,88 +459,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         /** @var  \Magento\Tax\Api\Data\AppliedTaxRateInterface[] $rateDataObjects */
         $rateDataObjects = [];
 
-        /**
-         * There are rare situations in which the Tax Summary from AvaTax will contain items that have the same TaxName,
-         * JurisCode, JurisName, and Rate. e.g., an order with shipping with VAT tax from Germany (example below).
-         * To account for this, we need to group rates by a combination of JurisCode and JurisName. Otherwise the same
-         * rate will get added twice. This is problematic for two reasons:
-         *     1. If a merchant has configured Magento to "Display Full Tax Summary" then the user will see the same
-         *        same rate with the same percentage displayed twice. This will be confusing.
-         *     2. When an order is placed, the \Magento\Tax\Model\Plugin\OrderSave::saveOrderTax method populates the
-         *        sales_order_tax[_item] tables with information based on the information contained in the Applied Taxes
-         *        array. Having duplicates rates will throw things off.
-         *
-         * 'TaxSummary' => ['TaxDetail' => [
-         *     // This rate was applied to shipping
-         *     0 => [
-         *         'JurisType' => 'State',
-         *         'JurisCode' => 'DE',
-         *         'TaxType' => 'Sales',
-         *         'Taxable' => '20',
-         *         'Rate' => '0.189995',
-         *         'Tax' => '3.8',
-         *         'JurisName' => 'GERMANY',
-         *         'TaxName' => 'Standard Rate',
-         *         'Country' => 'DE',
-         *         'Region' => 'DE',
-         *         'TaxCalculated' => '3.8',
-         *     ],
-         *     // This rate was applied to products
-         *     1 => [
-         *         'JurisType' => 'State',
-         *         'JurisCode' => 'DE',
-         *         'TaxType' => 'Sales',
-         *         'Base' => '150',
-         *         'Taxable' => '150',
-         *         'Rate' => '0.190000',
-         *         'Tax' => '28.5',
-         *         'JurisName' => 'GERMANY',
-         *         'TaxName' => 'Standard Rate',
-         *         'Country' => 'DE',
-         *         'Region' => 'DE',
-         *         'TaxCalculated' => '28.5',
-         *     ]
-         * ]]
-         */
-        $taxRatesByCode = [];
-        /* @var \Magento\Framework\DataObject $row */
-        foreach ($getTaxResult->getSummary() as $key => $row) {
-            $arrayKey = $row->getJurisCode() . '_' . $row->getJurisName();
-
-            // Since the total percent is for display purposes only, round to 5 digits. Since the tax percent returned
-            // from AvaTax is not the actual tax rate, but the effective rate, rounding makes the presentation make more
-            // sense to the user. For example, a tax rate may be 19%, but AvaTax may return a value of 0.189995.
-            $roundedRate = round((float) $row->getRate(), 4);
-
-            $ratePercent = ($roundedRate * Tax::RATE_MULTIPLIER);
-            if (!isset($taxRatesByCode[$arrayKey])) {
-                $taxRatesByCode[$arrayKey] = [
-                    // In case jurisdiction codes are duplicated, prepending the $key ensures we have a unique ID
-                    'id' => $key . '_' . $row->getJurisCode(),
-                    'ratePercent' => $ratePercent,
-                    'taxName' => $row->getTaxName(),
-                    // Prepend a string to the juris code to prevent false positives on comparison (e.g. '053' == '53)
-                    'jurisCode' => 'AVATAX-' . $row->getJurisCode(),
-                    // These two values will only be used in the conditional below
-                    'taxable' => (float)$row->getTaxable(),
-                    'tax' => (float)$row->getTax(),
-                ];
-            } elseif ($taxRatesByCode[$arrayKey]['ratePercent'] != $ratePercent) {
-                /**
-                 * There are rare situations in which a duplicate rate will have a slightly different percentage (see
-                 * example in DocBlock above). In these cases, we will just determine the "effective" rate" ourselves.
-                 */
-                $taxRatesByCode[$arrayKey]['taxable'] += (float)$row->getTaxable();
-                $taxRatesByCode[$arrayKey]['tax'] += (float)$row->getTax();
-                // Avoid division by 0
-                if ($taxRatesByCode[$arrayKey]['taxable'] > 0) {
-                    $blendedRate = $taxRatesByCode[$arrayKey]['tax'] / $taxRatesByCode[$arrayKey]['taxable'];
-                    $taxRatesByCode[$arrayKey]['ratePercent'] = $blendedRate;
-                }
-            }
-        }
-
-        foreach ($taxRatesByCode as $rowArray) {
+        foreach ($this->getTaxRatesByCode($getTaxResult) as $rowArray) {
             $ratePercent = $rowArray['ratePercent'];
             $totalPercent += $ratePercent;
             $taxCode = $rowArray['jurisCode'];
@@ -440,7 +473,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             // Add row-specific tax amounts as extension attribute
             $appliedTaxRateExtension = $this->appliedTaxRateExtensionFactory
                 ->create()
-                ->setRatePercent($ratePercent)
+                ->setRatePercent($ratePercent === 0.0 ? null : $ratePercent)
                 ->setTaxName($taxName)
                 ->setJurisCode($taxCode)
                 ->setTaxable($taxable)
@@ -448,7 +481,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
             // Skipped position, priority and rule_id
             $rateDataObjects[$id] = $this->appliedTaxRateDataObjectFactory->create()
-                ->setPercent($ratePercent)
+                ->setPercent($ratePercent === 0.0 ? null : $ratePercent)
                 ->setCode($taxCode)
                 ->setTitle($taxName)
                 ->setExtensionAttributes($appliedTaxRateExtension);

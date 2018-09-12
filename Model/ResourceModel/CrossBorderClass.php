@@ -126,4 +126,23 @@ class CrossBorderClass extends \Magento\Framework\Model\ResourceModel\Db\Abstrac
             }
         }
     }
+
+    /**
+     * Get list of product attribute codes that are used for unit amount
+     *
+     * return array     Array of attribute codes
+     */
+    public function getUnitAmountAttributes()
+    {
+        $select = $this->getConnection()->select()
+            ->from(
+                $this->getConnection()->getTableName('avatax_cross_border_class'),
+                ['unit_amount_product_attr']
+            )
+            ->group('unit_amount_product_attr');
+
+        $results = $this->getConnection()->fetchCol($select);
+
+        return array_unique($results);
+    }
 }

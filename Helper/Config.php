@@ -135,6 +135,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
 
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
+
+    const XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING = 'tax/avatax_advanced/response_logging_enabled';
     /**#@-*/
 
     /**
@@ -295,6 +297,23 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_MODULE_ENABLED,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Return whether response logging is enabled
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return mixed
+     */
+    public function isResponseLoggingEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING,
             $scopeType,
             $store
         );
@@ -487,8 +506,16 @@ class Config extends AbstractHelper
     public function getApplicationName()
     {
         return substr($this->magentoProductMetadata->getName(), 0, 7) . ' ' . // "Magento" - 8 chars
-            substr($this->magentoProductMetadata->getVersion(), 0, 14) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
-            substr($this->magentoProductMetadata->getEdition(), 0, 10) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
+            substr(
+                $this->magentoProductMetadata->getVersion(),
+                0,
+                14
+            ) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
+            substr(
+                $this->magentoProductMetadata->getEdition(),
+                0,
+                10
+            ) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
             'AvaTax';
     }
 
@@ -524,9 +551,9 @@ class Config extends AbstractHelper
      *
      * @return bool
      */
-    public function isProductionMode( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
+    public function isProductionMode($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (bool) $this->scopeConfig->getValue(
+        return (bool)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LIVE_MODE,
             $scopeType,
             $store
@@ -540,7 +567,7 @@ class Config extends AbstractHelper
      *
      * @return string
      */
-    public function getMode( $isProductionMode )
+    public function getMode($isProductionMode)
     {
         return $isProductionMode ? self::API_PROFILE_NAME_PROD : self::API_PROFILE_NAME_DEV;
     }
@@ -564,9 +591,8 @@ class Config extends AbstractHelper
         $scopeType = ScopeInterface::SCOPE_STORE
     )
     {
-        if ($isProduction === null)
-        {
-            $isProduction = $this->isProductionMode( $store, $scopeType );
+        if ($isProduction === null) {
+            $isProduction = $this->isProductionMode($store, $scopeType);
         }
 
         return $this->scopeConfig->getValue(
@@ -579,15 +605,15 @@ class Config extends AbstractHelper
     /**
      * Get account number from config
      *
-     * @param int|null $store
+     * @param int|null    $store
      * @param string|null $scopeType
-     * @param bool|null $isProduction Get the value for a specific mode instead of relying on the saved value
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
      *
      * @return string
      */
-    public function getAccountNumber( $store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null )
+    public function getAccountNumber($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
     {
-        return (string) $this->getConfigByMode(
+        return (string)$this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
             self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
             $isProduction,
@@ -605,9 +631,9 @@ class Config extends AbstractHelper
      *
      * @return string
      */
-    public function getLicenseKey( $store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null )
+    public function getLicenseKey($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
     {
-        return (string) $this->getConfigByMode(
+        return (string)$this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
             self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
             $isProduction,
@@ -627,7 +653,7 @@ class Config extends AbstractHelper
      */
     public function getCompanyCode($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
     {
-        return (string) $this->getConfigByMode(
+        return (string)$this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
             self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
             $isProduction,
@@ -655,7 +681,7 @@ class Config extends AbstractHelper
             $scopeType
         );
 
-        if($companyId !== null) {
+        if ($companyId !== null) {
             $companyId = (int)$companyId;
         }
 
