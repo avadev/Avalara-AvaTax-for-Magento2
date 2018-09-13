@@ -9,20 +9,36 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Api;
+namespace ClassyLlama\AvaTax\Api\Data;
 
-/**
- * Interface for managing valid address
- * @api
- */
-interface TokenInterface
+interface SDKTokenInterface
 {
     /**
-     * @return \ClassyLlama\AvaTax\Api\Data\SDKTokenInterface
+     * @return string
      */
     public function getToken();
+
+    /**
+     * @return int
+     */
+    public function getExpires();
+
+    /**
+     * @return string
+     */
+    public function getCustomer();
+
+    /**
+     * @return string
+     */
+    public function getClientId();
+
+    /**
+     * @return string
+     */
+    public function getSdkUrl();
 }
