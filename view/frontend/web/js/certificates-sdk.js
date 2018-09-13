@@ -1,9 +1,9 @@
 define(['sdkToken'], function (sdkToken) {
-    return function(container, params) {
-        new Promise(function (resolve, reject) {
+    return function (container, params) {
+        return new Promise(function (resolve, reject) {
             sdkToken().then(function (sdkUrl, token, customerId) {
                 require([sdkUrl], function () {
-                    if(typeof params !== 'object') {
+                    if (typeof params !== 'object') {
                         params = {};
                     }
 
