@@ -19,5 +19,5 @@ $count = $block->getQueueSummaryCount();
 ?>
 <div class="admin__avatax-queue-summary">
     <?php echo __('Last Processed at %1 - Queue Records Waiting To Be Processed: %2', $lastUpdatedAt, $count); ?><br>
-    <em><?php echo __('Note: Queued items will not be processed until %1 minutes after they are created <a href="%2">to avoid race conditions during order placement</a>.', (\ClassyLlama\AvaTax\Model\Queue\Task::QUEUE_PROCESSING_DELAY / 60), 'https://github.com/classyllama/ClassyLlama_AvaTax/issues/170') ?></em>
+    <em><?php echo __('Note: Queued items will not be processed until %1 minutes after they are created <a href="%2">to avoid race conditions during order processing</a>.', (\ClassyLlama\AvaTax\Model\Queue\Task::QUEUE_PROCESSING_DELAY / 60), 'https://github.com/classyllama/ClassyLlama_AvaTax/issues/170') ?></em>
 </div>
