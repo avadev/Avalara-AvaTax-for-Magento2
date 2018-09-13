@@ -1,3 +1,7 @@
+### 1.4.4 (2018-09-13)
+
+* Fix issue where invalid/partial zip code values result in errors logged [#122](https://github.com/classyllama/ClassyLlama_AvaTax/issues/122)
+
 ### 1.4.3 (2018-07-13)
 
 * Fix issue where address validation in admin while editing customer doesn't display region in original address [#135](https://github.com/classyllama/ClassyLlama_AvaTax/issues/135)
