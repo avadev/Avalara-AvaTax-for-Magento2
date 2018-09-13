@@ -173,8 +173,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         // If postcode is not present, then collect totals is being run from a context where customer has not submitted
         // their address, such as on the product listing, product detail, or cart page. Once the user enters their
         // postcode in the "Estimate Shipping & Tax" form on the cart page, or submits their shipping address in the
-        // checkout, then a postcode will be present.
-        if (!$postcode || \count($postcode) < 4) {
+        // checkout, then a postcode will be present; but only send request if the postcode is at least 4 characters.
+        if (!$postcode || \strlen($postcode) < 4) {
             return parent::collect($quote, $shippingAssignment, $total);
         }
 
