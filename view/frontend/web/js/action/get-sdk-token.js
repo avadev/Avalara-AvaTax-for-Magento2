@@ -17,6 +17,13 @@ define(['jquery', 'mage/storage'], function (jQuery, storage) {
     // Grab a new token 5 minutes before the previous one expires to ensure our requests will have a valid token
     var expirationBuffer = 5 * 60 * 1000;
     var avaTaxTokenStorageKey = 'avatax-token';
+    var requiredInfo = [
+        'token',
+        'customer',
+        'client_id',
+        'expires',
+        'sdk_url'
+    ];
 
     return function getSdkToken() {
         var tokenInfo = window.localStorage.getItem(avaTaxTokenStorageKey);
@@ -24,8 +31,8 @@ define(['jquery', 'mage/storage'], function (jQuery, storage) {
         if (tokenInfo !== null) {
             tokenInfo = JSON.parse(tokenInfo);
 
-            if(tokenInfo !== false && tokenInfo.expires * 1000 > Date.now() + expirationBuffer) {
-                return jQuery.Deferred().resolve(tokenInfo.token);
+            if (tokenInfo !== false && tokenInfo.expires * 1000 > Date.now() + expirationBuffer) {
+                return jQuery.Deferred().resolve(tokenInfo.sdk_url, tokenInfo.token, tokenInfo.customer.client_id);
             }
 
             window.localStorage.removeItem(avaTaxTokenStorageKey)
@@ -33,22 +40,15 @@ define(['jquery', 'mage/storage'], function (jQuery, storage) {
 
         return storage.get('rest/V1/avatax/token').then(
             function (response) {
-                var tokenInfo = void(0);
-
-                // Only set the token info if we were returned the proper array response
-                if(response instanceof Array) {
-                    tokenInfo = response.pop();
-                }
-
                 // If we don't have token info, return early
-                if(tokenInfo === void(0)) {
-                    return false;
+                if (!requiredInfo.every(function (key) {return response.hasOwnProperty(key);})) {
+                    return jQuery.Deferred().reject();
                 }
 
                 // Cache the token in local storage
-                window.localStorage.setItem(avaTaxTokenStorageKey, JSON.stringify(tokenInfo));
+                window.localStorage.setItem(avaTaxTokenStorageKey, JSON.stringify(response));
 
-                return jQuery.Deferred().resolve(tokenInfo.token);
+                return jQuery.Deferred().resolve(response.sdk_url, response.token, response.customer, response.client_id);
             }
         );
     }

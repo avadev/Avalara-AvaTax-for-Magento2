@@ -15,8 +15,8 @@
 
 namespace ClassyLlama\AvaTax\Model;
 
+use ClassyLlama\AvaTax\Api\Data\SDKTokenInterfaceFactory;
 use ClassyLlama\AvaTax\Api\TokenInterface;
-use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 
 class Token implements TokenInterface
 {
@@ -33,26 +33,40 @@ class Token implements TokenInterface
     protected $deploymentConfig;
 
     /**
+     * @var SDKTokenInterfaceFactory
+     */
+    protected $tokenInterfaceFactory;
+
+    /**
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Framework\App\DeploymentConfig    $deploymentConfig
+     * @param SDKTokenInterfaceFactory                   $tokenInterfaceFactory
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\App\DeploymentConfig $deploymentConfig
+        \Magento\Framework\App\DeploymentConfig $deploymentConfig,
+        SDKTokenInterfaceFactory $tokenInterfaceFactory
     )
     {
         $this->storeManager = $storeManager;
         $this->deploymentConfig = $deploymentConfig;
+        $this->tokenInterfaceFactory = $tokenInterfaceFactory;
     }
 
     /**
-     * @return array
+     * @return \ClassyLlama\AvaTax\Api\Data\SDKTokenInterface|string
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getToken()
     {
         try {
             $certCaptureConfig = $this->deploymentConfig->get('cert-capture');
+
+            if (!isset(
+                $certCaptureConfig['auth']['username'], $certCaptureConfig['auth']['password'], $certCaptureConfig['client-id'], $certCaptureConfig['customer-number'], $certCaptureConfig['sdk-url']
+            )) {
+                return "Invalid Deployment Configuration";
+            }
 
             $auth = base64_encode("{$certCaptureConfig['auth']['username']}:{$certCaptureConfig['auth']['password']}");
 
@@ -74,14 +88,21 @@ class Token implements TokenInterface
 
             $result = json_decode(file_get_contents($certCaptureConfig['url'], false, $context), true);
 
-            return [
+            if ($result === false) {
+                return "Error parsing response from AvaTax: " . json_last_error_msg();
+            }
+
+            return $this->tokenInterfaceFactory->create(
                 [
-                    'token' => $result['response']['token'],
-                    'expires' => (new \DateTime($result['response']['expires_at']))->getTimestamp()
+                    'data' => [
+                        'token' => $result['response']['token'],
+                        'expires' => (new \DateTime($result['response']['expires_at']))->getTimestamp(),
+                        'customer' => $certCaptureConfig['customer-number'],
+                        'client_id' => $certCaptureConfig['client-id'],
+                        'sdk_url' => $certCaptureConfig['sdk-url']
+                    ]
                 ]
-            ];
-        } catch (AvataxConnectionException $e) {
-            return __('Address validation connection error')->getText();
+            );
         } catch (\Exception $e) {
             return $e->getMessage();
         }
