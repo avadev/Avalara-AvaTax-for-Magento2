@@ -1,6 +1,6 @@
-define(['sdkToken'], function (sdkToken) {
+define(['sdkToken', 'jquery'], function (sdkToken, jQuery) {
     return function (container, params) {
-        return new Promise(function (resolve, reject) {
+        return jQuery.Deferred(function (defer) {
             sdkToken().then(function (sdkUrl, token, customerId) {
                 require([sdkUrl], function () {
                     if (typeof params !== 'object') {
@@ -11,9 +11,9 @@ define(['sdkToken'], function (sdkToken) {
                     params.customer_number = customerId;
 
                     GenCert.init(container, params);
-                    resolve();
+                    defer.resolve();
                 });
-            }).fail(reject);
+            }).fail(defer.reject);
         });
     }
 });
