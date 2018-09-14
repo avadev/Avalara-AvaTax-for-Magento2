@@ -144,7 +144,8 @@ class ConfigSaveObserver implements ObserverInterface
         }
 
         $message = '';
-        $type = $this->config->getLiveMode($scopeId, $scopeType) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
+        $type = $this->config->getLiveMode($scopeId, $scopeType)
+            ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         if ($this->checkCredentialsForMode($scopeId, $scopeType, $type)) {
             try {
                 $result = $this->interactionTax->getTaxService($type, $scopeId, $scopeType)->ping();
@@ -155,7 +156,7 @@ class ConfigSaveObserver implements ObserverInterface
                 } elseif (is_object($result) && $result->getResultCode() == \AvaTax\SeverityLevel::$Success) {
                     $this->messageManager->addSuccess(
                         __('Successfully connected to AvaTax using the '
-                            . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>', $type
+                            . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>.', $type
                         )
                     );
                 }
