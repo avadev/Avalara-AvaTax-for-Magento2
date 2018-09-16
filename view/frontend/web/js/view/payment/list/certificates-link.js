@@ -11,10 +11,34 @@
  * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-define(['Magento_Checkout/js/model/totals', 'certificatesSdk', 'jquery', 'mage/url'], function (totals, sdk, jQuery, urlBuilder) {
+define([
+    'Magento_Checkout/js/model/totals',
+    'certificatesSdk',
+    'jquery',
+    'Magento_Checkout/js/model/quote'
+], function (totals, sdk, jQuery, quote) {
     'use strict';
 
     return function (targetModule) {
+        var parentInitialize = targetModule.prototype.initialize;
+
+        // Inject into the initialize method so that we can subscribe to address changes
+        targetModule.prototype.initialize = function initialize() {
+            parentInitialize.apply(this, arguments);
+
+            this.shippingToEnabledCountry = false;
+            this.observe(['shippingToEnabledCountry']);
+
+            if(this.enabledCountries === void(0)) {
+                this.enabledCountries = [];
+            }
+
+            var self = this;
+
+            quote.shippingAddress.subscribe(function (address) {
+                self.shippingToEnabledCountry = self.enabledCountries.indexOf(address.countryId) >= 0;
+            });
+        };
 
         targetModule.prototype.ifShowCertificateLink = function ifShowCertificateLink() {
             var amount = 0,

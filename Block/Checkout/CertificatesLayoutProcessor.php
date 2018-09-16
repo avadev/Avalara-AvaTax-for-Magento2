@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Block\Checkout;
 
 use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
 
 class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
 {
@@ -35,13 +36,24 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
     protected $urlBuilder;
 
     /**
-     * @param Config                         $config
+     * @var DocumentManagementConfig
+     */
+    protected $documentManagementConfig;
+
+    /**
+     * @param Config                          $config
+     * @param DocumentManagementConfig        $documentManagementConfig
      * @param \Magento\Framework\UrlInterface $urlBuilder
      */
-    public function __construct(Config $config, \Magento\Framework\UrlInterface $urlBuilder)
+    public function __construct(
+        Config $config,
+        DocumentManagementConfig $documentManagementConfig,
+        \Magento\Framework\UrlInterface $urlBuilder
+    )
     {
         $this->config = $config;
         $this->urlBuilder = $urlBuilder;
+        $this->documentManagementConfig = $documentManagementConfig;
     }
 
     /**
@@ -53,9 +65,26 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
      */
     public function process($jsLayout)
     {
-        if ($this->config->isModuleEnabled()) {
-            $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"]["certificatesLink"] = $this->urlBuilder->getUrl('avatax/certificates');
-            $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"]["certificatesLink"] = $this->urlBuilder->getUrl('avatax/certificates');
+        if ($this->config->isModuleEnabled() && $this->documentManagementConfig->isEnabled()) {
+            $config = [
+                'certificatesLink' => $this->urlBuilder->getUrl('avatax/certificates'),
+                'newCertNoneExist' => __($this->documentManagementConfig->getCheckoutLinkTextNewCertNoCertsExist()),
+                'newCertExist' => __($this->documentManagementConfig->getCheckoutLinkTextNewCertCertsExist()),
+                'manageCerts' => __($this->documentManagementConfig->getCheckoutLinkTextManageExistingCert()),
+                'enabledCountries' => $this->documentManagementConfig->getEnabledCountries()
+            ];
+
+            // Set config for payments area
+            $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"] = array_merge(
+                $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"],
+                $config
+            );
+
+            // Set config for tax summary area
+            $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"] = array_merge(
+                $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"],
+                $config
+            );
         }
 
         return $jsLayout;

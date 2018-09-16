@@ -40,7 +40,7 @@ class DocumentManagementConfig extends AbstractHelper
      *
      * @return bool
      */
-    public function getEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function isEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return (bool)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ENABLED,

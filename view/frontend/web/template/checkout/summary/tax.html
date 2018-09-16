@@ -20,10 +20,10 @@
 </tr>
 <!-- /ko -->
 <!-- // BEGIN EDIT - Show certificates management link -->
-<tr class="totals-tax certificate-links" data-bind="if: ifShowCertificateLink()">
+<tr class="totals-tax certificate-links" data-bind="if: shippingToEnabledCountry && ifShowCertificateLink()">
     <td class="mark" colspan="2">
-        <a href="javascript:void(0)" data-bind="click: showNewCertificateModal, i18n: 'New Certificate'"></a>
-        <a data-bind="attr: {href: certificatesLink}, i18n: 'Manage existing certificates'"></a>
+        <a href="javascript:void(0)" data-bind="click: showNewCertificateModal, text: newCertNoneExist"></a>
+        <a data-bind="attr: {href: certificatesLink}, text: manageCerts"></a>
     </td>
 </tr>
 <!-- // END EDIT -->
