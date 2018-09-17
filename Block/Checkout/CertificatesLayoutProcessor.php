@@ -15,8 +15,11 @@
 
 namespace ClassyLlama\AvaTax\Block\Checkout;
 
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
+use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
 
 class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
 {
@@ -41,19 +44,43 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
     protected $documentManagementConfig;
 
     /**
-     * @param Config                          $config
-     * @param DocumentManagementConfig        $documentManagementConfig
-     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @var \ClassyLlama\AvaTax\Api\RestCustomerInterface
+     */
+    protected $customerRest;
+
+    /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
+
+    /**
+     * @var \Magento\Customer\Model\Session
+     */
+    protected $customerSession;
+
+    /**
+     * @param Config                                        $config
+     * @param DocumentManagementConfig                      $documentManagementConfig
+     * @param \Magento\Framework\UrlInterface               $urlBuilder
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
+     * @param DataObjectFactory                             $dataObjectFactory
+     * @param \Magento\Customer\Model\Session               $customerSession
      */
     public function __construct(
         Config $config,
         DocumentManagementConfig $documentManagementConfig,
-        \Magento\Framework\UrlInterface $urlBuilder
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
+        DataObjectFactory $dataObjectFactory,
+        \Magento\Customer\Model\Session $customerSession
     )
     {
         $this->config = $config;
         $this->urlBuilder = $urlBuilder;
         $this->documentManagementConfig = $documentManagementConfig;
+        $this->customerRest = $customerRest;
+        $this->dataObjectFactory = $dataObjectFactory;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -62,15 +89,19 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
      * @param array $jsLayout
      *
      * @return array
+     * @throws AvataxConnectionException
      */
     public function process($jsLayout)
     {
         if ($this->config->isModuleEnabled() && $this->documentManagementConfig->isEnabled()) {
+            $newCertText = \count($this->getCertificates()) > 0 ? __(
+                $this->documentManagementConfig->getCheckoutLinkTextNewCertCertsExist()
+            ) : __($this->documentManagementConfig->getCheckoutLinkTextNewCertNoCertsExist());
+
             $config = [
                 'certificatesLink' => $this->urlBuilder->getUrl('avatax/certificates'),
-                'newCertNoneExist' => __($this->documentManagementConfig->getCheckoutLinkTextNewCertNoCertsExist()),
-                'newCertExist' => __($this->documentManagementConfig->getCheckoutLinkTextNewCertCertsExist()),
-                'manageCerts' => __($this->documentManagementConfig->getCheckoutLinkTextManageExistingCert()),
+                'newCertText' => $newCertText,
+                'manageCertsText' => __($this->documentManagementConfig->getCheckoutLinkTextManageExistingCert()),
                 'enabledCountries' => $this->documentManagementConfig->getEnabledCountries()
             ];
 
@@ -88,5 +119,25 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
         }
 
         return $jsLayout;
+    }
+
+    /**
+     * @return DataObject[]
+     * @throws AvataxConnectionException
+     */
+    public function getCertificates()
+    {
+        $certificates = [];
+        $customerId = $this->customerSession->getCustomer()->getId();
+
+        if ($customerId === null) {
+            return $certificates;
+        }
+
+        $certificates = $this->customerRest->getCertificatesList(
+            $this->dataObjectFactory->create(['data' => ['customer_id' => $customerId]])
+        );
+
+        return $certificates;
     }
 }
