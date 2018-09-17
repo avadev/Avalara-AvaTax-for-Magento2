@@ -22,7 +22,7 @@ use Magento\Framework\DataObject;
 class Company extends Rest implements RestCompanyInterface
 {
     /**
-     * @param \Avalara\AvaTaxClient $client
+     * @param \ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper $client
      * @param DataObject|null       $request
      *
      * @return DataObject[]
