@@ -15,7 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use Avalara\AvaTaxClient;
+use \ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use Magento\Framework\DataObjectFactory;
@@ -67,7 +67,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      * @param null|string|int $scopeId
      * @param string          $scopeType
      *
-     * @return AvaTaxClient
+     * @return AvaTaxClientWrapper
      * @throws \InvalidArgumentException
      */
     public function getClient(

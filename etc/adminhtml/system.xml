@@ -444,6 +444,10 @@
                         <field id="error_action">1</field>
                     </depends>
                 </field>
+                <field id="avatax_timeout" translate="label comment" type="text" sortOrder="2050" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>AvaTax API Timeout</label>
+                    <comment><![CDATA[This field defines how long Magento should wait to hear from AvaTax's servers before assuming no response will be given.]]></comment>
+                </field>
                 <field id="logging_settings_header" translate="label" type="label" sortOrder="5000" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label><![CDATA[<strong>Logging Settings</strong>]]></label>
                     <!-- Reference: https://github.com/magento/magento2/issues/2340
