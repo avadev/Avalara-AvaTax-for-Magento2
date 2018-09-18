@@ -79,21 +79,20 @@ class Token implements TokenInterface
             $certCaptureConfig = $this->deploymentConfig->get('cert-capture');
 
             if (!isset(
-                $certCaptureConfig['auth']['username'], $certCaptureConfig['auth']['password'], $certCaptureConfig['sdk-url']
+                $certCaptureConfig['auth']['username'], $certCaptureConfig['auth']['password'], $certCaptureConfig['sdk-url'], $certCaptureConfig['client-id']
             )) {
                 return "Invalid Deployment Configuration";
             }
 
             $auth = base64_encode("{$certCaptureConfig['auth']['username']}:{$certCaptureConfig['auth']['password']}");
             $customerId = $this->customerSession->getCustomer()->getId();
-            $clientId = $this->config->getCompanyId();
 
             // use key 'http' even if you send the request to https://...
             $options = [
                 'http' => [
                     'header' => [
                         'Content-type: application/json',
-                        "x-client-id: {$clientId}",
+                        "x-client-id: {$certCaptureConfig['client-id']}",
                         "x-customer-number: {$customerId}",
                         "Authorization: Basic $auth"
                     ],
@@ -116,7 +115,7 @@ class Token implements TokenInterface
                         'token' => $result['response']['token'],
                         'expires' => (new \DateTime($result['response']['expires_at']))->getTimestamp(),
                         'customer' => $customerId,
-                        'client_id' => $clientId,
+                        'client_id' => $certCaptureConfig['client-id'],
                         'sdk_url' => $certCaptureConfig['sdk-url']
                     ]
                 ]
