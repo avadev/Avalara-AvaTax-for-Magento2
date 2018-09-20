@@ -23,7 +23,8 @@ var config = {
             // Add the following alias to provide compatibility with Magento 2.2
             addressValidation: 'ClassyLlama_AvaTax/js/addressValidation',
             sdkToken: 'ClassyLlama_AvaTax/js/action/get-sdk-token',
-            certificatesSdk: 'ClassyLlama_AvaTax/js/certificates-sdk'
+            certificatesSdk: 'ClassyLlama_AvaTax/js/certificates-sdk',
+            deleteCertificate: 'ClassyLlama_AvaTax/js/action/delete-certificate'
         }
     },
     config: {
