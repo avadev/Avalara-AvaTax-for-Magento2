@@ -130,6 +130,22 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
     }
 
     /**
+     * Build delete cert url
+     *
+     * @param int $certificateId
+     * @return string
+     */
+    public function getDeleteCertificateUrl(int $certificateId)
+    {
+        $params = [
+            'certificate_id' => $certificateId,
+            'customer_id' => $this->getCustomerId()
+        ];
+
+        return $this->urlBuilder->getUrl('avatax/certificates/delete', $params);
+    }
+
+    /**
      * @return DataObject[]
      * @throws AvataxConnectionException
      */

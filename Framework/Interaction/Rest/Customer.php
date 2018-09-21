@@ -108,4 +108,23 @@ class Customer extends Rest implements RestCustomerInterface
             $request->getData('type')
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteCertificate(
+        $request,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    {
+        /** @var \Avalara\AvaTaxClient $client */
+        $client = $this->getClient($isProduction, $scopeId, $scopeType);
+
+        return $client->deleteCertificate(
+            $this->config->getCompanyId($scopeId, $scopeType),
+            $request->getData('id')
+        );
+    }
 }

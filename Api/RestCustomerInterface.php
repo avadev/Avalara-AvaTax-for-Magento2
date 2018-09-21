@@ -53,4 +53,21 @@ interface RestCustomerInterface extends RestInterface
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     );
+
+    /**
+     * Perform REST request to delete certificate.
+     *
+     * @param DataObject $request
+     * @param bool|null $isProduction
+     * @param string|int|null $scopeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     */
+    public function deleteCertificate(
+        $request,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    );
 }

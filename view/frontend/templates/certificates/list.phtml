@@ -24,7 +24,7 @@ try {
 }
 ?>
 <div class="table-wrapper">
-    <table class="data table" data-mage-init='{"deleteCertificate":{}}'>
+    <table class="data table">
         <thead>
             <tr>
                 <th class="data-grid-th"><?php echo __('State') ?></th>
@@ -64,7 +64,9 @@ try {
                     </td>
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
-                            <a href="javascript:void(0)" class="delete-button"><?= __('Delete Certificate') ?></a>
+                            <a href="<?= $viewModel->getDeleteCertificateUrl($certificate->getData('id')) ?>">
+                                <?= __('Delete Certificate') ?>
+                            </a>
                         <?php endif ?>
                     </td>
                 </tr>
