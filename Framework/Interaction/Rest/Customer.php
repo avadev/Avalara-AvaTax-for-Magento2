@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
+use Avalara\CustomerModel;
 use ClassyLlama\AvaTax\Api\RestCustomerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
 use ClassyLlama\AvaTax\Helper\Config;
@@ -122,9 +123,42 @@ class Customer extends Rest implements RestCustomerInterface
         /** @var \Avalara\AvaTaxClient $client */
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
 
-        return $client->deleteCertificate(
+        try {
+            $customerId = $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId);
+
+            //unlink request requires a LinkCustomersModel which contains a string[] of all customer ids.
+            $customerModel = new \Avalara\LinkCustomersModel();
+            $customerModel->customers = [$customerId];
+
+            //Customer(s) must be unlinked from cert before it can be deleted.
+            $unlinkResult = $client->unlinkCustomersFromCertificate(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $request->getData('id'),
+                $customerModel
+            );
+
+            $this->validateResult($unlinkResult, $request);
+
+        } catch (\Exception $e) {
+            //Swallow this error. Continue to try and delete the cert.
+            //If the deletion errors, then we'll notify the user that something has gone wrong.
+        }
+
+        //make deletion request.
+        $result = $client->deleteCertificate(
             $this->config->getCompanyId($scopeId, $scopeType),
             $request->getData('id')
         );
+
+        //A successful delete request results in an empty body. This means $result is an empty array.
+        //However, the validateResult method can't handle this as a valid response.
+        //This explicit check for an empty array is to fill that hole in the validation.
+        if(is_array($result) && count($result) === 0) {
+            return $result; //result is an empty array. No error was returned from request.
+        } else {
+            //Something went wrong, validate and handle error.
+            $this->validateResult($result, $request);
+            return $this->formatResult($result);
+        }
     }
 }

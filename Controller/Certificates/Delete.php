@@ -72,16 +72,19 @@ class Delete extends \Magento\Framework\App\Action\Action
                 $storeId = $customerModel->getStoreId();
             }
 
-            $response = $this->customerRest->deleteCertificate(
-                $this->dataObjectFactory->create(['data' => ['id' => $certificateId]]),
+            //try to delete cert. Any/all errors during process caught below.
+            $this->customerRest->deleteCertificate(
+                $this->dataObjectFactory->create(
+                    ['data' => [
+                        'id' => $certificateId,
+                        'customer_id' => $customerId
+                    ]]
+                ),
                 null,
                 $storeId
             );
 
-            //todo handle response
-            if($response) {
-                $this->messageManager->addSuccessMessage(__('Your certificate has been successfully deleted.'));
-            }
+            $this->messageManager->addSuccessMessage(__('Your certificate has been successfully deleted.'));
 
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('There was a problem deleting your certificate.'));
