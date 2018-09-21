@@ -64,7 +64,8 @@ try {
                     </td>
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
-                            <a href="<?= $viewModel->getDeleteCertificateUrl($certificate->getData('id')) ?>">
+                            <a href="javascript:void(0)" class="delete-button"
+                               data-delete-url="<?= $viewModel->getDeleteCertificateUrl($certificate->getData('id')) ?>">
                                 <?= __('Delete Certificate') ?>
                             </a>
                         <?php endif ?>
@@ -80,3 +81,10 @@ try {
         </tbody>
     </table>
 </div>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "deleteCertificate": {}
+        }
+    }
+</script>
