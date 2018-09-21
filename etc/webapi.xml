@@ -34,10 +34,4 @@
             <resource ref="self" />
         </resources>
     </route>
-    <route url="/V1/avatax/deletecertificate" method="DELETE">
-        <service class="ClassyLlama\AvaTax\Api\CertificateInterface" method="deleteById"/>
-        <resources>
-            <resource ref="self" />
-        </resources>
-    </route>
 </routes>

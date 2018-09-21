@@ -26,7 +26,6 @@
     <preference for="ClassyLlama\AvaTax\Api\RestCustomerInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Customer" />
     <preference for="ClassyLlama\AvaTax\Api\TokenInterface" type="ClassyLlama\AvaTax\Model\Token"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\SDKTokenInterface" type="ClassyLlama\AvaTax\Model\Data\SDKToken"/>
-    <preference for="ClassyLlama\AvaTax\Api\CertificateInterface" type="ClassyLlama\AvaTax\Model\Certificate" />
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
