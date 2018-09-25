@@ -42,6 +42,9 @@ var config = {
                 // We can leverage the same login from the tax summary to determine if we have customs
                 'ClassyLlama_AvaTax/js/view/checkout/summary/tax/mixin': true,
                 'ClassyLlama_AvaTax/js/view/estimation/mixin': true
+            },
+            'Magento_Checkout/js/model/step-navigator': {
+                'ClassyLlama_AvaTax/js/model/step-navigator/mixin': true
             }
         }
     }

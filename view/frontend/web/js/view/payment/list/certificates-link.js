@@ -15,8 +15,12 @@ define([
     'Magento_Checkout/js/model/totals',
     'certificatesSdk',
     'jquery',
-    'Magento_Checkout/js/model/quote'
-], function (totals, sdk, jQuery, quote) {
+    'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/action/get-totals',
+    'Magento_Checkout/js/model/full-screen-loader',
+    'mage/storage',
+    'ClassyLlama_AvaTax/js/action/set-shipping-address'
+], function (totals, sdk, jQuery, quote, getTotalsAction, fullScreenLoader, storage, setShippingAddress) {
     'use strict';
 
     return function (targetModule) {
@@ -27,17 +31,20 @@ define([
             parentInitialize.apply(this, arguments);
 
             this.shippingToEnabledCountry = false;
-            this.observe(['shippingToEnabledCountry']);
+            this.hasUploadedCertificate = false;
+            this.observe(['shippingToEnabledCountry', 'hasUploadedCertificate']);
 
-            if(this.enabledCountries === void(0)) {
+            if (this.enabledCountries === void(0)) {
                 this.enabledCountries = [];
             }
 
-            var self = this;
-
             quote.shippingAddress.subscribe(function (address) {
-                self.shippingToEnabledCountry = self.enabledCountries.indexOf(address.countryId) >= 0;
-            });
+                this.shippingToEnabledCountry(this.enabledCountries.indexOf(address.countryId) >= 0);
+            }.bind(this));
+
+            jQuery(window.document).on('checkout.navigateTo', function () {
+                this.hasUploadedCertificate(false);
+            }.bind(this));
         };
 
         targetModule.prototype.ifShowCertificateLink = function ifShowCertificateLink() {
@@ -56,39 +63,48 @@ define([
         };
 
         targetModule.prototype.showNewCertificateModal = function showNewCertificateModal() {
-            var element = jQuery('<div class="avatax-certificate-dialog" />').appendTo('body');
-            element.modal({buttons: []});
-            element.modal('openModal');
+            if (this.dialogElement !== void(0)) {
+                this.dialogElement.remove();
+            }
 
-            sdk(element[0], {
-                //Customize colors of buttons
-                primary_color: '#ff6600',
-                secondary_color: '#ff6600',
+            var onCertificateComplete = (function () {
+                this.hasUploadedCertificate(true);
+                this.refreshTotals();
+            }).bind(this);
+            this.dialogElement = jQuery('<div class="avatax-certificate-dialog" />').appendTo('body');
+            this.dialogElement.modal({buttons: []});
+            this.dialogElement.modal('openModal');
 
-                // Include if cert should be auto-approved
-                submit_to_stack: false,
-
+            sdk(this.dialogElement[0], {
                 // Include if cert is a renewal?
-                upload_only: true,
+                upload: true,
 
-                onCertSuccess: function () {
-                    // Success callback
-                }
+                onCertSuccess: onCertificateComplete,
+                onManualSubmit: onCertificateComplete,
+                onUpload: onCertificateComplete
             }).then(function () {
-                var customer = {};
-                customer.name = 'Customer';
-                customer.address1 = '1300 EAST CENTRAL';
-                customer.city = 'San Francisco';
-                customer.state = 'California';
-                customer.country = 'United States';
-                customer.zip = '89890';
+                var address = quote.shippingAddress();
 
-                GenCert.setCustomerData(customer);
-                GenCert.setShipZone('California');
+                GenCert.setShipZone(address.region);
                 GenCert.show();
 
-                element.modal('openModal');
-            })
+                this.dialogElement.modal('openModal');
+            }.bind(this))
+        };
+
+        targetModule.prototype.refreshTotals = function refreshTotals() {
+            GenCert.hide();
+            this.dialogElement.modal('closeModal');
+            fullScreenLoader.startLoader();
+
+            return storage.get('/rest/V1/avatax/tax/refresh').then(function () {
+                // Use this as a cheap way of being able to re-load taxes
+                return setShippingAddress();
+            }).always(
+                function () {
+                    fullScreenLoader.stopLoader();
+                }
+            );
         };
 
         return targetModule;
