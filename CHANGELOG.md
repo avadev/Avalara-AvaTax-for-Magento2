@@ -1,3 +1,7 @@
+### 1.4.6 (2018-09-27)
+
+* Update the customer use codes for Religious and Educational classes to be separate types [#169](https://github.com/classyllama/ClassyLlama_AvaTax/issues/169)
+
 ### 1.4.5 (2018-09-14)
 
 * Fix issue where saving AvaTax credentials at the website scope can result in an error [#171](https://github.com/classyllama/ClassyLlama_AvaTax/issues/171)
