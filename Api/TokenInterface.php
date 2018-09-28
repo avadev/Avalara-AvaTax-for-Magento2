@@ -16,7 +16,6 @@
 namespace ClassyLlama\AvaTax\Api;
 
 /**
- * Interface for managing valid address
  * @api
  */
 interface TokenInterface

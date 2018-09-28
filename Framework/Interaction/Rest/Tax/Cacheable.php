@@ -122,7 +122,7 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
             $this->cache->save(
                 $serializedGetTaxResult,
                 $cacheKey,
-                [Config::AVATAX_CACHE_TAG],
+                [Config::AVATAX_CACHE_TAG, Config::AVATAX_CACHE_TAG . '-' . $request->getData('customer_code')],
                 self::CACHE_LIFETIME
             );
         }
