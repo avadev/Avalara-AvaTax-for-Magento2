@@ -123,16 +123,16 @@ class Customer extends AbstractHelper
      * Return customer code according to the admin configured format
      *
      * @param int      $customerId
-     * @param int|null $guestId
+     * @param int|null $uniqueGuestIdentifier such as the quote or order ID
      * @param int|null $storeId
      *
      * @return string
      */
-    public function getCustomerCode($customerId, $guestId = null, $storeId = null)
+    public function getCustomerCode($customerId, $uniqueGuestIdentifier = null, $storeId = null)
     {
         // Retrieve the customer code configuration value
         $customerCodeFormat = $this->config->getCustomerCodeFormat($storeId);
-        $customerCode = $customerId ?: strtolower(Config::CUSTOMER_GUEST_ID) . "-{$guestId}";
+        $customerCode = $customerId ?: strtolower(Config::CUSTOMER_GUEST_ID) . "-{$uniqueGuestIdentifier}";
         $customer = null;
 
         // This is the default value, ignore handling
