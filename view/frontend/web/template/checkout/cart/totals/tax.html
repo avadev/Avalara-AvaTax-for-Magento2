@@ -36,7 +36,7 @@
         <tr class="totals-tax-details" data-bind="css: { shown: $parents[1].hasCustomsTax() }">
             <!-- // BEGIN EDIT - Retrieve tax values from extension attributes -->
             <th class="mark" scope="row" data-bind="text: $parents[1].getTaxTitle($data)"></th>
-            <td class="amount" rowspan="1">w
+            <td class="amount" rowspan="1">
                 <!-- ko if: $parents[1].isCalculated() -->
                     <!-- ko if: $data.extension_attributes -->
                         <span class="price"
