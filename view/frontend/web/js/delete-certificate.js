@@ -11,22 +11,20 @@
  * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-require(['jquery', 'mage/translate', 'Magento_Ui/js/modal/confirm'], function ($, $t, confirm) {
-    'use strict';
+define(['jquery', 'mage/translate', 'Magento_Ui/js/modal/confirm'], function ($, $t, confirm) {
 
-    $('.delete-button').click(function(e) {
-
-        let link = $(this);
-
-        confirm({
-            title: $t('Delete Certificate'),
-            content: $t('Are you sure you’d like to delete this certificate?'),
-            actions: {
-                confirm: function() {
-                    //make delete request.
-                    window.location = link.data('delete-url');
+    return function (options, element) {
+        $(element).click(function() {
+            confirm({
+                title: $t('Delete Certificate'),
+                content: $t('Are you sure you’d like to delete this certificate?'),
+                actions: {
+                    confirm: function() {
+                        //make delete request.
+                        window.location = options.deleteUrl;
+                    }
                 }
-            }
+            });
         });
-    });
+    };
 });

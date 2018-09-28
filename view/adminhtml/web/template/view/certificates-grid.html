@@ -34,7 +34,10 @@
                 </td>
                 <td>
                     <!-- ko if: valid -->
-                    <a href="javascript:void(0)" data-bind="click: $parent.handleDelete, i18n: 'Delete Certificate'"></a>
+                    <a href="javascript:void(0)" data-bind="
+                        click: $parent.handleDelete.bind($parent, certificate_delete_url),
+                        i18n: 'Delete Certificate'">
+                    </a>
                     <!-- /ko -->
                 </td>
             </tr>
