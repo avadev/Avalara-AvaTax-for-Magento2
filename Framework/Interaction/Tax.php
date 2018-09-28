@@ -269,46 +269,6 @@ class Tax
     }
 
     /**
-     * Return customer code according to the admin configured format
-     *
-     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Sales\Api\Data\OrderInterface $data
-     * @return string
-     */
-    protected function getCustomerCode($data)
-    {
-        // Retrieve the customer code configuration value
-        $customerCode = $this->config->getCustomerCodeFormat( $data->getStoreId() );
-
-        // We already have email information, just use that
-        if ($customerCode === Config::CUSTOMER_FORMAT_OPTION_EMAIL)
-        {
-            return $data->getCustomerEmail() ?: Config::CUSTOMER_MISSING_EMAIL;
-        }
-
-        // If we can't grab a customer, we should use the information we have instead of guest id an missing name
-        if ($customerCode === Config::CUSTOMER_FORMAT_OPTION_NAME_ID)
-        {
-            $customer = $this->getCustomerById( $data->getCustomerId() );
-
-            if ($customer === null || $customer->getId() === null)
-            {
-                $address = $data->getIsVirtual() ? $data->getBillingAddress() : $data->getShippingAddress();
-                $name = "{$address->getFirstname()} {$address->getLastname()}";
-
-                return sprintf(
-                    Config::CUSTOMER_FORMAT_NAME_ID,
-                    trim( $name ) ?: Config::CUSTOMER_MISSING_NAME,
-                    Config::CUSTOMER_GUEST_ID
-                );
-            }
-
-            return $this->customer->getCustomerCodeFromNameId( $customer );
-        }
-
-        return $this->customer->getCustomerCode( $data->getCustomerId(), $data->getId(), $data->getStoreId() );
-    }
-
-    /**
      * Get customer by ID
      *
      * @param $customerId
@@ -434,7 +394,11 @@ class Tax
             'store_id' => $store->getId(),
             'commit' => false, // quotes should never be committed
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
-            'customer_code' => $this->getCustomerCode($quote),
+            'customer_code' => $this->customer->getCustomerCode(
+                $quote->getCustomerId(),
+                $quote->getId(),
+                $quote->getStoreId()
+            ),
             'entity_use_code' => $customerUsageType,
             'addresses' => [
                 $this->restConfig->getAddrTypeTo() => $address,
@@ -681,7 +645,11 @@ class Tax
             'commit' => $this->config->getCommitSubmittedTransactions($store),
             'tax_override' => $taxOverride,
             'currency_code' => $order->getOrderCurrencyCode(),
-            'customer_code' => $this->getCustomerCode($order),
+            'customer_code' => $this->customer->getCustomerCode(
+                $order->getCustomerId(),
+                $order->getId(),
+                $order->getStoreId()
+            ),
             'entity_use_code' => $customerUsageType,
             'addresses' => [
                 $this->restConfig->getAddrTypeTo() => $avaTaxAddress,

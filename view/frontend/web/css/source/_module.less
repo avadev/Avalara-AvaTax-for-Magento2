@@ -19,6 +19,15 @@
         padding-bottom: 10px;
     }
 
+    .totals-tax.certificate-links {
+        display: flex;
+        flex-direction: column;
+
+        a {
+            display: inline-block;
+        }
+    }
+
     .cart-totals tbody .totals-tax-details th,
     .table-totals tbody .totals-tax-details th.mark {
         padding-left: 10px;
@@ -27,6 +36,18 @@
     .customs-explanation {
         clear: both;
         padding-top: 20px;
+    }
+
+    .avatax-certificate-dialog {
+        background-image: url('@{baseDir}ClassyLlama_AvaTax/images/loader.gif');
+        background-repeat: no-repeat;
+        background-position: center top;
+        min-height: 200px;
+
+        #gencert_loading {
+            // We need to hide the built in loader otherwise we get a weird overlap effect
+            display: none !important;
+        }
     }
 }
 

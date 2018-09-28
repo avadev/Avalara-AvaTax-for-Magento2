@@ -1,8 +1,16 @@
 <?php
 /**
- * @category    ClassyLlama
- * @copyright   Copyright (c) 2018 Classy Llama Studios, LLC
- * @author      sean.templeton
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace ClassyLlama\AvaTax\Plugin\Model\Customer;
@@ -14,6 +22,8 @@ use Magento\Framework\DataObjectFactory;
 
 class DataProviderPlugin
 {
+    // 24 hours in seconds
+    const CERTIFICATE_URL_EXPIRATION = (60 * 60 * 24);
 
     /**
      * @var \ClassyLlama\AvaTax\Api\RestCustomerInterface
@@ -41,9 +51,9 @@ class DataProviderPlugin
 
     /**
      * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
-     * @param DataObjectFactory $dataObjectFactory
-     * @param UrlSigner $urlSigner
-     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param DataObjectFactory                             $dataObjectFactory
+     * @param UrlSigner                                     $urlSigner
+     * @param \Magento\Framework\UrlInterface               $urlBuilder
      * @param \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
      */
     public function __construct(
@@ -63,7 +73,6 @@ class DataProviderPlugin
 
     /**
      * @param $certificateId
-     *
      * @param $customerId
      *
      * @return string
@@ -73,7 +82,8 @@ class DataProviderPlugin
         $parameters = [
             'certificate_id' => $certificateId,
             'customer_id' => $customerId,
-            'expires' => time() + (60 * 60 * 24) // 24 hour access
+            // For security, expire the url after a period of time
+            'expires' => time() + self::CERTIFICATE_URL_EXPIRATION
         ];
 
         $parameters['signature'] = $this->urlSigner->signParameters($parameters);
@@ -83,6 +93,11 @@ class DataProviderPlugin
         return $this->urlBuilder->getUrl('avatax/certificates/download', $parameters);
     }
 
+    /**
+     * @param $dataObject
+     *
+     * @return array|mixed
+     */
     public function flattenDataObject($dataObject)
     {
         $data = $dataObject;
@@ -135,6 +150,13 @@ class DataProviderPlugin
         return $certificates;
     }
 
+    /**
+     * @param \Magento\Customer\Model\Customer\DataProvider $subject
+     * @param array                                         $data
+     *
+     * @return mixed
+     * @throws AvataxConnectionException
+     */
     public function afterGetData(\Magento\Customer\Model\Customer\DataProvider $subject, $data)
     {
         if (empty($data)) {

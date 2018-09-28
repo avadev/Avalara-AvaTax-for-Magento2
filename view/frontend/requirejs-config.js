@@ -33,14 +33,8 @@ var config = {
                 'ClassyLlama_AvaTax/js/view/payment/list/certificates-link': true
             },
             'Magento_Tax/js/view/checkout/summary/tax': {
+                'ClassyLlama_AvaTax/js/view/checkout/summary/tax/mixin': true,
                 'ClassyLlama_AvaTax/js/view/payment/list/certificates-link': true
-            }
-        }
-    },
-    config: {
-        mixins: {
-            'Magento_Tax/js/view/checkout/summary/tax': {
-                'ClassyLlama_AvaTax/js/view/checkout/summary/tax/mixin': true
             },
             'Magento_Tax/js/view/checkout/cart/totals/tax': {
                 'ClassyLlama_AvaTax/js/view/checkout/summary/tax/mixin': true
@@ -49,6 +43,9 @@ var config = {
                 // We can leverage the same login from the tax summary to determine if we have customs
                 'ClassyLlama_AvaTax/js/view/checkout/summary/tax/mixin': true,
                 'ClassyLlama_AvaTax/js/view/estimation/mixin': true
+            },
+            'Magento_Checkout/js/model/step-navigator': {
+                'ClassyLlama_AvaTax/js/model/step-navigator/mixin': true
             }
         }
     }
