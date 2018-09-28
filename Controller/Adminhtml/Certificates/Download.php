@@ -21,6 +21,8 @@ class Download extends \Magento\Backend\App\Action
 {
     protected $_publicActions = ['download'];
 
+    const CERTIFICATES_RESOURCE = 'ClassyLlama_AvaTax::customer_certificates';
+
     /**
      * @var CertificateDownloadControllerHelper
      */
@@ -42,7 +44,7 @@ class Download extends \Magento\Backend\App\Action
     protected function _isAllowed()
     {
         return $this->_authorization->isAllowed(
-            \ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificatesTab::CERTIFICATES_RESOURCE
+            static::CERTIFICATES_RESOURCE
         );
     }
 

@@ -39,11 +39,19 @@
             </argument>
         </container>
     </fieldset>
-    <htmlContent name="customer_edit_tab_certificates_content">
-        <block class="ClassyLlama\AvaTax\Block\Adminhtml\CustomerCertificatesTab" name="customer_edit_tab_certificates" template="ClassyLlama_AvaTax::customer-certificates.phtml">
-            <arguments>
-               <argument name="view_model" xsi:type="object">ClassyLlama\AvaTax\Block\ViewModel\CustomerCertificates</argument>
-            </arguments>
-        </block>
-    </htmlContent>
+    <fieldset name="customer_tax_certificates" class="ClassyLlama\AvaTax\Ui\Component\TaxCertificates">
+        <settings>
+            <label translate="true">Tax Certificates</label>
+        </settings>
+        <container name="customer_tax_certificates_grid">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/view/certificates-grid</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="certificates" xsi:type="string">${ $.provider }:data.certificates</item>
+                    </item>
+                </item>
+            </argument>
+        </container>
+    </fieldset>
 </form>
