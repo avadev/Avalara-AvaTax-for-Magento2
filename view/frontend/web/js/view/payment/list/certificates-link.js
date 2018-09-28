@@ -97,6 +97,7 @@ define([
             this.dialogElement.modal('closeModal');
             fullScreenLoader.startLoader();
 
+            // Clear cached AvaTax taxes for this customer and then trigger a "collect totals"
             return storage.get('/rest/V1/avatax/tax/refresh').then(function () {
                 // Use this as a cheap way of being able to re-load taxes
                 return setShippingAddress();
