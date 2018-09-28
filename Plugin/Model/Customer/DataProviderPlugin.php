@@ -34,24 +34,31 @@ class DataProviderPlugin
      * @var \Magento\Framework\UrlInterface
      */
     protected $urlBuilder;
+    /**
+     * @var \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper
+     */
+    protected $certificateDeleteHelper;
 
     /**
-     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface  $customerRest
-     * @param DataObjectFactory                              $dataObjectFactory
-     * @param UrlSigner                                      $urlSigner
-     * @param \Magento\Framework\UrlInterface                $urlBuilder
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
+     * @param DataObjectFactory $dataObjectFactory
+     * @param UrlSigner $urlSigner
+     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
      */
     public function __construct(
         \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
         DataObjectFactory $dataObjectFactory,
         UrlSigner $urlSigner,
-        \Magento\Framework\UrlInterface $urlBuilder
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
     )
     {
         $this->customerRest = $customerRest;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->urlSigner = $urlSigner;
         $this->urlBuilder = $urlBuilder;
+        $this->certificateDeleteHelper = $certificateDeleteHelper;
     }
 
     /**
@@ -117,6 +124,11 @@ class DataProviderPlugin
             $certificate->setData(
                 'certificate_url',
                 $this->getCertificateUrl($certificate->getData('id'), $customerId)
+            );
+
+            $certificate->setData(
+                'certificate_delete_url',
+                $this->certificateDeleteHelper->getCertificateDeleteUrl($certificate->getData('id'), $customerId)
             );
         }
 

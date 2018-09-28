@@ -13,13 +13,14 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Controller\Certificates;
+namespace ClassyLlama\AvaTax\Controller\Adminhtml\Certificates;
 
-use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 
-class Delete extends \Magento\Framework\App\Action\Action
+class Delete extends \Magento\Backend\App\Action
 {
+    const CERTIFICATES_RESOURCE = 'ClassyLlama_AvaTax::customer_certificates';
+
     /**
      * @var \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper
      */
@@ -27,11 +28,11 @@ class Delete extends \Magento\Framework\App\Action\Action
 
     /**
      * Delete constructor.
-     * @param Context $context
+     * @param \Magento\Backend\App\Action\Context $context
      * @param \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
      */
     public function __construct(
-        Context $context,
+        \Magento\Backend\App\Action\Context $context,
         \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
     )
     {
@@ -50,5 +51,15 @@ class Delete extends \Magento\Framework\App\Action\Action
         $this->certificateDeleteHelper->delete();
 
         return $this->_redirect($this->_redirect->getRefererUrl());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function _isAllowed()
+    {
+        return $this->_authorization->isAllowed(
+            static::CERTIFICATES_RESOURCE
+        );
     }
 }

@@ -58,14 +58,19 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
      * @var \Magento\Framework\UrlInterface
      */
     protected $urlBuilder;
+    /**
+     * @var \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper
+     */
+    protected $certificateDeleteHelper;
 
     /**
-     * @param \Magento\Framework\Registry                    $coreRegistry
-     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface  $customerRest
-     * @param DataObjectFactory                              $dataObjectFactory
-     * @param UrlSigner                                      $urlSigner
+     * @param \Magento\Framework\Registry $coreRegistry
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
+     * @param DataObjectFactory $dataObjectFactory
+     * @param UrlSigner $urlSigner
      * @param \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel
-     * @param \Magento\Framework\UrlInterface                $urlBuilder
+     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
@@ -73,7 +78,8 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
         DataObjectFactory $dataObjectFactory,
         UrlSigner $urlSigner,
         \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel,
-        \Magento\Framework\UrlInterface $urlBuilder
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
     )
     {
         $this->coreRegistry = $coreRegistry;
@@ -82,6 +88,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
         $this->urlSigner = $urlSigner;
         $this->configResourceModel = $configResourceModel;
         $this->urlBuilder = $urlBuilder;
+        $this->certificateDeleteHelper = $certificateDeleteHelper;
     }
 
     /**
@@ -137,12 +144,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
      */
     public function getDeleteCertificateUrl(int $certificateId)
     {
-        $params = [
-            'certificate_id' => $certificateId,
-            'customer_id' => $this->getCustomerId()
-        ];
-
-        return $this->urlBuilder->getUrl('avatax/certificates/delete', $params);
+        return $this->certificateDeleteHelper->getCertificateDeleteUrl($certificateId, $this->getCustomerId());
     }
 
     /**

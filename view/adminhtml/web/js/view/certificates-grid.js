@@ -13,10 +13,14 @@
  */
 define([
     'jquery',
-    'Magento_Ui/js/form/element/abstract'
+    'Magento_Ui/js/form/element/abstract',
+    'mage/translate',
+    'Magento_Ui/js/modal/confirm'
 ], function (
     $,
-    Abstract
+    Abstract,
+    $t,
+    confirm
 ) {
     'use strict';
 
@@ -24,6 +28,20 @@ define([
         defaults: {
             template: 'ClassyLlama_AvaTax/view/certificates-grid',
             shouldShowWarning: false
+        },
+
+        handleDelete: function(certificate) {
+
+            confirm({
+                title: $t('Delete Certificate'),
+                content: $t('Are you sure you’d like to delete this certificate?'),
+                actions: {
+                    confirm: function() {
+                        //make delete request.
+                        window.location = certificate.certificate_delete_url;
+                    }
+                }
+            });
         }
     });
 });
