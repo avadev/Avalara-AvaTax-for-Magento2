@@ -64,5 +64,10 @@ class Shipping
         ) {
             return $proceed($quote, $shippingAssignment, $total);
         }
+        if ($total->getShippingTaxCalculationAmount() === null) {
+            // Set shipping values on total
+            $total->setShippingTaxCalculationAmount($total->getShippingAmount());
+            $total->setBaseShippingTaxCalculationAmount($total->getBaseShippingAmount());
+        }
     }
 }
