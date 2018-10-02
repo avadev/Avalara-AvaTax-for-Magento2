@@ -19,8 +19,10 @@ define([
     'Magento_Checkout/js/action/get-totals',
     'Magento_Checkout/js/model/full-screen-loader',
     'mage/storage',
-    'ClassyLlama_AvaTax/js/action/set-shipping-address'
-], function (totals, sdk, jQuery, quote, getTotalsAction, fullScreenLoader, storage, setShippingAddress) {
+    'ClassyLlama_AvaTax/js/action/set-shipping-address',
+    'ClassyLlama_AvaTax/js/model/certificate-authentication-popup',
+    'Magento_Customer/js/customer-data'
+], function (totals, sdk, jQuery, quote, getTotalsAction, fullScreenLoader, storage, setShippingAddress, certificateAuthenticationPopup, customerDataModel) {
     'use strict';
 
     return function (targetModule) {
@@ -63,6 +65,12 @@ define([
         };
 
         targetModule.prototype.showNewCertificateModal = function showNewCertificateModal() {
+            // If there is no customer (guest checkout), show the login instead
+            if(customerDataModel.get('customer')().firstname === void(0)) {
+                certificateAuthenticationPopup.showModal();
+                return;
+            }
+
             if (this.dialogElement !== void(0)) {
                 this.dialogElement.remove();
             }
