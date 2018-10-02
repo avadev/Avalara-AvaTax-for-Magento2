@@ -1,3 +1,7 @@
+### 1.4.7 (2018-10-02)
+
+* Fix issue where Magento 2.1.15 and 2.2.6 zero out shipping amount at checkout [#184](https://github.com/classyllama/ClassyLlama_AvaTax/issues/184)
+
 ### 1.4.6 (2018-09-27)
 
 * Update the customer use codes for Religious and Educational classes to be separate types [#169](https://github.com/classyllama/ClassyLlama_AvaTax/issues/169)
