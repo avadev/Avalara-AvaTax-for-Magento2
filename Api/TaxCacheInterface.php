@@ -13,32 +13,15 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace ClassyLlama\AvaTax\Api\Data;
+namespace ClassyLlama\AvaTax\Api;
 
-interface SDKTokenInterface
+/**
+ * @api
+ */
+interface TaxCacheInterface
 {
     /**
-     * @return string
+     * @return void
      */
-    public function getToken();
-
-    /**
-     * @return int
-     */
-    public function getExpires();
-
-    /**
-     * @return string
-     */
-    public function getCustomer();
-
-    /**
-     * @return string
-     */
-    public function getClientId();
-
-    /**
-     * @return string
-     */
-    public function getSdkUrl();
+    public function clearCache();
 }

@@ -136,4 +136,11 @@
             </argument>
         </arguments>
     </virtualType>
+
+    <type name="Magento\Customer\Model\Customer\DataProvider">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxDataProvider" type="ClassyLlama\AvaTax\Plugin\Model\Customer\DataProviderPlugin"/>
+    </type>
+    <type name="Magento\Framework\View\Layout\Generic">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxGeneric" type="ClassyLlama\AvaTax\Plugin\View\Layout\GenericPlugin"/>
+    </type>
 </config>
