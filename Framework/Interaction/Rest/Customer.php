@@ -136,9 +136,9 @@ class Customer extends Rest implements RestCustomerInterface
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     )
     {
-        $customerModel = $this->buildCustomerModel($customer, $scopeId);
 
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $customerModel = $this->buildCustomerModel($customer, $scopeId);
 
         return $client->updateCustomer(
             $this->config->getCompanyId($scopeId, $scopeType),
