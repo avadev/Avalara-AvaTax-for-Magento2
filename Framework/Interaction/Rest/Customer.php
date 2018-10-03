@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
+use ClassyLlama\AvaTax\Model\Factory\LinkCustomersModelFactory;
 use ClassyLlama\AvaTax\Api\RestCustomerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
 use ClassyLlama\AvaTax\Helper\Config;
@@ -36,6 +37,11 @@ class Customer extends Rest implements RestCustomerInterface
     protected $config;
 
     /**
+     * @var LinkCustomersModelFactory
+     */
+    protected $customersModelFactory;
+
+    /**
      * @var \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory
      */
     protected $customerModelFactory;
@@ -46,13 +52,14 @@ class Customer extends Rest implements RestCustomerInterface
     protected $addressRepository;
 
     /**
-     * @param CustomerHelper $customerHelper
-     * @param Config $config
-     * @param LoggerInterface $logger
+     * @param CustomerHelper    $customerHelper
+     * @param Config            $config
+     * @param LoggerInterface   $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
      * @param \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory $customerModelFactory
      * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
+     * @param LinkCustomersModelFactory $customersModelFactory
      */
     public function __construct(
         CustomerHelper $customerHelper,
@@ -61,7 +68,8 @@ class Customer extends Rest implements RestCustomerInterface
         DataObjectFactory $dataObjectFactory,
         ClientPool $clientPool,
         \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory $customerModelFactory,
-        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
+        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
+        LinkCustomersModelFactory $customersModelFactory
     )
     {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
@@ -70,6 +78,7 @@ class Customer extends Rest implements RestCustomerInterface
         $this->config = $config;
         $this->customerModelFactory = $customerModelFactory;
         $this->addressRepository = $addressRepository;
+        $this->customersModelFactory = $customersModelFactory;
     }
 
     /**
@@ -123,6 +132,59 @@ class Customer extends Rest implements RestCustomerInterface
             $request->getData('page'),
             $request->getData('type')
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteCertificate(
+        $request,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    {
+        /** @var \Avalara\AvaTaxClient $client */
+        $client = $this->getClient($isProduction, $scopeId, $scopeType);
+
+        try {
+            $customerId = $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId);
+
+            //unlink request requires a LinkCustomersModel which contains a string[] of all customer ids.
+            /** @var \Avalara\LinkCustomersModel $customerModel */
+            $customerModel = $this->customersModelFactory->create();
+            $customerModel->customers = [$customerId];
+
+            //Customer(s) must be unlinked from cert before it can be deleted.
+            $unlinkResult = $client->unlinkCustomersFromCertificate(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $request->getData('id'),
+                $customerModel
+            );
+
+            $this->validateResult($unlinkResult, $request);
+
+        } catch (\Exception $e) {
+            //Swallow this error. Continue to try and delete the cert.
+            //If the deletion errors, then we'll notify the user that something has gone wrong.
+        }
+
+        //make deletion request.
+        $result = $client->deleteCertificate(
+            $this->config->getCompanyId($scopeId, $scopeType),
+            $request->getData('id')
+        );
+
+        //A successful delete request results in an empty body. This means $result is an empty array.
+        //However, the validateResult method can't handle this as a valid response.
+        //This explicit check for an empty array is to fill that hole in the validation.
+        if(is_array($result) && count($result) === 0) {
+            return $result; //result is an empty array. No error was returned from request.
+        }
+
+        //Something went wrong, validate and handle error.
+        $this->validateResult($result, $request);
+        return $this->formatResult($result);
     }
 
     /**
@@ -188,7 +250,7 @@ class Customer extends Rest implements RestCustomerInterface
             if(isset($address->getStreet()[1])) {
                 $customerModel->line2 = $address->getStreet()[1];
             }
-            
+
             $customerModel->city = $address->getCity();
             $customerModel->region = $address->getRegion()->getRegionCode();
             $customerModel->country = $address->getCountryId();
