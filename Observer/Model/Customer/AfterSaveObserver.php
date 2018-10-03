@@ -28,24 +28,46 @@ class AfterSaveObserver implements ObserverInterface
      * @var \ClassyLlama\AvaTax\Helper\DocumentManagementConfig
      */
     protected $documentManagementConfig;
+    /**
+     * @var \Magento\Framework\App\State
+     */
+    protected $appState;
+    /**
+     * @var \Magento\Framework\Message\ManagerInterface
+     */
+    protected $messageManager;
+    /**
+     * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
+     */
+    protected $avaTaxLogger;
 
     /**
      * BeforeSaveObserver constructor.
      *
      * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $restCustomerInterface
      * @param \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig
+     * @param \Magento\Framework\App\State $appState
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
      */
     public function __construct(
         \ClassyLlama\AvaTax\Api\RestCustomerInterface $restCustomerInterface,
-        \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig
+        \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig,
+        \Magento\Framework\App\State $appState,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
+        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
     )
     {
         $this->restCustomerInterface = $restCustomerInterface;
         $this->documentManagementConfig = $documentManagementConfig;
+        $this->appState = $appState;
+        $this->messageManager = $messageManager;
+        $this->avaTaxLogger = $avaTaxLogger;
     }
 
     /**
      * {@inheritDoc}
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function execute(Observer $observer)
     {
@@ -57,7 +79,15 @@ class AfterSaveObserver implements ObserverInterface
             try {
                 $this->restCustomerInterface->updateCustomer($customer, null, $customer->getStoreId());
             } catch (\Exception $e) {
-                //todo what happens if update fails?
+                if($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
+                    //show error message
+                    $this->messageManager->addErrorMessage(__("Error sending updated customer data to Avalara."));
+                }
+
+                $this->avaTaxLogger->error(
+                    __("Error sending updated customer data to Avalara for customer %1.", $customer->getId()),
+                    ['error message' => $e->getMessage()]
+                );
             }
         }
 
