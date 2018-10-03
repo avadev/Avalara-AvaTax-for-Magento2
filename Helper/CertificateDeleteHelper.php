@@ -68,23 +68,6 @@ class CertificateDeleteHelper extends AbstractHelper
     }
 
     /**
-     * Build url for certificate delete action.
-     *
-     * @param $certificateId
-     * @param $customerId
-     * @return string
-     */
-    public function getCertificateDeleteUrl($certificateId, $customerId)
-    {
-        $params = [
-            'certificate_id' => $certificateId,
-            'customer_id' => $customerId
-        ];
-
-        return $this->_urlBuilder->getUrl('avatax/certificates/delete', $params);
-    }
-
-    /**
      * Handle a certificate delete request.
      */
     public function delete()

@@ -56,19 +56,17 @@ class DataProviderPlugin
     protected $certificateHelper;
 
     /**
-     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface      $customerRest
-     * @param DataObjectFactory                                  $dataObjectFactory
-     * @param UrlSigner                                          $urlSigner
-     * @param \Magento\Framework\UrlInterface                    $urlBuilder
-     * @param \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
-     * @param \ClassyLlama\AvaTax\Helper\CertificateHelper       $certificateHelper
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
+     * @param DataObjectFactory                             $dataObjectFactory
+     * @param UrlSigner                                     $urlSigner
+     * @param \Magento\Framework\UrlInterface               $urlBuilder
+     * @param \ClassyLlama\AvaTax\Helper\CertificateHelper  $certificateHelper
      */
     public function __construct(
         \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
         DataObjectFactory $dataObjectFactory,
         UrlSigner $urlSigner,
         \Magento\Framework\UrlInterface $urlBuilder,
-        \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper,
         \ClassyLlama\AvaTax\Helper\CertificateHelper $certificateHelper
     )
     {
@@ -76,7 +74,6 @@ class DataProviderPlugin
         $this->dataObjectFactory = $dataObjectFactory;
         $this->urlSigner = $urlSigner;
         $this->urlBuilder = $urlBuilder;
-        $this->certificateDeleteHelper = $certificateDeleteHelper;
         $this->certificateHelper = $certificateHelper;
     }
 
@@ -122,7 +119,7 @@ class DataProviderPlugin
 
             $certificate->setData(
                 'certificate_delete_url',
-                $this->certificateDeleteHelper->getCertificateDeleteUrl($certificate->getData('id'), $customerId)
+                $this->certificateHelper->getCertificateDeleteUrl($certificate->getData('id'), $customerId)
             );
         }
 
