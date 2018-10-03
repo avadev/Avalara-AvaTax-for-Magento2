@@ -58,19 +58,26 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
      * @var \Magento\Framework\UrlInterface
      */
     protected $urlBuilder;
+
     /**
      * @var \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper
      */
     protected $certificateDeleteHelper;
 
     /**
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
-     * @param DataObjectFactory $dataObjectFactory
-     * @param UrlSigner $urlSigner
-     * @param \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel
-     * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @var \ClassyLlama\AvaTax\Helper\CertificateHelper
+     */
+    protected $certificateHelper;
+
+    /**
+     * @param \Magento\Framework\Registry                        $coreRegistry
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface      $customerRest
+     * @param DataObjectFactory                                  $dataObjectFactory
+     * @param UrlSigner                                          $urlSigner
+     * @param \ClassyLlama\AvaTax\Model\ResourceModel\Config     $configResourceModel
+     * @param \Magento\Framework\UrlInterface                    $urlBuilder
      * @param \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
+     * @param \ClassyLlama\AvaTax\Helper\CertificateHelper       $certificateHelper
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
@@ -79,7 +86,8 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
         UrlSigner $urlSigner,
         \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel,
         \Magento\Framework\UrlInterface $urlBuilder,
-        \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
+        \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper,
+        \ClassyLlama\AvaTax\Helper\CertificateHelper $certificateHelper
     )
     {
         $this->coreRegistry = $coreRegistry;
@@ -89,6 +97,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
         $this->configResourceModel = $configResourceModel;
         $this->urlBuilder = $urlBuilder;
         $this->certificateDeleteHelper = $certificateDeleteHelper;
+        $this->certificateHelper = $certificateHelper;
     }
 
     /**
@@ -123,28 +132,19 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
      */
     public function getCertificateUrl($certificateId)
     {
-        $parameters = [
-            'certificate_id' => $certificateId,
-            'customer_id' => $this->getCustomerId(),
-            'expires' => time() + (60 * 60 * 24) // 24 hour access
-        ];
-
-        $parameters['signature'] = $this->urlSigner->signParameters($parameters);
-        // This messes with URL signing as the parameter is added after the fact. Don't use url keys for certificate downloads
-        $parameters['_nosecret'] = true;
-
-        return $this->urlBuilder->getUrl('avatax/certificates/download', $parameters);
+        return $this->certificateHelper->getCertificateUrl($certificateId, $this->getCustomerId());
     }
 
     /**
      * Build delete cert url
      *
      * @param int $certificateId
+     *
      * @return string
      */
     public function getDeleteCertificateUrl(int $certificateId)
     {
-        return $this->certificateDeleteHelper->getCertificateDeleteUrl($certificateId, $this->getCustomerId());
+        return $this->certificateHelper->getCertificateDeleteUrl($certificateId, $this->getCustomerId());
     }
 
     /**
@@ -153,21 +153,6 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
      */
     public function getCertificates()
     {
-        if ($this->certificates !== null) {
-            return $this->certificates;
-        }
-
-        $this->certificates = [];
-        $customerId = $this->getCustomerId();
-
-        if ($customerId === null) {
-            return $this->certificates;
-        }
-
-        $this->certificates = $this->customerRest->getCertificatesList(
-            $this->dataObjectFactory->create(['data' => ['customer_id' => $customerId]])
-        );
-
-        return $this->certificates;
+        return $this->certificateHelper->getCertificates($this->getCustomerId());
     }
 }
