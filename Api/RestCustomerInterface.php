@@ -62,6 +62,7 @@ interface RestCustomerInterface extends RestInterface
      * @param string|int|null $scopeId
      * @param string $scopeType
      * @return mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function updateCustomer(
         $customer,

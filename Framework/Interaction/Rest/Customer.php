@@ -127,7 +127,6 @@ class Customer extends Rest implements RestCustomerInterface
 
     /**
      * {@inheritdoc}
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function updateCustomer(
         $customer,
@@ -136,15 +135,19 @@ class Customer extends Rest implements RestCustomerInterface
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     )
     {
-
+        // Client must be retrieved before any class from the /avalara/avataxclient/src/Models.php file is instantiated.
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
-        $customerModel = $this->buildCustomerModel($customer, $scopeId);
+        $customerModel = $this->buildCustomerModel($customer, $scopeId, $scopeType); // Instantiates an Avalara class.
 
-        return $client->updateCustomer(
+        $response = $client->updateCustomer(
             $this->config->getCompanyId($scopeId, $scopeType),
             $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId),
             $customerModel
         );
+
+        // Validate the response; pass the customer id for context in case of an error.
+        $this->validateResult($response, $this->dataObjectFactory->create(['customer_id' => $customer->getId()]));
+        return $this->formatResult($response);
     }
 
     /**
@@ -152,30 +155,47 @@ class Customer extends Rest implements RestCustomerInterface
      *
      * @param \Magento\Customer\Api\Data\CustomerInterface $customer
      * @param null $scopeId
+     * @param string $scopeType
      * @return \Avalara\CustomerModel
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function buildCustomerModel(\Magento\Customer\Api\Data\CustomerInterface $customer, $scopeId = null)
+    protected function buildCustomerModel(
+        \Magento\Customer\Api\Data\CustomerInterface $customer,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
     {
-
         /** @var \Avalara\CustomerModel $customerModel */
         $customerModel = $this->customerModelFactory->create();
 
         $customerModel->customerCode = $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId);
         $customerModel->name = $customer->getFirstname() . ' ' . $customer->getLastname();
         $customerModel->emailAddress = $customer->getEmail();
+        $customerModel->companyId = $this->config->getCompanyId($scopeId, $scopeType);
+        $customerModel->createdDate = $customer->getCreatedAt();
+        $customerModel->modifiedDate = $customer->getUpdatedAt();
 
+        // If a customer does not have a billing address, then no address updates will take place.
         if($customer->getDefaultBilling()) {
+
             /** @var \Magento\Customer\Api\Data\AddressInterface $address */
             $address = $this->addressRepository->getById($customer->getDefaultBilling());
 
-            $customerModel->phoneNumber = $address->getTelephone();
+            if(isset($address->getStreet()[0])) {
+                $customerModel->line1 = $address->getStreet()[0];
+            }
 
-            $customerModel->line1 = $address->getStreet(); //todo handle 2 street line
+            if(isset($address->getStreet()[1])) {
+                $customerModel->line2 = $address->getStreet()[1];
+            }
+            
             $customerModel->city = $address->getCity();
             $customerModel->region = $address->getRegion()->getRegionCode();
             $customerModel->country = $address->getCountryId();
             $customerModel->postalCode = $address->getPostcode();
+            $customerModel->phoneNumber = $address->getTelephone();
+            $customerModel->faxNumber = $address->getFax();
+            $customerModel->isBill = true;
         }
 
         return $customerModel;
