@@ -20,6 +20,9 @@
         <title>Tax Certificates</title>
     </head>
     <body>
+        <referenceBlock name="page.main.title">
+            <block name="customer.certificates.add" template="ClassyLlama_AvaTax::certificates/add.phtml" />
+        </referenceBlock>
         <referenceContainer name="content">
             <block name="customer.certificates" class="Magento\Framework\View\Element\Template" template="ClassyLlama_AvaTax::certificates/list.phtml">
                 <arguments>

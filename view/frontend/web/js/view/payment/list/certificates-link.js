@@ -63,16 +63,17 @@ define([
         };
 
         targetModule.prototype.showNewCertificateModal = function showNewCertificateModal() {
-            if (this.dialogElement !== void(0)) {
-                this.dialogElement.remove();
+            if (this.dialogElement === void(0)) {
+                this.dialogElement = jQuery('<div class="avatax-certificate-dialog" />').appendTo('body');
+                this.dialogElement.modal({buttons: []});
             }
 
             var onCertificateComplete = (function () {
                 this.hasUploadedCertificate(true);
                 this.refreshTotals();
             }).bind(this);
-            this.dialogElement = jQuery('<div class="avatax-certificate-dialog" />').appendTo('body');
-            this.dialogElement.modal({buttons: []});
+
+            this.dialogElement.empty();
             this.dialogElement.modal('openModal');
 
             sdk(this.dialogElement[0], {
