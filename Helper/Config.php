@@ -137,6 +137,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
 
     const XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING = 'tax/avatax_advanced/response_logging_enabled';
+
+    const XML_PATH_AVATAX_ADVANCED_API_TIMEOUT = 'tax/avatax_advanced/avatax_timeout';
     /**#@-*/
 
     /**
@@ -314,6 +316,23 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Return the timeout for using the AvaTax API
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return float
+     */
+    public function getAvaTaxApiTimeout($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return (float)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADVANCED_API_TIMEOUT,
             $scopeType,
             $store
         );

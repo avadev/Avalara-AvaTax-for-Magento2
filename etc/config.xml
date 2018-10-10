@@ -65,6 +65,7 @@
             </avatax_customs>
             <avatax_advanced>
                 <response_logging_enabled>1</response_logging_enabled>
+                <avatax_timeout>5</avatax_timeout>
             </avatax_advanced>
             <avatax_document_management>
                 <checkout_link_text_new_cert_no_certs_exist>Is this purchase tax-exempt?</checkout_link_text_new_cert_no_certs_exist>
