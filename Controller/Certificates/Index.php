@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Controller\Certificates;
 
+use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
 use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\App\RequestInterface;
 
@@ -41,18 +42,32 @@ class Index extends \Magento\Framework\App\Action\Action
     protected $session;
 
     /**
+     * @var DocumentManagementConfig
+     */
+    protected $documentManagementConfig;
+
+    /**
+     * @var \Magento\Framework\UrlFactory
+     */
+    protected $urlFactory;
+
+    /**
      * @param \Magento\Framework\App\Action\Context      $context
      * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
      * @param \Magento\Customer\Model\Session            $customerSession
      * @param \Magento\Framework\Registry                $coreRegistry
      * @param \Magento\Customer\Model\Session            $session
+     * @param \Magento\Framework\UrlFactory              $urlFactory
+     * @param DocumentManagementConfig                   $documentManagementConfig
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Registry $coreRegistry,
-        \Magento\Customer\Model\Session $session
+        \Magento\Customer\Model\Session $session,
+        \Magento\Framework\UrlFactory $urlFactory,
+        DocumentManagementConfig $documentManagementConfig
     )
     {
         parent::__construct($context);
@@ -61,6 +76,8 @@ class Index extends \Magento\Framework\App\Action\Action
         $this->coreRegistry = $coreRegistry;
         $this->customerSession = $customerSession;
         $this->session = $session;
+        $this->documentManagementConfig = $documentManagementConfig;
+        $this->urlFactory = $urlFactory;
     }
 
     /**
@@ -71,8 +88,9 @@ class Index extends \Magento\Framework\App\Action\Action
      */
     public function dispatch(RequestInterface $request)
     {
-        if (!$this->session->authenticate()) {
+        if (!$this->session->authenticate() || !$this->documentManagementConfig->isEnabled()) {
             $this->_actionFlag->set('', self::FLAG_NO_DISPATCH, true);
+            $this->_response->setRedirect($this->urlFactory->create()->getUrl('customer/account'));
         }
 
         return parent::dispatch($request);
