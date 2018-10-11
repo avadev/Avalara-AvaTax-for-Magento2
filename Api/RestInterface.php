@@ -26,7 +26,7 @@ interface RestInterface
      * @param null|string|int $scopeId
      * @param string          $scopeType
      *
-     * @return \Avalara\AvaTaxClient
+     * @return \ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper
      * @throws \InvalidArgumentException
      */
     public function getClient(

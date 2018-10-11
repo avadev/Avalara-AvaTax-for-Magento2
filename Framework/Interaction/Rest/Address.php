@@ -71,22 +71,27 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     )
     {
         $client = $this->getClient( $isProduction, $scopeId, $scopeType );
+        $client->withCatchExceptions(false);
 
         $address = $request->getAddress();
         $textCase = $request->getTextCase();
 
-        $resultObj = $client->resolveAddress(
-            $address->getLine1(),
-            $address->getLine2(),
-            $address->getLine3(),
-            $address->getCity(),
-            $address->getRegion(),
-            $address->getPostalCode(),
-            $address->getCountry(),
-            $textCase,
-            null,
-            null
-        );
+        try {
+            $resultObj = $client->resolveAddress(
+                $address->getLine1(),
+                $address->getLine2(),
+                $address->getLine3(),
+                $address->getCity(),
+                $address->getRegion(),
+                $address->getPostalCode(),
+                $address->getCountry(),
+                $textCase,
+                null,
+                null
+            );
+        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            $this->handleException($clientException, $request);
+        }
 
         $this->validateResult($resultObj, $request);
 
@@ -104,13 +109,10 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param string|\Avalara\PingResultModel $result
      * @param \Magento\Framework\DataObject|null $request
      * @return void
-     * @throws AvataxConnectionException
      * @throws AddressValidateException
      */
     protected function validateResult($result, $request = null)
     {
-        parent::validateResult($result, $request);
-
         $errors = [];
         $warnings = [];
         if (isset($result->messages) && is_array($result->messages)) {
