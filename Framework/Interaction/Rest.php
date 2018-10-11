@@ -152,7 +152,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
         }
 
         $this->logger->error($logMessage, $logContext);
-        throw new AvataxConnectionException(__('AvaTax connection error'));
+        throw new AvataxConnectionException($logMessage);
     }
 
     /**
