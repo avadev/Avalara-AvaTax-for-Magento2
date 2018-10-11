@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
 use ClassyLlama\AvaTax\Api\RestTaxInterface;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
@@ -150,7 +151,12 @@ class Get
             $response->setIsUnbalanced($unbalanced)->setBaseAvataxTaxAmount($avataxTaxAmount);
 
             return $response;
-        } catch (\Exception $exception) {
+        }
+        catch(AvataxConnectionException $avataxConnectionException) {
+            // Don't double log connection exceptions
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($avataxConnectionException->getMessage());
+        }
+        catch (\Exception $exception) {
             $message = $exception->getMessage();
             $this->avaTaxLogger->error($message);
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
@@ -281,7 +287,12 @@ class Get
                 $baseTaxDetails,
                 $avaTaxMessages
             ];
-        } catch (\Exception $exception) {
+        }
+        catch(AvataxConnectionException $avataxConnectionException) {
+            // Don't double log connection exceptions
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($avataxConnectionException->getMessage());
+        }
+        catch (\Exception $exception) {
             $message = $exception->getMessage();
             $this->avaTaxLogger->error($message);
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);

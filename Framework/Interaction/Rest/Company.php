@@ -35,17 +35,21 @@ class Company extends Rest implements RestCompanyInterface
             $request = $this->dataObjectFactory->create();
         }
 
-        $clientResult = $client->queryCompanies(
-            $request->getData('include'),
-            $request->getData('filter'),
-            $request->getData('top'),
-            $request->getData('skip'),
-            $request->getData('order_by')
-        );
+        $clientResult = null;
 
-        $this->validateResult( $clientResult, $request );
+        try {
+            $clientResult = $client->queryCompanies(
+                $request->getData('include'),
+                $request->getData('filter'),
+                $request->getData('top'),
+                $request->getData('skip'),
+                $request->getData('order_by')
+            );
+        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            $this->handleException($clientException, $request);
+        }
 
-        return $this->formatResult( $clientResult )->getData('value');
+        return $this->formatResult($clientResult)->getData('value');
     }
 
     /**
