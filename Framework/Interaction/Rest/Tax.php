@@ -94,6 +94,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     public function getTax( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
         $client = $this->getClient( $isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
 
         /** @var \Avalara\TransactionBuilder $transactionBuilder */
         $transactionBuilder = $this->transactionBuilderFactory->create([
@@ -107,8 +108,14 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         $this->setLineDetails($transactionBuilder, $request);
         $this->setAddressDetails($transactionBuilder, $request);
 
-        $resultObj = $transactionBuilder->create();
-        $this->validateResult($resultObj, $request);
+        $resultObj = null;
+
+        try {
+            $resultObj = $transactionBuilder->create();
+        }
+        catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            $this->handleException($clientException, $request);
+        }
 
         $resultGeneric = $this->formatResult($resultObj);
         /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $result */

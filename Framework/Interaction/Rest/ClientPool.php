@@ -15,8 +15,8 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use Avalara\AvaTaxClient;
-use Avalara\AvaTaxClientFactory;
+use \ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper;
+use \ClassyLlama\AvaTax\Helper\AvaTaxClientWrapperFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 
 class ClientPool
@@ -31,7 +31,7 @@ class ClientPool
     protected $config;
 
     /**
-     * @var AvaTaxClientFactory
+     * @var AvaTaxClientWrapperFactory
      */
     protected $avaTaxClientFactory;
 
@@ -40,11 +40,11 @@ class ClientPool
 
     /**
      * @param Config              $config
-     * @param AvaTaxClientFactory $avaTaxClientFactory
+     * @param AvaTaxClientWrapperFactory $avaTaxClientFactory
      */
     public function __construct(
         Config $config,
-        AvaTaxClientFactory $avaTaxClientFactory
+        AvaTaxClientWrapperFactory $avaTaxClientFactory
     )
     {
         $this->config = $config;
@@ -76,7 +76,7 @@ class ClientPool
      * @param int|null  $scopeId
      * @param string    $scopeType
      *
-     * @return AvaTaxClient
+     * @return AvaTaxClientWrapper
      * @throws \InvalidArgumentException
      */
     public function getClient(
@@ -92,7 +92,7 @@ class ClientPool
         $cacheKey = $this->getClientCacheKey($isProduction, $scopeType, $scopeId);
 
         if (!isset($this->clients[$cacheKey])) {
-            /** @var AvaTaxClient $avaTaxClient */
+            /** @var AvaTaxClientWrapper $avaTaxClient */
             $avaTaxClient = $this->avaTaxClientFactory->create(
                 [
                     'appName' => $this->config->getApplicationName(),
