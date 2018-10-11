@@ -117,8 +117,6 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
             $this->handleException($clientException, $request);
         }
 
-//        $this->validateResult($resultObj, $request);
-
         $resultGeneric = $this->formatResult($resultObj);
         /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $result */
         $result = $this->taxResultFactory->create(['data' => $resultGeneric->getData()]);
