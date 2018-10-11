@@ -80,4 +80,23 @@ class Company extends Rest implements RestCompanyInterface
 
         return $this->getCompaniesFromClient( $client, $request );
     }
+
+    /**
+     * @param bool|null       $isProduction
+     * @param string|int|null $scopeId
+     * @param string          $scopeType
+     *
+     * @return \Avalara\FetchResult
+     * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
+     */
+    public function getCertificateExposureZones(
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    {
+        $client = $this->getClient($isProduction, $scopeId, $scopeType);
+
+        return $client->listCertificateExposureZones(null, null, null, null);
+    }
 }

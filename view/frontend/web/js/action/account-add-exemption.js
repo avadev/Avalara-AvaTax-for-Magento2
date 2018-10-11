@@ -4,13 +4,14 @@ define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal', 'certificatesSdk']
             template: 'ClassyLlama_AvaTax/action/account-add-exemption',
             exemptionZone: '',
             availableExemptionZones: ['Missouri'],
-            showSdkView: false
+            showSdkView: false,
+            certificateUploadSuccess: false
         },
 
         initialize: function initialize() {
             this._super();
 
-            this.observe(['showSdkView', 'exemptionZone']);
+            this.observe(['showSdkView', 'exemptionZone', 'certificateUploadSuccess']);
 
             return this;
         },
@@ -28,20 +29,29 @@ define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal', 'certificatesSdk']
                 jQuery(this.modalElement)
             );
 
-            jQuery(this.modalElement).on('modalclosed', function() {
+            jQuery(this.modalElement).on('modalclosed', function () {
                 this.exemptionZone('');
                 this.showSdkView(false);
+
+                if (this.certificateUploadSuccess() === true) {
+                    window.location.reload();
+                }
             }.bind(this));
         },
 
+        onCertificateComplete: function onCertificateComplete() {
+            this.certificateUploadSuccess(true);
+        },
+
         renderSdk: function renderSdk(element) {
+            var onCertificateComplete = this.onCertificateComplete.bind(this);
             sdk(element, {
                 // Include if cert is a renewal?
                 upload: true,
 
-                // onCertSuccess: onCertificateComplete,
-                // onManualSubmit: onCertificateComplete,
-                // onUpload: onCertificateComplete
+                onCertSuccess: onCertificateComplete,
+                onManualSubmit: onCertificateComplete,
+                onUpload: onCertificateComplete
             }).then(function () {
                 GenCert.setShipZone(this.exemptionZone());
                 GenCert.show();
@@ -52,7 +62,15 @@ define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal', 'certificatesSdk']
             jQuery(this.modalElement).modal('openModal');
         },
 
+        closeModal: function addExemption() {
+            jQuery(this.modalElement).modal('closeModal');
+        },
+
         proceedToSdk: function proceedToSdk() {
+            if (this.exemptionZone() === '' || this.exemptionZone() === void(0)) {
+                return;
+            }
+
             this.showSdkView(true);
         }
     });

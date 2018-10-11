@@ -21,7 +21,11 @@
     </head>
     <body>
         <referenceBlock name="page.main.title">
-            <block name="customer.certificates.add" template="ClassyLlama_AvaTax::certificates/add.phtml" />
+            <block name="customer.certificates.add" template="ClassyLlama_AvaTax::certificates/add.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">\ClassyLlama\AvaTax\Block\ViewModel\AccountAddExemptionZone</argument>
+                </arguments>
+            </block>
         </referenceBlock>
         <referenceContainer name="content">
             <block name="customer.certificates" class="Magento\Framework\View\Element\Template" template="ClassyLlama_AvaTax::certificates/list.phtml">

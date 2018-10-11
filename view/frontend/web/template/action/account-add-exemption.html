@@ -13,4 +13,7 @@
     <!-- ko if: showSdkView() === true -->
     <div class="cert-capture-sdk-view" data-bind="afterRender: renderSdk"></div>
     <!-- /ko -->
+    <!-- ko if: certificateUploadSuccess() === true -->
+    <button class="action primary" data-bind="click: closeModal">Refresh Certificates</button>
+    <!-- /ko -->
 </div>
