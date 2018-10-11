@@ -199,16 +199,22 @@ class Customer extends Rest implements RestCustomerInterface
     {
         // Client must be retrieved before any class from the /avalara/avataxclient/src/Models.php file is instantiated.
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
         $customerModel = $this->buildCustomerModel($customer, $scopeId, $scopeType); // Instantiates an Avalara class.
 
-        $response = $client->updateCustomer(
-            $this->config->getCompanyId($scopeId, $scopeType),
-            $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId),
-            $customerModel
-        );
+        $response = null;
 
-        // Validate the response; pass the customer id for context in case of an error.
-        $this->validateResult($response, $this->dataObjectFactory->create(['customer_id' => $customer->getId()]));
+        try {
+            $response = $client->updateCustomer(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId),
+                $customerModel
+            );
+        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            // Validate the response; pass the customer id for context in case of an error.
+            $this->handleException($clientException, $this->dataObjectFactory->create(['customer_id' => $customer->getId()]));
+        }
+
         return $this->formatResult($response);
     }
 
