@@ -1,3 +1,9 @@
+### 1.4.8 (2018-10-15)
+
+* Fix issue where editing customer in backend of Magento 2.1.x results in missing tabs (e.g. "Orders") [#151](https://github.com/classyllama/ClassyLlama_AvaTax/issues/151)
+* Added sensitive and environment-specific entries to the configuration type pool [#178](https://github.com/classyllama/ClassyLlama_AvaTax/issues/178) (from @leoquijano)
+* Add additional conditional check to prevent inadvertently disabling address validation [PR #124](https://github.com/classyllama/ClassyLlama_AvaTax/pull/124) (from @vovayatsyuk)
+
 ### 1.4.7 (2018-10-02)
 
 * Fix issue where Magento 2.1.15 and 2.2.6 zero out shipping amount at checkout [#184](https://github.com/classyllama/ClassyLlama_AvaTax/issues/184)
