@@ -280,7 +280,7 @@ class Config extends AbstractHelper
      */
     public function createAvaTaxProfile($storeId, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        if ($this->getLiveMode($storeId)) {
+        if ($this->getLiveMode($storeId, $scopeType)) {
             $this->avaTaxConfigFactory->create(
                 [
                     'name' => self::API_PROFILE_NAME_PROD,
@@ -555,11 +555,11 @@ class Config extends AbstractHelper
      * @param $store
      * @return string
      */
-    public function getCompanyCode($store)
+    public function getCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            ScopeInterface::SCOPE_STORE,
+            $scopeType,
             $store
         );
     }

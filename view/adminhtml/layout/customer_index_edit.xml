@@ -1,0 +1,13 @@
+<!--
+/**
+ * @category    ClassyLlama
+ * @copyright   Copyright (c) 2018 Classy Llama Studios, LLC
+ */
+ -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="ClassyLlama\AvaTax\Block\Adminhtml\Customer\Edit\Region" name="edit" template="ClassyLlama_AvaTax::customer/edit/region.phtml" />
+        </referenceContainer>
+    </body>
+</page>

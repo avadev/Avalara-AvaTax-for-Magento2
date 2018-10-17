@@ -138,4 +138,29 @@
             <argument name="connectionName" xsi:type="string">sales</argument>
         </arguments>
     </type>
+
+    <!--
+    /**
+     * Add sensitive and environment-specific settings to the configuration type pool.
+     * This ensures that their values are not dumped by app:config:dump in app/etc/config.php, which is usually in version control.
+     *
+     * See:
+     * - https://devdocs.magento.com/guides/v2.2/extension-dev-guide/configuration/sensitive-and-environment-settings.html
+     */
+      -->
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="tax/avatax/production_account_number" xsi:type="string">1</item>
+                <item name="tax/avatax/production_license_key" xsi:type="string">1</item>
+                <item name="tax/avatax/production_company_code" xsi:type="string">1</item>
+                <item name="tax/avatax/development_account_number" xsi:type="string">1</item>
+                <item name="tax/avatax/development_license_key" xsi:type="string">1</item>
+                <item name="tax/avatax/development_company_code" xsi:type="string">1</item>
+            </argument>
+            <argument name="environment" xsi:type="array">
+                <item name="tax/avatax/live_mode" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

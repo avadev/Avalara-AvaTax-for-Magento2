@@ -1,3 +1,38 @@
+### 1.4.8 (2018-10-15)
+
+* Fix issue where editing customer in backend of Magento 2.1.x results in missing tabs (e.g. "Orders") [#151](https://github.com/classyllama/ClassyLlama_AvaTax/issues/151)
+* Added sensitive and environment-specific entries to the configuration type pool [#178](https://github.com/classyllama/ClassyLlama_AvaTax/issues/178) (from @leoquijano)
+* Add additional conditional check to prevent inadvertently disabling address validation [PR #124](https://github.com/classyllama/ClassyLlama_AvaTax/pull/124) (from @vovayatsyuk)
+
+### 1.4.7 (2018-10-02)
+
+* Fix issue where Magento 2.1.15 and 2.2.6 zero out shipping amount at checkout [#184](https://github.com/classyllama/ClassyLlama_AvaTax/issues/184)
+
+### 1.4.6 (2018-09-27)
+
+* Update the customer use codes for Religious and Educational classes to be separate types [#169](https://github.com/classyllama/ClassyLlama_AvaTax/issues/169)
+
+### 1.4.5 (2018-09-14)
+
+* Fix issue where saving AvaTax credentials at the website scope can result in an error [#171](https://github.com/classyllama/ClassyLlama_AvaTax/issues/171)
+
+### 1.4.4 (2018-09-13)
+
+* Fix issue where invalid/partial zip code values result in errors logged [#122](https://github.com/classyllama/ClassyLlama_AvaTax/issues/122)
+
+### 1.4.3 (2018-07-13)
+
+* Fix issue where address validation in admin while editing customer doesn't display region in original address [#135](https://github.com/classyllama/ClassyLlama_AvaTax/issues/135)
+* Fix issue Save Address button remains disabled after closing address validation modal [#139](https://github.com/classyllama/ClassyLlama_AvaTax/issues/139)
+
+### 1.4.2 (2018-06-25)
+
+* Fix issue where Magento error isn't clear as to why a user can't proceed to payment method during checkout [#132](https://github.com/classyllama/ClassyLlama_AvaTax/issues/132)
+
+### 1.4.1 (2018-04-12)
+
+* Fix bug where exception is thrown when customer has no value for chosen attribute [#99](https://github.com/classyllama/ClassyLlama_AvaTax/issues/99)
+
 ### 1.4.0 (2018-04-03)
 
 * Add the ability to use any customer attribute as customer code [#99](https://github.com/classyllama/ClassyLlama_AvaTax/issues/99)

@@ -306,7 +306,8 @@ class Tax
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     ) {
         if (is_null($type)) {
-            $type = $this->config->getLiveMode($storeId) ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
+            $type = $this->config->getLiveMode($storeId, $scopeType)
+                ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
         }
         if (!isset($this->taxServiceSoap[$type])) {
             $this->config->createAvaTaxProfile($storeId, $scopeType);
