@@ -24,10 +24,10 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
 
     /**
      * @param Config $config
-     * @param        $appName
-     * @param        $appVersion
+     * @param string $appName
+     * @param string $appVersion
      * @param string $machineName
-     * @param        $environment
+     * @param string $environment
      * @param array  $guzzleParams
      *
      * @throws \Exception
