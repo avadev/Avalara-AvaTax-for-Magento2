@@ -63,6 +63,7 @@ interface RestCustomerInterface extends RestInterface
      * @param string $scopeType
      *
      * @return mixed
+     * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
      */
     public function deleteCertificate(
         $request,

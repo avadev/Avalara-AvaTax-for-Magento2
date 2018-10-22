@@ -92,22 +92,27 @@ class Customer extends Rest implements RestCustomerInterface
     )
     {
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
 
         if ($request->getData('customer_code')) {
             throw new \InvalidArgumentException('Must include a request with customer id');
         }
 
-        $clientResult = $client->listCertificatesForCustomer(
-            $this->config->getCompanyId($scopeId, $scopeType),
-            $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId),
-            $request->getData('include'),
-            $request->getData('filter'),
-            $request->getData('top'),
-            $request->getData('skip'),
-            $request->getData('order_by')
-        );
+        $clientResult = null;
 
-        $this->validateResult($clientResult, $request);
+        try {
+            $clientResult = $client->listCertificatesForCustomer(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId),
+                $request->getData('include'),
+                $request->getData('filter'),
+                $request->getData('top'),
+                $request->getData('skip'),
+                $request->getData('order_by')
+            );
+        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            $this->handleException($clientException, $request);
+        }
 
         $certificates = $this->formatResult($clientResult)->getValue();
 
@@ -126,6 +131,7 @@ class Customer extends Rest implements RestCustomerInterface
     {
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
 
+        // TODO: error handling?
         return $client->downloadCertificateImage(
             $this->config->getCompanyId($scopeId, $scopeType),
             $request->getData('id'),
@@ -146,6 +152,7 @@ class Customer extends Rest implements RestCustomerInterface
     {
         /** @var \Avalara\AvaTaxClient $client */
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
 
         try {
             $customerId = $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId);
@@ -156,34 +163,29 @@ class Customer extends Rest implements RestCustomerInterface
             $customerModel->customers = [$customerId];
 
             //Customer(s) must be unlinked from cert before it can be deleted.
-            $unlinkResult = $client->unlinkCustomersFromCertificate(
+            $client->unlinkCustomersFromCertificate(
                 $this->config->getCompanyId($scopeId, $scopeType),
                 $request->getData('id'),
                 $customerModel
             );
-
-            $this->validateResult($unlinkResult, $request);
 
         } catch (\Exception $e) {
             //Swallow this error. Continue to try and delete the cert.
             //If the deletion errors, then we'll notify the user that something has gone wrong.
         }
 
-        //make deletion request.
-        $result = $client->deleteCertificate(
-            $this->config->getCompanyId($scopeId, $scopeType),
-            $request->getData('id')
-        );
+        $result = null;
 
-        //A successful delete request results in an empty body. This means $result is an empty array.
-        //However, the validateResult method can't handle this as a valid response.
-        //This explicit check for an empty array is to fill that hole in the validation.
-        if(is_array($result) && count($result) === 0) {
-            return $result; //result is an empty array. No error was returned from request.
+        try {
+            //make deletion request.
+            $result = $client->deleteCertificate(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $request->getData('id')
+            );
+        } catch(\GuzzleHttp\Exception\ClientException $clientException) {
+            $this->handleException($clientException, $request);
         }
 
-        //Something went wrong, validate and handle error.
-        $this->validateResult($result, $request);
         return $this->formatResult($result);
     }
 
