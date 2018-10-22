@@ -78,7 +78,7 @@ interface RestCustomerInterface extends RestInterface
      * @param bool|null $isProduction
      * @param string|int|null $scopeId
      * @param string $scopeType
-     * @return mixed
+     * @return DataObject
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function updateCustomer(

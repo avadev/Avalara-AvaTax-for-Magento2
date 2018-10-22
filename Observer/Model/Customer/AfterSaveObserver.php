@@ -74,21 +74,22 @@ class AfterSaveObserver implements ObserverInterface
         /** @var \Magento\Customer\Api\Data\CustomerInterface $customer */
         $customer = $observer->getData('customer_data_object');
 
-        if ($this->documentManagementConfig->isEnabled($customer->getStoreId())) {
+        if (!$this->documentManagementConfig->isEnabled($customer->getStoreId())) {
+            return;
+        }
 
-            try {
-                $this->restCustomerInterface->updateCustomer($customer, null, $customer->getStoreId());
-            } catch (\Exception $e) {
-                if($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
-                    //show error message
-                    $this->messageManager->addErrorMessage(__("Error sending updated customer data to Avalara."));
-                }
-
-                $this->avaTaxLogger->error(
-                    __("Error sending updated customer data to Avalara for customer %1.", $customer->getId()),
-                    ['error message' => $e->getMessage()]
-                );
+        try {
+            $this->restCustomerInterface->updateCustomer($customer, null, $customer->getStoreId());
+        } catch (\Exception $e) {
+            if($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
+                //show error message
+                $this->messageManager->addErrorMessage(__("Error sending updated customer data to Avalara."));
             }
+
+            $this->avaTaxLogger->error(
+                __("Error sending updated customer data to Avalara for customer %1.", $customer->getId()),
+                ['error message' => $e->getMessage()]
+            );
         }
 
     }

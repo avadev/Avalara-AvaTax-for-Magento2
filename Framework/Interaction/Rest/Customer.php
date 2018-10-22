@@ -237,7 +237,7 @@ class Customer extends Rest implements RestCustomerInterface
         $customerModel = $this->customerModelFactory->create();
 
         $customerModel->customerCode = $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId);
-        $customerModel->name = $customer->getFirstname() . ' ' . $customer->getLastname();
+        $customerModel->name = "{$customer->getFirstname()} {$customer->getLastname()}";
         $customerModel->emailAddress = $customer->getEmail();
         $customerModel->companyId = $this->config->getCompanyId($scopeId, $scopeType);
         $customerModel->createdDate = $customer->getCreatedAt();
