@@ -100,6 +100,10 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
      */
     public function process($jsLayout)
     {
+        $config = [
+            'documentManagementEnabled' => false
+        ];
+
         if ($this->config->isModuleEnabled() && $this->documentManagementConfig->isEnabled()) {
             $newCertText = \count(
                 $this->certificateHelper->getCertificates($this->customerSession->getCustomer()->getId())
@@ -111,21 +115,22 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
                 'certificatesLink' => $this->urlBuilder->getUrl('avatax/certificates'),
                 'newCertText' => $newCertText,
                 'manageCertsText' => __($this->documentManagementConfig->getCheckoutLinkTextManageExistingCert()),
-                'enabledCountries' => $this->documentManagementConfig->getEnabledCountries()
+                'enabledCountries' => $this->documentManagementConfig->getEnabledCountries(),
+                'documentManagementEnabled' => true
             ];
-
-            // Set config for payments area
-            $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"] = array_merge(
-                $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"],
-                $config
-            );
-
-            // Set config for tax summary area
-            $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"] = array_merge(
-                $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"],
-                $config
-            );
         }
+
+        // Set config for payments area
+        $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"] = array_merge(
+            $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"],
+            $config
+        );
+
+        // Set config for tax summary area
+        $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"] = array_merge(
+            $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"],
+            $config
+        );
 
         return $jsLayout;
     }
