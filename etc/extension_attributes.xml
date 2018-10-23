@@ -159,20 +159,6 @@
             </join>
         </attribute>
     </extension_attributes>
-
-    <!--
-    /**
-     * Add and redefine extension attributes to display tax summary information on frontend
-     * See https://github.com/classyllama/ClassyLlama_AvaTax/issues/70 for details
-     */
-     -->
-    <extension_attributes for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface">
-        <attribute code="tax" type="float" />
-    </extension_attributes>
-    <!--Redefine existing extension attribute to use new interface-->
-    <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
-        <attribute code="tax_grandtotal_details" type="ClassyLlama\AvaTax\Api\Data\GrandTotalDetailsInterface[]" />
-    </extension_attributes>
     <extension_attributes for="Magento\Quote\Api\Data\TotalsInterface">
         <attribute code="avatax_messages" type="string[]"/>
     </extension_attributes>
