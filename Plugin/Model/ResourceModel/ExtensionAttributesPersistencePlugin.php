@@ -105,7 +105,7 @@ class ExtensionAttributesPersistencePlugin
 
         // Compile join data with extension attribute data for building SQL queries
         foreach ($joinDirectives as $attributeCode => $directive) {
-            $attributeData = [];
+            $attributeData = null;
 
             if ($extensionAttributes !== null) {
                 $attributeData = $this->extensionAttributeMerger->getExtensionAttribute(
