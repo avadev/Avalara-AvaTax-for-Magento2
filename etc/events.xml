@@ -24,4 +24,7 @@
     <event name="checkout_type_multishipping_create_orders_single">
         <observer instance="ClassyLlama\AvaTax\Observer\SalesModelServiceQuoteSubmitBefore" name="classyllama_avatax_copy_extension_attributes_multishipping"/>
     </event>
+    <event name="customer_save_after_data_object">
+        <observer name="update_avatax_customer" instance="\ClassyLlama\AvaTax\Observer\Model\Customer\AfterSaveObserver"/>
+    </event>
 </config>
