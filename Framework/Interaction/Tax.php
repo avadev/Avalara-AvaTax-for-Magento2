@@ -537,13 +537,7 @@ class Tax
         /**
          *  Adding importer of record override
          */
-        if ($quote->getCustomerId() !== null) {
-            $customer = $this->getCustomerById($quote->getCustomerId());
-
-            if($customer !== null) {
-                $this->setIsImporterOfRecord($customer, $request);
-            }
-        }
+        $this->setIsImporterOfRecord($quote, $request);
 
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
@@ -700,15 +694,15 @@ class Tax
             'lines' => $lines,
             'purchase_order_no' => $object->getIncrementId(),
             'reference_code' => $orderIncrementId,
+            'is_seller_importer_of_record' => $order->getCustomAttribute('is_seller_importer_of_record')->getValue()
         ];
 
         $request = $this->dataObjectFactory->create(['data' => $data]);
 
         $this->addGetTaxRequestFields($request, $store, $address, $object->getOrder()->getCustomerId());
 
-        if($customer !== null) {
-            $this->setIsImporterOfRecord($customer, $request);
-        }
+
+        $this->setIsImporterOfRecord(null, $request);
 
         try {
             $validatedData = $this->metaDataObject->validateData($request->getData());
@@ -879,17 +873,25 @@ class Tax
     /**
      * Checks to see if there is an override for is importer of record and applies this to the request.
      *
-     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Framework\DataObject $request
      */
-    protected function setIsImporterOfRecord($customer, $request)
+    protected function setIsImporterOfRecord($quote, $request)
     {
-        $override = $customer->getCustomAttribute(CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE);
-        $overrideValue = ($override !== null ? $override->getValue() : null);
+        $overrideValue = null;
+        if(!is_null($quote) &&  !is_null($quote->getExtensionAttributes())) {
+            $extensionAttribute = $quote->getExtensionAttributes();
+            $overrideValue = $extensionAttribute->getOverrideImporterOfRecord();
+        } elseif(!is_null($quote) && !is_null($quote->getCustomerId())) {
 
-        if($overrideValue !== null && $overrideValue !== CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT) {
+            $customer = $this->getCustomerById($quote->getCustomerId());
+
+            $override = $customer->getCustomAttribute(CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE);
+            $overrideValue = ($override !== null ? $override->getValue() : null);
+        }
+        if($overrideValue !== null && $overrideValue !== CustomsConfig::IMPORTER_OF_RECORD_OVERRIDE_DEFAULT['value']) {
             $request->setData('is_seller_importer_of_record',
-                $overrideValue === CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_YES
+                $overrideValue === CustomsConfig::IMPORTER_OF_RECORD_OVERRIDE_YES['value']
             );
         }
     }

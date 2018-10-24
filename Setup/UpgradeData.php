@@ -206,7 +206,7 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         /**
-         * Create Importer of Record Override Option
+         * Create Customer Importer of Record Override Option
          */
         if (version_compare($context->getVersion(), '2.0.5', '<')) {
 
@@ -235,7 +235,7 @@ class UpgradeData implements UpgradeDataInterface
                     'position' => 999,
                     'system' => 0,
                     'backend' => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
-                    'source' => \ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Customer\ImporterOfRecord::class
+                    'source' => \ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\ImporterOfRecord::class
                 ]
             );
             $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY,
@@ -249,6 +249,27 @@ class UpgradeData implements UpgradeDataInterface
             $attribute->save();
         }
 
+        /**
+         * Create Order Importer of Record Override Field
+         */
+        if (version_compare($context->getVersion(), '2.0.5', '<')) {
+
+            $tableName = $setup->getTable('sales_order');
+            if (!$setup->getConnection(self::$connectionName)
+                ->tableColumnExists($tableName, CustomsConfig::SALES_ORDER_IMPORTER_OF_RECORD_COLUMN_NAME)
+            ) {
+
+                $setup->getConnection(self::$connectionName)->addColumn($tableName,
+                    CustomsConfig::SALES_ORDER_IMPORTER_OF_RECORD_COLUMN_NAME,
+                    [
+                        'type'=> \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => 255,
+                        'nullable' => true,
+                        'comment' => 'Override field for Importer of Record used in Adminhtml'
+                    ]);
+            }
+
+        }
         $setup->endSetup();
     }
 }

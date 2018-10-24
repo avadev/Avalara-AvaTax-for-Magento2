@@ -136,4 +136,8 @@
             </argument>
         </arguments>
     </virtualType>
+
+    <type name="Magento\Sales\Controller\Adminhtml\Order\Create\LoadBlock">
+        <plugin name="add_ovverid_ior_on_update" type="ClassyLlama\AvaTax\Plugin\Sales\Controller\Adminhtml\Order\Create\LoadBlock" />
+    </type>
 </config>

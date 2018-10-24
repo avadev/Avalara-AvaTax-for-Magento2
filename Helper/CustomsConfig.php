@@ -19,8 +19,10 @@ namespace ClassyLlama\AvaTax\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use ClassyLlama\AvaTax\Helper\Config as MainConfig;
+use Magento\Store\Model\Config\Importer;
 use Magento\Store\Model\ScopeInterface;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassResource;
+use ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\ImporterOfRecord;
 
 /**
  * AvaTax Config model
@@ -38,11 +40,13 @@ class CustomsConfig extends AbstractHelper
      */
     const CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE = 'override_importer_of_record';
 
-    const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_DEFAULT = 'default';
+    const IMPORTER_OF_RECORD_OVERRIDE_DEFAULT = ['label'=>'Use Default', 'value'=>'default'];
 
-    const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_YES = "override_yes";
+    const IMPORTER_OF_RECORD_OVERRIDE_YES = ['label'=>'Override to Yes', 'value'=>'override_yes'];
 
-    const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_NO = "override_no";
+    const IMPORTER_OF_RECORD_OVERRIDE_NO = ['label'=>'Override to No', 'value'=>'override_no'];
+
+    const SALES_ORDER_IMPORTER_OF_RECORD_COLUMN_NAME = 'avatax_override_importer_of_record';
 
     /**
      * @var Config
@@ -55,6 +59,11 @@ class CustomsConfig extends AbstractHelper
     protected $crossBorderClassResource;
 
     /**
+     * @var ImporterOfRecord
+     */
+    protected $importerOfRecordModel;
+
+    /**
      * @param Context $context
      * @param MainConfig $mainConfig
      * @param CrossBorderClassResource $crossBorderClassResource
@@ -62,10 +71,12 @@ class CustomsConfig extends AbstractHelper
     public function __construct(
         Context $context,
         MainConfig $mainConfig,
-        CrossBorderClassResource $crossBorderClassResource
+        CrossBorderClassResource $crossBorderClassResource,
+        ImporterOfRecord $importerOfRecordModel
     ) {
         $this->mainConfig = $mainConfig;
         $this->crossBorderClassResource = $crossBorderClassResource;
+        $this->importerOfRecordModel = $importerOfRecordModel;
         parent::__construct($context);
     }
 
@@ -110,5 +121,13 @@ class CustomsConfig extends AbstractHelper
             $scopeType,
             $store
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function getImporterOfRecordOverrideOptions()
+    {
+        return $this->importerOfRecordModel->getAllOptions();
     }
 }
