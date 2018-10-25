@@ -838,12 +838,19 @@ class Tax
      */
     protected function getBusinessIdentificationNumber($store, $address, $customer)
     {
-        if ($customer && $customer->getTaxvat()) {
-            return $customer->getTaxvat();
+        if (!$this->config->getUseBusinessIdentificationNumber($store)) {
+            // 'Include VAT Tax' setting is disabled
+            return null;
         }
-        if ($this->config->getUseBusinessIdentificationNumber($store)) {
+        if ($address->getVatId()) {
+            // Using the VAT ID has been assigned to the address
             return $address->getVatId();
         }
+        if ($customer && $customer->getTaxvat()) {
+            // Using the VAT ID assigned to the customer account
+            return $customer->getTaxvat();
+        }
+        // No VAT ID available to use
         return null;
     }
 
