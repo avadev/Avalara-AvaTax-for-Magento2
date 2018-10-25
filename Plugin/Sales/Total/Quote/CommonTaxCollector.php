@@ -40,7 +40,7 @@ class CommonTaxCollector
                 if ($rateDataObject->getExtensionAttributes() && $rateDataObject->getExtensionAttributes()->getTax()) {
                     $tax = $rateDataObject->getExtensionAttributes()->getTax();
                 } else {
-                    $tax = null;
+                    $tax = 0;
                 }
                 $rates[] = [
                     'percent' => $rateDataObject->getPercent(),

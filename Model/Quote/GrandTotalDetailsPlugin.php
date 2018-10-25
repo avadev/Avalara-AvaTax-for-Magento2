@@ -83,7 +83,7 @@ class GrandTotalDetailsPlugin extends \Magento\Tax\Model\Quote\GrandTotalDetails
             $taxRate->setTitle($rate['title']);
             // BEGIN EDIT - Add extension attributes element to array with tax amount
             $extensionAttributes = $this->getExtensionAttributesArray($rate);
-            if ($extensionAttributes) {
+            if ($extensionAttributes !== false) {
                 $taxRateExtension = $this->grandTotalRatesExtensionFactory->create();
                 $taxRateExtension->setTax($rate['extension_attributes']['tax']);
                 $taxRate->setExtensionAttributes($taxRateExtension);
