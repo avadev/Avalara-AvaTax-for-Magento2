@@ -18,4 +18,7 @@
     <event name="sales_order_place_before">
         <observer name="avatax_sales_order_place_before" instance="ClassyLlama\AvaTax\Observer\PreventOrderPlaceObserver" />
     </event>
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="avatax_checkout_index_index" instance="ClassyLlama\AvaTax\Observer\CalculateVirtualOrder" />
+    </event>
 </config>
