@@ -1,3 +1,11 @@
+### 1.4.9 (2018-10-25)
+
+* Fix issue where $0 rates are inaccurate in tax summary [PR #193](https://github.com/classyllama/ClassyLlama_AvaTax/pull/193)
+* Fix issue where tax isn't calculated prior to checkout for virtual orders [#121](https://github.com/classyllama/ClassyLlama_AvaTax/issues/121)
+* Fix issue where duplicate entries can be created in address book [#115](https://github.com/classyllama/ClassyLlama_AvaTax/issues/115)
+* Refactor VAT ID submission code to match behavior described in config comment [PR #204](https://github.com/classyllama/ClassyLlama_AvaTax/pull/204)
+* Refactor code to prevent rounding tax rate prior to displaying on frontend [#179](https://github.com/classyllama/ClassyLlama_AvaTax/issues/179)
+
 ### 1.4.8 (2018-10-15)
 
 * Fix issue where editing customer in backend of Magento 2.1.x results in missing tabs (e.g. "Orders") [#151](https://github.com/classyllama/ClassyLlama_AvaTax/issues/151)
