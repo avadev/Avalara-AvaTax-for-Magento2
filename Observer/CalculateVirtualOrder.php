@@ -84,22 +84,18 @@ class CalculateVirtualOrder implements ObserverInterface
             try {
                 $customer = $this->customerRepository->getById($this->customerSession->getCustomerId());
                 $addressId = $customer->getDefaultBilling();
-            } catch (\Exception $e) {
-                $addressId = null;
-            }
-            if ($addressId !== null) {
                 /** @var \Magento\Customer\Api\Data\AddressInterface $address */
-                try {
-                    $address = $this->addressRepository->getById($addressId);
-                } catch (LocalizedException $e) {
-                    $address = null;
-                }
+                $address = $this->addressRepository->getById($addressId);
+                $address = $quote->getBillingAddress()->importCustomerAddressData($address);
                 if ($address !== null) {
-                    $address = $quote->getBillingAddress()->importCustomerAddressData($address);
                     $quote->setBillingAddress($address);
                     $quote->setDataChanges(true);
                     $this->quoteRepository->save($quote);
                 }
+            } catch (\Exception $e) {
+                return $this;
+            } catch (LocalizedException $e) {
+                return $this;
             }
         }
         return $this;
