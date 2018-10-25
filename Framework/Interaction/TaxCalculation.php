@@ -391,12 +391,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         foreach ($getTaxResult->getTaxSummary() as $key => $row) {
             $arrayKey = $row->getJurisCode() . '_' . $row->getJurisName();
 
-            // Since the total percent is for display purposes only, round to 5 digits. Since the tax percent returned
-            // from AvaTax is not the actual tax rate, but the effective rate, rounding makes the presentation make more
-            // sense to the user. For example, a tax rate may be 19%, but AvaTax may return a value of 0.189995.
-            $roundedRate = round((float) $row->getRate(), 4);
-
-            $ratePercent = ($roundedRate * Tax::RATE_MULTIPLIER);
+            $ratePercent = ($row->getRate() * Tax::RATE_MULTIPLIER);
             if (!isset($taxRatesByCode[$arrayKey])) {
                 $taxRatesByCode[$arrayKey] = [
                     // In case jurisdiction codes are duplicated, prepending the $key ensures we have a unique ID
