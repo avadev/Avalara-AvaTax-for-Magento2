@@ -15,9 +15,10 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
-use Avalara\AvaTaxClient;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
+use ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper;
+use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Psr\Log\LoggerInterface;
 
@@ -46,15 +47,16 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
     protected $clients = [];
 
     /**
-     * @param LoggerInterface $logger
+     * @param LoggerInterface   $logger
      * @param DataObjectFactory $dataObjectFactory
-     * @param ClientPool $clientPool
+     * @param ClientPool        $clientPool
      */
     public function __construct(
         LoggerInterface $logger,
         DataObjectFactory $dataObjectFactory,
         ClientPool $clientPool
-    ) {
+    )
+    {
         $this->logger = $logger;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->clientPool = $clientPool;
@@ -67,7 +69,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      * @param null|string|int $scopeId
      * @param string          $scopeType
      *
-     * @return AvaTaxClient
+     * @return AvaTaxClientWrapper
      * @throws \InvalidArgumentException
      */
     public function getClient(
@@ -76,7 +78,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     )
     {
-        return $this->clientPool->getClient( $isProduction, $scopeId, $scopeType );
+        return $this->clientPool->getClient($isProduction, $scopeId, $scopeType);
     }
 
     /**
@@ -90,64 +92,74 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      * @throws AvataxConnectionException
      * @throws \InvalidArgumentException
      */
-    public function ping( $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    public function ping(
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
     {
-        $result = $this->getClient( $isProduction, $scopeId, $scopeType)->ping();
+        $result = null;
 
-        $this->validateResult($result);
+        try {
+            $result = $this->getClient($isProduction, $scopeId, $scopeType)
+                ->withCatchExceptions(false)
+                ->ping();
+        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            $this->handleException($clientException);
+        }
 
         return $result->authenticated;
     }
 
     /**
-     * Validate a response from the AvaTax library client
-     * Response is an error message string if an error occurred
+     * @param \GuzzleHttp\Exception\ClientException|\Exception $exception
+     * @param DataObject|null                                  $request
      *
-     * @param string|\Avalara\PingResultModel $result
-     * @param \Magento\Framework\DataObject|null $request
-     * @return void
      * @throws AvataxConnectionException
      */
-    protected function validateResult($result, $request = null)
+    protected function handleException($exception, $request = null)
     {
-        if (!is_object($result)) {
-            if (is_string($result)) {
-                $this->logger->error(__('AvaTax connection error: %1', $result), [
-                    'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
-                ]);
-            } else {
-                $this->logger->error(__('Response from AvaTax was in invalid format'), [
-                    'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
-                    'result' => var_export($result, true),
-                ]);
+        $requestLogData = $request !== null ? var_export($request->getData(), true) : null;
+        $logMessage = __('AvaTax connection error: %1', $exception->getMessage());
+        $logContext = ['request' => $requestLogData];
+
+        if ($exception instanceof \GuzzleHttp\Exception\ClientException) {
+            $responseBody = (string)$exception->getResponse()->getBody();
+            $response = json_decode($responseBody, true);
+
+            $logMessage = __('Response from AvaTax indicated non-specific error');
+            $logContext['result'] = $responseBody;
+
+            if ($response !== null) {
+                $logMessage = __(
+                    'AvaTax connection error: %1',
+                    trim(
+                        array_reduce(
+                            $response['error']['details'],
+                            function ($error, $detail) {
+                                if ($detail['severity'] !== 'Exception') {
+                                    return $error;
+                                }
+
+                                return $error . ' ' . $detail['description'];
+                            },
+                            ''
+                        )
+                    )
+                );
+                $logContext['result'] = var_export($response, true);
             }
-            throw new AvataxConnectionException(__('AvaTax connection error'));
         }
 
-        /**
-         * This really should never happen, because the response should come back with a response code that
-         * results in the Guzzle middleware throwing an exception, which Avalara catches and turns into a flat string result
-         */
-        if (isset($result->error)) {
-            if (is_object($result->error) && isset($result->error->message)) {
-                $this->logger->error(__('AvaTax connection error: %1', $result->error->message), [
-                    'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
-                    'result' => var_export($result, true),
-                ]);
-            } else {
-                $this->logger->error(__('Response from AvaTax indicated non-specific error'), [
-                    'request' => (!is_null($request)) ? var_export($request->getData(), true) : null,
-                    'result' => var_export($result, true),
-                ]);
-            }
-            throw new AvataxConnectionException(__('AvaTax connection error'));
-        }
+        $this->logger->error($logMessage, $logContext);
+        throw new AvataxConnectionException($logMessage);
     }
 
     /**
      * Convert a simple object to a data object
      *
      * @param mixed $value
+     *
      * @return mixed
      */
     protected function formatResult($value)
@@ -156,7 +168,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
             foreach ($value as &$subValue) {
                 $subValue = $this->formatResult($subValue);
             }
-        } elseif (is_object($value)) {
+        } else if (is_object($value)) {
             $valueObj = $this->dataObjectFactory->create();
             foreach ($value as $key => $subValue) {
                 $methodName = 'set' . ucfirst($key);

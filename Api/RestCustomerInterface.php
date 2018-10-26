@@ -53,4 +53,39 @@ interface RestCustomerInterface extends RestInterface
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     );
+
+    /**
+     * Perform REST request to delete certificate.
+     *
+     * @param DataObject $request
+     * @param bool|null $isProduction
+     * @param string|int|null $scopeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
+     */
+    public function deleteCertificate(
+        $request,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    );
+
+    /**
+     * Perform REST request to update a customer.
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param bool|null $isProduction
+     * @param string|int|null $scopeId
+     * @param string $scopeType
+     * @return DataObject
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function updateCustomer(
+        $customer,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    );
 }

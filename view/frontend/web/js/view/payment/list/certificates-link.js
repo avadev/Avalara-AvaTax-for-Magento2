@@ -50,6 +50,10 @@ define([
         };
 
         targetModule.prototype.ifShowCertificateLink = function ifShowCertificateLink() {
+            if(this.documentManagementEnabled === false) {
+                return false;
+            }
+
             var amount = 0,
                 taxTotal;
 

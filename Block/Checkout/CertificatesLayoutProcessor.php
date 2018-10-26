@@ -18,7 +18,6 @@ namespace ClassyLlama\AvaTax\Block\Checkout;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
-use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 
 class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
@@ -59,12 +58,18 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
     protected $customerSession;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\CertificateHelper
+     */
+    protected $certificateHelper;
+
+    /**
      * @param Config                                        $config
      * @param DocumentManagementConfig                      $documentManagementConfig
      * @param \Magento\Framework\UrlInterface               $urlBuilder
      * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
      * @param DataObjectFactory                             $dataObjectFactory
      * @param \Magento\Customer\Model\Session               $customerSession
+     * @param \ClassyLlama\AvaTax\Helper\CertificateHelper  $certificateHelper
      */
     public function __construct(
         Config $config,
@@ -72,7 +77,8 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
         \Magento\Framework\UrlInterface $urlBuilder,
         \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
         DataObjectFactory $dataObjectFactory,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        \ClassyLlama\AvaTax\Helper\CertificateHelper $certificateHelper
     )
     {
         $this->config = $config;
@@ -81,6 +87,7 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
         $this->customerRest = $customerRest;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->customerSession = $customerSession;
+        $this->certificateHelper = $certificateHelper;
     }
 
     /**
@@ -93,8 +100,14 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
      */
     public function process($jsLayout)
     {
+        $config = [
+            'documentManagementEnabled' => false
+        ];
+
         if ($this->config->isModuleEnabled() && $this->documentManagementConfig->isEnabled()) {
-            $newCertText = \count($this->getCertificates()) > 0 ? __(
+            $newCertText = \count(
+                $this->certificateHelper->getCertificates($this->customerSession->getCustomer()->getId())
+            ) > 0 ? __(
                 $this->documentManagementConfig->getCheckoutLinkTextNewCertCertsExist()
             ) : __($this->documentManagementConfig->getCheckoutLinkTextNewCertNoCertsExist());
 
@@ -102,42 +115,23 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
                 'certificatesLink' => $this->urlBuilder->getUrl('avatax/certificates'),
                 'newCertText' => $newCertText,
                 'manageCertsText' => __($this->documentManagementConfig->getCheckoutLinkTextManageExistingCert()),
-                'enabledCountries' => $this->documentManagementConfig->getEnabledCountries()
+                'enabledCountries' => $this->documentManagementConfig->getEnabledCountries(),
+                'documentManagementEnabled' => true
             ];
-
-            // Set config for payments area
-            $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"] = array_merge(
-                $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"],
-                $config
-            );
-
-            // Set config for tax summary area
-            $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"] = array_merge(
-                $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"],
-                $config
-            );
         }
 
-        return $jsLayout;
-    }
-
-    /**
-     * @return DataObject[]
-     * @throws AvataxConnectionException
-     */
-    public function getCertificates()
-    {
-        $certificates = [];
-        $customerId = $this->customerSession->getCustomer()->getId();
-
-        if ($customerId === null) {
-            return $certificates;
-        }
-
-        $certificates = $this->customerRest->getCertificatesList(
-            $this->dataObjectFactory->create(['data' => ['customer_id' => $customerId]])
+        // Set config for payments area
+        $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"] = array_merge(
+            $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"],
+            $config
         );
 
-        return $certificates;
+        // Set config for tax summary area
+        $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"] = array_merge(
+            $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"],
+            $config
+        );
+
+        return $jsLayout;
     }
 }
