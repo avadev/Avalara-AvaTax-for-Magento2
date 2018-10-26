@@ -394,7 +394,7 @@ class Tax
             'store_id' => $store->getId(),
             'commit' => false, // quotes should never be committed
             'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
-            'customer_code' => $this->customer->getCustomerCode(
+            'customer_code' => $this->customer->getCustomerCodeByCustomerId(
                 $quote->getCustomerId(),
                 $quote->getId(),
                 $quote->getStoreId()
@@ -645,7 +645,7 @@ class Tax
             'commit' => $this->config->getCommitSubmittedTransactions($store),
             'tax_override' => $taxOverride,
             'currency_code' => $order->getOrderCurrencyCode(),
-            'customer_code' => $this->customer->getCustomerCode(
+            'customer_code' => $this->customer->getCustomerCodeByCustomerId(
                 $order->getCustomerId(),
                 $order->getId(),
                 $order->getStoreId()

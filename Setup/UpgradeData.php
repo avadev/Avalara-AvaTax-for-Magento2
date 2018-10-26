@@ -6,19 +6,17 @@
 
 namespace ClassyLlama\AvaTax\Setup;
 
-use Magento\Framework\Setup\UpgradeDataInterface;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Framework\Setup\ModuleContextInterface;
-use Magento\Eav\Setup\EavSetup;
-use Magento\Eav\Setup\EavSetupFactory;
-use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
-use Magento\Customer\Setup\CustomerSetupFactory;
-use Magento\Customer\Setup\CustomerSetup;
-use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
-use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
-use Magento\Customer\Model\Customer;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
-use Magento\Rma\Model\Attribute;
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetup;
+use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
+use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
+use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\UpgradeDataInterface;
 
 class UpgradeData implements UpgradeDataInterface
 {
@@ -245,6 +243,48 @@ class UpgradeData implements UpgradeDataInterface
                     'attribute_group_id' => $attributeGroupId,
                     'used_in_forms' => ['adminhtml_customer'],
             ]);
+
+            $attribute->save();
+        }
+
+        /**
+         * Create Importer of Record Override Option
+         */
+        if (version_compare($context->getVersion(), '2.0.9', '<')) {
+
+            /** @var CustomerSetup $customerSetup */
+            $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
+            $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
+            $attributeSetId = $customerEntity->getDefaultAttributeSetId();
+
+            /** @var AttributeSet $attributeSet */
+            $attributeSet = $this->attributeSetFactory->create();
+            $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
+            $customerSetup->addAttribute(
+                Customer::ENTITY,
+                \ClassyLlama\AvaTax\Helper\DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE,
+                [
+                    'type' => 'text',
+                    'label' => 'AvaTax Customer Code',
+                    'input' => 'text',
+                    'note' => 'Stores the customer code registered for this customer in AvaTax. Once set, this should not be changed as it will break the relation of this customer to AvaTax.',
+                    'visible' => true,
+                    'user_defined' => 0,
+                    'required' => false,
+                    'sort_order' => 999,
+                    'position' => 999,
+                    'system' => 0
+                ]
+            );
+            $attribute = $customerSetup->getEavConfig()->getAttribute(
+                    Customer::ENTITY,
+                    \ClassyLlama\AvaTax\Helper\DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE
+                )->addData(
+                    [
+                        'attribute_set_id' => $attributeSetId,
+                        'attribute_group_id' => $attributeGroupId
+                    ]
+                );
 
             $attribute->save();
         }
