@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Block\Checkout;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\DataObjectFactory;
 
 class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
@@ -105,9 +106,15 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
         ];
 
         if ($this->config->isModuleEnabled() && $this->documentManagementConfig->isEnabled()) {
-            $newCertText = \count(
-                $this->certificateHelper->getCertificates($this->customerSession->getCustomer()->getId())
-            ) > 0 ? __(
+            $hasCerts = false;
+            /** @var CustomerInterface $customer */
+            $customer = $this->customerSession->getCustomer();
+
+            if ($customer->getId() !== null && $this->customerRest->reconcileAvaTaxCustomer($customer)) {
+                $hasCerts = \count($this->certificateHelper->getCertificates($customer->getId())) > 0;
+            }
+
+            $newCertText = $hasCerts ? __(
                 $this->documentManagementConfig->getCheckoutLinkTextNewCertCertsExist()
             ) : __($this->documentManagementConfig->getCheckoutLinkTextNewCertNoCertsExist());
 

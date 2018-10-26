@@ -37,9 +37,9 @@ class Customer extends AbstractHelper
     protected $customerRepository;
 
     /**
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param Config                      $config
-     * @param Context                     $context
+     * @param CustomerRepositoryInterface                   $customerRepository
+     * @param Config                                        $config
+     * @param Context                                       $context
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -62,7 +62,7 @@ class Customer extends AbstractHelper
      *
      * @return string
      */
-    protected function getAttributeValue($customer, $customerCode)
+    public function getCustomerAttributeValue($customer, $customerCode)
     {
         // Convert provided customer code to getter name
         $getCustomerCode = 'get' . str_replace('_', '', ucwords($customerCode, '_'));
@@ -82,7 +82,7 @@ class Customer extends AbstractHelper
     }
 
     /**
-     * @param CustomerInterface $customer
+     * @param CustomerInterface|null $customer
      *
      * @return string
      */
@@ -108,15 +108,15 @@ class Customer extends AbstractHelper
     public function generateCustomerCodeFromAttribute($customer, $attribute)
     {
         // Retrieve attribute value using provided attribute code
-        $attributeValue = $this->getAttributeValue($customer, $attribute);
+        $attributeValue = $this->getCustomerAttributeValue($customer, $attribute);
 
         if ($attributeValue === null && $attribute === Config::CUSTOMER_FORMAT_OPTION_EMAIL) {
             return Config::CUSTOMER_MISSING_EMAIL;
         }
 
-        if ($attributeValue !== null && (is_string($attributeValue) || is_numeric($attributeValue))) {
+        if ($attributeValue !== null && $attributeValue !== '') {
             // Customer has a value defined for provided attribute code and the provided value is a string
-            return (string)$attributeValue;
+            return $attributeValue;
         }
 
         return null;
@@ -135,7 +135,11 @@ class Customer extends AbstractHelper
     {
         // Retrieve the customer code configuration value
         $customerCodeFormat = $this->config->getCustomerCodeFormat($storeId);
-        $customerCode = $customer->getId() ?: strtolower(Config::CUSTOMER_GUEST_ID) . "-{$uniqueGuestIdentifier}";
+        $customerCode = strtolower(Config::CUSTOMER_GUEST_ID) . "-{$uniqueGuestIdentifier}";
+
+        if($customer !== null && $customer->getId()) {
+            $customerCode = $customer->getId();
+        }
 
         // This is the default value, ignore handling
         if ($customerCodeFormat === Config::CUSTOMER_FORMAT_OPTION_ID) {
@@ -164,7 +168,6 @@ class Customer extends AbstractHelper
      * @param int|null               $storeId
      *
      * @return string
-     * @throws LocalizedException
      */
     public function getCustomerCode($customer, $uniqueGuestIdentifier = null, $storeId = null)
     {
@@ -172,7 +175,7 @@ class Customer extends AbstractHelper
 
         // If the customer has a code stored on them, do not generate a new code
         if ($customer !== null) {
-            $customerCode = $this->generateCustomerCodeFromAttribute(
+            $customerCode = $this->getCustomerAttributeValue(
                 $customer,
                 DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE
             );
@@ -182,20 +185,7 @@ class Customer extends AbstractHelper
             }
         }
 
-        $customerCode = $this->generateCustomerCode($customer, $uniqueGuestIdentifier, $storeId);
-
-        // After generating a customer code, save it on the customer to ensure we always have the correct reference
-        $customer->setCustomAttribute(DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE, $customerCode);
-
-        try {
-            $this->customerRepository->save($customer);
-        } catch (InputException $inputException) {
-            throw new LocalizedException(__($inputException->getMessage()));
-        } catch (InputMismatchException $inputMismatchException) {
-            throw new LocalizedException(__($inputMismatchException->getMessage()));
-        }
-
-        return $customerCode;
+        return $this->generateCustomerCode($customer, $uniqueGuestIdentifier, $storeId);
     }
 
     /**
@@ -206,7 +196,6 @@ class Customer extends AbstractHelper
      * @param int|null $storeId
      *
      * @return string
-     * @throws LocalizedException
      */
     public function getCustomerCodeByCustomerId($customerId, $uniqueGuestIdentifier = null, $storeId = null)
     {
@@ -221,5 +210,27 @@ class Customer extends AbstractHelper
         }
 
         return $this->getCustomerCode($customer, $uniqueGuestIdentifier, $storeId);
+    }
+
+    /**
+     * Retrieve the AvaTax customer code from the customer model
+     *
+     * @param CustomerInterface|null $customer
+     * @param string                 $customerCode
+     *
+     * @throws LocalizedException
+     */
+    public function saveAvaTaxCustomerCode($customer, $customerCode)
+    {
+        // After generating a customer code, save it on the customer to ensure we always have the correct reference
+        $customer->setCustomAttribute(DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE, $customerCode);
+
+        try {
+            $this->customerRepository->save($customer);
+        } catch (InputException $inputException) {
+            throw new LocalizedException(__($inputException->getMessage()));
+        } catch (InputMismatchException $inputMismatchException) {
+            throw new LocalizedException(__($inputMismatchException->getMessage()));
+        }
     }
 }
