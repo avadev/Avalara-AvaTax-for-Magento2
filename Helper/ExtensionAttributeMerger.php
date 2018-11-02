@@ -119,10 +119,12 @@ class ExtensionAttributeMerger
     /**
      * @param \Magento\Framework\Model\AbstractExtensibleModel $from
      * @param \Magento\Framework\Model\AbstractExtensibleModel $to
+     * @param array                                            $whitelist
      */
     public function copyAttributes(
         \Magento\Framework\Model\AbstractExtensibleModel $from,
-        \Magento\Framework\Model\AbstractExtensibleModel $to
+        \Magento\Framework\Model\AbstractExtensibleModel $to,
+        $whitelist = []
     )
     {
         $fromExtensionAttributes = $from->getData(ExtensibleDataInterface::EXTENSION_ATTRIBUTES_KEY);
@@ -137,7 +139,13 @@ class ExtensionAttributeMerger
             $toExtensionAttributes = $this->extensionAttributesFactory->create(get_class($to));
         }
 
+        $hasWhitelist = \count($whitelist) > 0;
+
         foreach ($this->getIntersectingExtensionAttributes(get_class($from), get_class($to)) as $extensionAttribute) {
+            if ($hasWhitelist && !\in_array($extensionAttribute, $whitelist)) {
+                continue;
+            }
+
             $this->setExtensionAttribute(
                 $toExtensionAttributes,
                 $extensionAttribute,

@@ -43,19 +43,6 @@
         <plugin name="avatax_quote_model_quote_config" type="ClassyLlama\AvaTax\Plugin\Quote\Model\Quote\Config" />
     </type>
 
-    <!--
-    /**
-     * Add plugin and preferences to display tax summary information on frontend
-     * See https://github.com/classyllama/ClassyLlama_AvaTax/issues/70 for details
-     */
-     -->
-    <type name="Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector">
-        <plugin name="avatax_quote_tax_collector" type="ClassyLlama\AvaTax\Plugin\Sales\Total\Quote\CommonTaxCollector" />
-    </type>
-    <preference for="Magento\Tax\Model\Quote\GrandTotalDetailsPlugin" type="ClassyLlama\AvaTax\Model\Quote\GrandTotalDetailsPlugin" />
-    <preference for="Magento\Tax\Api\Data\GrandTotalRatesInterface" type="ClassyLlama\AvaTax\Model\Tax\Calculation\GrandTotalRates" />
-    <preference for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface" type="ClassyLlama\AvaTax\Model\Tax\Calculation\GrandTotalRates" />
-
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
@@ -230,7 +217,17 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="classyLlamaExtensionAttributesSave" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin">
+        <arguments>
+            <argument name="shouldLoad" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+
     <!--region Extension Attribute Persistence -->
+    <type name="Magento\Sales\Model\ResourceModel\Order">
+        <plugin sortOrder="1" name="classyllama_avatax_order_extension_attribute_persistence" type="classyLlamaExtensionAttributesSave"/>
+    </type>
+
     <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item">
         <plugin sortOrder="1" name="classyllama_avatax_creditmemo_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
     </type>
@@ -263,5 +260,15 @@
     <!-- Plugin to transfer extension attributes from Order -> Invoice -> CreditMemo -->
     <type name="Magento\Sales\Model\Convert\Order">
         <plugin sortOrder="1" name="classyLlamaAvaTaxOrder" type="ClassyLlama\AvaTax\Plugin\Model\Convert\OrderPlugin"/>
+    </type>
+
+    <type name="Magento\Quote\Model\Cart\TotalsConverter">
+        <!-- We need the tax details plugin to run first -->
+        <plugin sortOrder="1" name="add_tax_details"/>
+        <plugin sortOrder="2" name="classy_llama_ava_tax_grand_total_details_sorter" type="ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter"/>
+    </type>
+
+    <type name="Magento\Quote\Model\Cart\CartTotalRepository">
+        <plugin name="avataxCustomsMessages" type="ClassyLlama\AvaTax\Model\Plugin\CartTotalRepository" />
     </type>
 </config>

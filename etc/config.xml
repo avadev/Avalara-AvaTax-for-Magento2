@@ -63,6 +63,10 @@
                 <enabled>0</enabled>
                 <default_shipping_mode>ground</default_shipping_mode>
             </avatax_customs>
+            <avatax_advanced>
+                <response_logging_enabled>1</response_logging_enabled>
+                <avatax_timeout>5</avatax_timeout>
+            </avatax_advanced>
         </tax>
     </default>
 </config>

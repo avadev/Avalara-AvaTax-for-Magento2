@@ -136,13 +136,9 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
 
-    const XML_PATH_AVATAX_CROSS_BORDER_GROUND_SHIPPING_METHODS = 'tax/avatax_customs/ground_shipping_methods';
+    const XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING = 'tax/avatax_advanced/response_logging_enabled';
 
-    const XML_PATH_AVATAX_CROSS_BORDER_OCEAN_SHIPPING_METHODS = 'tax/avatax_customs/ocean_shipping_methods';
-
-    const XML_PATH_AVATAX_CROSS_BORDER_AIR_SHIPPING_METHODS = 'tax/avatax_customs/air_shipping_methods';
-
-    const XML_PATH_AVATAX_CROSS_BORDER_DEFAULT_SHIPPING_MODE = 'tax/avatax_customs/default_shipping_mode';
+    const XML_PATH_AVATAX_ADVANCED_API_TIMEOUT = 'tax/avatax_advanced/avatax_timeout';
     /**#@-*/
 
     /**
@@ -260,11 +256,6 @@ class Config extends AbstractHelper
     protected $originAddress = [];
 
     /**
-     * @var array
-     */
-    protected $shippingMappings;
-
-    /**
      * Class constructor
      *
      * @param Context                             $context
@@ -308,6 +299,40 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_MODULE_ENABLED,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Return whether response logging is enabled
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return mixed
+     */
+    public function isResponseLoggingEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Return the timeout for using the AvaTax API
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return float
+     */
+    public function getAvaTaxApiTimeout($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return (float)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADVANCED_API_TIMEOUT,
             $scopeType,
             $store
         );
@@ -1146,96 +1171,5 @@ class Config extends AbstractHelper
     public function isNativeTaxRulesIgnored()
     {
         return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES);
-    }
-
-    /**
-     * @param int|null    $store
-     * @param string|null $scopeType
-     *
-     * @return array
-     */
-    public function getGroundShippingMethods($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return explode(
-            ',',
-            $this->scopeConfig->getValue(
-                self::XML_PATH_AVATAX_CROSS_BORDER_GROUND_SHIPPING_METHODS,
-                $scopeType,
-                $store
-            )
-        );
-    }
-
-    /**
-     * @param int|null    $store
-     * @param string|null $scopeType
-     *
-     * @return array
-     */
-    public function getOceanShippingMethods($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return explode(
-            ',',
-            $this->scopeConfig->getValue(
-                self::XML_PATH_AVATAX_CROSS_BORDER_OCEAN_SHIPPING_METHODS,
-                $scopeType,
-                $store
-            )
-        );
-    }
-
-    /**
-     * @param int|null    $store
-     * @param string|null $scopeType
-     *
-     * @return array
-     */
-    public function getAirShippingMethods($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return explode(
-            ',',
-            $this->scopeConfig->getValue(
-                self::XML_PATH_AVATAX_CROSS_BORDER_AIR_SHIPPING_METHODS,
-                $scopeType,
-                $store
-            )
-        );
-    }
-
-    /**
-     * @param int|null    $store
-     * @param string|null $scopeType
-     *
-     * @return string
-     */
-    public function getDefaultShippingType($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_CROSS_BORDER_DEFAULT_SHIPPING_MODE,
-            $scopeType,
-            $store
-        );
-    }
-
-    public function getShippingTypeForMethod($method, $scopeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        if ($this->shippingMappings === null) {
-            $groundShippingMethods = $this->getGroundShippingMethods($scopeId, $scopeType);
-            $oceanShippingMethods = $this->getOceanShippingMethods($scopeId, $scopeType);
-            $airShippingMethods = $this->getAirShippingMethods($scopeId, $scopeType);
-
-            $this->shippingMappings = array_merge(
-                array_combine($groundShippingMethods, array_fill(0, \count($groundShippingMethods), 'ground')),
-                array_combine($oceanShippingMethods, array_fill(0, \count($oceanShippingMethods), 'ocean')),
-                array_combine($airShippingMethods, array_fill(0, \count($airShippingMethods), 'air'))
-            );
-        }
-
-        if (isset($this->shippingMappings[$method])) {
-            return $this->shippingMappings[$method];
-        }
-
-        // Return default method
-        return $this->getDefaultShippingType($scopeId, $scopeType);
     }
 }

@@ -396,6 +396,10 @@ class Processing
         // Get the associated AvataxEntity record (related to extension attributes) for this entity type
         $avaTaxRecord = $this->getAvataxEntity($entity);
 
+        if($entity->getExtensionAttributes()) {
+            $avaTaxRecord->setAvataxResponse($entity->getExtensionAttributes()->getAvataxResponse());
+        }
+
         if ($avaTaxRecord->getParentId()) {
             // Record exists, compare existing values to new
 

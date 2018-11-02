@@ -22,7 +22,7 @@ use Magento\Framework\DataObject;
 class Company extends Rest implements RestCompanyInterface
 {
     /**
-     * @param \Avalara\AvaTaxClient $client
+     * @param \ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper $client
      * @param DataObject|null       $request
      *
      * @return DataObject[]
@@ -35,17 +35,21 @@ class Company extends Rest implements RestCompanyInterface
             $request = $this->dataObjectFactory->create();
         }
 
-        $clientResult = $client->queryCompanies(
-            $request->getData('include'),
-            $request->getData('filter'),
-            $request->getData('top'),
-            $request->getData('skip'),
-            $request->getData('order_by')
-        );
+        $clientResult = null;
 
-        $this->validateResult( $clientResult, $request );
+        try {
+            $clientResult = $client->queryCompanies(
+                $request->getData('include'),
+                $request->getData('filter'),
+                $request->getData('top'),
+                $request->getData('skip'),
+                $request->getData('order_by')
+            );
+        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            $this->handleException($clientException, $request);
+        }
 
-        return $this->formatResult( $clientResult )->getData('value');
+        return $this->formatResult($clientResult)->getData('value');
     }
 
     /**
@@ -75,6 +79,7 @@ class Company extends Rest implements RestCompanyInterface
     public function getCompaniesWithSecurity( $accountNumber, $password, $request = null, $isProduction = null )
     {
         $client = $this->getClient( $isProduction );
+        $client->withCatchExceptions(false);
         // Override security credentials with custom ones
         $client->withSecurity( $accountNumber, $password );
 

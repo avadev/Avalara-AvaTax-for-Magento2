@@ -35,13 +35,33 @@
         <attribute code="unit_amount" type="float" />
         <attribute code="pref_program_indicator" type="string" />
     </extension_attributes>
+    <extension_attributes for="Magento\Quote\Api\Data\CartInterface">
+        <attribute code="avatax_response" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\OrderInterface">
+        <attribute code="avatax_response" type="string">
+            <join reference_table="avatax_sales_order" reference_field="order_id" join_on_field="entity_id">
+                <field>avatax_response</field>
+            </join>
+        </attribute>
+    </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\InvoiceInterface">
         <attribute code="avatax_is_unbalanced" type="string" />
         <attribute code="base_avatax_tax_amount" type="string" />
+        <attribute code="avatax_response" type="string">
+             <join reference_table="avatax_sales_invoice" reference_field="parent_id" join_on_field="entity_id">
+                <field>avatax_response</field>
+            </join>
+        </attribute>
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\CreditmemoInterface">
         <attribute code="avatax_is_unbalanced" type="string" />
         <attribute code="base_avatax_tax_amount" type="string" />
+        <attribute code="avatax_response" type="string">
+            <join reference_table="avatax_sales_creditmemo" reference_field="parent_id" join_on_field="entity_id">
+                <field>avatax_response</field>
+            </join>
+        </attribute>
     </extension_attributes>
     <extension_attributes for="Magento\Tax\Api\Data\AppliedTaxRateInterface">
         <attribute code="rate_percent" type="float" />
@@ -139,15 +159,8 @@
             </join>
         </attribute>
     </extension_attributes>
-
-    <!--
-    /**
-     * Add and redefine extension attributes to display tax summary information on frontend
-     * See https://github.com/classyllama/ClassyLlama_AvaTax/issues/70 for details
-     */
-     -->
-    <extension_attributes for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface">
-        <attribute code="tax" type="float" />
+    <extension_attributes for="Magento\Quote\Api\Data\TotalsInterface">
+        <attribute code="avatax_messages" type="string[]"/>
     </extension_attributes>
     <!--Redefine existing extension attribute to use new interface-->
     <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">

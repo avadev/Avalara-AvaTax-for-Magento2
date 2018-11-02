@@ -27,16 +27,32 @@ class ExtensionAttributesPersistencePlugin
     protected $extensionAttributeMerger;
 
     /**
+     * @var bool
+     */
+    protected $shouldLoad;
+
+    /**
+     * @var bool
+     */
+    protected $shouldSave;
+
+    /**
      * @param ExtensionAttributesFactory $extensionAttributesFactory
      * @param ExtensionAttributeMerger   $extensionAttributeMerger
+     * @param bool                       $shouldLoad
+     * @param bool                       $shouldSave
      */
     public function __construct(
         ExtensionAttributesFactory $extensionAttributesFactory,
-        ExtensionAttributeMerger $extensionAttributeMerger
+        ExtensionAttributeMerger $extensionAttributeMerger,
+        $shouldLoad = true,
+        $shouldSave = true
     )
     {
         $this->extensionAttributesFactory = $extensionAttributesFactory;
         $this->extensionAttributeMerger = $extensionAttributeMerger;
+        $this->shouldLoad = $shouldLoad;
+        $this->shouldSave = $shouldSave;
     }
 
     /**
@@ -75,6 +91,10 @@ class ExtensionAttributesPersistencePlugin
     {
         $proceed($object);
 
+        if(!$this->shouldSave) {
+            return $subject;
+        }
+
         $tablesToUpdate = [];
         $tableData = [];
         $tableFields = [];
@@ -85,7 +105,7 @@ class ExtensionAttributesPersistencePlugin
 
         // Compile join data with extension attribute data for building SQL queries
         foreach ($joinDirectives as $attributeCode => $directive) {
-            $attributeData = [];
+            $attributeData = null;
 
             if ($extensionAttributes !== null) {
                 $attributeData = $this->extensionAttributeMerger->getExtensionAttribute(
@@ -169,6 +189,10 @@ class ExtensionAttributesPersistencePlugin
     {
         /** @var DataObject $object */
         $proceed($object, $value, $field);
+
+        if(!$this->shouldLoad) {
+            return $subject;
+        }
 
         $joinDirectives = $this->getJoinDirectivesForType(get_class($object));
         $tablesToUpdate = [];

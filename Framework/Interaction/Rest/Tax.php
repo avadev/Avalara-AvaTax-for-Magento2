@@ -30,6 +30,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     const LINE_PARAM_NAME_UNIT_NAME = 'AvaTax.LandedCost.UnitName';
     const LINE_PARAM_NAME_UNIT_AMT = 'AvaTax.LandedCost.UnitAmount';
     const LINE_PARAM_NAME_PREF_PROGRAM = 'AvaTax.LandedCost.PreferenceProgram';
+    const TRANSACTION_PARAM_NAME_SHIPPING_MODE = 'AvaTax.LandedCost.ShippingMode';
 
     /**
      * @var TransactionBuilderFactory
@@ -93,6 +94,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     public function getTax( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
         $client = $this->getClient( $isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
 
         /** @var \Avalara\TransactionBuilder $transactionBuilder */
         $transactionBuilder = $this->transactionBuilderFactory->create([
@@ -106,8 +108,14 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         $this->setLineDetails($transactionBuilder, $request);
         $this->setAddressDetails($transactionBuilder, $request);
 
-        $resultObj = $transactionBuilder->create();
-        $this->validateResult($resultObj, $request);
+        $resultObj = null;
+
+        try {
+            $resultObj = $transactionBuilder->create();
+        }
+        catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            $this->handleException($clientException, $request);
+        }
 
         $resultGeneric = $this->formatResult($resultObj);
         /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $result */
@@ -132,8 +140,8 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         if ($request->getCommit()) {
             $transactionBuilder->withCommit();
         }
-        if ($request->getIsSellerImporterOfRecord()) {
-            $transactionBuilder->withSellerIsImporterOfRecord();
+        if ($request->hasIsSellerImporterOfRecord()) {
+            $transactionBuilder->withSellerIsImporterOfRecord($request->getIsSellerImporterOfRecord());
         }
 
         if ($request->hasCode()) {
@@ -168,6 +176,9 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
             if (is_object($override)) {
                 $transactionBuilder->withTaxOverride($override->getType(), $override->getReason(), $override->getTaxAmount(), $override->getTaxDate());
             }
+        }
+        if($request->hasShippingMode()) {
+            $transactionBuilder->withParameter(self::TRANSACTION_PARAM_NAME_SHIPPING_MODE, $request->getShippingMode());
         }
     }
 
