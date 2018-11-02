@@ -101,9 +101,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
         $result = null;
 
         try {
-            $result = $this->getClient($isProduction, $scopeId, $scopeType)
-                ->withCatchExceptions(false)
-                ->ping();
+            $result = $this->getClient($isProduction, $scopeId, $scopeType)->withCatchExceptions(false)->ping();
         } catch (\GuzzleHttp\Exception\ClientException $clientException) {
             $this->handleException($clientException);
         }
@@ -124,10 +122,27 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
         $logContext = ['request' => $requestLogData];
 
         if ($exception instanceof \GuzzleHttp\Exception\ClientException) {
+            $requestUrl = '[' . (string)$exception->getRequest()->getMethod() . '] ' . (string)$exception->getRequest()
+                    ->getUri();
+            $requestHeaders = json_encode($exception->getRequest()->getHeaders(), JSON_PRETTY_PRINT);
+            $requestBody = json_decode((string)$exception->getRequest()->getBody(), true);
             $responseBody = (string)$exception->getResponse()->getBody();
             $response = json_decode($responseBody, true);
 
+            // If we have no body, use the request data as the body
+            if ($requestBody === null || (is_array($requestBody) && empty($requestBody))) {
+                $requestBody = $requestLogData;
+            }
+
             $logMessage = __('Response from AvaTax indicated non-specific error');
+            $logContext['request'] = var_export(
+                [
+                    'url' => $requestUrl,
+                    'headers' => $requestHeaders,
+                    'body' => json_encode($requestBody, JSON_PRETTY_PRINT)
+                ],
+                true
+            );
             $logContext['result'] = $responseBody;
 
             if ($response !== null) {
@@ -147,7 +162,8 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
                         )
                     )
                 );
-                $logContext['result'] = var_export($response, true);
+
+                $logContext['result'] = json_encode($response, JSON_PRETTY_PRINT);
             }
         }
 
