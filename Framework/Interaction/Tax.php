@@ -880,26 +880,40 @@ class Tax
     /**
      * Checks to see if there is an override for is importer of record and applies this to the request.
      *
-     * @param \Magento\Quote\Model\Quote $quote
+     * @param \Magento\Quote\Model\Quote|null $quote
      * @param \Magento\Framework\DataObject $request
      */
     protected function setIsImporterOfRecord($quote, $request)
     {
         $overrideValue = null;
-        if(!is_null($quote) &&  !is_null($quote->getExtensionAttributes())) {
-            $extensionAttribute = $quote->getExtensionAttributes();
-            $overrideValue = $extensionAttribute->getOverrideImporterOfRecord();
-        } elseif(!is_null($quote) && !is_null($quote->getCustomerId())) {
 
+        if ($quote === null) {
+            return;
+        }
+
+        $extensionAttribute = $quote->getExtensionAttributes();
+
+        // Check if there is an override on the quote
+        if ($extensionAttribute !== null) {
+            $overrideValue = $extensionAttribute->getOverrideImporterOfRecord();
+        }
+
+        // If there was no override on the quote, check for an override on the customer
+        if ($overrideValue === null && $quote->getCustomerId() !== null) {
             $customer = $this->getCustomerById($quote->getCustomerId());
 
             $override = $customer->getCustomAttribute(CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE);
             $overrideValue = ($override !== null ? $override->getValue() : null);
         }
-        if($overrideValue !== null && $overrideValue !== CustomsConfig::IMPORTER_OF_RECORD_OVERRIDE_DEFAULT['value']) {
-            $request->setData('is_seller_importer_of_record',
-                $overrideValue === CustomsConfig::IMPORTER_OF_RECORD_OVERRIDE_YES['value']
-            );
+
+        // If we haven't found an override or the override says to use the default, don't change anything
+        if ($overrideValue === null || $overrideValue === CustomsConfig::IMPORTER_OF_RECORD_OVERRIDE_DEFAULT['value']) {
+            return;
         }
+
+        $request->setData(
+            'is_seller_importer_of_record',
+            $overrideValue === CustomsConfig::IMPORTER_OF_RECORD_OVERRIDE_YES['value']
+        );
     }
 }

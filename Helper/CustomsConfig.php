@@ -17,13 +17,11 @@
 namespace ClassyLlama\AvaTax\Helper;
 
 use ClassyLlama\AvaTax\Helper\Config as MainConfig;
+use ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\ImporterOfRecord;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassResource;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use ClassyLlama\AvaTax\Helper\Config as MainConfig;
-use Magento\Store\Model\Config\Importer;
 use Magento\Store\Model\ScopeInterface;
-use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass as CrossBorderClassResource;
-use ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\ImporterOfRecord;
 
 /**
  * AvaTax Config model
@@ -53,11 +51,11 @@ class CustomsConfig extends AbstractHelper
      */
     const CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE = 'override_importer_of_record';
 
-    const IMPORTER_OF_RECORD_OVERRIDE_DEFAULT = ['label'=>'Use Default', 'value'=>'default'];
+    const IMPORTER_OF_RECORD_OVERRIDE_DEFAULT = ['label' => 'Use Default', 'value' => 'default'];
 
-    const IMPORTER_OF_RECORD_OVERRIDE_YES = ['label'=>'Override to Yes', 'value'=>'override_yes'];
+    const IMPORTER_OF_RECORD_OVERRIDE_YES = ['label' => 'Override to Yes', 'value' => 'override_yes'];
 
-    const IMPORTER_OF_RECORD_OVERRIDE_NO = ['label'=>'Override to No', 'value'=>'override_no'];
+    const IMPORTER_OF_RECORD_OVERRIDE_NO = ['label' => 'Override to No', 'value' => 'override_no'];
     /**#@-*/
 
     const SALES_ORDER_IMPORTER_OF_RECORD_COLUMN_NAME = 'avatax_override_importer_of_record';
@@ -96,8 +94,8 @@ class CustomsConfig extends AbstractHelper
     protected $importerOfRecordModel;
 
     /**
-     * @param Context $context
-     * @param MainConfig $mainConfig
+     * @param Context                  $context
+     * @param MainConfig               $mainConfig
      * @param CrossBorderClassResource $crossBorderClassResource
      */
     public function __construct(

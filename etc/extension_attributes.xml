@@ -37,6 +37,12 @@
     </extension_attributes>
     <extension_attributes for="Magento\Quote\Api\Data\CartInterface">
         <attribute code="avatax_response" type="string"/>
+        <!--
+        /**
+         * Extension Attributes to allow Importer of Record Override in Admin Sales New Order
+         */
+        -->
+        <attribute code="override_importer_of_record" type="boolean" />
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\OrderInterface">
         <attribute code="avatax_response" type="string">
@@ -165,14 +171,5 @@
     <!--Redefine existing extension attribute to use new interface-->
     <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
         <attribute code="tax_grandtotal_details" type="ClassyLlama\AvaTax\Api\Data\GrandTotalDetailsInterface[]" />
-    </extension_attributes>
-
-    <!--
-    /**
-     * Extension Attributes to allow Importer of Record Override in Admin Sales New Order
-     */
-    -->
-    <extension_attributes for="Magento\Quote\Api\Data\CartInterface">
-        <attribute code="override_importer_of_record" type="boolean" />
     </extension_attributes>
 </config>
