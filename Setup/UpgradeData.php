@@ -247,48 +247,6 @@ class UpgradeData implements UpgradeDataInterface
             $attribute->save();
         }
 
-        /**
-         * Create Importer of Record Override Option
-         */
-        if (version_compare($context->getVersion(), '2.0.9', '<')) {
-
-            /** @var CustomerSetup $customerSetup */
-            $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
-            $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
-            $attributeSetId = $customerEntity->getDefaultAttributeSetId();
-
-            /** @var AttributeSet $attributeSet */
-            $attributeSet = $this->attributeSetFactory->create();
-            $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
-            $customerSetup->addAttribute(
-                Customer::ENTITY,
-                \ClassyLlama\AvaTax\Helper\DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE,
-                [
-                    'type' => 'text',
-                    'label' => 'AvaTax Customer Code',
-                    'input' => 'text',
-                    'note' => 'Stores the customer code registered for this customer in AvaTax. Once set, this should not be changed as it will break the relation of this customer to AvaTax.',
-                    'visible' => true,
-                    'user_defined' => 0,
-                    'required' => false,
-                    'sort_order' => 999,
-                    'position' => 999,
-                    'system' => 0
-                ]
-            );
-            $attribute = $customerSetup->getEavConfig()->getAttribute(
-                    Customer::ENTITY,
-                    \ClassyLlama\AvaTax\Helper\DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE
-                )->addData(
-                    [
-                        'attribute_set_id' => $attributeSetId,
-                        'attribute_group_id' => $attributeGroupId
-                    ]
-                );
-
-            $attribute->save();
-        }
-
         $setup->endSetup();
     }
 }

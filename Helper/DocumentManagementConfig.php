@@ -34,8 +34,6 @@ class DocumentManagementConfig extends AbstractHelper
 
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CHECKOUT_LINK_TEXT_MANAGE_EXISTING_CERTS = 'tax/avatax_document_management/checkout_link_text_manage_existing_certs';
 
-    const AVATAX_CUSTOMER_CODE_ATTRIBUTE = 'avatax_customer_code';
-
     /**
      * @param int|null    $store
      * @param string|null $scopeType

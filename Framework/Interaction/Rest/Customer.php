@@ -224,39 +224,6 @@ class Customer extends Rest implements RestCustomerInterface
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getCustomer(
-        $customer,
-        $isProduction = null,
-        $scopeId = null,
-        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    )
-    {
-        $client = $this->getClient($isProduction, $scopeId, $scopeType);
-        $client->withCatchExceptions(false);
-
-        $response = null;
-
-        try {
-            $response = $client->getCustomer(
-                $this->config->getCompanyId($scopeId, $scopeType),
-                $this->customerHelper->getCustomerCode($customer, null, $scopeId),
-                null
-            );
-        }
-        catch (\GuzzleHttp\Exception\ClientException $clientException) {
-            // Validate the response; pass the customer id for context in case of an error.
-            $this->handleException(
-                $clientException,
-                $this->dataObjectFactory->create(['customer_id' => $customer->getId()])
-            );
-        }
-
-        return $this->formatResult($response);
-    }
-
-    /**
      * Given a Magento customer, build an Avalara CustomerModel for request.
      *
      * @param \Magento\Customer\Api\Data\CustomerInterface $customer
