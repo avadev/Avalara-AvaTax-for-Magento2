@@ -21,8 +21,9 @@ define([
     'mage/storage',
     'ClassyLlama_AvaTax/js/action/set-shipping-address',
     'ClassyLlama_AvaTax/js/model/certificate-authentication-popup',
-    'Magento_Customer/js/customer-data'
-], function (totals, sdk, jQuery, quote, getTotalsAction, fullScreenLoader, storage, setShippingAddress, certificateAuthenticationPopup, customerDataModel) {
+    'Magento_Customer/js/customer-data',
+    'Magento_Customer/js/model/customer'
+], function (totals, sdk, jQuery, quote, getTotalsAction, fullScreenLoader, storage, setShippingAddress, certificateAuthenticationPopup, customerDataModel, customerModel) {
     'use strict';
 
     return function (targetModule) {
@@ -66,6 +67,10 @@ define([
             }
 
             return amount > 0;
+        };
+
+        targetModule.prototype.ifShowManageCertificateLink = function ifShowManageCertificateLink() {
+            return customerModel.isLoggedIn();
         };
 
         targetModule.prototype.showNewCertificateModal = function showNewCertificateModal() {
