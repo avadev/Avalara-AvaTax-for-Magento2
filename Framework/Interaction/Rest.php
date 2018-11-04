@@ -137,7 +137,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
                         array_reduce(
                             $response['error']['details'],
                             function ($error, $detail) {
-                                if ($detail['severity'] !== 'Exception') {
+                                if ($detail['severity'] !== 'Exception' || $detail['severity'] !== 'Error') {
                                     return $error;
                                 }
 

@@ -16,8 +16,11 @@
         <each args="data: getRegion($group().displayArea), as: 'method'" render=""/>
     </div>
     <!-- // BEGIN EDIT - Show certificates management link -->
-    <div class="certificates" data-bind="if: ifShowCertificateLink()">
-        <a data-bind="attr: {href: certificatesLink}, i18n: 'Manage existing certificates'"></a>
+    <div class="totals-tax certificate-links certificates" data-bind="if: ifShowCertificateLink()">
+        <a href="javascript:void(0)" data-bind="click: showNewCertificateModal, text: newCertText"></a>
+        <!-- ko if: ifShowManageCertificateLink() -->
+        <a data-bind="attr: {href: certificatesLink}, i18n: manageCertsText"></a>
+        <!-- /ko -->
     </div>
     <!-- // END EDIT -->
 </div>

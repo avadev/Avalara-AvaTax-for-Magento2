@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Block\Checkout;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\DataObjectFactory;
 
 class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\LayoutProcessorInterface
@@ -100,10 +101,24 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
      */
     public function process($jsLayout)
     {
+        $config = [
+            'documentManagementEnabled' => false
+        ];
+
         if ($this->config->isModuleEnabled() && $this->documentManagementConfig->isEnabled()) {
-            $newCertText = \count(
-                $this->certificateHelper->getCertificates($this->customerSession->getCustomer()->getId())
-            ) > 0 ? __(
+            $hasCerts = false;
+            /** @var CustomerInterface $customer */
+            $customer = $this->customerSession->getCustomer();
+
+            if ($customer->getId() !== null) {
+                try {
+                    $hasCerts = \count($this->certificateHelper->getCertificates($customer->getId())) > 0;
+                } catch (\ClassyLlama\AvaTax\Exception\AvataxConnectionException $e) {
+                    // We will just assume there are no certificates
+                }
+            }
+
+            $newCertText = $hasCerts ? __(
                 $this->documentManagementConfig->getCheckoutLinkTextNewCertCertsExist()
             ) : __($this->documentManagementConfig->getCheckoutLinkTextNewCertNoCertsExist());
 
@@ -111,21 +126,22 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
                 'certificatesLink' => $this->urlBuilder->getUrl('avatax/certificates'),
                 'newCertText' => $newCertText,
                 'manageCertsText' => __($this->documentManagementConfig->getCheckoutLinkTextManageExistingCert()),
-                'enabledCountries' => $this->documentManagementConfig->getEnabledCountries()
+                'enabledCountries' => $this->documentManagementConfig->getEnabledCountries(),
+                'documentManagementEnabled' => true
             ];
-
-            // Set config for payments area
-            $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"] = array_merge(
-                $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"],
-                $config
-            );
-
-            // Set config for tax summary area
-            $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"] = array_merge(
-                $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"],
-                $config
-            );
         }
+
+        // Set config for payments area
+        $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"] = array_merge(
+            $jsLayout["components"]["checkout"]["children"]["steps"]["children"]["billing-step"]["children"]["payment"]["children"]["payments-list"]["config"],
+            $config
+        );
+
+        // Set config for tax summary area
+        $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"] = array_merge(
+            $jsLayout["components"]["checkout"]["children"]["sidebar"]["children"]["summary"]["children"]["totals"]["children"]["tax"]["config"],
+            $config
+        );
 
         return $jsLayout;
     }

@@ -11,7 +11,7 @@
  * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-define(['jquery', 'mage/storage'], function (jQuery, storage) {
+define(['jquery', 'mage/storage', 'Magento_Customer/js/model/customer'], function (jQuery, storage, customerModel) {
     'use strict';
 
     // Grab a new token 5 minutes before the previous one expires to ensure our requests will have a valid token
@@ -31,8 +31,13 @@ define(['jquery', 'mage/storage'], function (jQuery, storage) {
         if (tokenInfo !== null) {
             tokenInfo = JSON.parse(tokenInfo);
 
+            // Ensure that tokens do not get reused across sessions
+            if(!customerModel.isLoggedIn() || customerModel.customerData.id !== tokenInfo.customer_id) {
+                tokenInfo = false;
+            }
+
             if (tokenInfo !== false && tokenInfo.expires * 1000 > Date.now() + expirationBuffer) {
-                return jQuery.Deferred().resolve(tokenInfo.sdk_url, tokenInfo.token, tokenInfo.customer.client_id);
+                return jQuery.Deferred().resolve(tokenInfo.sdk_url, tokenInfo.token, tokenInfo.client_id);
             }
 
             window.localStorage.removeItem(avaTaxTokenStorageKey)

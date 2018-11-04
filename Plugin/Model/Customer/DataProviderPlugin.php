@@ -109,7 +109,13 @@ class DataProviderPlugin
      */
     public function getCertificates($customerId)
     {
-        $certificates = $this->certificateHelper->getCertificates($customerId);
+        $certificates = [];
+
+        try {
+            $certificates = $this->certificateHelper->getCertificates($customerId);
+        } catch (\ClassyLlama\AvaTax\Exception\AvataxConnectionException $e) {
+            // We will just show an empty list
+        }
 
         foreach ($certificates as $certificate) {
             $certificate->setData(

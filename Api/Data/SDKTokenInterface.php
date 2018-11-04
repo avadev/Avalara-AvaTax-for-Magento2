@@ -35,6 +35,11 @@ interface SDKTokenInterface
     /**
      * @return string
      */
+    public function getCustomerId();
+
+    /**
+     * @return string
+     */
     public function getClientId();
 
     /**

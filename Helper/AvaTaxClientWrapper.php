@@ -24,10 +24,10 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
 
     /**
      * @param Config $config
-     * @param        $appName
-     * @param        $appVersion
+     * @param string $appName
+     * @param string $appVersion
      * @param string $machineName
-     * @param        $environment
+     * @param string $environment
      * @param array  $guzzleParams
      *
      * @throws \Exception
@@ -65,5 +65,25 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
         }
 
         return parent::restCall($apiUrl, $verb, $guzzleParams);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * This method needs overridden so that we can specify a different accept header to ensure that the rest call
+     * doesn't attempt to parse the response as json
+     */
+    public function downloadCertificateImage($companyId, $id, $page, $type)
+    {
+        $path = "/api/v2/companies/{$companyId}/certificates/{$id}/attachment";
+        $guzzleParams = [
+            'query' => ['$page' => $page, '$type' => $type],
+            'body' => null,
+            'headers' => [
+                'Accept' => '*/*'
+            ]
+        ];
+
+        return $this->restCall($path, 'GET', $guzzleParams);
     }
 }

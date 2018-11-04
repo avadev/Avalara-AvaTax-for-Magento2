@@ -6,19 +6,17 @@
 
 namespace ClassyLlama\AvaTax\Setup;
 
-use Magento\Framework\Setup\UpgradeDataInterface;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Framework\Setup\ModuleContextInterface;
-use Magento\Eav\Setup\EavSetup;
-use Magento\Eav\Setup\EavSetupFactory;
-use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
-use Magento\Customer\Setup\CustomerSetupFactory;
-use Magento\Customer\Setup\CustomerSetup;
-use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
-use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
-use Magento\Customer\Model\Customer;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
-use Magento\Rma\Model\Attribute;
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetup;
+use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
+use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
+use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\UpgradeDataInterface;
 
 class UpgradeData implements UpgradeDataInterface
 {

@@ -32,7 +32,9 @@
 <tr class="totals-tax certificate-links" data-bind="if: shippingToEnabledCountry && ifShowCertificateLink()">
     <td class="mark" colspan="2">
         <a href="javascript:void(0)" data-bind="click: showNewCertificateModal, text: newCertText"></a>
+        <!-- ko if: ifShowManageCertificateLink() -->
         <a data-bind="attr: {href: certificatesLink}, text: manageCertsText"></a>
+        <!-- /ko -->
     </td>
 </tr>
 <!-- // END EDIT -->
