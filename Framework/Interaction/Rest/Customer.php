@@ -15,13 +15,15 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use ClassyLlama\AvaTax\Model\Factory\LinkCustomersModelFactory;
 use ClassyLlama\AvaTax\Api\RestCustomerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\Customer as CustomerHelper;
-use Magento\Framework\DataObject;
+use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
+use ClassyLlama\AvaTax\Model\Factory\LinkCustomersModelFactory;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 class Customer extends Rest implements RestCustomerInterface
@@ -103,7 +105,7 @@ class Customer extends Rest implements RestCustomerInterface
         try {
             $clientResult = $client->listCertificatesForCustomer(
                 $this->config->getCompanyId($scopeId, $scopeType),
-                $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId),
+                $this->customerHelper->getCustomerCodeByCustomerId($request->getData('customer_id'), null, $scopeId),
                 $request->getData('include'),
                 $request->getData('filter'),
                 $request->getData('top'),
@@ -155,7 +157,7 @@ class Customer extends Rest implements RestCustomerInterface
         $client->withCatchExceptions(false);
 
         try {
-            $customerId = $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId);
+            $customerId = $this->customerHelper->getCustomerCodeByCustomerId($request->getData('customer_id'), null, $scopeId);
 
             //unlink request requires a LinkCustomersModel which contains a string[] of all customer ids.
             /** @var \Avalara\LinkCustomersModel $customerModel */
@@ -209,12 +211,45 @@ class Customer extends Rest implements RestCustomerInterface
         try {
             $response = $client->updateCustomer(
                 $this->config->getCompanyId($scopeId, $scopeType),
-                $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId),
+                $this->customerHelper->getCustomerCode($customer, null, $scopeId),
                 $customerModel
             );
         } catch (\GuzzleHttp\Exception\ClientException $clientException) {
             // Validate the response; pass the customer id for context in case of an error.
             $this->handleException($clientException, $this->dataObjectFactory->create(['customer_id' => $customer->getId()]));
+        }
+
+        return $this->formatResult($response);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCustomer(
+        $customer,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    {
+        $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
+
+        $response = null;
+
+        try {
+            $response = $client->getCustomer(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $this->customerHelper->getCustomerCode($customer, null, $scopeId),
+                null
+            );
+        }
+        catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            // Validate the response; pass the customer id for context in case of an error.
+            $this->handleException(
+                $clientException,
+                $this->dataObjectFactory->create(['customer_id' => $customer->getId()])
+            );
         }
 
         return $this->formatResult($response);
@@ -238,7 +273,7 @@ class Customer extends Rest implements RestCustomerInterface
         /** @var \Avalara\CustomerModel $customerModel */
         $customerModel = $this->customerModelFactory->create();
 
-        $customerModel->customerCode = $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId);
+        $customerModel->customerCode = $this->customerHelper->getCustomerCode($customer, null, $scopeId);
         $customerModel->name = "{$customer->getFirstname()} {$customer->getLastname()}";
         $customerModel->emailAddress = $customer->getEmail();
         $customerModel->companyId = $this->config->getCompanyId($scopeId, $scopeType);
@@ -269,5 +304,50 @@ class Customer extends Rest implements RestCustomerInterface
         }
 
         return $customerModel;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function reconcileAvaTaxCustomer($customer)
+    {
+        // If we don't have a customer, we can't determine what to check in AvaTax, so unreconciled
+        if ($customer === null) {
+            return false;
+        }
+
+        $customerCode = $this->customerHelper->getCustomerAttributeValue(
+            $customer,
+            DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE
+        );
+
+        // We have already added a code, we can assume this account is already reconciled
+        if ($customerCode !== null && $customerCode !== '') {
+            return true;
+        }
+
+        $avaTaxCustomer = null;
+        $customerCode = $this->customerHelper->generateCustomerCode($customer);
+
+        try {
+            $avaTaxCustomer = $this->getCustomer($customer);
+        } catch (LocalizedException $e) {
+            // Was unable to reconcile customer due to API error or there was no customer in AvaTax
+            return false;
+        }
+
+        // No customer in AvaTax, unreconciled
+        if ($avaTaxCustomer === null) {
+            return false;
+        }
+
+        try {
+            $this->customerHelper->saveAvaTaxCustomerCode($customer, $customerCode);
+
+            return true;
+        } catch (LocalizedException $e) {
+            // Was unable to reconcile customer due to Magento save error
+            return false;
+        }
     }
 }

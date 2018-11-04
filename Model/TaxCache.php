@@ -55,8 +55,8 @@ class TaxCache implements TaxCacheInterface
      */
     public function clearCache()
     {
-        $customerId = $this->customerSession->getCustomer()->getId();
-        $customerCode = $this->customerHelper->getCustomerCode($customerId);
+        $customerId = $this->customerSession->getCustomerId();
+        $customerCode = $this->customerHelper->getCustomerCodeByCustomerId($customerId);
 
         $this->cache->clean([\ClassyLlama\AvaTax\Helper\Config::AVATAX_CACHE_TAG . "-{$customerCode}"]);
     }

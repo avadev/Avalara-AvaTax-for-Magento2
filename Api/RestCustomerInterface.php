@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Api;
 
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\DataObject;
 
 interface RestCustomerInterface extends RestInterface
@@ -88,4 +89,29 @@ interface RestCustomerInterface extends RestInterface
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     );
+
+    /**
+     * Perform REST request to update a customer.
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface|null $customer
+     * @param bool|null                                         $isProduction
+     * @param string|int|null                                   $scopeId
+     * @param string                                            $scopeType
+     *
+     * @return DataObject|null
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getCustomer(
+        $customer,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    );
+
+    /**
+     * @param CustomerInterface|null $customer
+     *
+     * @return bool
+     */
+    public function reconcileAvaTaxCustomer($customer);
 }
