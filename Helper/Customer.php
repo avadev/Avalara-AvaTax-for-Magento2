@@ -123,7 +123,7 @@ class Customer extends AbstractHelper
     }
 
     /**
-     * Generate a new AvaTax customer code according to the admin configured format
+     * Retrieve the AvaTax customer code from the customer model
      *
      * @param CustomerInterface|null $customer
      * @param int|null               $uniqueGuestIdentifier such as the quote or order ID
@@ -131,7 +131,7 @@ class Customer extends AbstractHelper
      *
      * @return string
      */
-    public function generateCustomerCode($customer, $uniqueGuestIdentifier = null, $storeId = null)
+    public function getCustomerCode($customer, $uniqueGuestIdentifier = null, $storeId = null)
     {
         // Retrieve the customer code configuration value
         $customerCodeFormat = $this->config->getCustomerCodeFormat($storeId);
@@ -161,34 +161,6 @@ class Customer extends AbstractHelper
     }
 
     /**
-     * Retrieve the AvaTax customer code from the customer model
-     *
-     * @param CustomerInterface|null $customer
-     * @param int|null               $uniqueGuestIdentifier such as the quote or order ID
-     * @param int|null               $storeId
-     *
-     * @return string
-     */
-    public function getCustomerCode($customer, $uniqueGuestIdentifier = null, $storeId = null)
-    {
-        $customerCode = null;
-
-        // If the customer has a code stored on them, do not generate a new code
-        if ($customer !== null) {
-            $customerCode = $this->getCustomerAttributeValue(
-                $customer,
-                DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE
-            );
-
-            if ($customerCode !== null && $customerCode !== '') {
-                return $customerCode;
-            }
-        }
-
-        return $this->generateCustomerCode($customer, $uniqueGuestIdentifier, $storeId);
-    }
-
-    /**
      * Retrieve the AvaTax customer code from a customer id
      *
      * @param int      $customerId
@@ -210,27 +182,5 @@ class Customer extends AbstractHelper
         }
 
         return $this->getCustomerCode($customer, $uniqueGuestIdentifier, $storeId);
-    }
-
-    /**
-     * Retrieve the AvaTax customer code from the customer model
-     *
-     * @param CustomerInterface|null $customer
-     * @param string                 $customerCode
-     *
-     * @throws LocalizedException
-     */
-    public function saveAvaTaxCustomerCode($customer, $customerCode)
-    {
-        // After generating a customer code, save it on the customer to ensure we always have the correct reference
-        $customer->setCustomAttribute(DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE, $customerCode);
-
-        try {
-            $this->customerRepository->save($customer);
-        } catch (InputException $inputException) {
-            throw new LocalizedException(__($inputException->getMessage()));
-        } catch (InputMismatchException $inputMismatchException) {
-            throw new LocalizedException(__($inputMismatchException->getMessage()));
-        }
     }
 }

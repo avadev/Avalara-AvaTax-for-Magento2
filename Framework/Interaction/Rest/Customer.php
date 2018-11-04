@@ -113,6 +113,7 @@ class Customer extends Rest implements RestCustomerInterface
                 $request->getData('order_by')
             );
         } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            // TODO: Possibly specifically handle no entity exception as an empty array of certificates?
             $this->handleException($clientException, $request);
         }
 
@@ -304,50 +305,5 @@ class Customer extends Rest implements RestCustomerInterface
         }
 
         return $customerModel;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function reconcileAvaTaxCustomer($customer)
-    {
-        // If we don't have a customer, we can't determine what to check in AvaTax, so unreconciled
-        if ($customer === null) {
-            return false;
-        }
-
-        $customerCode = $this->customerHelper->getCustomerAttributeValue(
-            $customer,
-            DocumentManagementConfig::AVATAX_CUSTOMER_CODE_ATTRIBUTE
-        );
-
-        // We have already added a code, we can assume this account is already reconciled
-        if ($customerCode !== null && $customerCode !== '') {
-            return true;
-        }
-
-        $avaTaxCustomer = null;
-        $customerCode = $this->customerHelper->generateCustomerCode($customer);
-
-        try {
-            $avaTaxCustomer = $this->getCustomer($customer);
-        } catch (LocalizedException $e) {
-            // Was unable to reconcile customer due to API error or there was no customer in AvaTax
-            return false;
-        }
-
-        // No customer in AvaTax, unreconciled
-        if ($avaTaxCustomer === null) {
-            return false;
-        }
-
-        try {
-            $this->customerHelper->saveAvaTaxCustomerCode($customer, $customerCode);
-
-            return true;
-        } catch (LocalizedException $e) {
-            // Was unable to reconcile customer due to Magento save error
-            return false;
-        }
     }
 }

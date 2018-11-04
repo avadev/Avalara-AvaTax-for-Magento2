@@ -110,8 +110,12 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
             /** @var CustomerInterface $customer */
             $customer = $this->customerSession->getCustomer();
 
-            if ($customer->getId() !== null && $this->customerRest->reconcileAvaTaxCustomer($customer)) {
-                $hasCerts = \count($this->certificateHelper->getCertificates($customer->getId())) > 0;
+            if ($customer->getId() !== null) {
+                try {
+                    $hasCerts = \count($this->certificateHelper->getCertificates($customer->getId())) > 0;
+                } catch (\ClassyLlama\AvaTax\Exception\AvataxConnectionException $e) {
+                    // We will just assume there are no certificates
+                }
             }
 
             $newCertText = $hasCerts ? __(
