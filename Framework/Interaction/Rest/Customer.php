@@ -15,13 +15,15 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use ClassyLlama\AvaTax\Model\Factory\LinkCustomersModelFactory;
 use ClassyLlama\AvaTax\Api\RestCustomerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\Customer as CustomerHelper;
-use Magento\Framework\DataObject;
+use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
+use ClassyLlama\AvaTax\Model\Factory\LinkCustomersModelFactory;
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 class Customer extends Rest implements RestCustomerInterface
@@ -103,7 +105,7 @@ class Customer extends Rest implements RestCustomerInterface
         try {
             $clientResult = $client->listCertificatesForCustomer(
                 $this->config->getCompanyId($scopeId, $scopeType),
-                $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId),
+                $this->customerHelper->getCustomerCodeByCustomerId($request->getData('customer_id'), null, $scopeId),
                 $request->getData('include'),
                 $request->getData('filter'),
                 $request->getData('top'),
@@ -111,6 +113,7 @@ class Customer extends Rest implements RestCustomerInterface
                 $request->getData('order_by')
             );
         } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+            // TODO: Possibly specifically handle no entity exception as an empty array of certificates?
             $this->handleException($clientException, $request);
         }
 
@@ -155,7 +158,7 @@ class Customer extends Rest implements RestCustomerInterface
         $client->withCatchExceptions(false);
 
         try {
-            $customerId = $this->customerHelper->getCustomerCode($request->getData('customer_id'), null, $scopeId);
+            $customerId = $this->customerHelper->getCustomerCodeByCustomerId($request->getData('customer_id'), null, $scopeId);
 
             //unlink request requires a LinkCustomersModel which contains a string[] of all customer ids.
             /** @var \Avalara\LinkCustomersModel $customerModel */
@@ -209,7 +212,7 @@ class Customer extends Rest implements RestCustomerInterface
         try {
             $response = $client->updateCustomer(
                 $this->config->getCompanyId($scopeId, $scopeType),
-                $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId),
+                $this->customerHelper->getCustomerCode($customer, null, $scopeId),
                 $customerModel
             );
         } catch (\GuzzleHttp\Exception\ClientException $clientException) {
@@ -238,7 +241,7 @@ class Customer extends Rest implements RestCustomerInterface
         /** @var \Avalara\CustomerModel $customerModel */
         $customerModel = $this->customerModelFactory->create();
 
-        $customerModel->customerCode = $this->customerHelper->getCustomerCode($customer->getId(), null, $scopeId);
+        $customerModel->customerCode = $this->customerHelper->getCustomerCode($customer, null, $scopeId);
         $customerModel->name = "{$customer->getFirstname()} {$customer->getLastname()}";
         $customerModel->emailAddress = $customer->getEmail();
         $customerModel->companyId = $this->config->getCompanyId($scopeId, $scopeType);

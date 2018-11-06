@@ -48,18 +48,25 @@ class Token implements TokenInterface
     protected $config;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\Customer
+     */
+    protected $customerHelper;
+
+    /**
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Framework\App\DeploymentConfig    $deploymentConfig
      * @param SDKTokenInterfaceFactory                   $tokenInterfaceFactory
      * @param \Magento\Customer\Model\Session            $customerSession
      * @param \ClassyLlama\AvaTax\Helper\Config          $config
+     * @param \ClassyLlama\AvaTax\Helper\Customer        $customerHelper
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\App\DeploymentConfig $deploymentConfig,
         SDKTokenInterfaceFactory $tokenInterfaceFactory,
         \Magento\Customer\Model\Session $customerSession,
-        \ClassyLlama\AvaTax\Helper\Config $config
+        \ClassyLlama\AvaTax\Helper\Config $config,
+        \ClassyLlama\AvaTax\Helper\Customer $customerHelper
     )
     {
         $this->storeManager = $storeManager;
@@ -67,6 +74,7 @@ class Token implements TokenInterface
         $this->tokenInterfaceFactory = $tokenInterfaceFactory;
         $this->customerSession = $customerSession;
         $this->config = $config;
+        $this->customerHelper = $customerHelper;
     }
 
     /**
@@ -86,6 +94,7 @@ class Token implements TokenInterface
 
             $auth = base64_encode("{$certCaptureConfig['auth']['username']}:{$certCaptureConfig['auth']['password']}");
             $customerId = $this->customerSession->getCustomer()->getId();
+            $customerCode = $this->customerHelper->getCustomerCodeByCustomerId($customerId);
 
             // use key 'http' even if you send the request to https://...
             $options = [
@@ -93,7 +102,7 @@ class Token implements TokenInterface
                     'header' => [
                         'Content-type: application/json',
                         "x-client-id: {$certCaptureConfig['client-id']}",
-                        "x-customer-number: {$customerId}",
+                        "x-customer-number: {$customerCode}",
                         "Authorization: Basic $auth"
                     ],
                     'method' => 'POST',
@@ -114,7 +123,8 @@ class Token implements TokenInterface
                     'data' => [
                         'token' => $result['response']['token'],
                         'expires' => (new \DateTime($result['response']['expires_at']))->getTimestamp(),
-                        'customer' => $customerId,
+                        'customer' => $customerCode,
+                        'customer_id' => $customerId,
                         'client_id' => $certCaptureConfig['client-id'],
                         'sdk_url' => $certCaptureConfig['sdk-url']
                     ]

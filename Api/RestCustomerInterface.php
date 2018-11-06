@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Api;
 
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\DataObject;
 
 interface RestCustomerInterface extends RestInterface
