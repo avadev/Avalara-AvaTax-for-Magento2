@@ -28,4 +28,16 @@
             <resource ref="Magento_Cart::manage" />
         </resources>
     </route>
+    <route url="/V1/avatax/token" method="GET">
+        <service class="ClassyLlama\AvaTax\Api\TokenInterface" method="getToken"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
+    <route url="/V1/avatax/tax/refresh" method="GET">
+        <service class="ClassyLlama\AvaTax\Api\TaxCacheInterface" method="clearCache"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
 </routes>

@@ -9,7 +9,7 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -540,15 +540,17 @@ class Config extends AbstractHelper
     /**
      * Get Customer code format to pass to AvaTax API
      *
-     * @param $store
+     * @param int|null    $store
      *
-     * @return mixed
+     * @param string|null $scopeType
+     *
+     * @return string|null
      */
-    public function getCustomerCodeFormat($store)
+    public function getCustomerCodeFormat( $store = null, $scopeType = ScopeInterface::SCOPE_STORE )
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT,
-            ScopeInterface::SCOPE_STORE,
+            $scopeType,
             $store
         );
     }

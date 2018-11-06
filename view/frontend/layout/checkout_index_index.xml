@@ -22,6 +22,10 @@
                     <item name="components" xsi:type="array">
                         <item name="checkout" xsi:type="array">
                             <item name="children" xsi:type="array">
+                                <item name="certificate-login-modal" xsi:type="array">
+                                    <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/view/certificate-authentication-popup</item>
+                                    <item name="displayArea" xsi:type="string">authentication</item>
+                                </item>
                                 <item name="estimation" xsi:type="array">
                                     <item name="config" xsi:type="array">
                                         <item name="template" xsi:type="string">ClassyLlama_AvaTax/estimation</item>

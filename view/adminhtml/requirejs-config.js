@@ -17,5 +17,12 @@ var config = {
         '*': {
             companyCode: 'ClassyLlama_AvaTax/js/form/field/company-code'
         }
+    },
+    config: {
+        mixins: {
+            'ClassyLlama_AvaTax/js/action/account-add-exemption': {
+                'ClassyLlama_AvaTax/js/admin-account-add-exemption': true
+            }
+        }
     }
 };

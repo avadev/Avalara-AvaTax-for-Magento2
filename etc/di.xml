@@ -23,6 +23,10 @@
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderClassRepository" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="ClassyLlama\AvaTax\Api\Data\ProductCrossBorderDetailsInterface" type="ClassyLlama\AvaTax\Model\ProductCrossBorderDetails" />
+    <preference for="ClassyLlama\AvaTax\Api\RestCustomerInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Customer" />
+    <preference for="ClassyLlama\AvaTax\Api\TokenInterface" type="ClassyLlama\AvaTax\Model\Token"/>
+    <preference for="ClassyLlama\AvaTax\Api\TaxCacheInterface" type="ClassyLlama\AvaTax\Model\TaxCache"/>
+    <preference for="ClassyLlama\AvaTax\Api\Data\SDKTokenInterface" type="ClassyLlama\AvaTax\Model\Data\SDKToken"/>
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
@@ -295,5 +299,8 @@
 
     <type name="Magento\Quote\Model\Cart\CartTotalRepository">
         <plugin name="avataxCustomsMessages" type="ClassyLlama\AvaTax\Model\Plugin\CartTotalRepository" />
+    </type>
+    <type name="Magento\Customer\Controller\Account\CreatePost">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxCreatePost" type="ClassyLlama\AvaTax\Plugin\Controller\Account\CreatePostPlugin"/>
     </type>
 </config>

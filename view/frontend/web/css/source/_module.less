@@ -13,12 +13,63 @@
  */
 @import '_address-validation.less';
 
-.cart-totals tbody .totals-tax-details th,
-.table-totals tbody .totals-tax-details th.mark {
-    padding-left: 10px;
+& when (@media-common = true) {
+    .items.payment-methods .certificates {
+        text-align: center;
+        padding-bottom: 10px;
+    }
+
+    .totals-tax.certificate-links {
+        display: flex;
+        flex-direction: column;
+
+        a {
+            display: inline-block;
+        }
+    }
+
+    .cart-totals tbody .totals-tax-details th,
+    .table-totals tbody .totals-tax-details th.mark {
+        padding-left: 10px;
+    }
+
+    .customs-explanation {
+        clear: both;
+        padding-top: 20px;
+    }
+
+    .avatax-certificate-dialog {
+        background-image: url('@{baseDir}ClassyLlama_AvaTax/images/loader.gif');
+        background-repeat: no-repeat;
+        background-position: center top;
+        min-height: 200px;
+
+        #gencert_loading {
+            // We need to hide the built in loader otherwise we get a weird overlap effect
+            display: none !important;
+        }
+    }
+
+    .account.avatax-certificates-index {
+        .page-title-wrapper {
+            display: flex;
+            margin-bottom: 25px;
+            align-items: center;
+            justify-content: space-between;
+
+            &:before, &:after {
+                display: none;
+            }
+
+            .page-title {
+                margin: 0;
+            }
+        }
+    }
 }
 
-.customs-explanation {
-    clear: both;
-    padding-top: 20px;
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+    .items.payment-methods .certificates {
+        text-align: right;
+    }
 }

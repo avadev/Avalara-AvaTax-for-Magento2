@@ -402,6 +402,57 @@
                     </depends>
                 </field>
             </group>
+            <group id="avatax_document_management" translate="label" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax - Document Management</label>
+                <field id="enabled" type="select" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable AvaTax Document Management</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>AvaTax Document Management allows users to upload documents that verify that they’re tax exempt and if they do, they won’t be charged tax in the checkout. This feature must be enabled in your Avalara account.</comment>
+                </field>
+                <field id="enabled_countries" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled Countries</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\DocumentManagementCountries</source_model>
+                    <comment>Select which countries to enable for Document Management.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="ecommerce_sdk_company_id" translate="label" type="obscure" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>eCommerce SDK Company ID</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="ecommerce_sdk_key" translate="label" type="obscure" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>eCommerce SDK Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="checkout_link_text_new_cert_no_certs_exist" translate="label" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Checkout Link Text: New Cert(No certs exist)</label>
+                    <comment>The text of the link that appears at checkout allowing the initiation of a new certificate. This text shows if there are no existing certificates for the customer.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="checkout_link_text_new_cert_certs_exist" translate="label" type="text" sortOrder="600" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Checkout Link Text: New Cert(Certs exist)</label>
+                    <comment>The text of the link that appears at checkout allowing the initiation of a new certificate. This text shows if there are already existing certificates for the customer.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="checkout_link_text_manage_existing_certs" translate="label" type="text" sortOrder="700" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Checkout Link Text: Manage Existing Certs</label>
+                    <comment>The text of the link that appears at checkout allowing the user to navigate to certificate management in My Account. This text shows only if there are existing certificates for the customer.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
             <group id="avatax_advanced" translate="label" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax - Advanced</label>
                 <field id="error_handling_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">

@@ -32,6 +32,8 @@ class CustomsConfig extends AbstractHelper
      */
     const XML_PATH_AVATAX_CUSTOMS_ENABLED = 'tax/avatax_customs/enabled';
 
+    const PRODUCT_ATTR_CROSS_BORDER_TYPE = 'avatax_cross_border_type';
+
     const XML_PATH_AVATAX_CUSTOMS_GROUND_SHIPPING_METHODS = 'tax/avatax_customs/ground_shipping_methods';
 
     const XML_PATH_AVATAX_CUSTOMS_OCEAN_SHIPPING_METHODS = 'tax/avatax_customs/ocean_shipping_methods';
@@ -56,11 +58,6 @@ class CustomsConfig extends AbstractHelper
 
     const CUSTOMER_IMPORTER_OF_RECORD_OVERRIDE_NO = "override_no";
     /**#@-*/
-
-    /**
-     * @var string
-     */
-    const PRODUCT_ATTR_CROSS_BORDER_TYPE = 'avatax_cross_border_type';
 
     /**
      * Defines the strings that come from AvaTax that represent customs. Needed for compatibility for the current
