@@ -22,8 +22,6 @@ var config = {
             "Magento_Tax/template/checkout/summary/tax": 'ClassyLlama_AvaTax/template/checkout/summary/tax',
             // Add the following alias to provide compatibility with Magento 2.2
             addressValidation: 'ClassyLlama_AvaTax/js/addressValidation',
-            sdkToken: 'ClassyLlama_AvaTax/js/action/get-sdk-token',
-            certificatesSdk: 'ClassyLlama_AvaTax/js/certificates-sdk',
             deleteCertificate: 'ClassyLlama_AvaTax/js/delete-certificate'
         }
     },
@@ -46,6 +44,9 @@ var config = {
             },
             'Magento_Checkout/js/model/step-navigator': {
                 'ClassyLlama_AvaTax/js/model/step-navigator/mixin': true
+            },
+            'ClassyLlama_AvaTax/js/action/account-add-exemption': {
+                'ClassyLlama_AvaTax/js/customer-account-add-exemption': true
             }
         }
     }

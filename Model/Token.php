@@ -78,10 +78,11 @@ class Token implements TokenInterface
     }
 
     /**
+     * @param $customerId
+     *
      * @return \ClassyLlama\AvaTax\Api\Data\SDKTokenInterface|string
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getToken()
+    public function getTokenForCustomerId($customerId)
     {
         try {
             $certCaptureConfig = $this->deploymentConfig->get('cert-capture');
@@ -93,7 +94,6 @@ class Token implements TokenInterface
             }
 
             $auth = base64_encode("{$certCaptureConfig['auth']['username']}:{$certCaptureConfig['auth']['password']}");
-            $customerId = $this->customerSession->getCustomer()->getId();
             $customerCode = $this->customerHelper->getCustomerCodeByCustomerId($customerId);
 
             // use key 'http' even if you send the request to https://...
@@ -133,5 +133,14 @@ class Token implements TokenInterface
         } catch (\Exception $e) {
             return $e->getMessage();
         }
+    }
+
+    /**
+     * @return \ClassyLlama\AvaTax\Api\Data\SDKTokenInterface|string
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getToken()
+    {
+        return $this->getTokenForCustomerId($customerId = $this->customerSession->getCustomer()->getId());
     }
 }

@@ -1,17 +1,29 @@
-define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal', 'certificatesSdk'], function (jQuery, Component, modal, sdk) {
+define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal'], function (jQuery, Component, modal) {
     return Component.extend({
         defaults: {
             template: 'ClassyLlama_AvaTax/action/account-add-exemption',
             exemptionZone: '',
-            availableExemptionZones: ['Missouri'],
+            availableExemptionZones: [],
             showSdkView: false,
-            certificateUploadSuccess: false
+            certificateUploadSuccess: false,
+            sdkParameters: {}
         },
 
         initialize: function initialize() {
             this._super();
 
             this.observe(['showSdkView', 'exemptionZone', 'certificateUploadSuccess']);
+            this.onCertificateComplete = this.onCertificateComplete.bind(this);
+            this.onSdkLoad = this.onSdkLoad.bind(this);
+
+            this.sdkParameters = jQuery.extend({
+                // Include if cert is a renewal?
+                upload: true,
+
+                onCertSuccess: this.onCertificateComplete,
+                onManualSubmit: this.onCertificateComplete,
+                onUpload: this.onCertificateComplete
+            }, this.sdkParameters);
 
             return this;
         },
@@ -43,19 +55,14 @@ define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal', 'certificatesSdk']
             this.certificateUploadSuccess(true);
         },
 
-        renderSdk: function renderSdk(element) {
-            var onCertificateComplete = this.onCertificateComplete.bind(this);
-            sdk(element, {
-                // Include if cert is a renewal?
-                upload: true,
+        onSdkLoad: function onSdkLoad(GenCert) {
+            GenCert.setShipZone(this.exemptionZone());
+            GenCert.show();
+        },
 
-                onCertSuccess: onCertificateComplete,
-                onManualSubmit: onCertificateComplete,
-                onUpload: onCertificateComplete
-            }).then(function () {
-                GenCert.setShipZone(this.exemptionZone());
-                GenCert.show();
-            }.bind(this))
+        renderSdk: function renderSdk(element) {
+            // This should be implemented through a mixin at the frontend or adminhtml area level
+            throw new Error('Must be implemented');
         },
 
         addExemption: function addExemption() {
