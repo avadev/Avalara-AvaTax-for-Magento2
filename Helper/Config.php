@@ -15,16 +15,17 @@
 
 namespace ClassyLlama\AvaTax\Helper;
 
-use AvaTax\ATConfigFactory;
 use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
+use ClassyLlama\AvaTax\Framework\Interaction\Address as TaxAddress;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Framework\Phrase;
+use Magento\Framework\App\State;
+use Magento\Framework\DataObjectFactory;
 use Magento\Shipping\Model\Config as ShippingConfig;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\Store;
-use Magento\Framework\App\State;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 
 /**
@@ -55,11 +56,15 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE = 'tax/avatax/production_company_code';
 
+    const XML_PATH_AVATAX_PRODUCTION_COMPANY_ID = 'tax/avatax/production_company_id';
+
     const XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER = 'tax/avatax/development_account_number';
 
     const XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY = 'tax/avatax/development_license_key';
 
     const XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE = 'tax/avatax/development_company_code';
+
+    const XML_PATH_AVATAX_DEVELOPMENT_COMPANY_ID = 'tax/avatax/development_company_id';
 
     const XML_PATH_AVATAX_CUSTOMER_CODE_FORMAT = 'tax/avatax/customer_code_format';
 
@@ -131,13 +136,17 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
 
-    const XML_PATH_AVATAX_ADMIN_IS_SELLER_IMPORTER_OF_RECORD = 'tax/avatax/is_seller_importer_of_record';
+    const XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING = 'tax/avatax_advanced/response_logging_enabled';
+
+    const XML_PATH_AVATAX_ADVANCED_API_TIMEOUT = 'tax/avatax_advanced/avatax_timeout';
     /**#@-*/
 
     /**
      * List of countries that are enabled by default
      */
     static public $taxCalculationCountriesDefault = ['US', 'CA'];
+
+    const DOCUMENT_MANAGEMENT_COUNTRIES_DEFAULT = ['US', 'CA'];
 
     /**#@+
      * Customer Code Format Options
@@ -199,8 +208,7 @@ class Config extends AbstractHelper
     const API_PROFILE_NAME_PROD = 'Production';
     /**#@-*/
 
-    const AVATAX_DOCUMENTATION_TAX_CODE_LINK
-        = 'https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes/Tax_Codes_-_Frequently_Asked_Questions';
+    const AVATAX_DOCUMENTATION_TAX_CODE_LINK = 'https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes/Tax_Codes_-_Frequently_Asked_Questions';
 
     /**
      * Magento version prefix
@@ -218,11 +226,6 @@ class Config extends AbstractHelper
     protected $magentoProductMetadata = null;
 
     /**
-     * @var ATConfigFactory
-     */
-    protected $avaTaxConfigFactory = null;
-
-    /**
      * @var \Magento\Framework\App\State
      */
     protected $appState;
@@ -238,28 +241,49 @@ class Config extends AbstractHelper
     protected $backendUrl;
 
     /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
+
+    /**
+     * @var MetaDataObject
+     */
+    protected $addressMetaDataObject = null;
+
+    /**
+     * @var array
+     */
+    protected $originAddress = [];
+
+    /**
      * Class constructor
      *
-     * @param Context $context
-     * @param ProductMetadataInterface $magentoProductMetadata
-     * @param ATConfigFactory $avaTaxConfigFactory
-     * @param State $appState
-     * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param Context                             $context
+     * @param ProductMetadataInterface            $magentoProductMetadata
+     * @param State                               $appState
+     * @param TaxClassRepositoryInterface         $taxClassRepository
      * @param \Magento\Backend\Model\UrlInterface $backendUrl
+     * @param DataObjectFactory                   $dataObjectFactory
+     * @param MetaDataObjectFactory               $metaDataObjectFactory
      */
     public function __construct(
         Context $context,
         ProductMetadataInterface $magentoProductMetadata,
-        ATConfigFactory $avaTaxConfigFactory,
         State $appState,
         TaxClassRepositoryInterface $taxClassRepository,
-        \Magento\Backend\Model\UrlInterface $backendUrl
-    ) {
+        \Magento\Backend\Model\UrlInterface $backendUrl,
+        DataObjectFactory $dataObjectFactory,
+        MetaDataObjectFactory $metaDataObjectFactory
+    )
+    {
         $this->magentoProductMetadata = $magentoProductMetadata;
-        $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->backendUrl = $backendUrl;
+        $this->dataObjectFactory = $dataObjectFactory;
+        $this->addressMetaDataObject = $metaDataObjectFactory->create(
+            ['metaDataProperties' => TaxAddress::$validFields]
+        );
         parent::__construct($context);
     }
 
@@ -271,7 +295,7 @@ class Config extends AbstractHelper
      */
     public function createAvaTaxProfile($storeId, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        if ($this->getLiveMode($storeId, $scopeType)) {
+        if ($this->isProductionMode($storeId, $scopeType)) {
             $this->avaTaxConfigFactory->create(
                 [
                     'name' => self::API_PROFILE_NAME_PROD,
@@ -307,7 +331,8 @@ class Config extends AbstractHelper
      * Return whether module is enabled
      *
      * @param null $store
-     * @param $scopeType
+     * @param      $scopeType
+     *
      * @return mixed
      */
     public function isModuleEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -320,9 +345,44 @@ class Config extends AbstractHelper
     }
 
     /**
+     * Return whether response logging is enabled
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return mixed
+     */
+    public function isResponseLoggingEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADVANCED_RESPONSE_LOGGING,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
+     * Return the timeout for using the AvaTax API
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return float
+     */
+    public function getAvaTaxApiTimeout($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return (float)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ADVANCED_API_TIMEOUT,
+            $scopeType,
+            $store
+        );
+    }
+
+    /**
      * Return tax mode
      *
      * @param $store
+     *
      * @return mixed
      */
     public function getTaxMode($store)
@@ -338,6 +398,7 @@ class Config extends AbstractHelper
      * Return whether to commit submitted transactions
      *
      * @param $store
+     *
      * @return mixed
      */
     public function getCommitSubmittedTransactions($store)
@@ -352,6 +413,7 @@ class Config extends AbstractHelper
     /**
      * @param $store
      * @param $scopeType
+     *
      * @return mixed
      */
     public function getTaxCalculationCountriesEnabled($store, $scopeType = ScopeInterface::SCOPE_STORE)
@@ -365,6 +427,7 @@ class Config extends AbstractHelper
 
     /**
      * @param $store
+     *
      * @return mixed
      */
     protected function getFilterTaxByRegion($store)
@@ -378,6 +441,7 @@ class Config extends AbstractHelper
 
     /**
      * @param $store
+     *
      * @return mixed
      */
     protected function getRegionFilterList($store)
@@ -393,7 +457,8 @@ class Config extends AbstractHelper
      * Determine whether address is taxable, based on either country or region
      *
      * @param \Magento\Framework\DataObject $address
-     * @param $storeId
+     * @param                               $storeId
+     *
      * @return bool
      */
     public function isAddressTaxable(\Magento\Framework\DataObject $address, $storeId)
@@ -406,7 +471,7 @@ class Config extends AbstractHelper
             if (!in_array($countryId, $countryFilters)) {
                 $isTaxable = false;
             }
-        // Filtering by region within countries
+            // Filtering by region within countries
         } else {
             $regionFilters = explode(',', $this->getRegionFilterList($storeId));
             $entityId = $address->getRegionId() ?: $address->getCountryId();
@@ -414,56 +479,69 @@ class Config extends AbstractHelper
                 $isTaxable = false;
             }
         }
+
         return $isTaxable;
     }
 
     /**
      * Return origin address
      *
-     * @param null $store
+     * @param int|\Magento\Store\Api\Data\StoreInterface $store
+     *
      * @return array
      */
     public function getOriginAddress($store)
     {
-        return [
-            'Line1' => $this->scopeConfig->getValue(
+        if ($store instanceof \Magento\Store\Api\Data\StoreInterface) {
+            $store = $store->getId();
+        }
+
+        if (!isset($this->originAddress[$store])) {
+            $data = [
+                'line_1' => $this->scopeConfig->getValue(
                 // Line1 and Line2 constants are missing from \Magento\Shipping\Model\Config, so using them from Shipment
-                \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'Line2' => $this->scopeConfig->getValue(
-                \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS2,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'City' => $this->scopeConfig->getValue(
-                ShippingConfig::XML_PATH_ORIGIN_CITY,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'RegionId' => $this->scopeConfig->getValue(
-                ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'PostalCode' => $this->scopeConfig->getValue(
-                ShippingConfig::XML_PATH_ORIGIN_POSTCODE,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-            'Country' => $this->scopeConfig->getValue(
-                ShippingConfig::XML_PATH_ORIGIN_COUNTRY_ID,
-                ScopeInterface::SCOPE_STORE,
-                $store
-            ),
-        ];
+                    \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS1,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'line_2' => $this->scopeConfig->getValue(
+                    \Magento\Sales\Model\Order\Shipment::XML_PATH_STORE_ADDRESS2,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'city' => $this->scopeConfig->getValue(
+                    ShippingConfig::XML_PATH_ORIGIN_CITY,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'region_id' => $this->scopeConfig->getValue(
+                    ShippingConfig::XML_PATH_ORIGIN_REGION_ID,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'postal_code' => $this->scopeConfig->getValue(
+                    ShippingConfig::XML_PATH_ORIGIN_POSTCODE,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+                'country' => $this->scopeConfig->getValue(
+                    ShippingConfig::XML_PATH_ORIGIN_COUNTRY_ID,
+                    ScopeInterface::SCOPE_STORE,
+                    $store
+                ),
+            ];
+
+            $this->originAddress[$store] = $data;
+        }
+
+        return $this->originAddress[$store];
     }
 
     /**
      * Get Customer code format to pass to AvaTax API
      *
      * @param $store
+     *
      * @return mixed
      */
     public function getCustomerCodeFormat($store)
@@ -476,30 +554,61 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Generate AvaTax Client Name from a combination of Magento version number and AvaTax module version number
-     * Format: Magento 2.x Community - AvaTax 1.0.0
+     * Generate AvaTax Application Name from a combination of Magento version number and AvaTax module name
+     * Format: Magento 2.x Community - AvaTax
      * Limited to 50 characters to comply with API requirements
      *
      * @return string
      */
-    protected function getClientName()
+    public function getApplicationName()
     {
         return substr($this->magentoProductMetadata->getName(), 0, 7) . ' ' . // "Magento" - 8 chars
-            substr($this->magentoProductMetadata->getVersion(), 0, 14) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
-            substr($this->magentoProductMetadata->getEdition(), 0, 10) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
-            'AvaTax ' . substr(AvaTaxAppInterface::APP_VERSION, 0, 7); // "AvaTax " & 1.x.x - 14 chars
+            substr(
+                $this->magentoProductMetadata->getVersion(),
+                0,
+                14
+            ) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
+            substr(
+                $this->magentoProductMetadata->getEdition(),
+                0,
+                10
+            ) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
+            'AvaTax';
     }
 
     /**
-     * Get Live vs. Development mode of the module
+     * The version of the AvaTax module
      *
-     * Must be configured at default level as it is difficult to pass store in all contexts this is used
+     * @return string
+     */
+    public function getApplicationVersion()
+    {
+        return AvaTaxAppInterface::APP_VERSION;
+    }
+
+    /**
+     * Get the base URL minus protocol and trailing slash, for use as machine name in API requests
      *
-     * @param $store
-     * @param string $scopeType
+     * @return string
+     */
+    public function getApplicationDomain()
+    {
+        $domain = $this->backendUrl->getBaseUrl();
+        $domain = preg_replace('#^https?://#', '', $domain);
+        $domain = preg_replace('#/$#', '', $domain);
+
+        return $domain;
+    }
+
+    /**
+     * Get Production vs. Development mode of the module
+     *
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
      * @return bool
      */
-    public function getLiveMode($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function isProductionMode($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return (bool)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_LIVE_MODE,
@@ -509,104 +618,138 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Get account number from config
+     * Returns a string representing the mode
      *
-     * @param $store
-     * @param $scopeType
+     * @param bool $isProductionMode
+     *
      * @return string
      */
-    public function getAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function getMode($isProductionMode)
     {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
+        return $isProductionMode ? self::API_PROFILE_NAME_PROD : self::API_PROFILE_NAME_DEV;
+    }
+
+    /**
+     * Gets a config value based on the mode
+     *
+     * @param bool        $isProduction
+     * @param string      $productionConfig
+     * @param string      $developmentConfig
+     * @param int|null    $store
+     * @param string|null $scopeType
+     *
+     * @return mixed
+     */
+    protected function getConfigByMode(
+        $productionConfig,
+        $developmentConfig,
+        $isProduction = null,
+        $store = null,
+        $scopeType = ScopeInterface::SCOPE_STORE
+    )
+    {
+        if ($isProduction === null) {
+            $isProduction = $this->isProductionMode($store, $scopeType);
+        }
+
+        return $this->scopeConfig->getValue(
+            $isProduction ? $productionConfig : $developmentConfig,
             $scopeType,
             $store
+        );
+    }
+
+    /**
+     * Get account number from config
+     *
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
+     * @return string
+     */
+    public function getAccountNumber($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
+    {
+        return (string)$this->getConfigByMode(
+            self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
+            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
+            $isProduction,
+            $store,
+            $scopeType
         );
     }
 
     /**
      * Get license key from config
      *
-     * @param $store
-     * @param $scopeType
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
      * @return string
      */
-    public function getLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function getLicenseKey($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
     {
-        return (string)$this->scopeConfig->getValue(
+        return (string)$this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
-            $scopeType,
-            $store
+            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
+            $isProduction,
+            $store,
+            $scopeType
         );
     }
 
     /**
      * Get company code from config
      *
-     * @param $store
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
      * @return string
      */
-    public function getCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
+    public function getCompanyCode($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
     {
-        return (string)$this->scopeConfig->getValue(
+        return (string)$this->getConfigByMode(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get development account number from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get development license key from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * Get development company code from config
-     *
-     * @param $store
-     * @param $scopeType
-     * @return string
-     */
-    public function getDevelopmentCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
-            $scopeType,
-            $store
+            $isProduction,
+            $store,
+            $scopeType
         );
+    }
+
+    /**
+     * Get company code from config
+     *
+     * @param int|null    $store
+     * @param string|null $scopeType
+     * @param bool|null   $isProduction Get the value for a specific mode instead of relying on the saved value
+     *
+     * @return int|null
+     */
+    public function getCompanyId($store = null, $scopeType = ScopeInterface::SCOPE_STORE, $isProduction = null)
+    {
+        $companyId = $this->getConfigByMode(
+            self::XML_PATH_AVATAX_PRODUCTION_COMPANY_ID,
+            self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_ID,
+            $isProduction,
+            $store,
+            $scopeType
+        );
+
+        if ($companyId !== null) {
+            $companyId = (int)$companyId;
+        }
+
+        return $companyId;
     }
 
     /**
      * Get SKU for Shipping
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuShipping($store)
@@ -622,6 +765,7 @@ class Config extends AbstractHelper
      * Get SKU for Gift Wrap at the Order Level
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuGiftWrapOrder($store)
@@ -637,6 +781,7 @@ class Config extends AbstractHelper
      * Get SKU for Gift Wrap at the Item Level
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuShippingGiftWrapItem($store)
@@ -652,6 +797,7 @@ class Config extends AbstractHelper
      * Get SKU for Gift Wrap card
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuShippingGiftWrapCard($store)
@@ -667,6 +813,7 @@ class Config extends AbstractHelper
      * Get SKU for positive adjustment
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuAdjustmentPositive($store)
@@ -682,6 +829,7 @@ class Config extends AbstractHelper
      * Get SKU for negative adjustment
      *
      * @param $store
+     *
      * @return string
      */
     public function getSkuAdjustmentNegative($store)
@@ -697,6 +845,7 @@ class Config extends AbstractHelper
      * Get Location Code
      *
      * @param $store
+     *
      * @return string
      */
     public function getLocationCode($store)
@@ -742,6 +891,7 @@ class Config extends AbstractHelper
      * Get whether should use Business Identification Number (VAT)
      *
      * @param $store
+     *
      * @return string
      */
     public function getUseBusinessIdentificationNumber($store)
@@ -757,6 +907,7 @@ class Config extends AbstractHelper
      * Get action to take when error occurs
      *
      * @param $store
+     *
      * @return string
      */
     public function getErrorAction($store)
@@ -772,6 +923,7 @@ class Config extends AbstractHelper
      * Return "disable checkout" error message based on the current area context
      *
      * @param $store
+     *
      * @return \Magento\Framework\Phrase
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -792,6 +944,7 @@ class Config extends AbstractHelper
      * Get "disable checkout" error message for frontend user
      *
      * @param $store
+     *
      * @return string
      */
     protected function getErrorActionDisableCheckoutMessageFrontend($store)
@@ -807,6 +960,7 @@ class Config extends AbstractHelper
      * Get "disable checkout" error message for backend user
      *
      * @param $store
+     *
      * @return string
      */
     protected function getErrorActionDisableCheckoutMessageBackend($store)
@@ -822,6 +976,7 @@ class Config extends AbstractHelper
      * Return if address validation is enabled
      *
      * @param null $store
+     *
      * @return mixed
      */
     public function isAddressValidationEnabled($store)
@@ -837,6 +992,7 @@ class Config extends AbstractHelper
      * Returns if user is allowed to choose between the original address and the validated address
      *
      * @param null $store
+     *
      * @return mixed
      */
     public function allowUserToChooseAddress($store)
@@ -852,6 +1008,7 @@ class Config extends AbstractHelper
      * Instructions for the user if they have a choice between the original address and validated address
      *
      * @param $store
+     *
      * @return string
      */
     public function getAddressValidationInstructionsWithChoice($store)
@@ -867,6 +1024,7 @@ class Config extends AbstractHelper
      * Instructions for the user if they do not have a choice between the original address and the validated address
      *
      * @param $store
+     *
      * @return string
      */
     public function getAddressValidationInstructionsWithoutChoice($store)
@@ -882,6 +1040,7 @@ class Config extends AbstractHelper
      * Instructions for the user if there was an error in validating their address
      *
      * @param $store
+     *
      * @return string
      */
     public function getAddressValidationErrorInstructions($store)
@@ -897,6 +1056,7 @@ class Config extends AbstractHelper
      * Returns which countries were enabled to validate the users address
      *
      * @param $store
+     *
      * @return mixed
      */
     public function getAddressValidationCountriesEnabled($store)
@@ -1051,25 +1211,5 @@ class Config extends AbstractHelper
     public function isNativeTaxRulesIgnored()
     {
         return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES);
-    }
-
-    /**
-     * Determine whether to set IsSellerImportOfRecord flag
-     *
-     * @param array $originAddress
-     * @param \AvaTax\Address $destAddress
-     * @param $storeId
-     * @return bool
-     */
-    public function isSellerImporterOfRecord($originAddress, $destAddress, $storeId)
-    {
-        $isSellerImporterOfRecord = true;
-        $countryFilters = explode(',', $this->getTaxCalculationCountriesEnabled($storeId));
-        $originCountryId = (isset($originAddress['Country']) ? $originAddress['Country'] : false);
-        $destCountryId = $destAddress->getCountry();
-        if ($destCountryId == $originCountryId || !in_array($destCountryId, $countryFilters)) {
-            $isSellerImporterOfRecord = false;
-        }
-        return $isSellerImporterOfRecord;
     }
 }

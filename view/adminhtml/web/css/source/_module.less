@@ -46,3 +46,17 @@
 pre.admin__avatax-log-text {
     white-space: pre-wrap;
 }
+
+// Fix some styling of the tooltip on admin when inside the totals table
+.order-subtotal-table {
+    .admin__field-tooltip {
+        display: inline;
+        text-align: left;
+        vertical-align: 2px;
+
+        .admin__field-tooltip-action {
+            margin-left: 0.5rem;
+            color: @color-gray19;
+        }
+    }
+}
