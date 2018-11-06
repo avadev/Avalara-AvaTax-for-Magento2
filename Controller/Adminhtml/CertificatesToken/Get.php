@@ -67,7 +67,6 @@ class Get extends \Magento\Backend\App\Action
         /** @var \ClassyLlama\AvaTax\Model\Data\SDKToken|string $tokenInfo */
         $tokenInfo = $this->tokenModel->getTokenForCustomerId($postValue['customer_id']);
 
-
         if (!is_string($tokenInfo)) {
             $tokenInfo = $tokenInfo->getData();
         }
