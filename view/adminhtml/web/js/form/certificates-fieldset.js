@@ -11,18 +11,12 @@
  * @copyright  Copyright (c) 2018 Avalara, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
+define(['Magento_Ui/js/form/components/fieldset'], function (Fieldset) {
+    'use strict';
 
-var config = {
-    map: {
-        '*': {
-            companyCode: 'ClassyLlama_AvaTax/js/form/field/company-code'
+    return Fieldset.extend({
+        defaults: {
+            template: 'ClassyLlama_AvaTax/form/certificates-fieldset'
         }
-    },
-    config: {
-        mixins: {
-            'ClassyLlama_AvaTax/js/action/account-add-exemption': {
-                'ClassyLlama_AvaTax/js/admin-account-add-exemption': true
-            }
-        }
-    }
-};
+    });
+});

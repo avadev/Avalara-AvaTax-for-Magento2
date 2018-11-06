@@ -1,19 +1,7 @@
-define(['sdkToken', 'jquery'], function (sdkToken, jQuery) {
+define(['ClassyLlama_AvaTax/js/action/get-sdk-token', 'ClassyLlama_AvaTax/js/load-sdk'], function (sdkToken, loadSdk) {
     return function (container, params) {
-        return jQuery.Deferred(function (defer) {
-            sdkToken().then(function (sdkUrl, token, customerId) {
-                require([sdkUrl], function () {
-                    if (typeof params !== 'object') {
-                        params = {};
-                    }
-
-                    params.token = token;
-                    params.customer_number = customerId;
-
-                    GenCert.init(container, params);
-                    defer.resolve();
-                });
-            }).fail(defer.reject);
+        return sdkToken().then(function (sdkUrl, token, customerId) {
+            return loadSdk(container, params, sdkUrl, token, customerId);
         });
     }
 });

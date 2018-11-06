@@ -12,17 +12,10 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-var config = {
-    map: {
-        '*': {
-            companyCode: 'ClassyLlama_AvaTax/js/form/field/company-code'
-        }
-    },
-    config: {
-        mixins: {
-            'ClassyLlama_AvaTax/js/action/account-add-exemption': {
-                'ClassyLlama_AvaTax/js/admin-account-add-exemption': true
-            }
-        }
+define(['ClassyLlama_AvaTax/js/action/get-sdk-token', 'ClassyLlama_AvaTax/js/load-sdk'], function (sdkToken, loadSdk) {
+    return function (tokenUrl, customerId, container, params) {
+        return sdkToken(tokenUrl, customerId).then(function (sdkUrl, token, customerId) {
+            return loadSdk(container, params, sdkUrl, token, customerId);
+        });
     }
-};
+});

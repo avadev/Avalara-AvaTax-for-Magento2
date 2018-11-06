@@ -49,6 +49,23 @@
             display: none !important;
         }
     }
+
+    .account.avatax-certificates-index {
+        .page-title-wrapper {
+            display: flex;
+            margin-bottom: 25px;
+            align-items: center;
+            justify-content: space-between;
+
+            &:before, &:after {
+                display: none;
+            }
+
+            .page-title {
+                margin: 0;
+            }
+        }
+    }
 }
 
 .media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
