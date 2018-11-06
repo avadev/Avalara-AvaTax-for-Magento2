@@ -1,4 +1,4 @@
-define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal'], function (jQuery, Component, modal) {
+define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal', 'mage/translate'], function (jQuery, Component, modal, $t) {
     return Component.extend({
         defaults: {
             template: 'ClassyLlama_AvaTax/action/account-add-exemption',
@@ -13,6 +13,7 @@ define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal'], function (jQuery,
             this._super();
 
             this.observe(['showSdkView', 'exemptionZone', 'certificateUploadSuccess']);
+            this.optionsCaption = $t('Select an Exemption Zone');
             this.onCertificateComplete = this.onCertificateComplete.bind(this);
             this.onSdkLoad = this.onSdkLoad.bind(this);
 
