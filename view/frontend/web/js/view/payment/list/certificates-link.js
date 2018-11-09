@@ -13,7 +13,7 @@
  */
 define([
     'Magento_Checkout/js/model/totals',
-    'certificatesSdk',
+    'ClassyLlama_AvaTax/js/certificates-sdk',
     'jquery',
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/action/get-totals',
