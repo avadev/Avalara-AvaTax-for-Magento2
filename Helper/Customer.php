@@ -135,8 +135,10 @@ class Customer extends AbstractHelper
     {
         // Retrieve the customer code configuration value
         $customerCodeFormat = $this->config->getCustomerCodeFormat($storeId);
+        // As a fallback, use some unique identifier for the guest
         $customerCode = strtolower(Config::CUSTOMER_GUEST_ID) . "-{$uniqueGuestIdentifier}";
 
+        // If there is a customer, use their ID as a fallback
         if($customer !== null && $customer->getId()) {
             $customerCode = $customer->getId();
         }
@@ -151,7 +153,7 @@ class Customer extends AbstractHelper
             return $this->generateCustomerCodeFromNameId($customer);
         }
 
-        // Customer code is defined on a customer attribute
+        // Customer code is defined on a customer attribute, use fallback if attribute has no value
         if ($customer !== null) {
             return $this->generateCustomerCodeFromAttribute($customer, $customerCodeFormat) ?: $customerCode;
         }
