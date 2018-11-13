@@ -180,6 +180,8 @@
                 </item>
             </argument>
         </column>
+        <!-- Disabling unit of measure field until AvaTax Api stabilizes on it -->
+        <!--
         <column name="unit_name">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -196,6 +198,7 @@
                 </item>
             </argument>
         </column>
+        -->
         <column name="pref_program_indicator">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">

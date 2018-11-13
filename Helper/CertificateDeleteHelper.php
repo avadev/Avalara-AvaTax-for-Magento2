@@ -95,6 +95,8 @@ class CertificateDeleteHelper extends AbstractHelper
                 $storeId
             );
 
+            // TODO: Call the \ClassyLlama\AvaTax\Model\TaxCache::clearCache method to invalidate cache
+
             $this->messageManager->addSuccessMessage(__('Your certificate has been successfully deleted.'));
 
         } catch (\Exception $e) {

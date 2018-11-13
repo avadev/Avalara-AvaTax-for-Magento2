@@ -340,13 +340,13 @@
                     <comment><![CDATA[
                         Customs Duty & Import Tax include duties, fees and taxes relevant to cross border shipments.
                         This feature must be enabled in your Avalara account. Note that the proper use of this feature requires appropriate
-                        configuration of <strong>Cross Border Classes</strong> (see Stores -> Taxes -> AvaTax Cross Border Classes) and assignment
-                        of Cross Border Types to products.
+                        configuration of <strong>Cross Border Classes</strong> (see Stores > AvaTax > Cross Border Classes) and assignment
+                        of <strong>Cross Border Types</strong> to products.
                     ]]></comment>
                 </field>
                 <field id="map_shipping_methods" translate="label" type="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Map Shipping Methods</strong>]]></label>
-                    <comment><![CDATA[Customs tax calculations may vary based on what type of shipping method is being used. Each of the Magento enabled shipping methods need to be mapped to an AvaTax Shipping Mode in order to ensure accurate calculations. NOTE that you must enable a shipping method at the currently viewed admin scope in order for it to be available here.]]></comment>
+                    <comment><![CDATA[Customs tax calculations may vary based on what type of shipping method is being used. Each of the Magento enabled shipping methods must be mapped to an AvaTax Shipping Mode to ensure accurate calculations. Note that you must enable a shipping method at the currently viewed admin scope in order for it to be available here.]]></comment>
                     <!-- Reference: https://github.com/magento/magento2/issues/2340
                     <depends>
                         <field id="enabled">1</field>
@@ -405,7 +405,7 @@
             <group id="avatax_document_management" translate="label" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax - Document Management</label>
                 <field id="enabled" type="select" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enable AvaTax Document Management</label>
+                    <label>Enable Document Management</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>AvaTax Document Management allows users to upload documents that verify that they’re tax exempt and if they do, they won’t be charged tax in the checkout. This feature must be enabled in your Avalara account.</comment>
                 </field>
