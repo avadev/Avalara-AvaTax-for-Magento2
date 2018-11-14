@@ -98,9 +98,13 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
         $getTaxResult = @unserialize($this->cache->load($cacheKey));
 
         if ($getTaxResult instanceof TaxResult && !$forceNew) {
+            $getTaxResultData = $getTaxResult->getData('raw_result');
+            $getTaxRequestData = $getTaxResult->getData('raw_request');
+
             $this->avaTaxLogger->addDebug('Loaded tax result from cache.', [
-                'result' => var_export($getTaxResult->getData(), true),
-                'cache_key' => $cacheKey
+                'cache_key' => $cacheKey,
+                'request' => json_encode($getTaxRequestData, JSON_PRETTY_PRINT),
+                'result' => json_encode($getTaxResultData, JSON_PRETTY_PRINT)
             ]);
             return $getTaxResult;
         }
@@ -110,11 +114,6 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
         if (!($getTaxResult instanceof TaxResult)) {
             throw new LocalizedException(__('Bad response from AvaTax'));
         }
-
-        $this->avaTaxLogger->addDebug('Loaded tax result from REST.', [
-            'request' => var_export($request->getData(), true),
-            'result' => var_export($getTaxResult->getData(), true),
-        ]);
 
         // Only cache successful requests
         if (!$forceNew) {

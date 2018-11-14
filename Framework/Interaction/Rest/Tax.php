@@ -109,17 +109,28 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         $this->setAddressDetails($transactionBuilder, $request);
 
         $resultObj = null;
+        // Fallback to the old request data in case the `createAdjustmentRequest` method changes in the future
+        $requestData = $request->getData();
+        // Grab the request, which is the model. This is private, but this method gives us access
+        $createAdjustmentRequest = $transactionBuilder->createAdjustmentRequest(null, null);
+
+        if(isset($createAdjustmentRequest['newTransaction'])) {
+            $requestData = $createAdjustmentRequest['newTransaction'];
+        }
 
         try {
             $resultObj = $transactionBuilder->create();
         }
-        catch (\GuzzleHttp\Exception\ClientException $clientException) {
+        catch (\GuzzleHttp\Exception\RequestException $clientException) {
             $this->handleException($clientException, $request);
         }
 
         $resultGeneric = $this->formatResult($resultObj);
         /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $result */
         $result = $this->taxResultFactory->create(['data' => $resultGeneric->getData()]);
+        // TODO: Could be done better by undoing the recursive `formatResult` call, but that seems wasteful
+        $result->setData('raw_result', $resultObj);
+        $result->setData('raw_request', $requestData);
 
         /**
          * We store the request on the result so we can map request items to response items

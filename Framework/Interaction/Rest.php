@@ -102,7 +102,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
 
         try {
             $result = $this->getClient($isProduction, $scopeId, $scopeType)->withCatchExceptions(false)->ping();
-        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
             $this->handleException($clientException);
         }
 
@@ -121,29 +121,33 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
         $logMessage = __('AvaTax connection error: %1', $exception->getMessage());
         $logContext = ['request' => $requestLogData];
 
-        if ($exception instanceof \GuzzleHttp\Exception\ClientException) {
+        if ($exception instanceof \GuzzleHttp\Exception\RequestException) {
             $requestUrl = '[' . (string)$exception->getRequest()->getMethod() . '] ' . (string)$exception->getRequest()
                     ->getUri();
             $requestHeaders = json_encode($exception->getRequest()->getHeaders(), JSON_PRETTY_PRINT);
             $requestBody = json_decode((string)$exception->getRequest()->getBody(), true);
-            $responseBody = (string)$exception->getResponse()->getBody();
-            $response = json_decode($responseBody, true);
+            $responseBody = null;
+            $response = $exception->getResponse();
 
-            // If we have no body, use the request data as the body
-            if ($requestBody === null || (is_array($requestBody) && empty($requestBody))) {
-                $requestBody = $requestLogData;
+            if($response !== null) {
+                $responseBody = (string)$response->getBody();
+                $response = json_decode($responseBody, true);
             }
 
-            $logMessage = __('Response from AvaTax indicated non-specific error');
+            // If we have no body, use the request data as the body
+            if ($requestBody !== null && (!is_array($requestBody) || !empty($requestBody))) {
+                $responseBody = json_encode($requestBody, JSON_PRETTY_PRINT);
+            }
+
+            $logMessage = __('Response from AvaTax indicated non-specific error: %1', $exception->getMessage());
             $logContext['request'] = var_export(
                 [
                     'url' => $requestUrl,
                     'headers' => $requestHeaders,
-                    'body' => json_encode($requestBody, JSON_PRETTY_PRINT)
+                    'body' => $responseBody ?: $request->getData()
                 ],
                 true
             );
-            $logContext['result'] = $responseBody;
 
             if ($response !== null) {
                 $logMessage = __(

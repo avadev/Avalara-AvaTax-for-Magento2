@@ -45,7 +45,7 @@ class Company extends Rest implements RestCompanyInterface
                 $request->getData('skip'),
                 $request->getData('order_by')
             );
-        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
             $this->handleException($clientException, $request);
         }
 

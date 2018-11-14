@@ -112,7 +112,7 @@ class Customer extends Rest implements RestCustomerInterface
                 $request->getData('skip'),
                 $request->getData('order_by')
             );
-        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
             // TODO: Possibly specifically handle no entity exception as an empty array of certificates?
             $this->handleException($clientException, $request);
         }
@@ -185,7 +185,7 @@ class Customer extends Rest implements RestCustomerInterface
                 $this->config->getCompanyId($scopeId, $scopeType),
                 $request->getData('id')
             );
-        } catch(\GuzzleHttp\Exception\ClientException $clientException) {
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
             $this->handleException($clientException, $request);
         }
 
@@ -215,7 +215,7 @@ class Customer extends Rest implements RestCustomerInterface
                 $this->customerHelper->getCustomerCode($customer, null, $scopeId),
                 $customerModel
             );
-        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
             // Validate the response; pass the customer id for context in case of an error.
             $this->handleException($clientException, $this->dataObjectFactory->create(['customer_id' => $customer->getId()]));
         }

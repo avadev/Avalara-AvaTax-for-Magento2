@@ -140,6 +140,11 @@
         </arguments>
     </type>
 
+    <type name="ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper">
+        <arguments>
+            <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
+        </arguments>
+    </type>
     <type name="ClassyLlama\AvaTax\Framework\Interaction\Rest">
         <arguments>
             <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>

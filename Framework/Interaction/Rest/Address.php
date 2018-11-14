@@ -89,7 +89,7 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                 null,
                 null
             );
-        } catch (\GuzzleHttp\Exception\ClientException $clientException) {
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
             $this->handleException($clientException, $request);
         }
 

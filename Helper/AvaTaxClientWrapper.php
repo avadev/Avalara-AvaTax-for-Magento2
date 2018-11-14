@@ -15,6 +15,8 @@
 
 namespace ClassyLlama\AvaTax\Helper;
 
+use Psr\Log\LoggerInterface;
+
 class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
 {
     /**
@@ -23,17 +25,24 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
     protected $config;
 
     /**
-     * @param Config $config
-     * @param string $appName
-     * @param string $appVersion
-     * @param string $machineName
-     * @param string $environment
-     * @param array  $guzzleParams
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @param Config          $config
+     * @param LoggerInterface $logger
+     * @param string          $appName
+     * @param string          $appVersion
+     * @param string          $machineName
+     * @param string          $environment
+     * @param array           $guzzleParams
      *
      * @throws \Exception
      */
     public function __construct(
         \ClassyLlama\AvaTax\Helper\Config $config,
+        LoggerInterface $logger,
         $appName,
         $appVersion,
         $machineName = "",
@@ -44,6 +53,37 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
         parent::__construct($appName, $appVersion, $machineName, $environment, $guzzleParams);
 
         $this->config = $config;
+        $this->logger = $logger;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function executeRequest($verb, $apiUrl, $guzzleParams)
+    {
+        $response = parent::executeRequest($verb, $apiUrl, $guzzleParams);
+
+        // The body is already encoded as JSON, we need to decode it first so we don't double-encode it
+        if (is_string($guzzleParams['body'])) {
+            $guzzleParams['body'] = json_decode($guzzleParams['body']);
+        }
+
+        $this->logger->debug(
+            "Loaded REST result from $apiUrl",
+            [
+                'request' => json_encode(
+                    [
+                        'url' => $apiUrl,
+                        'method' => $verb,
+                        'parameters' => $guzzleParams
+                    ],
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+                ),
+                'result' => json_encode(json_decode((string)$response->getBody()), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+            ]
+        );
+
+        return $response;
     }
 
     /**
