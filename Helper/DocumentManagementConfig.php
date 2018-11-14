@@ -24,10 +24,6 @@ class DocumentManagementConfig extends AbstractHelper
 
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ENABLED_COUNTRIES = 'tax/avatax_document_management/enabled_countries';
 
-    const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ECOMMERCE_SDK_COMPANY_ID = 'tax/avatax_document_management/ecommerce_sdk_company_id';
-
-    const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ECOMMERCE_SDK_KEY = 'tax/avatax_document_management/ecommerce_sdk_key';
-
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CHECKOUT_LINK_TEXT_NEW_CERT_NO_CERTS_EXIST = 'tax/avatax_document_management/checkout_link_text_new_cert_no_certs_exist';
 
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CHECKOUT_LINK_TEXT_NEW_CERT_CERTS_EXIST = 'tax/avatax_document_management/checkout_link_text_new_cert_certs_exist';
@@ -64,36 +60,6 @@ class DocumentManagementConfig extends AbstractHelper
         );
 
         return array_filter(explode(',', $enabledCountries));
-    }
-
-    /**
-     * @param int|null    $store
-     * @param string|null $scopeType
-     *
-     * @return string
-     */
-    public function getEcommerceSdkCompanyId($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ECOMMERCE_SDK_COMPANY_ID,
-            $scopeType,
-            $store
-        );
-    }
-
-    /**
-     * @param int|null    $store
-     * @param string|null $scopeType
-     *
-     * @return string
-     */
-    public function getEcommerceSdkKey($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        return (string)$this->scopeConfig->getValue(
-            self::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_ECOMMERCE_SDK_KEY,
-            $scopeType,
-            $store
-        );
     }
 
     /**
