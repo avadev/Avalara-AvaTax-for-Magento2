@@ -42,13 +42,20 @@ class CertificateDeleteHelper extends AbstractHelper
     protected $messageManager;
 
     /**
+     * @var \ClassyLlama\AvaTax\Model\TaxCache
+     */
+    protected $taxCache;
+
+    /**
      * CertificateDeleteHelper constructor.
-     * @param Context $context
-     * @param \Magento\Framework\App\RequestInterface $request
+     *
+     * @param Context                                           $context
+     * @param \Magento\Framework\App\RequestInterface           $request
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
-     * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
-     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface     $customerRest
+     * @param \Magento\Framework\DataObjectFactory              $dataObjectFactory
+     * @param \ClassyLlama\AvaTax\Model\TaxCache                $taxCache
+     * @param \Magento\Framework\Message\ManagerInterface       $messageManager
      */
     public function __construct(
         Context $context,
@@ -56,6 +63,7 @@ class CertificateDeleteHelper extends AbstractHelper
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
         \Magento\Framework\DataObjectFactory $dataObjectFactory,
+        \ClassyLlama\AvaTax\Model\TaxCache $taxCache,
         \Magento\Framework\Message\ManagerInterface $messageManager
     )
     {
@@ -65,6 +73,7 @@ class CertificateDeleteHelper extends AbstractHelper
         $this->customerRest = $customerRest;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->messageManager = $messageManager;
+        $this->taxCache = $taxCache;
     }
 
     /**
@@ -94,11 +103,11 @@ class CertificateDeleteHelper extends AbstractHelper
                 null,
                 $storeId
             );
-
-            // TODO: Call the \ClassyLlama\AvaTax\Model\TaxCache::clearCache method to invalidate cache
+            // Ensure that all caches for tax calculation have been cleared for this customer to ensure accurate tax
+            // during checkout
+            $this->taxCache->clearCacheByCustomerId($customerId);
 
             $this->messageManager->addSuccessMessage(__('Your certificate has been successfully deleted.'));
-
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('There was a problem deleting your certificate.'));
         }
