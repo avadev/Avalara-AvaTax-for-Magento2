@@ -124,7 +124,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
         if ($exception instanceof \GuzzleHttp\Exception\RequestException) {
             $requestUrl = '[' . (string)$exception->getRequest()->getMethod() . '] ' . (string)$exception->getRequest()
                     ->getUri();
-            $requestHeaders = json_encode($exception->getRequest()->getHeaders(), JSON_PRETTY_PRINT);
+            $requestHeaders = json_encode($exception->getRequest()->getHeaders(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             $requestBody = json_decode((string)$exception->getRequest()->getBody(), true);
             $responseBody = null;
             $response = $exception->getResponse();
@@ -136,7 +136,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
 
             // If we have no body, use the request data as the body
             if ($requestBody !== null && (!is_array($requestBody) || !empty($requestBody))) {
-                $responseBody = json_encode($requestBody, JSON_PRETTY_PRINT);
+                $responseBody = json_encode($requestBody, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             }
 
             $logMessage = __('Response from AvaTax indicated non-specific error: %1', $exception->getMessage());
@@ -167,7 +167,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
                     )
                 );
 
-                $logContext['result'] = json_encode($response, JSON_PRETTY_PRINT);
+                $logContext['result'] = json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             }
         }
 
