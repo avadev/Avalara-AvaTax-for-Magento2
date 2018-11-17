@@ -350,16 +350,27 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 $taxTitle = (string)__('Customs Duty and Import Tax');
             }
 
+            $taxableAmount = (float)$lineItemDetail->getData('taxable_amount');
+            $taxCalculated = (float)$lineItemDetail->getData('tax_calculated');
+
             /**
              * Magento requires there to be a percentage rate in order to save the taxes to the sales_order_tax table
-             * so we need to calculate a rate that isn't completely bogus (since the one from AvaTax is bogus)
+             * so we need to calculate a rate that isn't completely bogus (since the one from AvaTax is bogus). Also,
+             * due to Magento incorrectly using == to evaluate NULL to 0, we can't use NULL either
              *
-             * @see vendor/magento/module-tax/Model/Plugin/OrderSave.php:134
+             * @see https://github.com/magento/magento2/blob/2.2/app/code/Magento/Tax/Model/Plugin/OrderSave.php#L134
+             * @see https://github.com/magento/magento2/blob/2.2/app/code/Magento/Tax/Model/Sales/Total/Quote/CommonTaxCollector.php#L764
+             *
+             * Also, even if Magento didn't incorrectly use the == comparision, AvaTax would still break as Magento
+             * would expect tax values to come from the rates instead of the applied tax:
+             * @see https://github.com/magento/magento2/blob/2.2/app/code/Magento/Tax/Model/Sales/Total/Quote/CommonTaxCollector.php#L784
+             *
+             * Which, by the way, if you were to try and support, amount and base_amount are not even supported by
+             * the AppliedTaxRateInterface, which I assume is why the CommonTaxCollector relies on:
+             * @see https://github.com/magento/magento2/blob/2.2/app/code/Magento/Tax/Api/Data/AppliedTaxRateInterface.php
              */
-            if ($rate === 0.0) {
-                $rate = (float)$lineItemDetail->getData('tax_calculated') / (float)$lineItemDetail->getData(
-                        'taxable_amount'
-                    );
+            if ($rate === 0.0 && $taxCalculated > 0) {
+                $rate = $taxableAmount > 0 && $taxCalculated > 0 ? $taxCalculated / $taxableAmount : -0.001;
             }
 
             // Normalize the AvaTax rate to a Magento rate
