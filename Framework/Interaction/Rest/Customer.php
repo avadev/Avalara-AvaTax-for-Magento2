@@ -16,14 +16,13 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
 use ClassyLlama\AvaTax\Api\RestCustomerInterface;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+use ClassyLlama\AvaTax\Exception\AvaTaxCustomerDoesNotExistException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\Customer as CustomerHelper;
-use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
 use ClassyLlama\AvaTax\Model\Factory\LinkCustomersModelFactory;
-use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\DataObjectFactory;
-use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 class Customer extends Rest implements RestCustomerInterface
@@ -54,14 +53,14 @@ class Customer extends Rest implements RestCustomerInterface
     protected $addressRepository;
 
     /**
-     * @param CustomerHelper    $customerHelper
-     * @param Config            $config
-     * @param LoggerInterface   $logger
-     * @param DataObjectFactory $dataObjectFactory
-     * @param ClientPool $clientPool
+     * @param CustomerHelper                                         $customerHelper
+     * @param Config                                                 $config
+     * @param LoggerInterface                                        $logger
+     * @param DataObjectFactory                                      $dataObjectFactory
+     * @param ClientPool                                             $clientPool
      * @param \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory $customerModelFactory
-     * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
-     * @param LinkCustomersModelFactory $customersModelFactory
+     * @param \Magento\Customer\Api\AddressRepositoryInterface       $addressRepository
+     * @param LinkCustomersModelFactory                              $customersModelFactory
      */
     public function __construct(
         CustomerHelper $customerHelper,
@@ -158,7 +157,11 @@ class Customer extends Rest implements RestCustomerInterface
         $client->withCatchExceptions(false);
 
         try {
-            $customerId = $this->customerHelper->getCustomerCodeByCustomerId($request->getData('customer_id'), null, $scopeId);
+            $customerId = $this->customerHelper->getCustomerCodeByCustomerId(
+                $request->getData('customer_id'),
+                null,
+                $scopeId
+            );
 
             //unlink request requires a LinkCustomersModel which contains a string[] of all customer ids.
             /** @var \Avalara\LinkCustomersModel $customerModel */
@@ -217,18 +220,47 @@ class Customer extends Rest implements RestCustomerInterface
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
             // Validate the response; pass the customer id for context in case of an error.
-            $this->handleException($clientException, $this->dataObjectFactory->create(['customer_id' => $customer->getId()]));
+            $this->handleException(
+                $clientException,
+                $this->dataObjectFactory->create(['customer_id' => $customer->getId()])
+            );
         }
 
         return $this->formatResult($response);
     }
 
     /**
+     * {@inheritDoc}
+     */
+    protected function handleException($exception, $request = null, $logMethod = LOG_ERR)
+    {
+        $isMissingCustomerException = false;
+        $responseObject = json_decode((string)$exception->getResponse()->getBody(), true);
+
+        // Customer calls where there is no customer should be suppressed as debug messages to avoid noisy errors
+        if (isset($responseObject['error']['code']) && $responseObject['error']['code'] === 'EntityNotFoundError') {
+            $logMethod = LOG_DEBUG;
+            $isMissingCustomerException = true;
+        }
+
+        try {
+            parent::handleException($exception, $request, $logMethod);
+        } catch (AvataxConnectionException $avataxConnectionException) {
+            if ($isMissingCustomerException) {
+                throw new AvaTaxCustomerDoesNotExistException(__($exception->getMessage()), $avataxConnectionException);
+            }
+
+            throw $avataxConnectionException;
+        }
+    }
+
+    /**
      * Given a Magento customer, build an Avalara CustomerModel for request.
      *
      * @param \Magento\Customer\Api\Data\CustomerInterface $customer
-     * @param null $scopeId
-     * @param string $scopeType
+     * @param null                                         $scopeId
+     * @param string                                       $scopeType
+     *
      * @return \Avalara\CustomerModel
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -249,16 +281,16 @@ class Customer extends Rest implements RestCustomerInterface
         $customerModel->modifiedDate = $customer->getUpdatedAt();
 
         // If a customer does not have a billing address, then no address updates will take place.
-        if($customer->getDefaultBilling()) {
+        if ($customer->getDefaultBilling()) {
 
             /** @var \Magento\Customer\Api\Data\AddressInterface $address */
             $address = $this->addressRepository->getById($customer->getDefaultBilling());
 
-            if(isset($address->getStreet()[0])) {
+            if (isset($address->getStreet()[0])) {
                 $customerModel->line1 = $address->getStreet()[0];
             }
 
-            if(isset($address->getStreet()[1])) {
+            if (isset($address->getStreet()[1])) {
                 $customerModel->line2 = $address->getStreet()[1];
             }
 

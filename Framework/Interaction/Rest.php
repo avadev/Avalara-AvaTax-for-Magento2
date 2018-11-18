@@ -115,7 +115,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      *
      * @throws AvataxConnectionException
      */
-    protected function handleException($exception, $request = null)
+    protected function handleException($exception, $request = null, $logLevel = LOG_ERR)
     {
         $requestLogData = $request !== null ? var_export($request->getData(), true) : null;
         $logMessage = __('AvaTax connection error: %1', $exception->getMessage());
@@ -124,12 +124,15 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
         if ($exception instanceof \GuzzleHttp\Exception\RequestException) {
             $requestUrl = '[' . (string)$exception->getRequest()->getMethod() . '] ' . (string)$exception->getRequest()
                     ->getUri();
-            $requestHeaders = json_encode($exception->getRequest()->getHeaders(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            $requestHeaders = json_encode(
+                $exception->getRequest()->getHeaders(),
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+            );
             $requestBody = json_decode((string)$exception->getRequest()->getBody(), true);
             $responseBody = null;
             $response = $exception->getResponse();
 
-            if($response !== null) {
+            if ($response !== null) {
                 $responseBody = (string)$response->getBody();
                 $response = json_decode($responseBody, true);
             }
@@ -171,8 +174,29 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
             }
         }
 
-        $this->logger->error($logMessage, $logContext);
-        throw new AvataxConnectionException($logMessage);
+        $logMethod = 'error';
+
+        switch ($logLevel) {
+            case LOG_DEBUG:
+                $logMethod = 'debug';
+                break;
+            case LOG_WARNING:
+                $logMethod = 'warning';
+                break;
+            case LOG_NOTICE:
+                $logMethod = 'notice';
+                break;
+            case LOG_INFO:
+                $logMethod = 'info';
+                break;
+            case LOG_ERR:
+            default:
+                $logMethod = 'error';
+                break;
+        }
+
+        $this->logger->$logMethod($logMessage, $logContext);
+        throw new AvataxConnectionException($logMessage, $exception);
     }
 
     /**

@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Observer\Model\Customer;
 
+use ClassyLlama\AvaTax\Exception\AvaTaxCustomerDoesNotExistException;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
@@ -24,18 +25,22 @@ class AfterSaveObserver implements ObserverInterface
      * @var \ClassyLlama\AvaTax\Api\RestCustomerInterface
      */
     protected $restCustomerInterface;
+
     /**
      * @var \ClassyLlama\AvaTax\Helper\DocumentManagementConfig
      */
     protected $documentManagementConfig;
+
     /**
      * @var \Magento\Framework\App\State
      */
     protected $appState;
+
     /**
      * @var \Magento\Framework\Message\ManagerInterface
      */
     protected $messageManager;
+
     /**
      * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
      */
@@ -44,11 +49,11 @@ class AfterSaveObserver implements ObserverInterface
     /**
      * BeforeSaveObserver constructor.
      *
-     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $restCustomerInterface
+     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface       $restCustomerInterface
      * @param \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig
-     * @param \Magento\Framework\App\State $appState
-     * @param \Magento\Framework\Message\ManagerInterface $messageManager
-     * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
+     * @param \Magento\Framework\App\State                        $appState
+     * @param \Magento\Framework\Message\ManagerInterface         $messageManager
+     * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger       $avaTaxLogger
      */
     public function __construct(
         \ClassyLlama\AvaTax\Api\RestCustomerInterface $restCustomerInterface,
@@ -80,15 +85,17 @@ class AfterSaveObserver implements ObserverInterface
 
         try {
             $this->restCustomerInterface->updateCustomer($customer, null, $customer->getStoreId());
-        } catch (\Exception $e) {
-            if($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
+        } catch (AvaTaxCustomerDoesNotExistException $avaTaxCustomerDoesNotExistException) {
+            // Ignore errors where the customer doesn't exist
+        } catch (\Exception $exception) {
+            if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
                 //show error message
                 $this->messageManager->addErrorMessage(__("Error sending updated customer data to Avalara."));
             }
 
             $this->avaTaxLogger->error(
                 __("Error sending updated customer data to Avalara for customer %1.", $customer->getId()),
-                ['error message' => $e->getMessage()]
+                ['error message' => $exception->getMessage()]
             );
         }
 
