@@ -17,19 +17,19 @@ namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
+use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use Magento\Customer\Api\Data\AddressInterface as CustomerAddressInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressInterfaceFactory;
-use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
-use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFactory;
-use Magento\Sales\Api\Data\OrderAddressInterface;
-use Magento\Framework\DataObjectFactory;
 use Magento\Directory\Model\Region;
 use Magento\Directory\Model\ResourceModel\Region\Collection as RegionCollection;
 use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionCollectionFactory;
-use Magento\Framework\Api\DataObjectHelper;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Api\CustomAttributesDataInterface;
-use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
+use Magento\Framework\Api\DataObjectHelper;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
+use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFactory;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class Address
 {
@@ -83,7 +83,7 @@ class Address
         'line_2' => ['type' => 'string', 'length' => 50],
         'line_3' => ['type' => 'string', 'length' => 50],
         'city' => ['type' => 'string', 'length' => 50], // Either city & region are required or postalCode is required.
-        'region' => ['type' => 'string', 'length' => 3], // Making postalCode required is easier but could be modified,
+        'region' => ['type' => 'string'], // Making postalCode required is easier but could be modified,
         'postal_code' => ['type' => 'string', 'required' => true, 'length' => 11], // if necessary.
         'country' => ['type' => 'string', 'length' => 2],
     ];
@@ -410,6 +410,11 @@ class Address
     {
         if (!$regionId) {
             return null;
+        }
+
+        // Countries with free-form regions can't be loaded from the database, so just return it as the code
+        if (!is_numeric($regionId)) {
+            return $regionId;
         }
 
         /** @var \Magento\Directory\Model\Region $region */
