@@ -60,21 +60,26 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     protected $appliedTaxRateExtensionFactory;
 
     /**
+     * Rate that will be used instead of 0, as using 0 causes tax rates to not save
+     */
+    const DEFAULT_TAX_RATE = -0.001;
+
+    /**
      * Constructor
      *
-     * @param Calculation $calculation
-     * @param CalculatorFactory $calculatorFactory
-     * @param Config $config
-     * @param TaxDetailsInterfaceFactory $taxDetailsDataObjectFactory
-     * @param TaxDetailsItemInterfaceFactory $taxDetailsItemDataObjectFactory
-     * @param StoreManagerInterface $storeManager
-     * @param TaxClassManagementInterface $taxClassManagement
+     * @param Calculation                             $calculation
+     * @param CalculatorFactory                       $calculatorFactory
+     * @param Config                                  $config
+     * @param TaxDetailsInterfaceFactory              $taxDetailsDataObjectFactory
+     * @param TaxDetailsItemInterfaceFactory          $taxDetailsItemDataObjectFactory
+     * @param StoreManagerInterface                   $storeManager
+     * @param TaxClassManagementInterface             $taxClassManagement
      * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
-     * @param PriceCurrencyInterface $priceCurrency
-     * @param AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory
-     * @param AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory
-     * @param QuoteDetailsItemExtensionFactory $extensionFactory
-     * @param AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory
+     * @param PriceCurrencyInterface                  $priceCurrency
+     * @param AppliedTaxInterfaceFactory              $appliedTaxDataObjectFactory
+     * @param AppliedTaxRateInterfaceFactory          $appliedTaxRateDataObjectFactory
+     * @param QuoteDetailsItemExtensionFactory        $extensionFactory
+     * @param AppliedTaxRateExtensionFactory          $appliedTaxRateExtensionFactory
      */
     public function __construct(
         Calculation $calculation,
@@ -90,12 +95,14 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory,
         QuoteDetailsItemExtensionFactory $extensionFactory,
         AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory
-    ) {
+    )
+    {
         $this->priceCurrency = $priceCurrency;
         $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
         $this->appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
         $this->extensionFactory = $extensionFactory;
         $this->appliedTaxRateExtensionFactory = $appliedTaxRateExtensionFactory;
+
         return parent::__construct(
             $calculation,
             $calculatorFactory,
@@ -127,7 +134,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $getTaxResult,
         $useBaseCurrency,
         $scope
-    ) {
+    )
+    {
         // initial TaxDetails data
         $taxDetailsData = [
             TaxDetails::KEY_SUBTOTAL => 0.0,
@@ -174,6 +182,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             '\Magento\Tax\Api\Data\TaxDetailsInterface'
         );
         $taxDetailsDataObject->setItems($processedItems);
+
         return $taxDetailsDataObject;
     }
 
@@ -182,10 +191,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      *
      * This includes tax for the item as well as any additional line item tax information like Gift Wrapping
      *
-     * @param QuoteDetailsItemInterface $item
-     * @param TaxResult $getTaxResult
-     * @param bool $useBaseCurrency
+     * @param QuoteDetailsItemInterface             $item
+     * @param TaxResult                             $getTaxResult
+     * @param bool                                  $useBaseCurrency
      * @param \Magento\Framework\App\ScopeInterface $scope
+     *
      * @return \Magento\Tax\Api\Data\TaxDetailsItemInterface|bool
      * @throws LocalizedException
      */
@@ -194,10 +204,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $getTaxResult,
         $useBaseCurrency,
         $scope
-    ) {
+    )
+    {
         $price = $item->getUnitPrice();
 
-        /* @var $taxLine \Magento\Framework\DataObject  */
+        /* @var $taxLine \Magento\Framework\DataObject */
         $taxLine = $getTaxResult->getTaxLine($item->getCode());
 
         // Items that are children of other items won't have lines in the response
@@ -212,30 +223,10 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          * Magento uses base rates for determining what to charge a customer, not the currency rate (i.e., the non-base
          * rate). Because of this, the base amounts are what is being sent to AvaTax for rate calculation. When we get
          * the base tax amounts back from AvaTax, we have to convert those to the current store's currency using the
-         * \Magento\Framework\Pricing\PriceCurrencyInterface::convert() method. However if we simply convert the AvaTax
-         * base tax amount * currency multiplier, we may run into issues due to rounding.
-         *
-         * For example, a $9.90 USD base price * a 6% tax rate equals a tax amount of $0.59 (.594 rounded). Assume the
-         * current currency has a conversion rate of 2x. The price will display to the user as $19.80. There are two
-         * ways we can calculate the tax amount:
-         * 1. Multiply the tax amount received back from AvaTax, which would be $1.18 ($0.59 * 2).
-         * 2. Multiply using this formula (base price * currency rate) * tax rate) ((9.99 * 2) * .06)
-         *    which would be $1.19 (1.188 rounded)
-         *
-         * The second approach is more accurate and is what we are doing here.
+         * \Magento\Framework\Pricing\PriceCurrencyInterface::convert() method.
          */
         if (!$useBaseCurrency) {
-            /**
-             * We could recalculate the amount using the same logic found in this class:
-             * @see \ClassyLlama\AvaTax\Framework\Interaction\Line::convertTaxQuoteDetailsItemToData,
-             * but using the taxable amount returned back from AvaTax is the only way to get an accurate amount as
-             * some items sent to AvaTax may be tax exempt
-             */
-            $baseTaxableAmount = (float)$taxLine->getTaxableAmount();
-            $taxableAmount = $this->priceCurrency->convert($baseTaxableAmount, $scope);
-
-            $tax = $taxableAmount * $rate;
-            $tax = $this->calculationTool->round($tax);
+            $tax = $this->priceCurrency->convert($tax, $scope);
         }
 
         $rowTax = $tax;
@@ -281,8 +272,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
         $extensionAttributes = $item->getExtensionAttributes();
         if ($extensionAttributes) {
-            $quantity = $extensionAttributes->getTotalQuantity() !== null
-                ? $extensionAttributes->getTotalQuantity()
+            $quantity = $extensionAttributes->getTotalQuantity() !== null ? $extensionAttributes->getTotalQuantity()
                 : $item->getQuantity();
         } else {
             $quantity = $item->getQuantity();
@@ -320,7 +310,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             ->setDiscountTaxCompensationAmount($discountTaxCompensationAmount)
             ->setAssociatedItemCode($item->getAssociatedItemCode())
             ->setTaxPercent($rate * Tax::RATE_MULTIPLIER)
-            ->setAppliedTaxes($this->getAppliedTaxes($taxLine));
+            ->setAppliedTaxes($this->getAppliedTaxes($taxLine, $useBaseCurrency, $scope));
     }
 
     /**
@@ -328,11 +318,13 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      *
      * @see \Magento\Tax\Model\Calculation\AbstractCalculator::getAppliedTax()
      *
-     * @param \Magento\Framework\DataObject $lineItem
+     * @param \Magento\Framework\DataObject         $lineItem
+     * @param bool                                  $useBaseCurrency
+     * @param \Magento\Framework\App\ScopeInterface $scope
      *
      * @return \Magento\Tax\Api\Data\AppliedTaxInterface[]
      */
-    protected function getAppliedTaxes($lineItem)
+    protected function getAppliedTaxes($lineItem, $useBaseCurrency, $scope)
     {
         $appliedTaxDataObjects = [];
         $customsTaxTypes = ['Customs', 'LandedCost'];
@@ -352,6 +344,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
             $taxableAmount = (float)$lineItemDetail->getData('taxable_amount');
             $taxCalculated = (float)$lineItemDetail->getData('tax_calculated');
+            $tax = (float)$lineItemDetail->getData('tax');
+
+            if (!$useBaseCurrency) {
+                $tax = $this->priceCurrency->convert($tax, $scope);
+            }
 
             /**
              * Magento requires there to be a percentage rate in order to save the taxes to the sales_order_tax table
@@ -370,7 +367,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
              * @see https://github.com/magento/magento2/blob/2.2/app/code/Magento/Tax/Api/Data/AppliedTaxRateInterface.php
              */
             if ($rate === 0.0 && $taxCalculated > 0) {
-                $rate = $taxableAmount > 0 && $taxCalculated > 0 ? $taxCalculated / $taxableAmount : -0.001;
+                $rate = $taxableAmount > 0 && $taxCalculated > 0 ? $taxCalculated / $taxableAmount
+                    : self::DEFAULT_TAX_RATE;
             }
 
             // Normalize the AvaTax rate to a Magento rate
@@ -380,7 +378,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             $appliedTaxDataObjects[$arrayKey] = $this->appliedTaxDataObjectFactory->create(
                 [
                     'data' => [
-                        'amount' => (float)$lineItemDetail->getData('tax'),
+                        'amount' => $tax,
                         'percent' => $rate,
                         'tax_rate_key' => $arrayKey,
                         // Include at least one rate
@@ -410,6 +408,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @see \Magento\Tax\Model\TaxCalculation::computeRelationships()
      *
      * @param QuoteDetailsItemInterface[] $items
+     *
      * @return array
      */
     public function getChildrenItems($items)
@@ -420,6 +419,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 $parentToChildren[$item->getParentCode()][] = $item;
             }
         }
+
         return $parentToChildren;
     }
 
@@ -430,6 +430,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @see \Magento\Tax\Model\TaxCalculation::computeRelationships()
      *
      * @param QuoteDetailsItemInterface[] $items
+     *
      * @return array
      */
     public function getKeyedItems($items)
@@ -441,6 +442,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 $keyedItems[$item->getCode()] = $item;
             }
         }
+
         return $keyedItems;
     }
 
@@ -451,6 +453,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * child * parent quantity, so it's necessary to have all items in order to calculate this.
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface[] $items
+     *
      * @return $this
      */
     public function calculateTotalQuantities($items)
@@ -471,8 +474,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
         }
         foreach ($processedItems as $processedItem) {
-            $extensionAttribute = $processedItem->getExtensionAttributes()
-                ? $processedItem->getExtensionAttributes()
+            $extensionAttribute = $processedItem->getExtensionAttributes() ? $processedItem->getExtensionAttributes()
                 : $this->extensionFactory->create();
             $totalQuantity = $this->calculateTotalQuantity($processedItem, $keyedItems);
             $extensionAttribute->setTotalQuantity($totalQuantity);
@@ -492,15 +494,18 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * method, but is refactored to accept the $keyedItems array.
      *
      * @param QuoteDetailsItemInterface $item
-     * @param array $keyedItems
+     * @param array                     $keyedItems
+     *
      * @return float
      */
     public function calculateTotalQuantity(QuoteDetailsItemInterface $item, array $keyedItems)
     {
         if ($item->getParentCode()) {
             $parentQuantity = $keyedItems[$item->getParentCode()]->getQuantity();
+
             return $parentQuantity * $item->getQuantity();
         }
+
         return $item->getQuantity();
     }
 }
