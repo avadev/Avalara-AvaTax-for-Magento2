@@ -158,7 +158,11 @@ class Customs
             $hsCode = $crossBorderDetails->getHsCode();
             $unitName = $crossBorderDetails->getUnitName();
             $preferenceProgramIndicator = $crossBorderDetails->getPrefProgramIndicator();
-            $unitAmount = $item->getProduct()->getData($crossBorderDetails->getUnitAmountAttrCode());
+            $unitAttributeCode = $crossBorderDetails->getUnitAmountAttrCode();
+
+            if($unitAttributeCode !== '' && $unitAttributeCode !== null) {
+                $unitAmount = $item->getProduct()->getData($crossBorderDetails->getUnitAmountAttrCode());
+            }
         }
 
         $quoteItemExtension = $item->getExtensionAttributes();
