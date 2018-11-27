@@ -59,6 +59,11 @@ class TaxCertificates extends AbstractComponent
     protected $registry;
 
     /**
+     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     */
+    protected $customerRepository;
+
+    /**
      * ValidateAddress constructor
      *
      * @param ContextInterface                                       $context
@@ -67,6 +72,7 @@ class TaxCertificates extends AbstractComponent
      * @param \Magento\Backend\Model\Url                             $backendUrl
      * @param \Magento\Backend\Block\Template\Context                $sessionContext
      * @param Registry                                               $registry
+     * @param \Magento\Customer\Api\CustomerRepositoryInterface      $customerRepository
      * @param array                                                  $components
      * @param array                                                  $data
      */
@@ -77,6 +83,7 @@ class TaxCertificates extends AbstractComponent
         \Magento\Backend\Model\Url $backendUrl,
         \Magento\Backend\Block\Template\Context $sessionContext,
         Registry $registry,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         array $components = [],
         array $data = []
     )
@@ -88,6 +95,7 @@ class TaxCertificates extends AbstractComponent
         $this->backendUrl = $backendUrl;
         $this->sessionContext = $sessionContext;
         $this->registry = $registry;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
@@ -139,7 +147,7 @@ class TaxCertificates extends AbstractComponent
 
         $gridComponent->setData('config', $config);
 
-        // Configure our custome component instead of the fieldset
+        // Configure our customer component instead of the fieldset
         $jsConfig = $this->getData('js_config');
         $jsConfig['component'] = static::COMPONENT;
         $this->setData('js_config', $jsConfig);
@@ -147,10 +155,16 @@ class TaxCertificates extends AbstractComponent
         // Configure the component for adding certificates
         $config = $this->getData('config');
         $config['customer_id'] = $this->registry->registry(RegistryConstants::CURRENT_CUSTOMER_ID);
+        $customer = $this->customerRepository->getById($config['customer_id']);
+        $config['has_default_billing_address'] = (bool)$customer->getDefaultBilling();
+        $config['invite_url'] = $this->backendUrl->getUrl(
+            'avatax/invite',
+            ['form_key' => $this->sessionContext->getFormKey(), 'customer_id' => $config['customer_id']]
+        );
         $config['token_url'] = $this->backendUrl->getUrl(
             'avatax/certificatestoken/get',
             ['form_key' => $this->sessionContext->getFormKey()]
-        );;
+        );
         $config['available_exemption_zones'] = $this->getAvailableExemptionZones();
         $this->setData('config', $config);
 

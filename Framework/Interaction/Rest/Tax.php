@@ -222,16 +222,16 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                 }
 
                 if ($this->customsConfigHelper->enabled()) {
-                    if ($line->hasHsCode()) {
+                    if ($line->hasHsCode() && $line->getHsCode() !== '') {
                         $transactionBuilder->withLineHsCode($line->getHsCode());
                     }
-                    if ($line->hasUnitName()) {
+                    if ($line->hasUnitName() && $line->getUnitName() !== '') {
                         $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_NAME, $line->getUnitName());
                     }
-                    if ($line->hasUnitAmount()) {
+                    if ($line->hasUnitAmount() && $line->getUnitAmount() !== '') {
                         $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_AMT, $line->getUnitAmount());
                     }
-                    if ($line->hasPreferenceProgram()) {
+                    if ($line->hasPreferenceProgram() && $line->getPreferenceProgram() !== '') {
                         $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_PREF_PROGRAM, $line->getPreferenceProgram());
                     }
                 }

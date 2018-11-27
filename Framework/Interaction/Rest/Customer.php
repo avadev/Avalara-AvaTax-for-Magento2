@@ -232,13 +232,89 @@ class Customer extends Rest implements RestCustomerInterface
     /**
      * {@inheritDoc}
      */
+    public function createCustomer(
+        $customer,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    {
+        // Client must be retrieved before any class from the /avalara/avataxclient/src/Models.php file is instantiated.
+        $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
+        $customerModel = $this->buildCustomerModel($customer, $scopeId, $scopeType); // Instantiates an Avalara class.
+
+        $response = null;
+
+        try {
+            $response = $client->createCustomers(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                [$customerModel]
+            );
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            // Validate the response; pass the customer id for context in case of an error.
+            $this->handleException(
+                $clientException,
+                $this->dataObjectFactory->create(['customer_id' => $customer->getId()])
+            );
+        }
+
+        return $this->formatResult($response);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function sendCertExpressInvite(
+        $customer,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    {
+        // Client must be retrieved before any class from the /avalara/avataxclient/src/Models.php file is instantiated.
+        $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
+
+        $response = null;
+
+        try {
+            $response = $client->createCertExpressInvitation(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $this->customerHelper->getCustomerCode($customer, null, $scopeId),
+                [
+                    'recipient' => $customer->getEmail(),
+                    'coverLetterTitle' => 'STANDARD_REQUEST',
+                    'deliveryMethod' => 'Email'
+                ]
+            );
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            // Validate the response; pass the customer id for context in case of an error.
+            $this->handleException(
+                $clientException,
+                $this->dataObjectFactory->create(['customer_id' => $customer->getId()])
+            );
+        }
+
+        return $this->formatResult($response);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function handleException($exception, $request = null, $logMethod = LOG_ERR)
     {
         $isMissingCustomerException = false;
         $responseObject = json_decode((string)$exception->getResponse()->getBody(), true);
 
         // Customer calls where there is no customer should be suppressed as debug messages to avoid noisy errors
-        if (isset($responseObject['error']['code']) && $responseObject['error']['code'] === 'EntityNotFoundError') {
+        if (isset($responseObject['error']['code']) && ($responseObject['error']['code'] === 'EntityNotFoundError' || ($responseObject['error']['code'] === 'CertificatesError' && array_reduce(
+                        $responseObject['error']['details'],
+                        function ($isMissingCustomer, $errorDetails) {
+                            return $isMissingCustomer || (string)$errorDetails['number'] === '1203';
+                        },
+                        false
+                    )))) {
             $logMethod = LOG_DEBUG;
             $isMissingCustomerException = true;
         }

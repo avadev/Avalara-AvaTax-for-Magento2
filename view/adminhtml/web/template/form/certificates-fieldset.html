@@ -51,10 +51,17 @@
             </span>
         </strong>
         <!-- BEGIN EDIT -->
-        <div class="account-add-certifications-component" data-bind='scope: "account-add-exemptions", mageInit: {"Magento_Ui/js/core/app": {"components": {"account-add-exemptions": {"component":
-        "ClassyLlama_AvaTax/js/action/account-add-exemption", "config": {"availableExemptionZones": available_exemption_zones, customerId: customer_id, tokenUrl: token_url}}}}}'>
-            <button data-bind="click: addExemption, i18n: 'Add Exemption'"></button>
-            <!-- ko template: getTemplate() --><!-- /ko -->
+        <div class="customer-tax-exemption-actions">
+            <div class="customer-tax-exemption-action"
+                 data-bind='scope: "avatax-invite-account", mageInit: {"Magento_Ui/js/core/app": {"components": {"avatax-invite-account": {"component": "ClassyLlama_AvaTax/js/action/avatax-invite-account", "config": {hasDefaultBillingAddress: has_default_billing_address, inviteUrl: invite_url}}}}}'>
+                <button data-bind="click: inviteCustomer, i18n: 'Invite Customer to Add Certificate'"></button>
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </div>
+            <div class="customer-tax-exemption-action"
+                 data-bind='scope: "account-add-exemptions", mageInit: {"Magento_Ui/js/core/app": {"components": {"account-add-exemptions": {"component": "ClassyLlama_AvaTax/js/action/account-add-exemption", "config": {"availableExemptionZones": available_exemption_zones, customerId: customer_id, tokenUrl: token_url}}}}}'>
+                <button data-bind="click: addExemption, i18n: 'Add Exemption'"></button>
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </div>
         </div>
         <!-- END EDIT -->
     </div>
