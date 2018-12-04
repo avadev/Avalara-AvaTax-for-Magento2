@@ -9,7 +9,9 @@
   - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
   - [Document Management (Tax Exemptions)](./document-management.md)
 
-# Table of Contents
+# Getting Started
+
+## Table of Contents
 
 - [Getting Started](#getting-started)
   * [Support](#support)
@@ -28,28 +30,28 @@
 - [Uninstall Extension](#uninstall-extension)
 - [Troubleshooting](#troubleshooting)
 
-# Getting Started
+## Getting Started
 
-## Support
+### Support
 
 For support with your AvaTax account, please visit [avalara.com/technical-support](http://www.avalara.com/Technical-Support). This software will not work unless you have a valid AvaTax account. To obtain the required account information, please contact your Avalara representative.
 
-## Prerequisites
+### Prerequisites
 
 - Active AvaTax account with a company setup, including applicable nexuses
 - Magento running on a server that has the following:
   - Properly configured CRON job
   - The OpenSSL and SoapClient PHP extensions (required by the AvaTax library)
 
-## Supported Magento Versions
+### Supported Magento Versions
 
 Refer to [README](https://github.com/classyllama/ClassyLlama_AvaTax#magento-version-support) for supported versions/editions.
 
-##  Installation
+###  Installation
 
 >  Please note, that installing the 2.x.x releases of AvaTax will remove all your config settings for any 1.x.x version you currently have installed. Please go through the configuration steps again if this is not a fresh install of AvaTax.
 
-### Install via Composer
+#### Install via Composer
 
 This is the recommended installation method as it allows you to easily update the extension in the future.
 
@@ -79,7 +81,7 @@ This is the recommended installation method as it allows you to easily update th
 
 3. If you are deploying the extension to a production environment, follow the [devdocs.magento.com deployment instructions](http://devdocs.magento.com/guides/v2.0/howdoi/deploy/deploy-to-prod.html#deploy-prod)
 
-### Install by Copying Files
+#### Install by Copying Files
 
 Only use this installation method if you're unable to use Composer. The installation method above is the preferred method.
 
@@ -109,7 +111,7 @@ Only use this installation method if you're unable to use Composer. The installa
 
 7. If you are deploying the extension to a production environment, follow the [devdocs.magento.com deployment instructions](http://devdocs.magento.com/guides/v2.0/howdoi/deploy/deploy-to-prod.html#deploy-prod)
 
-## Configuration
+### Configuration
 
 - To configure the extension, go to `Stores > Settings > Configuration > Sales > Tax.` 
 - Details on configuring each of the extension features:
@@ -125,7 +127,7 @@ Only use this installation method if you're unable to use Composer. The installa
    - **Data Mapping — Shipping SKU, Adjustment Refund SKU, Adjustment Fee SKU, Gift Wrap Order SKU, Gift Wrap Items SKU, and Gift Wrap Printed Card SKU:** SKUs sent to AvaTax for the associated event. For example, when tax is requested for a single-product order sent to state X, it's possible state X charges tax on shipping. Therefore, two products will be sent in the request: one for the cart item and another for shipping. The correct shipping tax code (FR020100) will always be sent; however, this allows you to customize the SKU in case you want to add custom functionality in your AvaTax dashboard. The same is true when creating a Credit Memo with an adjustment refund or fee in the Magento Admin.
    - **Set Seller as Importer of Record for Global Transactions:** By default, Avalara will use the origin address when calculating sales tax for global transactions (generally resulting in a $0.00 tax amount). Enabling this setting will cause Avalara to calculate sales tax based on the destination address for countries indicated as taxable in the **Taxable Countries** selector. For more information on what it means to be the **Importer of Record**, visit the [Avalara Help Center](https://help.avalara.com/000_Avalara_AvaTax/Manage_Transactions/Manage_Place_of_Supply_settings).
 
-## Important Notes
+### Important Notes
 
 - Magento discounts are subtracted from the price before the total amount is sent to AvaTax to retrieve tax information. AvaTax is not sent any information about the discount amount, as the AvaTax 15 API does not support itemized discounting the way Magento does.
 - The extension has been tested in multiple currencies.
@@ -135,9 +137,9 @@ Only use this installation method if you're unable to use Composer. The installa
 - AvaTax will only accept an invoice ID and credit memo ID once per store. Thus if you're testing in environments that are capable of duplicating those values, be careful to increment those values in Magento or create new test stores in AvaTax.
 - Every time you save a customer in Magento, Magento will reach out and attempt to update that customer's data in AvaTax. If the customer doesn't exist, the module just ignores the error and will try again the next time you save the customer in Magento. This happens on customer save within the admin, as well as on the front end.
 
-# Common Problems
+## Common Problems
 
-## Soap Client Not Found
+### Soap Client Not Found
 
 After installing extension, you get an error like this:
 
@@ -147,18 +149,18 @@ PHP Fatal error: Class 'SoapClient' not found in /vendor/avalara/avatax/AvaTax/D
 
 Solution: You'll need to install the PHP SoapClient library, per the [prerequisites](#prerequisites) section.
 
-# Known Issues
+## Known Issues
 
 - Gift Wrapping and Multi-Address Checkout - If a customer checks out using the multi address checkout, uses multiple ship-to addresses, and adds gift wrapping to any of the items, once the customer places the order, the **totals** section for each of the resulting orders will contain the gift wrapping price, regardless of whether that order contains gift wrapping.
 - Unit of Measure HS Codes are currently in development within AvaTax's API, therefore the API around Unit of Measure is unstable. For this reason, this module currently does not support any HS Codes that require a Unit of Measure. Avoid using HS Codes with Unit of Measure as they will break checkout.
 - If a user proceeds to the 2nd step of checkout (chooses a shipping address and shipping method), then returns to the cart, the cart tax estimator will send 2 requests to the AvaTax API for tax information. It is also possible during these 2 calculations, that no shipping information will be provided, therefore the estimator can show that there is no cost for shipping. If you proceed to checkout, on the 2nd step of checkout the tax calculations, including shipping, will be accurate.
 
-# Release Notes
+## Release Notes
 
 See this page for release notes: [https://github.com/classyllama/ClassyLlama_AvaTax/blob/master/CHANGELOG.md](https://github.com/classyllama/ClassyLlama_AvaTax/blob/master/CHANGELOG.md)
 
 
-# Pre-Launch Sales Record Cleanup
+## Pre-Launch Sales Record Cleanup
 
 If you have installed the AvaTax extension in a development/testing environment and are planning on deleting orders, invoices, credit memos, etc before launching your site (for example, [see these queries](http://stackoverflow.com/a/39415254/2726785)), when you delete those records, you'll also want to delete all records from the following tables. This is important in order to avoid errors when records are inserted into the `avatax_queue` tables.
 
@@ -168,7 +170,7 @@ TRUNCATE TABLE `avatax_queue`;
 TRUNCATE TABLE `avatax_log`;
 ```
 
-# Uninstall Extension
+## Uninstall Extension
 
 1. Run this command in the root of your Magento installation directory: `bin/magento module:uninstall ClassyLlama_AvaTax`
 
@@ -209,7 +211,7 @@ TRUNCATE TABLE `avatax_log`;
 
 
 
-# Troubleshooting
+## Troubleshooting
 
 Before contacting support, performing the following steps to increase the extension’s logging level and review the logged details of an API request may reveal what the underlying issue is; and if not, may still provide helpful information for troubleshooting: 
 

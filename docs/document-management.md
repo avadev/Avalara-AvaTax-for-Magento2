@@ -1,5 +1,5 @@
 <!-- This list is in each of the documentation files. Ensure any updates are applied to the list in each file. -->
-# Documentation
+## Documentation
 
 - [Home](../README.md)
 - [Getting Started](./getting-started.md)
@@ -9,7 +9,9 @@
   - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
   - [Document Management (Tax Exemptions)](./document-management.md)
 
-# Table of Contents
+# Document Management
+
+## Table of Contents
 
 - [Overview](#overview)
 - [Configuration](#configuration)
@@ -18,7 +20,7 @@
 - [Frontend Features](#frontend-features)
 - [Backend Features](#backend-features)
 
-# Overview
+## Overview
 
 This AvaTax connector for Magento provides a set of features to support Document Management (also referred to as Tax Exemptions). These features include:
 
@@ -28,13 +30,13 @@ This AvaTax connector for Magento provides a set of features to support Document
 
 When a **Tax Exemption** is applied to a customer's account, tax is automatically removed from their cart when shipping to that Exemption's region.
 
-# Configuration
+## Configuration
 
 In order to utilize Document Management, you must first enable it. Document Management configuration options are located under `Stores > Configuration > Sales > Tax > AvaTax - Document Management`.
 
 
 
-## SDK Credentials
+### SDK Credentials
 
 In order to connect to cert capture, you'll need to add your SDK credentials to your Magento installation's `app/etc/env.php`:
 
@@ -57,7 +59,7 @@ return [
 
 
 
-## Checkout Link Text
+### Checkout Link Text
 
 You can configure what text you want to display to a user during checkout to initiate the Document Management workflow. These options include:
 
@@ -67,7 +69,7 @@ You can configure what text you want to display to a user during checkout to ini
 
 
 
-# Frontend Features
+## Frontend Features
 
 Document Management is supported on the frontend for:
 
@@ -83,7 +85,7 @@ Document Management is supported on the frontend for:
 
 
 
-# Backend Features
+## Backend Features
 
 Document Management is supported on the frontend for:
 

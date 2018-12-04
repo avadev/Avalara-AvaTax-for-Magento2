@@ -9,7 +9,9 @@
   - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
   - [Document Management (Tax Exemptions)](./document-management.md)
 
-# Table of Contents
+# Sales Tax
+
+## Table of Contents
 
 - [Overview](#overview)
 - [Product Tax Codes](#product-tax-codes)
@@ -21,13 +23,13 @@
 - [VAT Tax](#vat-tax)
 - [Magento Order and Invoice Numbers](#magento-order-and-invoice-numbers)
 
-# Overview
+## Overview
 
 In Magento, tax calculation typically occurs during checkout but may also happen at other times as well (e.g., shopping cart). This extension will calculate tax via the AvaTax API as soon as the customer submits a postal code, either via the **Estimate Shipping and Tax** form on the cart or via the **Shipping Address** form during the checkout process. When an order is placed, the amount of tax for that order is calculated by AvaTax, but the tax "record" is not immediately recorded in AvaTax. Since Magento supports multiple invoices and multiple credit memos for the same order, orders are not recorded as a whole in AvaTax. Tax amounts are calculated for the order when the customer places the order, but nothing is recorded in AvaTax until a new invoice or credit memo is created. Refer to the eCommerce chart on [this AvaTax documentation page](https://developer.avalara.com/avatax/use-cases/) for a visualization of the process. 
 
 A cron task runs every five minutes to send invoices and credit memos to AvaTax. The status of each pending item can be found in the AvaTax Queue in `Stores > AvaTax Queue`. The Magento CRON must be configured in order for the extension to work properly. If you're testing the extension in an environment is not configured (such as a development or staging environment), you can manually process they queue by clicking the **Process Queue Now** button on the `Stores > AvaTax Queue` page.
 
-# Product Tax Codes
+## Product Tax Codes
 
 Many merchants will not need to use product tax codes. Refer to the [AvaTax documentation](https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/051_Select_AvaTax_System_Tax_Codes/Tax_Codes_-_Frequently_Asked_Questions) to learn about tax codes. Consult with your Avalara representative if you are uncertain whether you need to use them. 
 
@@ -43,7 +45,7 @@ Native Magento has builtin **Tax Classes** (not be confused with AvaTax's **Tax 
 3. Now, when this product is sent to the AvaTax API, the associated **AvaTax Tax Code** will be sent in the **TaxCode** field.
 4. Follow the steps above for all of the AvaTax Tax Codes that you want to use in Magento.
 
-# Use UPC Attribute as Item Code
+## Use UPC Attribute as Item Code
 
 AvaTax has support for using a UPC as a Item Code, although this is only relevant for certain product categories (apparel, etc). To send UPC codes as Item Code, follow these steps:
 
@@ -54,7 +56,7 @@ AvaTax has support for using a UPC as a Item Code, although this is only relevan
    3. Click **Save Config**.
 3. Now, when a product is sent to the AvaTax API, if that product has a value in the UPC attribute, it will be sent in the **ItemCode** field.
 
-# Customer Usage Type (or Entity Use Code)
+## Customer Usage Type (or Entity Use Code)
 
 Many merchants will not need to use Customer Usage Type. Unless you have customers with special tax exemptions, you most likely do not need to set this up. If you are unsure, contact your AvaTax representative for more information or refer to the [AvaTax documentation](https://help.avalara.com/kb/001/What_are_the_exemption_reasons_for_each_Entity_Use_Code_used_for_Avalara_AvaTax%3F). **Entity Use Code** is synonymous with **Customer Usage Type**.
 
@@ -73,7 +75,7 @@ Many merchants will not need to use Customer Usage Type. Unless you have custome
 
 If you are utilizing customer groups in a way that mixes taxable and tax exempt customers within the same group(s), then you would need to consider custom development to accommodate exempting specific customers from sales tax. A possible solution is the introduction of a plugin for the [_\ClassyLlama\AvaTax\Helper\TaxClass::getAvataxTaxCodeForCustomer_](https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/Helper/TaxClass.php) method that could read the value of a custom attribute for a customer and replace the CustomerUsageType for the customer’s assigned customer group with the appropriate value (e.g. ‘F’ = Religious/Education) to achieve tax exempt status for the lookup.
 
-# AvaTax Queue
+## AvaTax Queue
 
 The AvaTax Queue functionality only works when **Tax Mode** is set to **Estimate Tax & Submit Transactions to AvaTax.** The following section assumes that AvaTax queueing is enabled. To view the AvaTax Queue, in the Magento admin, go to `Stores > AvaTax Queue`. 
 
@@ -81,7 +83,7 @@ When invoices and credit memos are created in Magento, new records are added to 
 
 If you are in a development or staging environment and don't have a CRON job setup, you can manually send queued records to AvaTax using the **Process Queue Now** button on the `Stores > AvaTax Queue` page.
 
-## Unbalanced Queue Items
+### Unbalanced Queue Items
 
 Occasionally you may see queue items with a **Queue Status** of **Complete** and a **Message** of something like *"Unbalanced Response - Collected: 11.8400, AvaTax Actual: 11.86"*. In order to understand what an unbalanced queue item is, you need to understand the Magento/AvaTax tax calculation workflow (the example is for an invoice, but same thing applies to credit memos):
 
@@ -116,19 +118,19 @@ Note: An entry is not made in these tables for an invoice or credit memo until i
 
 Note: Prior to version 0.4.0 of this extension, two fields (avatax\_is\_unbalanced and base\_avatax\_tax\_amount) were added to the sales\_invoice and sales\_creditmemo tables that tracked this information. Per the [0.4.0 release notes](https://github.com/classyllama/ClassyLlama_AvaTax/releases/tag/0.4.0), if a merchant upgrades to 0.4.0, the columns on those tables will be migrated to the avatax\_sales\_invoice and avatax\_sales\_creditmemo tables mentioned above.
 
-# AvaTax Logging
+## AvaTax Logging
 
 The logging functionality built into this extension is for debugging purposes. If you are experiencing issues with this extension, you can review the logs to see if they provide any details about the issues you are experiencing. 
 
 This extension can log information in two locations: In files (in the var/log/ directory) and/or in the database (in `Stores > AvaTax Logs`), depending on the logging settings you have configured in `Stores > Settings > Configuration > Sales > Tax > AvaTax Settings > Logging Settings`.
 
-# VAT Tax
+## VAT Tax
 
 AvaTax supports calculating VAT tax, assuming you have AvaTax with Global Calculation. If a customer places an order in a jurisdiction with VAT taxing, then this extension will calculate the appropriate amount of tax to charge. However this extension only calculates tax once a customer has provided their postal code, either via the **Estimate Shipping and Tax** section on the cart or by providing their shipping address in the checkout process. Since many VAT taxing jurisdictions require that VAT tax must be displayed anywhere product prices are displayed, you must use Magento's native tax calculation to handle tax calculation in the catalog (product listing, product detail, search, etc) and then AvaTax will take over the calculation once the customer has provided a postal code. 
 
 If you need to display product prices including VAT tax, you should follow the steps in the [Magento documentation](http://docs.magento.com/m2/ce/user_guide/tax/vat-validation-configure.html) to configure your site to charge VAT tax. Once you have done that, Magento's native tax calculation will be used until the user has provided a postal code, at which point AvaTax will be used to determine VAT tax calculation.
 
-# Magento Order and Invoice Numbers
+## Magento Order and Invoice Numbers
 
 If you're using AvaTax with a **Tax Mode** of **Estimate Tax & Submit Transactions to AvaTax**, when Invoices or Credit Memos get sent to AvaTax, the Invoice/Credit Memo number will be sent in the **Purchase Order No** field and the Magento Order Number will get sent in the **Reference Code** field. See this screenshot of the AvaTax interface for an example of where to find these numbers: 
 
