@@ -1,3 +1,14 @@
+<!-- This list is in each of the documentation files. Ensure any updates are applied to the list in each file. -->
+# Documentation
+
+- [Home](../README.md)
+- [Getting Started](./getting-started.md)
+- Extension Features
+  - [Sales Tax](./sales-tax.md)
+  - [Address Validation](./address-validation.md)
+  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
+  - [Document Management (Tax Exemptions)](./document-management.md)
+
 # Table of Contents
 
 - [Getting Started](#getting-started)
