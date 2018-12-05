@@ -5,7 +5,6 @@ Agile, successful companies focus on their core business and outsource complex, 
 <!-- This list is in each of the documentation files. Ensure any updates are applied to the list in each file. -->
 # Documentation
 
-- [Home](./README.md)
 - [Getting Started](docs/getting-started.md)
 - Extension Features
   - [Sales Tax](docs/sales-tax.md)
