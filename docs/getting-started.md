@@ -113,19 +113,13 @@ Only use this installation method if you're unable to use Composer. The installa
 
 ### Configuration
 
-- To configure the extension, go to `Stores > Settings > Configuration > Sales > Tax.` 
-- Details on configuring each of the extension features:
-  - Sales Tax
-  - Address Validation
-  - Customs, Duty & Import Tax (CDIT)
-  - Document Management (Tax Exemptions)
-
-1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Shipping Settings`. Click on the **Origin** section. Enter the address that will be used as the origin or **Shipped From** location in AvaTax's tax calculation. **It is *required*** that you specify a postal code in the origin address, no matter what country is specified. Otherwise you will get errors in checkout and when saving customers.
-2. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax Settings** section.
-3. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](https://raw.githubusercontent.com/wiki/classyllama/ClassyLlama_AvaTax/Pages/images/configuration_screenshot_1.1.0.png)
-4. The comment text underneath each of the options in this section should explain the purpose of the setting, but here are some notes about some of the settings:
-   - **Data Mapping — Shipping SKU, Adjustment Refund SKU, Adjustment Fee SKU, Gift Wrap Order SKU, Gift Wrap Items SKU, and Gift Wrap Printed Card SKU:** SKUs sent to AvaTax for the associated event. For example, when tax is requested for a single-product order sent to state X, it's possible state X charges tax on shipping. Therefore, two products will be sent in the request: one for the cart item and another for shipping. The correct shipping tax code (FR020100) will always be sent; however, this allows you to customize the SKU in case you want to add custom functionality in your AvaTax dashboard. The same is true when creating a Credit Memo with an adjustment refund or fee in the Magento Admin.
-   - **Set Seller as Importer of Record for Global Transactions:** By default, Avalara will use the origin address when calculating sales tax for global transactions (generally resulting in a $0.00 tax amount). Enabling this setting will cause Avalara to calculate sales tax based on the destination address for countries indicated as taxable in the **Taxable Countries** selector. For more information on what it means to be the **Importer of Record**, visit the [Avalara Help Center](https://help.avalara.com/000_Avalara_AvaTax/Manage_Transactions/Manage_Place_of_Supply_settings).
+1. To configure the extension, go to `Stores > Settings > Configuration > Sales > Tax.` 
+2. Details on configuring each of the extension features:
+  - [Sales Tax](./sales-tax.md#configuration)
+  - [Address Validation](./address-validation.md#configuration)
+  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md#configuration)
+  - [Document Management (Tax Exemptions)](./document-management.md#configuration)	
+3. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Shipping Settings`. Click on the **Origin** section. Enter the address that will be used as the origin or **Shipped From** location in AvaTax's tax calculation. **It is *required*** that you specify a postal code in the origin address, no matter what country is specified. Otherwise you will get errors in checkout and when saving customers.
 
 ### Important Notes
 

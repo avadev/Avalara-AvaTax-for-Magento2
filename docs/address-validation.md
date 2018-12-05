@@ -14,6 +14,7 @@
 ## Table Of Contents
 
 - [Overview](#overview)
+- [Configuration](#configuration)
 - [Frontend Checkout](#frontend-checkout)
   * [Caveats](#caveats)
 - [Frontend Add/Edit Customer Address](#frontend-add-edit-customer-address)
@@ -31,6 +32,11 @@ This extension implements address validation in nearly every area where an addr
 - Backend add/edit customer address
 
 The following sections explain how address validation works in the four areas listed above. Note: Address validation is not enabled for virtual orders (orders where only a billing address is required).
+
+## Configuration
+
+1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - Address Validation** section.
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](https://raw.githubusercontent.com/wiki/classyllama/ClassyLlama_AvaTax/Pages/images/configuration_screenshot_2.0.0-rc1.png)
 
 ## Frontend Checkout
 

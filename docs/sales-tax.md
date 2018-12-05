@@ -14,6 +14,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Configuration](#configuration)
 - [Product Tax Codes](#product-tax-codes)
 - [Use UPC Attribute as Item Code](#use-upc-attribute-as-item-code)
 - [Customer Usage Type (or Entity Use Code)](#customer-usage-type-or-entity-use-code)
@@ -28,6 +29,14 @@
 In Magento, tax calculation typically occurs during checkout but may also happen at other times as well (e.g., shopping cart). This extension will calculate tax via the AvaTax API as soon as the customer submits a postal code, either via the **Estimate Shipping and Tax** form on the cart or via the **Shipping Address** form during the checkout process. When an order is placed, the amount of tax for that order is calculated by AvaTax, but the tax "record" is not immediately recorded in AvaTax. Since Magento supports multiple invoices and multiple credit memos for the same order, orders are not recorded as a whole in AvaTax. Tax amounts are calculated for the order when the customer places the order, but nothing is recorded in AvaTax until a new invoice or credit memo is created. Refer to the eCommerce chart on [this AvaTax documentation page](https://developer.avalara.com/avatax/use-cases/) for a visualization of the process. 
 
 A cron task runs every five minutes to send invoices and credit memos to AvaTax. The status of each pending item can be found in the AvaTax Queue in `Stores > AvaTax Queue`. The Magento CRON must be configured in order for the extension to work properly. If you're testing the extension in an environment is not configured (such as a development or staging environment), you can manually process they queue by clicking the **Process Queue Now** button on the `Stores > AvaTax Queue` page.
+
+## Configuration
+
+1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - General** section.
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](https://raw.githubusercontent.com/wiki/classyllama/ClassyLlama_AvaTax/Pages/images/configuration_screenshot_2.0.0-rc1.png)
+3. The comment text underneath each of the options in this section should explain the purpose of the setting, but here are some notes about some of the settings:
+   - **Data Mapping — Shipping SKU, Adjustment Refund SKU, Adjustment Fee SKU, Gift Wrap Order SKU, Gift Wrap Items SKU, and Gift Wrap Printed Card SKU:** SKUs sent to AvaTax for the associated event. For example, when tax is requested for a single-product order sent to state X, it's possible state X charges tax on shipping. Therefore, two products will be sent in the request: one for the cart item and another for shipping. The correct shipping tax code (FR020100) will always be sent; however, this allows you to customize the SKU in case you want to add custom functionality in your AvaTax dashboard. The same is true when creating a Credit Memo with an adjustment refund or fee in the Magento Admin.
+   - **Set Seller as Importer of Record for Global Transactions:** By default, Avalara will use the origin address when calculating sales tax for global transactions (generally resulting in a $0.00 tax amount). Enabling this setting will cause Avalara to calculate sales tax based on the destination address for countries indicated as taxable in the **Taxable Countries** selector. For more information on what it means to be the **Importer of Record**, visit the [Avalara Help Center](https://help.avalara.com/000_Avalara_AvaTax/Manage_Transactions/Manage_Place_of_Supply_settings).
 
 ## Product Tax Codes
 

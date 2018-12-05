@@ -32,7 +32,8 @@ When a **Tax Exemption** is applied to a customer's account, tax is automaticall
 
 ## Configuration
 
-In order to utilize Document Management, you must first enable it. Document Management configuration options are located under `Stores > Configuration > Sales > Tax > AvaTax - Document Management`.
+1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - Document Management** section.
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](https://raw.githubusercontent.com/wiki/classyllama/ClassyLlama_AvaTax/Pages/images/configuration_screenshot_2.0.0-rc1.png)
 
 ### SDK Credentials
 

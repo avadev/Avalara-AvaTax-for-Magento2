@@ -32,7 +32,9 @@ This AvaTax connector for Magento provides a set of features to support Customs 
 
 ## Configuration
 
-In order to utilize CDIT, you must first enable it. Customs configuration options are located under `Stores > Configuration > Sales > Tax > AvaTax - Customs`. Outside of being enabled, CDIT will only work for countries that have AvaTax enabled for them, which is found under `Stores > Configuration > Sales > Tax > AvaTax - General > Taxable Countries`
+1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - Customs** section.
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](https://raw.githubusercontent.com/wiki/classyllama/ClassyLlama_AvaTax/Pages/images/configuration_screenshot_2.0.0-rc1.png).
+3. CDIT will only work for countries that have AvaTax enabled for them, which is found under `AvaTax - General > Taxable Countries`
 
 ### Shipping Method Mapping
 
