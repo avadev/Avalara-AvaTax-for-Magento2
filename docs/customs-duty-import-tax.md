@@ -16,6 +16,7 @@
 - [Overview](#overview)
 - [Configuration](#configuration)
   * [Shipping Method Mapping](#shipping-method-mapping)
+- [Known Issues](#known-issues)
 - [Cross Border Class Management](#cross-border-class-management)
   * [Basic Steps to Setup Cross Border Classes](#basic-steps-to-setup-cross-border-classes)
   * [Example Cross Border Class - HS Code](#example-cross-border-class---hs-code)
@@ -43,6 +44,10 @@ This AvaTax connector for Magento provides a set of features to support Customs 
 You can configure what Magento shipping methods map to AvaTax's shipping methods by selecting Magento Shipping methods in each of the AvaTax options of Air, Ocean, or Ground. The AvaTax connector only knows about the core shipping methods. If you use shipping methods from other extensions, you can utilize the `Custom Shipping Mode Mappings` table by specifying the AvaTax shipping mode and the custom shipping method code used by Magento.
 
 For your convenience, you can also specify a default AvaTax shipping mode that will be used if no mapping was found in the aforementioned configuration properties. This can be useful if you typically only ship using one AvaTax mode.
+
+## Known Issues
+
+* Due to lack of support from the Avalara API, any HS Codes that have required "Unit of Measure" parameters can not be used.
 
 ## Cross Border Class Management
 
