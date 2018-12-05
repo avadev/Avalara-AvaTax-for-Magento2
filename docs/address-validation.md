@@ -36,7 +36,7 @@ The following sections explain how address validation works in the four areas li
 ## Configuration
 
 1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - Address Validation** section.
-2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](https://raw.githubusercontent.com/wiki/classyllama/ClassyLlama_AvaTax/Pages/images/configuration_screenshot_2.0.0-rc1.png)
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.0.0-rc1.png?raw=true)
 
 ## Frontend Checkout
 
