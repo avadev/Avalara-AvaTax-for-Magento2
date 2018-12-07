@@ -176,7 +176,7 @@ class AssociatedTaxableRepository implements AssociatedTaxableRepositoryInterfac
      */
     public function getItemAssociatedTaxablesForOrder($orderId)
     {
-        $this->filterBuilder->setField('soi.order_id');
+        $this->filterBuilder->setField(AssociatedTaxableInterface::ORDER_ID);
         $this->filterBuilder->setValue($orderId);
         /** @var \Magento\Framework\Api\Filter $orderIdFilter */
         $orderIdFilter = $this->filterBuilder->create();
@@ -203,7 +203,6 @@ class AssociatedTaxableRepository implements AssociatedTaxableRepositoryInterfac
         $filterGroup2 = $this->filterGroupBuilder->create();
         /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
         $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
-        $searchCriteriaBuilder->addFilter($orderIdFilter);
 
         /** @var \Magento\Framework\Api\Search\SearchCriteria $criteria */
         $criteria = $searchCriteriaBuilder->create();

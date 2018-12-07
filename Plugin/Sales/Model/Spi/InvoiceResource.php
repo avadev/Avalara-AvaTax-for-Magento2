@@ -142,9 +142,9 @@ class InvoiceResource
                 if (!empty($itemTaxesMap)) {
                     /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
                     foreach ($entity->getAllItems() as $item) {
-                        if (isset($itemTaxesMap[$item->getOrderItem()->getQuoteItemId()])) {
+                        if (isset($itemTaxesMap[$item->getOrderItem()->getId()])) {
                             /** @var AssociatedTaxableInterface[] $taxable */
-                            $taxables = $itemTaxesMap[$item->getOrderItem()->getQuoteItemId()];
+                            $taxables = $itemTaxesMap[$item->getOrderItem()->getId()];
                             /** @var AssociatedTaxableInterface $taxable */
                             foreach ($taxables as $taxable) {
                                 if ($taxable->getInvoiceId() === null) {

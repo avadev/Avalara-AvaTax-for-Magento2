@@ -25,7 +25,7 @@ class Order implements CustomJoinInterface
         /** @var \Magento\Framework\DB\Adapter\AdapterInterface $connection */
         $connection = $collection->getConnection();
 
-        $collection->getSelect()->joinInner(
+        $collection->getSelect()->joinLeft(
             ['soi' => $connection->getTableName('sales_order_item')],
             new \Zend_Db_Expr('main_table.order_item_id=soi.item_id'),
             ['sales_order_id' => 'order_id']

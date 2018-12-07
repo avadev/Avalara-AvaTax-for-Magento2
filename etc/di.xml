@@ -75,7 +75,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="ClassyLlama\AvaTax\Model\Api\SearchCriteria\CollectionProcessor\AssociatedTaxableFilterProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\JoinProcessor">
+    <virtualType name="ClassyLlama\AvaTax\Model\Api\SearchCriteria\CollectionProcessor\AssociatedTaxableFilterProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
         <arguments>
             <argument name="fieldMapping" xsi:type="array">
                 <item name="order_id" xsi:type="string">main_table.order_id</item>
