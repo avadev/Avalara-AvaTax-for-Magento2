@@ -226,4 +226,19 @@ class AssociatedTaxableRepository implements AssociatedTaxableRepositoryInterfac
         $searchCriteriaBuilder->addFilter($this->filterBuilder->create());
         return $this->getList($searchCriteriaBuilder->create())->getItems();
     }
+
+    /**
+     * @param int $creditMemoId
+     *
+     * @return AssociatedTaxableInterface[]
+     */
+    public function getAllAssociatedTaxablesForCreditMemo($creditMemoId)
+    {
+        $this->filterBuilder->setField(AssociatedTaxableInterface::CREDIT_MEMO_ID);
+        $this->filterBuilder->setValue($creditMemoId);
+        /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
+        $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
+        $searchCriteriaBuilder->addFilter($this->filterBuilder->create());
+        return $this->getList($searchCriteriaBuilder->create())->getItems();
+    }
 }

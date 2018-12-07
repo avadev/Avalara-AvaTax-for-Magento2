@@ -60,6 +60,7 @@
     <virtualType name="ClassyLlama\AvaTax\Model\Api\SearchCriteria\AssociatedTaxableCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
         <arguments>
             <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">ClassyLlama\AvaTax\Model\Api\SearchCriteria\CollectionProcessor\AssociatedTaxableFilterProcessor</item>
                 <item name="joins" xsi:type="object">ClassyLlama\AvaTax\Model\Api\SearchCriteria\CollectionProcessor\AssociatedTaxableJoinProcessor</item>
             </argument>
         </arguments>
@@ -71,6 +72,13 @@
             </argument>
             <argument name="fieldMapping" xsi:type="array">
                 <item name="soi.order_id" xsi:type="string">order_id</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ClassyLlama\AvaTax\Model\Api\SearchCriteria\CollectionProcessor\AssociatedTaxableFilterProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\JoinProcessor">
+        <arguments>
+            <argument name="fieldMapping" xsi:type="array">
+                <item name="order_id" xsi:type="string">main_table.order_id</item>
             </argument>
         </arguments>
     </virtualType>

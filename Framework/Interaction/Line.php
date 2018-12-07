@@ -243,9 +243,11 @@ class Line
     /**
      * @param AssociatedTaxableInterface $item
      *
+     * @param bool                       $isCreditMemo
+     *
      * @return array
      */
-    protected function convertAssociatedTaxableItemToData(AssociatedTaxableInterface $item)
+    public function getAssociatedTaxableLine(AssociatedTaxableInterface $item, $isCreditMemo = false)
     {
         $avataxCode = $this->taxClassHelper->getAvaTaxTaxCode($item->getTaxClassId());
         return [
@@ -254,7 +256,7 @@ class Line
             'TaxCode' => $avataxCode,
             'Description' => $item->getCode(),
             'Qty' => $item->getQuantity(),
-            'Amount' => $item->getUnitPrice() * $item->getQuantity(), // TODO: Verify this should be price * quantity
+            'Amount' => $item->getUnitPrice() * $item->getQuantity() * ($isCreditMemo ? -1 : 1),
             'Discounted' => false,
             'TaxIncluded' => (bool)$item->getPriceIncludesTax()
         ];
@@ -319,9 +321,6 @@ class Line
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
                 $data = $this->convertCreditMemoItemToData($data);
-                break;
-            case ($data instanceof AssociatedTaxableInterface):
-                $data = $this->convertAssociatedTaxableItemToData($data);
                 break;
             case (!is_array($data)):
                 return false;

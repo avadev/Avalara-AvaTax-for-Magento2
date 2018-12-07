@@ -15,6 +15,8 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Sales\Model\Spi;
 
+use ClassyLlama\AvaTax\Api\AssociatedTaxableRepositoryInterface;
+use ClassyLlama\AvaTax\Api\Data\AssociatedTaxableInterface;
 use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Model\QueueFactory;
 use ClassyLlama\AvaTax\Helper\Config;
@@ -31,6 +33,11 @@ use ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo as CreditMemoResourceModel
  */
 class CreditmemoResource
 {
+    /**
+     * @var AssociatedTaxableRepositoryInterface
+     */
+    protected $associatedTaxableRepository;
+
     /**
      * @var AvaTaxLogger
      */
@@ -63,12 +70,14 @@ class CreditmemoResource
 
     /**
      * SalesSpiCreditmemoResource constructor.
-     * @param AvaTaxLogger $avaTaxLogger
-     * @param Config $avaTaxConfig
-     * @param CreditmemoExtensionFactory $creditmemoExtensionFactory
-     * @param QueueFactory $queueFactory
-     * @param DateTime $dateTime
-     * @param CreditMemo $avataxCreditMemo
+     *
+     * @param AvaTaxLogger                         $avaTaxLogger
+     * @param Config                               $avaTaxConfig
+     * @param CreditmemoExtensionFactory           $creditmemoExtensionFactory
+     * @param QueueFactory                         $queueFactory
+     * @param DateTime                             $dateTime
+     * @param CreditMemo                           $avataxCreditMemo
+     * @param AssociatedTaxableRepositoryInterface $associatedTaxableRepository
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
@@ -76,7 +85,8 @@ class CreditmemoResource
         CreditmemoExtensionFactory $creditmemoExtensionFactory,
         QueueFactory $queueFactory,
         DateTime $dateTime,
-        CreditMemo $avataxCreditMemo
+        CreditMemo $avataxCreditMemo,
+        AssociatedTaxableRepositoryInterface $associatedTaxableRepository
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
@@ -84,6 +94,7 @@ class CreditmemoResource
         $this->queueFactory = $queueFactory;
         $this->dateTime = $dateTime;
         $this->avataxCreditMemo = $avataxCreditMemo;
+        $this->associatedTaxableRepository = $associatedTaxableRepository;
     }
 
     /**
@@ -118,9 +129,39 @@ class CreditmemoResource
             && $this->avaTaxConfig->getTaxMode($entity->getStoreId()) == Config::TAX_MODE_ESTIMATE_AND_SUBMIT
             && $this->avaTaxConfig->isAddressTaxable($address, $storeId)
         ) {
-
             // Add this entity to the avatax processing queue if this is a new entity
             if ($isObjectNew) {
+                $itemTaxes = $this->associatedTaxableRepository->getItemAssociatedTaxablesForOrder($order->getId());
+                $quoteTaxes = $this->associatedTaxableRepository->getQuoteAssociatedTaxablesForOrder($order->getId());
+
+                $itemTaxesMap = [];
+                \array_map(function ($itemTaxable) use (&$itemTaxesMap) {
+                    /** @var AssociatedTaxableInterface $itemTaxable */
+                    $itemTaxesMap[$itemTaxable->getOrderItemId()][] = $itemTaxable;
+                }, $itemTaxes);
+                if (!empty($itemTaxesMap)) {
+                    /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
+                    foreach ($entity->getAllItems() as $item) {
+                        if (isset($itemTaxesMap[$item->getOrderItem()->getQuoteItemId()])) {
+                            /** @var AssociatedTaxableInterface[] $taxable */
+                            $taxables = $itemTaxesMap[$item->getOrderItem()->getQuoteItemId()];
+                            /** @var AssociatedTaxableInterface $taxable */
+                            foreach ($taxables as $taxable) {
+                                if ($taxable->getCreditMemoId() === null) {
+                                    $taxable->setCreditMemoId($entity->getId());
+                                    $this->associatedTaxableRepository->save($taxable);
+                                }
+                            }
+                        }
+                    }
+                }
+                foreach ($quoteTaxes as $quoteTaxable) {
+                    if ($quoteTaxable->getCreditMemoId() === null) {
+                        $quoteTaxable->setCreditMemoId($entity->getId());
+                        $this->associatedTaxableRepository->save($quoteTaxable);
+                    }
+                }
+
                 /** @var Queue $queue */
                 $queue = $this->queueFactory->create();
                 $queue->build(

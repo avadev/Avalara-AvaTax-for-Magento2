@@ -666,42 +666,18 @@ class Tax
         $objectIsCreditMemo = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
 
         if ($objectIsCreditMemo) {
-            /** @var AssociatedTaxableInterface[] $associatedTaxables */
-            $quoteAssociatedTaxables = $this->associatedTaxableRepository->getItemAssociatedTaxablesForOrder(
-                $object->getOrderId()
-            );
-            $itemAssociatedTaxables = $this->associatedTaxableRepository->getQuoteAssociatedTaxablesForOrder(
-                $object->getOrderId()
-            );
-            $itemTaxablesMap = [];
-            /** @var AssociatedTaxableInterface $itemTaxable */
-            foreach ($itemAssociatedTaxables as $itemTaxable) {
-                $itemTaxablesMap[$itemTaxable->getOrderItemId()] = $itemTaxable;
-            }
-
-            $taxablesToCredit = $quoteAssociatedTaxables;
-            /** @var Item $creditMemoItem */
-            foreach ($object->getItems() as $creditMemoItem) {
-                $orderItem = $creditMemoItem->getOrderItem();
-                $itemTaxable = $itemTaxablesMap[$orderItem->getId()] ?? null;
-                if ($itemTaxable !== null) {
-                    $taxablesToCredit[] = $itemTaxable;
-                }
-            }
-
-            /** @var AssociatedTaxableInterface $associatedTaxable */
-            foreach ($taxablesToCredit as $associatedTaxable) {
-                $lines[] = $this->interactionLine->getLine($associatedTaxable);
-            }
+           $associatedTaxables = $this->associatedTaxableRepository->getAllAssociatedTaxablesForCreditMemo(
+               $object->getId()
+           );
 
         } else {
-            $associatedTaxables = $this->associatedTaxableRepository->getAllAssociatedTaxablesForInvoice($object->getId());
-            /** @var AssociatedTaxableInterface $associatedTaxable */
-            foreach ($associatedTaxables as $associatedTaxable) {
-                $associatedTaxable[CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_UNIT_PRICE] *= -1;
-                $associatedTaxable[CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_BASE_UNIT_PRICE] *= -1;
-                $lines[] = $this->interactionLine->getLine($associatedTaxable);
-            }
+            $associatedTaxables = $this->associatedTaxableRepository->getAllAssociatedTaxablesForInvoice(
+                $object->getId()
+            );
+        }
+        /** @var AssociatedTaxableInterface $associatedTaxable */
+        foreach ($associatedTaxables as $associatedTaxable) {
+            $lines[] = $this->interactionLine->getAssociatedTaxableLine($associatedTaxable, $objectIsCreditMemo);
         }
 
         $credit = $objectIsCreditMemo;

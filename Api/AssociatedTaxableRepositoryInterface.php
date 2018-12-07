@@ -60,4 +60,11 @@ interface AssociatedTaxableRepositoryInterface
      * @return AssociatedTaxableInterface[]
      */
     public function getAllAssociatedTaxablesForInvoice($invoiceId);
+
+    /**
+     * @param integer $creditMemoId
+     *
+     * @return AssociatedTaxableInterface[]
+     */
+    public function getAllAssociatedTaxablesForCreditMemo($creditMemoId);
 }

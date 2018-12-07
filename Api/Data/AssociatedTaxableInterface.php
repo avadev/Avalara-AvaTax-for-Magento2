@@ -166,4 +166,16 @@ interface AssociatedTaxableInterface
      * @return $this
      */
     public function setAssociatedItemCode($associatedItemCode);
+
+    /**
+     * @return integer
+     */
+    public function getCreditMemoId();
+
+    /**
+     * @param integer $creditMemoId
+     *
+     * @return $this
+     */
+    public function setCreditMemoId($creditMemoId);
 }
