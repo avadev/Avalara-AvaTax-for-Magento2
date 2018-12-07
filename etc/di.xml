@@ -48,6 +48,33 @@
     <preference for="Magento\Tax\Api\Data\GrandTotalRatesInterface" type="ClassyLlama\AvaTax\Model\Tax\Calculation\GrandTotalRates" />
     <preference for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface" type="ClassyLlama\AvaTax\Model\Tax\Calculation\GrandTotalRates" />
 
+    <preference for="ClassyLlama\AvaTax\Api\Data\AssociatedTaxableInterface" type="ClassyLlama\AvaTax\Model\Tax\AssociatedTaxable"/>
+    <preference for="ClassyLlama\AvaTax\Api\Data\AssociatedTaxableSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+
+    <preference for="ClassyLlama\AvaTax\Api\AssociatedTaxableRepositoryInterface" type="ClassyLlama\AvaTax\Model\Tax\AssociatedTaxableRepository"/>
+    <type name="ClassyLlama\AvaTax\Model\Tax\AssociatedTaxableRepository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">ClassyLlama\AvaTax\Model\Api\SearchCriteria\AssociatedTaxableCollectionProcessor</argument>
+        </arguments>
+    </type>
+    <virtualType name="ClassyLlama\AvaTax\Model\Api\SearchCriteria\AssociatedTaxableCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="joins" xsi:type="object">ClassyLlama\AvaTax\Model\Api\SearchCriteria\CollectionProcessor\AssociatedTaxableJoinProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ClassyLlama\AvaTax\Model\Api\SearchCriteria\CollectionProcessor\AssociatedTaxableJoinProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\JoinProcessor">
+        <arguments>
+            <argument name="customJoins" xsi:type="array">
+                <item name="order_id" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\JoinProcessor\Order</item>
+            </argument>
+            <argument name="fieldMapping" xsi:type="array">
+                <item name="soi.order_id" xsi:type="string">order_id</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">

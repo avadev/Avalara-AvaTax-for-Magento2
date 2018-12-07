@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
 use AvaTax\LineFactory;
+use ClassyLlama\AvaTax\Api\Data\AssociatedTaxableInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Catalog\Model\ResourceModel\Product as ResourceProduct;
@@ -240,6 +241,26 @@ class Line
     }
 
     /**
+     * @param AssociatedTaxableInterface $item
+     *
+     * @return array
+     */
+    protected function convertAssociatedTaxableItemToData(AssociatedTaxableInterface $item)
+    {
+        $avataxCode = $this->taxClassHelper->getAvaTaxTaxCode($item->getTaxClassId());
+        return [
+            'No'=> $this->getLineNumber(),
+            'ItemCode' => $item->getAssociatedItemCode(),
+            'TaxCode' => $avataxCode,
+            'Description' => $item->getCode(),
+            'Qty' => $item->getQuantity(),
+            'Amount' => $item->getUnitPrice() * $item->getQuantity(), // TODO: Verify this should be price * quantity
+            'Discounted' => false,
+            'TaxIncluded' => (bool)$item->getPriceIncludesTax()
+        ];
+    }
+
+    /**
      * Convert \Magento\Tax\Model\Sales\Quote\ItemDetails to an array to be used for building an \AvaTax\Line object
      *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $item
@@ -298,6 +319,9 @@ class Line
                 break;
             case ($data instanceof \Magento\Sales\Api\Data\CreditmemoItemInterface):
                 $data = $this->convertCreditMemoItemToData($data);
+                break;
+            case ($data instanceof AssociatedTaxableInterface):
+                $data = $this->convertAssociatedTaxableItemToData($data);
                 break;
             case (!is_array($data)):
                 return false;

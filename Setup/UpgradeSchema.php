@@ -223,6 +223,177 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ->setComment('AvaTax Sales Credit Memo Table');
             $setup->getConnection(self::$connectionName)->createTable($table);
         }
+
+        if (version_compare($context->getVersion(), '1.0.1', '<')) {
+            $table = $setup->getConnection(self::$connectionName)
+                ->newTable(
+                    $setup->getTable('avatax_associated_taxables')
+                )
+                ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'nullable' => false,
+                        'identity' => true,
+                        'primary' => true
+                    ],
+                    'ID'
+                )
+                ->addColumn(
+                    'order_item_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    [
+                        'nullable' => true,
+                        'unsigned' => true,
+                    ],
+                    'Quote Item ID'
+                )
+                ->addColumn(
+                    'credit_memo_id',
+                    Table::TYPE_INTEGER,
+                    10,
+                    [
+                        'nullable' => true,
+                        'unsigned' => true
+                    ],
+                    'Credit Memo ID'
+                )
+                ->addColumn(
+                    'order_id',
+                    Table::TYPE_INTEGER,
+                    10,
+                    [
+                        'nullable' => true,
+                        'unsigned' => true
+                    ],
+                    'Order ID'
+                )
+                ->addColumn(
+                    'invoice_id',
+                    Table::TYPE_INTEGER,
+                    10,
+                    [
+                        'nullable' => true,
+                        'unsigned' => true
+                    ],
+                    'Invoice ID'
+                )
+                ->addColumn(
+                    'type',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    [
+                        'nullable' => true,
+                    ],
+                    'Associated taxable type'
+                )
+                ->addColumn(
+                    'code',
+                    Table::TYPE_TEXT,
+                    null,
+                    [
+                        'nullable' => true
+                    ],
+                    'Associated taxable code'
+                )
+                ->addColumn(
+                    'unit_price',
+                    Table::TYPE_FLOAT,
+                    null,
+                    [
+                        'nullable' => true
+                    ],
+                    'Associated taxable unit price'
+                )
+                ->addColumn(
+                    'base_unit_price',
+                    Table::TYPE_FLOAT,
+                    null,
+                    [
+                        'nullable' => true
+                    ],
+                    'Associated taxable base unit price'
+                )
+                ->addColumn(
+                    'quantity',
+                    Table::TYPE_FLOAT,
+                    null,
+                    [
+                        'nullable' => true
+                    ],
+                    'Associated taxable quantity'
+                )
+                ->addColumn(
+                    'tax_class_id',
+                    Table::TYPE_FLOAT,
+                    null,
+                    [
+                        'nullable' => true
+                    ],
+                    'Associated taxable tax class ID'
+                )
+                ->addColumn(
+                    'price_includes_tax',
+                    Table::TYPE_FLOAT,
+                    null,
+                    [
+                        'nullable' => true
+                    ],
+                    'Associated taxable price includes tax flag'
+                )
+                ->addColumn(
+                    'associated_item_code',
+                    Table::TYPE_TEXT,
+                    null,
+                    [
+                        'nullable' => true
+                    ],
+                    'Associated taxable associated item code'
+                )
+                ->addForeignKey(
+                    $setup->getFkName(
+                        'avatax_associated_taxables',
+                        'order_item_id',
+                        'sales_order_item',
+                        'item_id'
+                    ),
+                    'order_item_id',
+                    $setup->getTable('sales_order_item'),
+                    'item_id',
+                    Table::ACTION_CASCADE
+                )
+                ->setComment('Order item associated with taxable')
+                ->addForeignKey(
+                    $setup->getFkName(
+                        'avatax_associated_taxables',
+                        'invoice_id',
+                        'sales_invoice',
+                        'entity_id'
+                    ),
+                    'invoice_id',
+                    $setup->getTable('sales_invoice'),
+                    'entity_id',
+                    Table::ACTION_CASCADE
+                )
+                ->setComment('Invoice associated with the item')
+                ->addForeignKey(
+                    $setup->getFkName(
+                        'avatax_associated_taxables',
+                        'order_id',
+                        'sales_order',
+                        'entity_id'
+                    ),
+                    'order_id',
+                    $setup->getTable('sales_order'),
+                    'entity_id',
+                    Table::ACTION_CASCADE
+                )
+                ->setComment('Credit Memo associated with the item');
+
+            $setup->getConnection(self::$connectionName)->createTable($table);
+        }
         $setup->endSetup();
     }
 }

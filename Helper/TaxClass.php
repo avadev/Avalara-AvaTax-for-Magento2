@@ -104,7 +104,7 @@ class TaxClass
      * @param int $taxClassId
      * @return string|null
      */
-    protected function getAvaTaxTaxCode($taxClassId)
+    public function getAvaTaxTaxCode($taxClassId)
     {
         try {
             $taxClass = $this->taxClassRepository->get($taxClassId);
@@ -191,12 +191,22 @@ class TaxClass
      */
     public function getAvataxTaxCodeForGiftOptions($store)
     {
-        $taxClassId = $this->scopeConfig->getValue(
+        $taxClassId = $this->getAvataxTaxClassIdForGiftOptions($store);
+        return $this->getAvaTaxTaxCode($taxClassId);
+    }
+
+    /**
+     * @param $store
+     *
+     * @return string|null
+     */
+    public function getAvataxTaxClassIdForGiftOptions($store)
+    {
+        return $this->scopeConfig->getValue(
             self::XML_PATH_TAX_CLASS_GIFT_WRAPPING,
             ScopeInterface::SCOPE_STORE,
             $store
         );
-        return $this->getAvaTaxTaxCode($taxClassId);
     }
 
     /**

@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy as InteractionGet;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation\Proxy as TaxCalculation;
 use ClassyLlama\AvaTax\Helper\Config;
+use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
@@ -35,6 +36,16 @@ use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
 
 class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 {
+    /**
+     * @var AssociatedTaxableInterfaceFactory
+     */
+    protected $associatedTaxableFactory;
+
+    /**
+     * @var AssociatedTaxableRepository
+     */
+    protected $associatedTaxableRepository;
+
     /**
      * @var InteractionGet
      */
@@ -85,22 +96,24 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     /**
      * Class constructor
      *
-     * @param \Magento\Tax\Model\Config $taxConfig
-     * @param \Magento\Tax\Api\TaxCalculationInterface $taxCalculationService
-     * @param QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
-     * @param QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory
-     * @param TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory
-     * @param CustomerAddressFactory $customerAddressFactory
-     * @param CustomerAddressRegionFactory $customerAddressRegionFactory
-     * @param \Magento\Tax\Helper\Data $taxData
-     * @param InteractionGet $interactionGetTax
-     * @param TaxCalculation $taxCalculation
-     * @param Config $config
-     * @param \Magento\Framework\Api\DataObjectHelper $dataObjectHelper
+     * @param \Magento\Tax\Model\Config                              $taxConfig
+     * @param \Magento\Tax\Api\TaxCalculationInterface               $taxCalculationService
+     * @param QuoteDetailsInterfaceFactory                           $quoteDetailsDataObjectFactory
+     * @param QuoteDetailsItemInterfaceFactory                       $quoteDetailsItemDataObjectFactory
+     * @param TaxClassKeyInterfaceFactory                            $taxClassKeyDataObjectFactory
+     * @param CustomerAddressFactory                                 $customerAddressFactory
+     * @param CustomerAddressRegionFactory                           $customerAddressRegionFactory
+     * @param \Magento\Tax\Helper\Data                               $taxData
+     * @param InteractionGet                                         $interactionGetTax
+     * @param TaxCalculation                                         $taxCalculation
+     * @param Config                                                 $config
+     * @param \Magento\Framework\Api\DataObjectHelper                $dataObjectHelper
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
-     * @param \Magento\Framework\Message\ManagerInterface $messageManager
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param \Magento\Framework\Message\ManagerInterface            $messageManager
+     * @param \Magento\Framework\Registry                            $coreRegistry
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass                    $taxClassHelper
+     * @param AssociatedTaxableFactory                               $associatedTaxableInterfaceFactory
+     * @param AssociatedTaxableRepository                            $associatedTaxableRepository
      */
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
@@ -128,6 +141,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $this->messageManager = $messageManager;
         $this->coreRegistry = $coreRegistry;
         $this->taxClassHelper = $taxClassHelper;
+
         parent::__construct(
             $taxConfig,
             $taxCalculationService,

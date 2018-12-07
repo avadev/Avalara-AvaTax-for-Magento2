@@ -22,6 +22,8 @@ use AvaTax\GetTaxRequestFactory;
 use AvaTax\TaxOverrideFactory;
 use AvaTax\TaxServiceSoap;
 use AvaTax\TaxServiceSoapFactory;
+use ClassyLlama\AvaTax\Api\AssociatedTaxableRepositoryInterface;
+use ClassyLlama\AvaTax\Api\Data\AssociatedTaxableInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -30,6 +32,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order\Creditmemo\Item;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory;
@@ -43,6 +46,16 @@ use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
  */
 class Tax
 {
+    /**
+     * @var QuoteDetailsItemExtensionFactory
+     */
+    protected $extensionFactory;
+
+    /**
+     * @var AssociatedTaxableRepositoryInterface
+     */
+    protected $associatedTaxableRepository;
+
     /**
      * @var Address
      */
@@ -233,24 +246,25 @@ class Tax
     /**
      * Class constructor
      *
-     * @param Address $address
-     * @param Config $config
-     * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param Address                                       $address
+     * @param Config                                        $config
+     * @param \ClassyLlama\AvaTax\Helper\TaxClass           $taxClassHelper
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
-     * @param MetaDataObjectFactory $metaDataObjectFactory
-     * @param TaxServiceSoapFactory $taxServiceSoapFactory
-     * @param GetTaxRequestFactory $getTaxRequestFactory
-     * @param TaxOverrideFactory $taxOverrideFactory
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param GroupRepositoryInterface $groupRepository
-     * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param OrderRepositoryInterface $orderRepository
-     * @param StoreRepositoryInterface $storeRepository
-     * @param PriceCurrencyInterface $priceCurrency
-     * @param TimezoneInterface $localeDate
-     * @param Line $interactionLine
-     * @param TaxCalculation $taxCalculation
-     * @param QuoteDetailsItemExtensionFactory $extensionFactory
+     * @param MetaDataObjectFactory                         $metaDataObjectFactory
+     * @param TaxServiceSoapFactory                         $taxServiceSoapFactory
+     * @param GetTaxRequestFactory                          $getTaxRequestFactory
+     * @param TaxOverrideFactory                            $taxOverrideFactory
+     * @param CustomerRepositoryInterface                   $customerRepository
+     * @param GroupRepositoryInterface                      $groupRepository
+     * @param InvoiceRepositoryInterface                    $invoiceRepository
+     * @param OrderRepositoryInterface                      $orderRepository
+     * @param StoreRepositoryInterface                      $storeRepository
+     * @param PriceCurrencyInterface                        $priceCurrency
+     * @param TimezoneInterface                             $localeDate
+     * @param Line                                          $interactionLine
+     * @param TaxCalculation                                $taxCalculation
+     * @param QuoteDetailsItemExtensionFactory              $extensionFactory
+     * @param AssociatedTaxableRepositoryInterface          $associatedTaxableRepository
      */
     public function __construct(
         Address $address,
@@ -270,7 +284,8 @@ class Tax
         TimezoneInterface $localeDate,
         Line $interactionLine,
         TaxCalculation $taxCalculation,
-        QuoteDetailsItemExtensionFactory $extensionFactory
+        QuoteDetailsItemExtensionFactory $extensionFactory,
+        AssociatedTaxableRepositoryInterface $associatedTaxableRepository
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -290,6 +305,7 @@ class Tax
         $this->interactionLine = $interactionLine;
         $this->taxCalculation = $taxCalculation;
         $this->extensionFactory = $extensionFactory;
+        $this->associatedTaxableRepository = $associatedTaxableRepository;
     }
 
     /**
@@ -649,20 +665,47 @@ class Tax
 
         $objectIsCreditMemo = ($object instanceof \Magento\Sales\Api\Data\CreditmemoInterface);
 
+        if ($objectIsCreditMemo) {
+            /** @var AssociatedTaxableInterface[] $associatedTaxables */
+            $quoteAssociatedTaxables = $this->associatedTaxableRepository->getItemAssociatedTaxablesForOrder(
+                $object->getOrderId()
+            );
+            $itemAssociatedTaxables = $this->associatedTaxableRepository->getQuoteAssociatedTaxablesForOrder(
+                $object->getOrderId()
+            );
+            $itemTaxablesMap = [];
+            /** @var AssociatedTaxableInterface $itemTaxable */
+            foreach ($itemAssociatedTaxables as $itemTaxable) {
+                $itemTaxablesMap[$itemTaxable->getOrderItemId()] = $itemTaxable;
+            }
+
+            $taxablesToCredit = $quoteAssociatedTaxables;
+            /** @var Item $creditMemoItem */
+            foreach ($object->getItems() as $creditMemoItem) {
+                $orderItem = $creditMemoItem->getOrderItem();
+                $itemTaxable = $itemTaxablesMap[$orderItem->getId()] ?? null;
+                if ($itemTaxable !== null) {
+                    $taxablesToCredit[] = $itemTaxable;
+                }
+            }
+
+            /** @var AssociatedTaxableInterface $associatedTaxable */
+            foreach ($taxablesToCredit as $associatedTaxable) {
+                $lines[] = $this->interactionLine->getLine($associatedTaxable);
+            }
+
+        } else {
+            $associatedTaxables = $this->associatedTaxableRepository->getAllAssociatedTaxablesForInvoice($object->getId());
+            /** @var AssociatedTaxableInterface $associatedTaxable */
+            foreach ($associatedTaxables as $associatedTaxable) {
+                $associatedTaxable[CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_UNIT_PRICE] *= -1;
+                $associatedTaxable[CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_BASE_UNIT_PRICE] *= -1;
+                $lines[] = $this->interactionLine->getLine($associatedTaxable);
+            }
+        }
+
         $credit = $objectIsCreditMemo;
         $line = $this->interactionLine->getShippingLine($object, $credit);
-        if ($line) {
-            $lines[] = $line;
-        }
-        $line = $this->interactionLine->getGiftWrapItemsLine($object, $credit);
-        if ($line) {
-            $lines[] = $line;
-        }
-        $line = $this->interactionLine->getGiftWrapOrderLine($object, $credit);
-        if ($line) {
-            $lines[] = $line;
-        }
-        $line = $this->interactionLine->getGiftWrapCardLine($object, $credit);
         if ($line) {
             $lines[] = $line;
         }
