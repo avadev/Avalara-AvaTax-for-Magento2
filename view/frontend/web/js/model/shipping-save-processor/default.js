@@ -40,9 +40,8 @@ define(
     ) {
         'use strict';
 
-        return {
-            validateAddressContainerSelector: '#validate_address',
-            saveShippingInformation: function () {
+        return function (module) {
+            module.saveShippingInformation = function () {
                 var payload;
 
                 if (!quote.billingAddress()) {
@@ -89,7 +88,8 @@ define(
                         fullScreenLoader.stopLoader();
                     }
                 );
-            }
+            };
+            return module;
         };
     }
 );
