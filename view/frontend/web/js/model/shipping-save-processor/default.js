@@ -41,6 +41,7 @@ define(
         'use strict';
 
         return function (module) {
+            var validateAddressContainerSelector = '#validate_address';
             module.saveShippingInformation = function () {
                 var payload;
 
@@ -70,7 +71,7 @@ define(
                         try {
                             checkoutValidationHandler.validationResponseHandler(response);
                         } catch (e) {
-                            $(this.validateAddressContainerSelector + " *").hide();
+                            $(validateAddressContainerSelector + " *").hide();
                         }
                         // End Edit
                         fullScreenLoader.stopLoader();
