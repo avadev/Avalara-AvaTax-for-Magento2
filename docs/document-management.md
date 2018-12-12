@@ -41,7 +41,9 @@ When a **Tax Exemption** is applied to a customer's account, tax is automaticall
 
 In order to use Document Management (CertCapture), you'll need to ensure that your account has CertCapture API access enabled.
 
-In order to connect to CertCapture, you'll need to add your SDK credentials to your Magento installation's `app/etc/env.php`:
+To connect to CertCapture, you'll need to add your SDK credentials to your Magento installation's `app/etc/env.php` file. Here is [an example `env.php` file](files/env.php), showing the `cert-capture` array added to the file.
+
+**`env.php` Development Configuration**
 
 ```
 <?php
@@ -60,18 +62,41 @@ return [
 ];
 ```
 
+**`env.php` Production Configuration**
+
+```
+<?php
+return [
+  // ...
+  'cert-capture' => [
+    'url' => 'https://api.certcapture.com/v2/auth/get-token',
+    'sdk-url' => 'https://app.certcapture.com/gencert2/js',
+    'auth' => [
+      'username' => '', // Certcapture username
+      'password' => '' // Certcapture password
+    ],
+    'client-id' => '' // The certcapture client id you will use
+  ],
+  // ...
+];
+```
+
+> In the Magento admin (`Stores > Settings > Configuration > Sales > Tax > AvaTax - General`), there is a setting called **Mode** that allows an admin to toggle between Development and Production mode. That setting is _not_ respected for CertCapture—you'll need to configure the `env.php` file differently for each environment. Long-term, the Avalara API will be upgraded to support generating tokens for Document Management, and at that point this `env.php` configuration will no longer be necessary.
+
 Retrieve the 3 credentials above using these steps:
 
 * Create a CertCapture user that will specifically be used for the API authentication.
-	* Login to https://app.certcapture.com/
+	* Login
+	    * Development - Login to https://app.certcapture.com/
+	    * Production - Login to https://sbx.certcapture.com/
 	* Go to "Settings > Account Settings > Manage Users"
 	* Click "Add User"
 		* Name: "Magento 2 API User"
 		* Email: It's recommended to use a company email, rather than one linked to a specific individual (for example, "apiuser@example.com")
 		* User Role: API User
 		* Status: Active
-	* Login to that newly created user account. Click the ["My Profile"](https://sbx.certcapture.com/user_accounts/profile) link at the top right of the page. Click on the "REST API Access" tab. Input a password. You'll use that password for the "cert-capture > auth > password" value in the `env.php` file, and you'll use the email in the "cert-capture > auth > username" value.
-* To retrieve the `client-id`, login to https://app.certcapture.com/, go to "Settings > Company Settings > Company Details" and use the "Company ID" value that is listed on that page as your `client-id`.
+	* Login to that newly created user account. Click the "My Profile" link at the top right of the page. Click on the "REST API Access" tab. Input a password. You'll use that password for the "cert-capture > auth > password" value in the `env.php` file, and you'll use the email in the "cert-capture > auth > username" value.
+* To retrieve the `client-id`, go to "Settings > Company Settings > Company Details" and use the "Company ID" value that is listed on that page as your `client-id`.
 
 ### Checkout Link Text
 
