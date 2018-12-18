@@ -81,7 +81,6 @@ class QuoteSubmitSuccessObserver implements ObserverInterface
                         $associatedTaxableData,
                         $quoteItem->getStoreId()
                     );
-                    // TODO: Handle base_currency
                     /** @var AssociatedTaxableInterface $associatedTaxable */
                     $associatedTaxable = $this->associatedTaxableFactory->create(
                         [

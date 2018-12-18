@@ -181,32 +181,20 @@ class AssociatedTaxableRepository implements AssociatedTaxableRepositoryInterfac
         /** @var \Magento\Framework\Api\Filter $orderIdFilter */
         $orderIdFilter = $this->filterBuilder->create();
 
-        $this->filterBuilder->setField(AssociatedTaxableInterface::ASSOCIATED_ITEM_CODE);
-        $this->filterBuilder->setValue(CommonTaxCollector::ASSOCIATION_ITEM_CODE_FOR_QUOTE);
-        $this->filterBuilder->setConditionType('neq');
-        /** @var \Magento\Framework\Api\Filter $quoteNotItemFilter */
-        $quoteNotItemFilter = $this->filterBuilder->create();
-
-        $this->filterBuilder->setField(AssociatedTaxableInterface::ASSOCIATED_ITEM_CODE);
+        $this->filterBuilder->setField(AssociatedTaxableInterface::ORDER_ITEM_ID);
         $this->filterBuilder->setValue(null);
-        $this->filterBuilder->setConditionType('null');
+        $this->filterBuilder->setConditionType('notnull');
 
         /** @var \Magento\Framework\Api\Filter $quoteIsNullFilter */
-        $quoteIsNullFilter = $this->filterBuilder->create();
+        $orderItemNotNull = $this->filterBuilder->create();
 
-        $this->filterGroupBuilder->addFilter($quoteNotItemFilter);
-        $this->filterGroupBuilder->addFilter($quoteIsNullFilter);
-        // filter group for item code NOT NULL or != 'quote'
-        $filterGroup = $this->filterGroupBuilder->create();
-        $this->filterGroupBuilder->addFilter($orderIdFilter);
-
-        $filterGroup2 = $this->filterGroupBuilder->create();
         /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
         $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
+        $searchCriteriaBuilder->addFilter($orderIdFilter);
+        $searchCriteriaBuilder->addFilter($orderItemNotNull);
 
         /** @var \Magento\Framework\Api\Search\SearchCriteria $criteria */
         $criteria = $searchCriteriaBuilder->create();
-        $criteria->setFilterGroups([$filterGroup, $filterGroup2]);
 
         return $this->getList($criteria)->getItems();
     }

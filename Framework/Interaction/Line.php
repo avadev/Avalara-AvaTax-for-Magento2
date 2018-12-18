@@ -245,14 +245,14 @@ class Line
      *
      * @param bool                       $isCreditMemo
      *
-     * @return array
+     * @return \AvaTax\Line
      */
     public function getAssociatedTaxableLine(AssociatedTaxableInterface $item, $isCreditMemo = false)
     {
         $avataxCode = $this->taxClassHelper->getAvaTaxTaxCode($item->getTaxClassId());
-        return [
+        $data = [
             'No'=> $this->getLineNumber(),
-            'ItemCode' => $item->getAssociatedItemCode(),
+            'ItemCode' => $item->getCode(),
             'TaxCode' => $avataxCode,
             'Description' => $item->getCode(),
             'Qty' => $item->getQuantity(),
@@ -260,6 +260,12 @@ class Line
             'Discounted' => false,
             'TaxIncluded' => (bool)$item->getPriceIncludesTax()
         ];
+
+        /** @var $line \AvaTax\Line */
+        $line = $this->lineFactory->create();
+
+        $this->populateLine($data, $line);
+        return $line;
     }
 
     /**
