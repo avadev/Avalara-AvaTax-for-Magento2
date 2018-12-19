@@ -40,9 +40,9 @@ define(
     ) {
         'use strict';
 
-        return {
-            validateAddressContainerSelector: '#validate_address',
-            saveShippingInformation: function () {
+        return function (module) {
+            var validateAddressContainerSelector = '#validate_address';
+            module.saveShippingInformation = function () {
                 var payload;
 
                 if (!quote.billingAddress()) {
@@ -71,7 +71,7 @@ define(
                         try {
                             checkoutValidationHandler.validationResponseHandler(response);
                         } catch (e) {
-                            $(this.validateAddressContainerSelector + " *").hide();
+                            $(validateAddressContainerSelector + " *").hide();
                         }
                         // End Edit
                         fullScreenLoader.stopLoader();
@@ -89,7 +89,8 @@ define(
                         fullScreenLoader.stopLoader();
                     }
                 );
-            }
+            };
+            return module;
         };
     }
 );
