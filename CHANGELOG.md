@@ -2,9 +2,6 @@
 
 * Add support for payload extender in shipping-save-processor [#181](https://github.com/classyllama/ClassyLlama_AvaTax/issues/181)
 * Add support for Magento 2.3 [#108](https://github.com/classyllama/ClassyLlama_AvaTax/issues/108)
-* Fix issue where duplicate entries can be created in address book [#115](https://github.com/classyllama/ClassyLlama_AvaTax/issues/115)
-* Refactor VAT ID submission code to match behavior described in config comment [PR #204](https://github.com/classyllama/ClassyLlama_AvaTax/pull/204)
-* Refactor code to prevent rounding tax rate prior to displaying on frontend [#179](https://github.com/classyllama/ClassyLlama_AvaTax/issues/179)
 
 ### 1.4.9 (2018-10-25)
 
