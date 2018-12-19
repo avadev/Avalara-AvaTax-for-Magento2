@@ -18,11 +18,15 @@ namespace ClassyLlama\AvaTax\Model\Config\Source;
 class TaxCalculationCountries extends \Magento\Directory\Model\Config\Source\Country
 {
     /**
-     * @return array
+     * @inheritdoc
      */
-    public function toOptionArray()
+    public function toOptionArray($isMultiselect = true, $foregroundCountries = '')
     {
         // Make US and CA show at top of list
-        return parent::toOptionArray(true, \ClassyLlama\AvaTax\Helper\Config::$taxCalculationCountriesDefault);
+        if (!$foregroundCountries) {
+            $foregroundCountries = \ClassyLlama\AvaTax\Helper\Config::$taxCalculationCountriesDefault;
+        }
+
+        return parent::toOptionArray($isMultiselect, $foregroundCountries);
     }
 }
