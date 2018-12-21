@@ -6,8 +6,8 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
-  - [Document Management (Tax Exemptions)](./document-management.md)
+  - [Customs, Duty & Import Tax (CDIT)](docs/customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
+  - [Document Management (Tax Exemptions)](docs/document-management.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
 
 # Getting Started
 
@@ -18,6 +18,7 @@
   * [Prerequisites](#prerequisites)
   * [Supported Magento Versions](#supported-magento-versions)
   * [Installation](#installation)
+    + [Version Notes](#version-notes)
     + [Install via Composer](#install-via-composer)
     + [Install by Copying Files](#install-by-copying-files)
   * [Configuration](#configuration)
@@ -51,23 +52,24 @@ Refer to [README](https://github.com/classyllama/ClassyLlama_AvaTax#magento-vers
 
 >  Please note, that installing the 2.x.x releases of AvaTax will remove all your config settings for any 1.x.x version you currently have installed. Please go through the configuration steps again if this is not a fresh install of AvaTax.
 
+#### Version Notes
+
+There are two versions of this extension:
+
+* 2.x.x Release Candidate (beta) - This version contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md). If you'd like to use this version of the extension, you will need to work with your Avalara support representative to ensure your account has these features activated. These features are currently in beta. Please report issues by [creating Github issues](https://github.com/classyllama/ClassyLlama_AvaTax/issues).
+* 1.x.x Stable - This version supports Sales Tax & Address Validation. If you don't need any of the new features present in 2.x.x, you should install this version.
+
 #### Install via Composer
 
-This is the recommended installation method as it allows you to easily update the extension in the future.
+This is the recommended installation method as it allows you to easily update the extension in the future. **Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
 
-**Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
-
-1. Require the desired version of AvaTax:
+1. Require the desired version of AvaTax (see [note above](#version-notes) for differences in the versions):
 
    1. 2.x.x Release Candidate: 
 
       ```
       composer require classyllama/module-avatax:2.0.0-RC1
       ```
-      
-      The 2.x.x release candidate contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md)
-      
-      These features are currently in beta. Please report issues by [creating Github issues](https://github.com/classyllama/ClassyLlama_AvaTax/issues).
 
    2. 1.x.x Stable
 

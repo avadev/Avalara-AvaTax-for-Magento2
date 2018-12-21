@@ -9,8 +9,8 @@ Agile, successful companies focus on their core business and outsource complex, 
 - Extension Features
   - [Sales Tax](docs/sales-tax.md)
   - [Address Validation](docs/address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](docs/customs-duty-import-tax.md)
-  - [Document Management (Tax Exemptions)](docs/document-management.md)
+  - [Customs, Duty & Import Tax (CDIT)](docs/customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
+  - [Document Management (Tax Exemptions)](docs/document-management.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
   
 # Automated Tests
 
