@@ -56,7 +56,7 @@ Refer to [README](https://github.com/classyllama/ClassyLlama_AvaTax#magento-vers
 
 There are two versions of this extension:
 
-* 2.x.x Release Candidate (beta) - This version contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md). If you'd like to use this version of the extension, you will need to work with your Avalara support representative to ensure your account has these features activated. These features are currently in beta. Please report issues by [creating Github issues](https://github.com/classyllama/ClassyLlama_AvaTax/issues).
+* 2.x.x Release Candidate - This version contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md). If you'd like to use this version of the extension, you will need to work with your Avalara support representative to ensure your account has these features activated. Please report issues by [creating Github issues](https://github.com/classyllama/ClassyLlama_AvaTax/issues).
 * 1.x.x Stable - This version supports Sales Tax & Address Validation. If you don't need any of the new features present in 2.x.x, you should install this version.
 
 #### Install via Composer
