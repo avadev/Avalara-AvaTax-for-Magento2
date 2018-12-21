@@ -69,7 +69,7 @@ This is the recommended installation method as it allows you to easily update th
       
       These features are currently in beta. Please report issues by [creating Github issues](https://github.com/classyllama/ClassyLlama_AvaTax/issues).
 
-   2. 1.4.x Stable
+   2. 1.x.x Stable
 
       ```
       composer require classyllama/module-avatax
