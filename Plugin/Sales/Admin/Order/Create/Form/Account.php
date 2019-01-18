@@ -21,19 +21,19 @@ class Account
     /**
      * @var \ClassyLlama\AvaTax\Helper\Config
      */
-    protected $avataxConfigHelper;
+    protected $avaTaxConfigHelper;
 
     public function __construct(
-        \ClassyLlama\AvaTax\Helper\Config $avataxConfigHelper
+        \ClassyLlama\AvaTax\Helper\Config $avaTaxConfigHelper
     ) {
-        $this->avaTaxConfigHelper = $avataxConfigHelper;
+        $this->avaTaxConfigHelper = $avaTaxConfigHelper;
     }
 
     public function afterToHtml(\Magento\Sales\Block\Adminhtml\Order\Create\Form\Account $subject, $result)
     {
-        if ($this->avataxConfigHelper->isModuleEnabled()) {
+        if ($this->avaTaxConfigHelper->isModuleEnabled()) {
             $html = '<div>';
-            $html .= __('If you are changing a customer group that affects tax calculation, please see <a href="https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/getting-started.md#admin-order-create-sales-tax-issue">this readme</a> for how to ensure the appropriate taxes are calculated.');
+            $html .= __('If you are changing a customer group that affects tax calculation, please see <a href="https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/getting-started.md#admin-order-create-sales-tax-issue" target="_blank">this readme</a> for how to ensure the appropriate taxes are calculated.');
             $html .= '</div>';
 
             $result .= $html;
