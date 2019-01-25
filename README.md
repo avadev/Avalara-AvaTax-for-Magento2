@@ -32,6 +32,8 @@ This extension contains integration tests to verify the extension's functionalit
 
 As of version 1.0.0 of this extension, this extension supports [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html). Reference issue [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54) for additional notes and details.
 
+Please be aware that due to the complexity and number of third party checkout solutions this extension is only supported when using Magento's native checkout process.
+
 # License
 
 This project is licensed under the Open Software License 3.0 (OSL-3.0). See included LICENSE file for full text of OSL-3.0
