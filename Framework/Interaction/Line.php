@@ -260,9 +260,12 @@ class Line
         $description = $extensionAttributes ? $extensionAttributes->getAvataxDescription() : '';
         $taxCode = $extensionAttributes ? $extensionAttributes->getAvataxTaxCode() : null;
 
-        // The AvaTax 15 API doesn't support the concept of line-based discounts, so subtract discount amount
-        // from taxable amount
-        $amount = ($item->getUnitPrice() * $quantity) - $item->getDiscountAmount();
+        // Calculate tax with or without discount based on config setting
+        if ($this->config->getCalculateTaxBeforeDiscount($item->getStoreId())) {
+            $amount = $item->getUnitPrice() * $quantity;
+        } else {
+            $amount = ($item->getUnitPrice() * $quantity) - $item->getDiscountAmount();
+        }
 
         $ref1 = $extensionAttributes ? $extensionAttributes->getAvataxRef1() : null;
         $ref2 = $extensionAttributes ? $extensionAttributes->getAvataxRef2() : null;
