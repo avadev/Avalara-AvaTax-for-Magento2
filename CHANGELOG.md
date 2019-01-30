@@ -1,3 +1,7 @@
+### 1.5.1 (2019-1-30)
+* Fix issue with payload extender in shipping-save-processor [#181](https://github.com/classyllama/ClassyLlama_AvaTax/issues/181)
+* Add message about known issue with admin order creation [#215](https://github.com/classyllama/ClassyLlama_AvaTax/issues/215)
+
 ### 1.5.0 (2018-12-19)
 
 * Add support for payload extender in shipping-save-processor [#181](https://github.com/classyllama/ClassyLlama_AvaTax/issues/181)
