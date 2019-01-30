@@ -26,4 +26,7 @@
         </arguments>
     </type>
     <preference for="Magento\Tax\Block\Adminhtml\Rule\Edit\Form" type="ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit\Form" />
+    <type name="Magento\Sales\Block\Adminhtml\Order\Create\Form\Account">
+        <plugin name="classyllama_avatax_sales_order_create_form_account_admin_block" type="ClassyLlama\AvaTax\Plugin\Sales\Admin\Order\Create\Form\Account" />
+    </type>
 </config>

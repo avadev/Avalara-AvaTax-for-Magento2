@@ -6,8 +6,8 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
-  - [Document Management (Tax Exemptions)](./document-management.md)
+  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
+  - [Document Management (Tax Exemptions)](./document-management.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
 
 # Document Management
 
@@ -22,7 +22,7 @@
 
 ## Overview
 
->  Important Note: This extension's support for this Avalara feature is currently in beta and requires that you [install version 2.x.x of of the extension](./getting-started.md#install-via-composer).
+>  Important Note: This extension's support for this Avalara feature requires that you [install version 2.x.x of the extension](./getting-started.md#version-notes).
 
 This AvaTax connector for Magento provides a set of features to support Document Management (also referred to as Tax Exemptions). These features include:
 

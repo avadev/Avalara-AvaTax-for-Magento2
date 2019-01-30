@@ -9,8 +9,8 @@ Agile, successful companies focus on their core business and outsource complex, 
 - Extension Features
   - [Sales Tax](docs/sales-tax.md)
   - [Address Validation](docs/address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](docs/customs-duty-import-tax.md)
-  - [Document Management (Tax Exemptions)](docs/document-management.md)
+  - [Customs, Duty & Import Tax (CDIT)](docs/customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
+  - [Document Management (Tax Exemptions)](docs/document-management.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
   
 # Automated Tests
 
@@ -18,10 +18,21 @@ This extension contains integration tests to verify the extension's functionalit
 
 # Magento Version Support
 
-* Magento 2.1.x and 2.2.x are supported (Community and Enterprise)
-* Support for 2.0.x was dropped as of version 0.3.0
+- Magento 2.3.x (as of ClassyLlama_AvaTax 1.5.0)
+  - :white_check_mark: Community
+  - :white_check_mark: Enterprise
+- Magento 2.2.x (as of ClassyLlama_AvaTax 1.2.3)
+  - :white_check_mark: Community
+  - :white_check_mark: Enterprise
+- Magento 2.1.x
+  - :white_check_mark: Community
+  - :white_check_mark: Enterprise
+- Magento 2.0.x
+  - :x: Support was dropped as of ClassyLlama_AvaTax 0.3.0
 
 As of version 1.0.0 of this extension, this extension supports [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html). Reference issue [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54) for additional notes and details.
+
+Please be aware that due to the complexity and number of third party checkout solutions this extension is only supported when using Magento's native checkout process.
 
 # License
 

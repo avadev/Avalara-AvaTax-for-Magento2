@@ -6,8 +6,8 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
-  - [Document Management (Tax Exemptions)](./document-management.md)
+  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
+  - [Document Management (Tax Exemptions)](./document-management.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
 
 # Getting Started
 
@@ -18,6 +18,7 @@
   * [Prerequisites](#prerequisites)
   * [Supported Magento Versions](#supported-magento-versions)
   * [Installation](#installation)
+    + [Version Notes](#version-notes)
     + [Install via Composer](#install-via-composer)
     + [Install by Copying Files](#install-by-copying-files)
   * [Configuration](#configuration)
@@ -51,25 +52,41 @@ Refer to [README](https://github.com/classyllama/ClassyLlama_AvaTax#magento-vers
 
 >  Please note, that installing the 2.x.x releases of AvaTax will remove all your config settings for any 1.x.x version you currently have installed. Please go through the configuration steps again if this is not a fresh install of AvaTax.
 
+#### Version Notes
+
+There are two versions of this extension:
+
+* 2.x.x Release Candidate - This version contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md). If you'd like to use this version of the extension, you will need to work with your Avalara support representative to ensure your account has these features activated. Please report issues by [creating Github issues](https://github.com/classyllama/ClassyLlama_AvaTax/issues).
+* 1.x.x Stable - This version supports Sales Tax & Address Validation. If you don't need any of the new features present in 2.x.x, you should install this version.
+
 #### Install via Composer
 
-This is the recommended installation method as it allows you to easily update the extension in the future.
+This is the recommended installation method as it allows you to easily update the extension in the future. **Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
 
-**Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
-
-1. Require the desired version of AvaTax:
+1. Require the desired version of AvaTax (see [note above](#version-notes) for differences in the versions):
 
    1. 2.x.x Release Candidate: 
+
+      The 2.x.x Release Candidate currently requires Classy Llama's fork of the AvaTax PHP Library. To ensure you get the correct version of the Library, add the following to your project's composer.json repositories:
+      ```
+      "classyllama-avatax": {
+        "type": "git",
+        "url": "git@github.com:classyllama/AvaTax-REST-V2-PHP-SDK.git"
+      }
+      ```
+      
+      Also, add the following to the same composer.json `require` section:
+      ```
+      "avalara/avataxclient": "dev-integration/release-2.0.0 as 18.4.3.191"
+      ```
+
+      Finally, require the ClassyLlama_AvaTax module:
 
       ```
       composer require classyllama/module-avatax:2.0.0-RC1
       ```
-      
-      The 2.x.x release candidate contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md)
-      
-      These features are currently in beta. Please report issues by [creating Github issues](https://github.com/classyllama/ClassyLlama_AvaTax/issues).
 
-   2. 1.4.x Stable
+   2. 1.x.x Stable
 
       ```
       composer require classyllama/module-avatax
@@ -150,6 +167,7 @@ Solution: You'll need to install the PHP SoapClient library, per the [prerequisi
 ## Known Issues
 
 - Gift Wrapping and Multi-Address Checkout - If a customer checks out using the multi address checkout, uses multiple ship-to addresses, and adds gift wrapping to any of the items, once the customer places the order, the **totals** section for each of the resulting orders will contain the gift wrapping price, regardless of whether that order contains gift wrapping.
+- <a name="admin-order-create-sales-tax-issue">Admin Guest Order Create Sales Tax Issue With Customer Group</a> - If you are creating an order in the admin for a new user and select a customer group that should be tax exempt please be aware that the totals section on the create order form may not always calculate tax correctly. Placing the order will collect the tax totals as expected.
 - Unit of Measure HS Codes are currently in development within AvaTax's API, therefore the API around Unit of Measure is unstable. For this reason, this module currently does not support any HS Codes that require a Unit of Measure. Avoid using HS Codes with Unit of Measure as they will break checkout.
 - If a user proceeds to the 2nd step of checkout (chooses a shipping address and shipping method), then returns to the cart, the cart tax estimator will send 2 requests to the AvaTax API for tax information. It is also possible during these 2 calculations, that no shipping information will be provided, therefore the estimator can show that there is no cost for shipping. If you proceed to checkout, on the 2nd step of checkout the tax calculations, including shipping, will be accurate.
 
