@@ -1,4 +1,6 @@
 <!--- Provide a general summary of the issue in the Title above -->
+<!-- See this documentation for how to provide detailed logging information: 
+     https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/getting-started.md#troubleshooting -->
 
 ### Preconditions
 <!--- Provide a more detailed information of environment you use -->
