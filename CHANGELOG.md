@@ -1,4 +1,8 @@
-### 1.5.1 (2019-1-30)
+### 1.5.3 (2019-02-22)
+* Added config fields to allow for calculating tax prior to discounts and send custom shipping tax code [PR #239](https://github.com/classyllama/ClassyLlama_AvaTax/pull/239) and [PR #231](https://github.com/classyllama/ClassyLlama_AvaTax/pull/231)
+* Updated support documentation
+
+### 1.5.1 (2019-01-30)
 * Fix issue with payload extender in shipping-save-processor [#181](https://github.com/classyllama/ClassyLlama_AvaTax/issues/181)
 * Add message about known issue with admin order creation [#215](https://github.com/classyllama/ClassyLlama_AvaTax/issues/215)
 
