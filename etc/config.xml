@@ -56,6 +56,7 @@
                 <queue_admin_notification_enabled>1</queue_admin_notification_enabled>
                 <queue_failure_notification_enabled>1</queue_failure_notification_enabled>
                 <customer_code_format>id</customer_code_format>
+                <calculate_tax_before_discounts>0</calculate_tax_before_discounts>
             </avatax>
         </tax>
     </default>

@@ -47,6 +47,8 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_REGION_FILTER_LIST = 'tax/avatax/region_filter_list';
 
+    const XML_PATH_AVATAX_CALCULATE_BEFORE_DISCOUNT = 'tax/avatax/calculate_tax_before_discounts';
+
     const XML_PATH_AVATAX_LIVE_MODE = 'tax/avatax/live_mode';
 
     const XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER = 'tax/avatax/production_account_number';
@@ -1073,6 +1075,19 @@ class Config extends AbstractHelper
             $isSellerImporterOfRecord = false;
         }
         return $isSellerImporterOfRecord;
+    }
+
+    /**
+     * @param $store
+     * @return mixed
+     */
+    public function getCalculateTaxBeforeDiscount($store)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_CALCULATE_BEFORE_DISCOUNT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**

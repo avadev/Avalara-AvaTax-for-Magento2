@@ -79,6 +79,15 @@
                         <field id="filter_tax_by_region">1</field>
                     </depends>
                 </field>
+                <field id="calculate_tax_before_discounts" translate="label" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Calculate Tax Before Discount</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Should tax be calculated on each item before discounts are applied ]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="tax_mode" negative="1">1</field>
+                    </depends>
+                </field>
                 <field id="is_seller_importer_of_record" translate="label comment" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Set Seller as Importer of Record for Global Transactions</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
