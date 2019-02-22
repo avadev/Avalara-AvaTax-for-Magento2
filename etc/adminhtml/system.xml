@@ -79,6 +79,15 @@
                         <field id="filter_tax_by_region">1</field>
                     </depends>
                 </field>
+                <field id="calculate_tax_before_discounts" translate="label" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Calculate Tax Before Discount</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Should tax be calculated on each item before discounts are applied ]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="tax_mode" negative="1">1</field>
+                    </depends>
+                </field>
                 <field id="is_seller_importer_of_record" translate="label comment" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Set Seller as Importer of Record for Global Transactions</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -227,6 +236,14 @@
                     <label>Location Code</label>
                     <frontend_class>validate-length maximum-length-50</frontend_class>
                     <comment><![CDATA[Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                 <field id="shipping_tax_code" translate="label" type="text" sortOrder="3065" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <config_path>tax/avatax/shipping_tax_code</config_path>
+                    <label>Shipping Tax Code</label>
+                    <comment>The Avalara tax code used to classify the shipping service type.</comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
