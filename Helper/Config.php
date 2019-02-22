@@ -134,6 +134,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
 
     const XML_PATH_AVATAX_ADMIN_IS_SELLER_IMPORTER_OF_RECORD = 'tax/avatax/is_seller_importer_of_record';
+
+    const XML_PATH_AVATAX_SHIPPING_TAX_CODE = 'tax/avatax/shipping_tax_code';
     /**#@-*/
 
     /**
@@ -1083,6 +1085,22 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_CALCULATE_BEFORE_DISCOUNT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+    * Get Shipping Tax Code.
+    *
+    * @param $store
+    *
+    * @return string
+    */
+    public function getShippingTaxCode($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_SHIPPING_TAX_CODE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

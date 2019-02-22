@@ -2,6 +2,10 @@
 
 Agile, successful companies focus on their core business and outsource complex, administrative functions – such as payroll and sales tax management – to the experts. Avalara can address your sales tax challenges with AvaTax. It’s the fastest, easiest, most accurate and affordable way to calculate sales tax; manage exemption certificates; file returns; and remit payments across multiple tax regions. Our tax decision engine determines rates based on 100,000+ taxability rules in 11,000+ taxing jurisdictions and instantly applies them to each transaction within your Magento shopping cart. 
 
+# Support
+
+Contact Avalara for any support requests, either via [their support email](support@avalara.com) or via [this page](https://salestax.avalara.com/contact-us/).
+
 <!-- This list is in each of the documentation files. Ensure any updates are applied to the list in each file. -->
 # Documentation
 
@@ -31,6 +35,8 @@ This extension contains integration tests to verify the extension's functionalit
   - :x: Support was dropped as of ClassyLlama_AvaTax 0.3.0
 
 As of version 1.0.0 of this extension, this extension supports [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html). Reference issue [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54) for additional notes and details.
+
+Please be aware that due to the complexity and number of third party checkout solutions this extension is only supported when using Magento's native checkout process.
 
 # License
 
