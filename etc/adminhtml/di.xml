@@ -146,4 +146,6 @@
     <type name="Magento\Ui\Component\Form">
         <plugin sortOrder="1" name="classyLlamaAvaTaxForm" type="ClassyLlama\AvaTax\Plugin\Component\FormPlugin"/>
     </type>
+
+    <preference for="Magento\Ui\Component\Layout\Tabs" type="ClassyLlama\AvaTax\Component\Layout\Tabs"/>
 </config>

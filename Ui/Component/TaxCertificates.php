@@ -15,16 +15,17 @@
 
 namespace ClassyLlama\AvaTax\Ui\Component;
 
+use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Ui\Component\AbstractComponent;
-use Magento\Framework\Registry;
-use Magento\Customer\Controller\RegistryConstants;
+use Magento\Ui\Component\Layout\Tabs\TabInterface;
 
 /**
  * Class ExportButton
  */
-class TaxCertificates extends AbstractComponent
+class TaxCertificates extends AbstractComponent implements TabInterface
 {
     /**
      * Component name
@@ -64,6 +65,11 @@ class TaxCertificates extends AbstractComponent
     protected $customerRepository;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\DocumentManagementConfig
+     */
+    protected $documentManagementConfig;
+
+    /**
      * ValidateAddress constructor
      *
      * @param ContextInterface                                       $context
@@ -73,6 +79,7 @@ class TaxCertificates extends AbstractComponent
      * @param \Magento\Backend\Block\Template\Context                $sessionContext
      * @param Registry                                               $registry
      * @param \Magento\Customer\Api\CustomerRepositoryInterface      $customerRepository
+     * @param \ClassyLlama\AvaTax\Helper\DocumentManagementConfig    $documentManagementConfig
      * @param array                                                  $components
      * @param array                                                  $data
      */
@@ -84,6 +91,7 @@ class TaxCertificates extends AbstractComponent
         \Magento\Backend\Block\Template\Context $sessionContext,
         Registry $registry,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig,
         array $components = [],
         array $data = []
     )
@@ -96,6 +104,7 @@ class TaxCertificates extends AbstractComponent
         $this->sessionContext = $sessionContext;
         $this->registry = $registry;
         $this->customerRepository = $customerRepository;
+        $this->documentManagementConfig = $documentManagementConfig;
     }
 
     /**
@@ -129,18 +138,32 @@ class TaxCertificates extends AbstractComponent
      * @return array
      * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
      */
-    protected function getAvailableExemptionZones() {
+    protected function getAvailableExemptionZones()
+    {
         $zones = $this->companyRest->getCertificateExposureZones();
 
-        return array_map(function($zone) {return $zone->name;}, $zones->value);
+        return array_map(
+            function ($zone) {
+                return $zone->name;
+            },
+            $zones->value
+        );
     }
 
     /**
      * @return void
+     * @throws LocalizedException
      * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function prepare()
     {
+        if (!$this->canShowTab()) {
+            parent::prepare();
+
+            return;
+        }
+
         $gridComponent = $this->getComponent('customer_tax_certificates_grid');
         $config = $gridComponent->getData('config');
         $config['shouldShowWarning'] = $this->shouldShowWarning();
@@ -169,5 +192,83 @@ class TaxCertificates extends AbstractComponent
         $this->setData('config', $config);
 
         parent::prepare();
+    }
+
+    /**
+     * Return Tab label
+     *
+     * @return string
+     */
+    public function getTabLabel()
+    {
+        return '';
+    }
+
+    /**
+     * Return Tab title
+     *
+     * @return string
+     */
+    public function getTabTitle()
+    {
+        return '';
+    }
+
+    /**
+     * Tab class getter
+     *
+     * @return string
+     */
+    public function getTabClass()
+    {
+        return '';
+    }
+
+    /**
+     * Return URL link to Tab content
+     *
+     * @return string
+     */
+    public function getTabUrl()
+    {
+        return '';
+    }
+
+    /**
+     * Tab should be loaded trough Ajax call
+     *
+     * @return bool
+     */
+    public function isAjaxLoaded()
+    {
+        false;
+    }
+
+    /**
+     * Can show tab in tabs
+     *
+     * @return boolean
+     */
+    public function canShowTab()
+    {
+        $customerId = $this->registry->registry(RegistryConstants::CURRENT_CUSTOMER_ID);
+
+        try {
+            return $customerId !== null && $this->documentManagementConfig->isEnabled(
+                    $this->customerRepository->getById($customerId)->getStoreId()
+                );
+        } catch (\Throwable $throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * Tab is hidden
+     *
+     * @return boolean
+     */
+    public function isHidden()
+    {
+        false;
     }
 }
