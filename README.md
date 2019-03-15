@@ -32,7 +32,7 @@ This extension contains integration tests to verify the extension's functionalit
   - :white_check_mark: Community
   - :white_check_mark: Enterprise
 - Magento 2.0.x
-  - :x: Support was dropped as of ClassyLlama_AvaTax 0.3.0
+  - :x: [Support was dropped](https://github.com/classyllama/ClassyLlama_AvaTax/issues/52#issuecomment-283944368) as of ClassyLlama_AvaTax 0.3.0
 
 As of version 1.0.0 of this extension, this extension supports [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html). Reference issue [#54](https://github.com/classyllama/ClassyLlama_AvaTax/issues/54) for additional notes and details.
 
