@@ -15,7 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-use Avalara\TransactionBuilderFactory;
+use ClassyLlama\AvaTax\Model\Factory\TransactionBuilderFactory;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResultFactory;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
