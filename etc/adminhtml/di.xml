@@ -148,4 +148,8 @@
     </type>
 
     <preference for="Magento\Ui\Component\Layout\Tabs" type="ClassyLlama\AvaTax\Component\Layout\Tabs"/>
+
+    <type name="Magento\Sales\Model\AdminOrder\Create">
+        <plugin name="avatax_sales_model_admin_order_create" type="ClassyLlama\AvaTax\Plugin\Sales\Model\AdminOrder\Create" />
+    </type>
 </config>
