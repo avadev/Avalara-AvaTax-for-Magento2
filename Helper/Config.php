@@ -131,6 +131,8 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
 
+    const XML_PATH_AVATAX_QUEUE_FAILURE_NOTIFICATION_ENABLED = 'tax/avatax/queue_failure_notification_enabled';
+
     const XML_PATH_AVATAX_ADMIN_NOTIFICATION_IGNORE_NATIVE_TAX_RULES = 'tax/avatax/ignore_native_tax_rules_notification';
 
     const XML_PATH_AVATAX_ADMIN_IS_SELLER_IMPORTER_OF_RECORD = 'tax/avatax/is_seller_importer_of_record';
@@ -1049,7 +1051,7 @@ class Config extends AbstractHelper
      */
     public function getQueueFailureNotificationEnabled()
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME);
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_FAILURE_NOTIFICATION_ENABLED);
     }
 
     public function isNativeTaxRulesIgnored()
