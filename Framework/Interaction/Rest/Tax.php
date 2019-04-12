@@ -188,9 +188,9 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                 $transactionBuilder->withTaxOverride($override->getType(), $override->getReason(), $override->getTaxAmount(), $override->getTaxDate());
             }
         }
-        if($request->hasShippingMode()) {
-            $transactionBuilder->withParameter(self::TRANSACTION_PARAM_NAME_SHIPPING_MODE, $request->getShippingMode());
-        }
+//        if($request->hasShippingMode()) {
+//            $transactionBuilder->withParameter(self::TRANSACTION_PARAM_NAME_SHIPPING_MODE, $request->getShippingMode());
+//        }
     }
 
     /**

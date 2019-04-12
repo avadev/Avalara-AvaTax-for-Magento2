@@ -361,46 +361,46 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="air_shipping_methods" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Air Shipping Methods</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
-                    <comment><![CDATA[Select all air shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="ocean_shipping_methods" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Ocean Shipping Methods</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>
-                    <comment><![CDATA[Select all ocean shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="custom_shipping_methods_map" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                    <label>Custom Shipping Mode Mapping</label>
-                    <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CustomShippingMethods</frontend_model>
-                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
-                    <comment>
-                        <![CDATA[If using an integration with a third-party shipping service, you can use this custom mapping to associate the specific shipping method codes stored on orders with a shipping mode.]]>
-                    </comment>
-                </field>
-                <field id="default_shipping_mode" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Default Shipping Mode</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\DefaultCrossBorderType</source_model>
-                    <comment><![CDATA[The shipping mode that should be sent to AvaTax if the shipping method is not mapped in the multiselects above.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="default_border_type" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Default Border Type</label>
-                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\CrossBorderType</source_model>
-                    <comment><![CDATA[If a product is not assigned to a Cross Border Type, this will be the default attribute value.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
+                <!--<field id="air_shipping_methods" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">-->
+                    <!--<label>Air Shipping Methods</label>-->
+                    <!--<source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>-->
+                    <!--<comment><![CDATA[Select all air shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>-->
+                    <!--<depends>-->
+                        <!--<field id="enabled">1</field>-->
+                    <!--</depends>-->
+                <!--</field>-->
+                <!--<field id="ocean_shipping_methods" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">-->
+                    <!--<label>Ocean Shipping Methods</label>-->
+                    <!--<source_model>ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods</source_model>-->
+                    <!--<comment><![CDATA[Select all ocean shipping methods. Ensure that the shipping methods selected above are not selected in either of the other shipping method lists.]]></comment>-->
+                    <!--<depends>-->
+                        <!--<field id="enabled">1</field>-->
+                    <!--</depends>-->
+                <!--</field>-->
+                <!--<field id="custom_shipping_methods_map" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">-->
+                    <!--<label>Custom Shipping Mode Mapping</label>-->
+                    <!--<frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CustomShippingMethods</frontend_model>-->
+                    <!--<backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>-->
+                    <!--<comment>-->
+                        <!--<![CDATA[If using an integration with a third-party shipping service, you can use this custom mapping to associate the specific shipping method codes stored on orders with a shipping mode.]]>-->
+                    <!--</comment>-->
+                <!--</field>-->
+                <!--<field id="default_shipping_mode" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">-->
+                    <!--<label>Default Shipping Mode</label>-->
+                    <!--<source_model>ClassyLlama\AvaTax\Model\Config\Source\DefaultCrossBorderType</source_model>-->
+                    <!--<comment><![CDATA[The shipping mode that should be sent to AvaTax if the shipping method is not mapped in the multiselects above.]]></comment>-->
+                    <!--<depends>-->
+                        <!--<field id="enabled">1</field>-->
+                    <!--</depends>-->
+                <!--</field>-->
+                <!--<field id="default_border_type" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">-->
+                    <!--<label>Default Border Type</label>-->
+                    <!--<source_model>ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\CrossBorderType</source_model>-->
+                    <!--<comment><![CDATA[If a product is not assigned to a Cross Border Type, this will be the default attribute value.]]></comment>-->
+                    <!--<depends>-->
+                        <!--<field id="enabled">1</field>-->
+                    <!--</depends>-->
+                <!--</field>-->
             </group>
             <group id="avatax_document_management" translate="label" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax - Document Management</label>
