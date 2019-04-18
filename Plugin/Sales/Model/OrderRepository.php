@@ -114,8 +114,11 @@ class OrderRepository
                             }
 
                             foreach ($taxRates as $rate) {
-                                $taxAmount = $this->getTaxRateAmount($rate);
-                                $ratio = ($this->isModuleEnabled($order) ? $taxAmount : $rate['percent']) / $sum;
+                                $ratio = 0;
+                                if ($sum) {
+                                    $taxAmount = $this->getTaxRateAmount($rate);
+                                    $ratio = ($this->isModuleEnabled($order) ? $taxAmount : $rate['percent']) / $sum;
+                                }
                                 $realAmount = $rates['amount'] * $ratio;
                                 $realBaseAmount = $rates['base_amount'] * $ratio;
                                 $ratesIdQuoteItemId[$rates['id']][] = [
