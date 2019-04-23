@@ -87,6 +87,7 @@ class OrderRepository
         $taxesForItems = $extensionAttribute->getItemAppliedTaxes() ?? [];
 
         $ratesIdQuoteItemId = [];
+        $isModuleEnabled = $this->isModuleEnabled($order);
         foreach ($taxesForItems as $taxesArray) {
             foreach ($taxesArray['applied_taxes'] as $rates) {
                 if (isset($rates['extension_attributes'])) {
@@ -110,14 +111,14 @@ class OrderRepository
                             $sum = 0;
                             foreach ($taxRates as $rate) {
                                 $taxAmount = $this->getTaxRateAmount($rate);
-                                $sum += $this->isModuleEnabled($order) ? $taxAmount : $rate['percent'];
+                                $sum += $isModuleEnabled ? $taxAmount : $rate['percent'];
                             }
 
                             foreach ($taxRates as $rate) {
                                 $ratio = 0;
                                 if ($sum) {
                                     $taxAmount = $this->getTaxRateAmount($rate);
-                                    $ratio = ($this->isModuleEnabled($order) ? $taxAmount : $rate['percent']) / $sum;
+                                    $ratio = ($isModuleEnabled ? $taxAmount : $rate['percent']) / $sum;
                                 }
                                 $realAmount = $rates['amount'] * $ratio;
                                 $realBaseAmount = $rates['base_amount'] * $ratio;
@@ -154,7 +155,7 @@ class OrderRepository
                                 continue;
                             }
                             $baseRealAmount = $row['base_amount'] / $row['percent'] * $tax['percent'];
-                            if ($this->isModuleEnabled($order)) {
+                            if ($isModuleEnabled) {
                                 $baseRealAmount = $this->getTaxRateAmount($tax);
                             }
                         }
