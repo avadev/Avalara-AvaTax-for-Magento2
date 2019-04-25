@@ -71,6 +71,13 @@ class Task
     protected $deleteFailedCount = 0;
 
     /**
+     * Seconds to wait before processing an item in the queue, before it gets processed.
+     *
+     * @see https://github.com/classyllama/ClassyLlama_AvaTax/issues/170 for context
+     */
+    const QUEUE_PROCESSING_DELAY = 2 * 60;
+
+    /**
      * Task constructor.
      * @param AvaTaxLogger $avaTaxLogger
      * @param Config $avaTaxConfig
@@ -154,7 +161,9 @@ class Task
         // Initialize the queue collection
         /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
         $queueCollection = $this->queueCollectionFactory->create();
-        $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PENDING);
+        $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PENDING)
+            ->addCreatedAtBeforeFilter(self::QUEUE_PROCESSING_DELAY);
+
 
         // Process each queued entity
         /** @var $queue Queue */

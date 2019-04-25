@@ -29,4 +29,7 @@
     <type name="Magento\Sales\Block\Adminhtml\Order\Create\Form\Account">
         <plugin name="classyllama_avatax_sales_order_create_form_account_admin_block" type="ClassyLlama\AvaTax\Plugin\Sales\Admin\Order\Create\Form\Account" />
     </type>
+    <type name="Magento\Sales\Model\AdminOrder\Create">
+        <plugin name="avatax_sales_model_admin_order_create" type="ClassyLlama\AvaTax\Plugin\Sales\Model\AdminOrder\Create" />
+    </type>
 </config>

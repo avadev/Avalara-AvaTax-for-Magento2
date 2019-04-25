@@ -63,7 +63,7 @@
                 <field id="filter_tax_by_region" translate="label" type="select" sortOrder="1006" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Filter Tax Calculation By Region</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so, as filtering tax calculation by region may complicate report reconciliation. Non-nexus tax requests are not counted as billable transactions, so filtering by region does not reduce costs.]]></comment>
+                    <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so. See the [documentation](https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/sales-tax.md#filter_by_region) for more details.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="tax_mode" negative="1">1</field>
