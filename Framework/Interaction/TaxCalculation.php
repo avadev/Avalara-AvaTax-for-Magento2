@@ -367,7 +367,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         foreach ($getTaxResult->getTaxSummary() as $key => $row) {
             $arrayKey = $row->getJurisCode() . '_' . $row->getJurisName();
             $ratePercent = ($row->getRate() * Tax::RATE_MULTIPLIER);
-            $tax = $this->convertCurrency($row, $useBaseCurrency, $scope);
+            $tax = $this->convertCurrency($row, $useBaseCurrency, $scope, true);
             $taxable = (float)$row->getTaxable();
             if (!$useBaseCurrency) {
                 $taxable = $this->priceCurrency->convert($taxable, $scope);
@@ -543,12 +543,14 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param TaxDetail|TaxLine $row
      * @param bool $useBaseCurrency
      * @param ScopeInterface $scope
+     * @param bool $forceSimpleConversion
      * @return float|int
      */
     public function convertCurrency(
         $row,
         $useBaseCurrency,
-        $scope
+        $scope,
+        $forceSimpleConversion = false
     ) {
         $tax = (float)$row->getTax();
 
@@ -577,7 +579,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
              */
             $taxableAmount = (float)$row->getTaxable();
             $rate = $row->getRate();
-            if (abs($taxableAmount * $rate - $tax) < 0.01) {
+            if (!$forceSimpleConversion && abs($taxableAmount * $rate - $tax) < 0.01) {
                 $tax = $this->priceCurrency->convert($taxableAmount, $scope) * $rate;
             } else {
                 $tax = $this->priceCurrency->convert($tax, $scope);
