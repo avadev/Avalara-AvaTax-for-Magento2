@@ -1,3 +1,6 @@
+### 1.5.6 (2019-05-02)
+* Fixed issue where Incorrect tax details displayed for Canada transactions
+
 ### 1.5.5 (2019-04-24)
 * Fixed issue where Incorrect tax details displayed for Canada transactions
 
