@@ -46,7 +46,7 @@ For support with your AvaTax account, please visit [avalara.com/technical-suppor
 
 ### Supported Magento Versions
 
-Refer to [README](https://github.com/classyllama/ClassyLlama_AvaTax#magento-version-support) for supported versions/editions.
+Refer to [README](https://github.com/avadev/Avalara-AvaTax-for-Magento2#magento-version-support) for supported versions/editions.
 
 ###  Installation
 
@@ -56,7 +56,7 @@ Refer to [README](https://github.com/classyllama/ClassyLlama_AvaTax#magento-vers
 
 There are two versions of this extension:
 
-* 2.x.x Release Candidate - This version contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md). If you'd like to use this version of the extension, you will need to work with your Avalara support representative to ensure your account has these features activated. Please report issues by [creating Github issues](https://github.com/classyllama/ClassyLlama_AvaTax/issues).
+* 2.x.x Release Candidate - This version contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md). If you'd like to use this version of the extension, you will need to work with your Avalara support representative to ensure your account has these features activated. Please report issues by [creating Github issues](https://github.com/avadev/Avalara-AvaTax-for-Magento2/issues).
 * 1.x.x Stable - This version supports Sales Tax & Address Validation. If you don't need any of the new features present in 2.x.x, you should install this version.
 
 #### Install via Composer
@@ -110,7 +110,7 @@ Only use this installation method if you're unable to use Composer. The installa
 
 1. Create an `app/code/ClassyLlama/AvaTax` directory in your Magento installation.
 
-2. Download the latest source code from this page: [https://github.com/classyllama/ClassyLlama_AvaTax/releases](https://github.com/classyllama/ClassyLlama_AvaTax/releases )
+2. Download the latest source code from this page: [https://github.com/avadev/Avalara-AvaTax-for-Magento2/releases](https://github.com/avadev/Avalara-AvaTax-for-Magento2/releases )
 
 3. Extract the file and copy the contents of the ClassyLlama_AvaTax-XXX directory into the `app/code/ClassyLlama/AvaTax` directory.
 
@@ -173,7 +173,7 @@ Solution: You'll need to install the PHP SoapClient library, per the [prerequisi
 
 ## Release Notes
 
-See this page for release notes: [https://github.com/classyllama/ClassyLlama_AvaTax/blob/master/CHANGELOG.md](https://github.com/classyllama/ClassyLlama_AvaTax/blob/master/CHANGELOG.md)
+See this page for release notes: [https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/master/CHANGELOG.md](https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/master/CHANGELOG.md)
 
 
 ## Pre-Launch Sales Record Cleanup
