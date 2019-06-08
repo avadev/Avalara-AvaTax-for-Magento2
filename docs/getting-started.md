@@ -67,11 +67,11 @@ This is the recommended installation method as it allows you to easily update th
 
    1. 2.x.x Release Candidate: 
 
-      The 2.x.x Release Candidate currently requires Classy Llama's fork of the AvaTax PHP Library. To ensure you get the correct version of the Library, add the following to your project's composer.json repositories:
+      The 2.x.x Release Candidate currently requires Avalara's fork of the AvaTax PHP Library. To ensure you get the correct version of the Library, add the following to your project's composer.json repositories:
       ```
-      "classyllama-avatax": {
+      "avalara-avatax": {
         "type": "git",
-        "url": "git@github.com:classyllama/AvaTax-REST-V2-PHP-SDK.git"
+        "url": "git@github.com:avadev/AvaTax-REST-V2-PHP-SDK.git"
       }
       ```
       
@@ -80,16 +80,16 @@ This is the recommended installation method as it allows you to easily update th
       "avalara/avataxclient": "dev-integration/release-2.0.0 as 18.4.3.191"
       ```
 
-      Finally, require the ClassyLlama_AvaTax module:
+      Finally, require the AvaTax module:
 
       ```
-      composer require classyllama/module-avatax:2.0.0-RC1
+      composer require avalara/avatax-magento:2.0.0-RC1
       ```
 
    2. 1.x.x Stable
 
       ```
-      composer require classyllama/module-avatax
+      composer require avalara/avatax-magento
       ```
 
 2. Setup the AvaTax module in magento
@@ -193,7 +193,7 @@ TRUNCATE TABLE `avatax_log`;
 2. If you installed the module using Composer, run these commands in the root of your Magento installation directory:
 
    ```bash
-   composer remove classyllama/module-avatax
+   composer remove avalara/avatax-magento
    composer remove avalara/avatax
    ```
 
