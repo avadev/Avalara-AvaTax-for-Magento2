@@ -88,7 +88,7 @@ Many merchants will not need to use Customer Usage Type. Unless you have custome
    3. Select the appropriate Customer Group from the **Group** dropdown.
 4. Now, when this customer places an order, the associated Customer Usage Type will be sent to the AvaTax API in the **CustomerUsageType** field.
 
-If you are utilizing customer groups in a way that mixes taxable and tax exempt customers within the same group(s), then you would need to consider custom development to accommodate exempting specific customers from sales tax. A possible solution is the introduction of a plugin for the [_\ClassyLlama\AvaTax\Helper\TaxClass::getAvataxTaxCodeForCustomer_](https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/Helper/TaxClass.php) method that could read the value of a custom attribute for a customer and replace the CustomerUsageType for the customer’s assigned customer group with the appropriate value (e.g. ‘F’ = Religious/Education) to achieve tax exempt status for the lookup.
+If you are utilizing customer groups in a way that mixes taxable and tax exempt customers within the same group(s), then you would need to consider custom development to accommodate exempting specific customers from sales tax. A possible solution is the introduction of a plugin for the [_\ClassyLlama\AvaTax\Helper\TaxClass::getAvataxTaxCodeForCustomer_](https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/develop/Helper/TaxClass.php) method that could read the value of a custom attribute for a customer and replace the CustomerUsageType for the customer’s assigned customer group with the appropriate value (e.g. ‘F’ = Religious/Education) to achieve tax exempt status for the lookup.
 
 ## AvaTax Queue
 
@@ -131,7 +131,7 @@ These tables are not used for anything, but if you need to generate custom repor
 
 Note: An entry is not made in these tables for an invoice or credit memo until it has been submitted to AvaTax. 
 
-Note: Prior to version 0.4.0 of this extension, two fields (avatax\_is\_unbalanced and base\_avatax\_tax\_amount) were added to the sales\_invoice and sales\_creditmemo tables that tracked this information. Per the [0.4.0 release notes](https://github.com/classyllama/ClassyLlama_AvaTax/releases/tag/0.4.0), if a merchant upgrades to 0.4.0, the columns on those tables will be migrated to the avatax\_sales\_invoice and avatax\_sales\_creditmemo tables mentioned above.
+Note: Prior to version 0.4.0 of this extension, two fields (avatax\_is\_unbalanced and base\_avatax\_tax\_amount) were added to the sales\_invoice and sales\_creditmemo tables that tracked this information. Per the [0.4.0 release notes](https://github.com/avadev/Avalara-AvaTax-for-Magento2/releases/tag/0.4.0), if a merchant upgrades to 0.4.0, the columns on those tables will be migrated to the avatax\_sales\_invoice and avatax\_sales\_creditmemo tables mentioned above.
 
 ## AvaTax Logging
 
