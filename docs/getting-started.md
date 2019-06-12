@@ -179,7 +179,6 @@ TRUNCATE TABLE `avatax_log`;
 
    ```bash
    composer remove avalara/avatax-magento
-   composer remove avalara/avatax
    ```
 
    If you installed the module by copying files, run these commands in the root of your Magento installation directory:
