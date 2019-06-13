@@ -67,23 +67,8 @@ This is the recommended installation method as it allows you to easily update th
 
    1. 2.x.x Release Candidate: 
 
-      The 2.x.x Release Candidate currently requires Avalara's fork of the AvaTax PHP Library. To ensure you get the correct version of the Library, add the following to your project's composer.json repositories:
       ```
-      "avalara-avatax": {
-        "type": "git",
-        "url": "git@github.com:avadev/AvaTax-REST-V2-PHP-SDK.git"
-      }
-      ```
-      
-      Also, add the following to the same composer.json `require` section:
-      ```
-      "avalara/avataxclient": "dev-integration/release-2.0.0 as 18.4.3.191"
-      ```
-
-      Finally, require the AvaTax module:
-
-      ```
-      composer require avalara/avatax-magento:2.0.0-RC1
+      composer require avalara/avatax-magento:2.0.2-RC1
       ```
 
    2. 1.x.x Stable
@@ -194,7 +179,6 @@ TRUNCATE TABLE `avatax_log`;
 
    ```bash
    composer remove avalara/avatax-magento
-   composer remove avalara/avatax
    ```
 
    If you installed the module by copying files, run these commands in the root of your Magento installation directory:
