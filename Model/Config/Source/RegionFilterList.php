@@ -56,9 +56,10 @@ class RegionFilterList extends \Magento\Directory\Model\Config\Source\Allregion
     }
 
     /**
+     * @param bool $isMultiselect
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray($isMultiselect = false)
     {
         if (!$this->_options) {
             $selectedCountries = $this->getCountryList();
