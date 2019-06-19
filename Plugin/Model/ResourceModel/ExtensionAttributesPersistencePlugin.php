@@ -156,10 +156,12 @@ class ExtensionAttributesPersistencePlugin
                     $tablesToUpdate[$tableName]['join_on_field']
                 );
 
-                $subject->getConnection()->delete(
-                    $tableName,
-                    "{$joinReferenceField} = {$deleteId}"
-                );
+                if ($deleteId) {
+                    $subject->getConnection()->delete(
+                        $tableName,
+                        "{$joinReferenceField} = {$deleteId}"
+                    );
+                }
 
                 continue;
             }
