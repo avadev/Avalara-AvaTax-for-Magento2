@@ -38,12 +38,15 @@ define(
               alert) {
         'use strict';
 
+        var payloadExtenderLoaded = false;
         var getPayloadExtender = function() {
             var extenderRequest = new $.Deferred();
             require(
                 ['Magento_Checkout/js/model/shipping-save-processor/payload-extender'],
                 function (payloadExtender) {
                     extenderRequest.resolve(payloadExtender);
+                    // Used for compatibility with Magento versions prior to 2.1.15
+                    payloadExtenderLoaded = true;
                 }, function (err) {
                     extenderRequest.reject(err);
                 }
@@ -92,7 +95,7 @@ define(
                                 $(validateAddressContainerSelector + " *").hide();
                             }
                             // End Edit
-                            fullScreenLoader.stopLoader();
+                            fullScreenLoader.stopLoader(!payloadExtenderLoaded);
                         }
                     ).fail(
                         function (response) {
@@ -104,7 +107,7 @@ define(
                             });
                             //errorProcessor.process(response);
                             // End Edit
-                            fullScreenLoader.stopLoader();
+                            fullScreenLoader.stopLoader(!payloadExtenderLoaded);
                         }
                     );
                 });
