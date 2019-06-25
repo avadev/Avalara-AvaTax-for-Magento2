@@ -81,10 +81,10 @@ class OrderRepository
         }
 
         /** @var OrderTaxDetailsAppliedTaxInterface[]|array $taxes */
-        $taxes = $extensionAttribute->getAppliedTaxes() ?? [];
+        $taxes = $extensionAttribute->getAppliedTaxes() ? $extensionAttribute->getAppliedTaxes() : [];
 
         /** @var OrderTaxDetailsItemInterface[]|array $taxesForItems */
-        $taxesForItems = $extensionAttribute->getItemAppliedTaxes() ?? [];
+        $taxesForItems = $extensionAttribute->getItemAppliedTaxes() ? $extensionAttribute->getAppliedTaxes() : [];
 
         $ratesIdQuoteItemId = [];
         $isModuleEnabled = $this->isModuleEnabled($order);
