@@ -1,5 +1,5 @@
 {
-    "name": "avalara/module-avatax",
+    "name": "avalara/avatax-magento",
     "type": "magento2-module",
     "version": "2.0.3-RC1",
     "license": "OSL-3.0",
