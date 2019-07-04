@@ -21,6 +21,10 @@
                 <label>AvaTax Settings</label>
                 <comment><![CDATA[For complete and up-to-date documentation, please visit <a href="http://www.classyllama.com/documentation/extensions/avatax-magento-2-module" target="_blank">www.classyllama.com/documentation/extensions/avatax-magento-2-module</a>.</p>
                     ]]></comment>
+                <field id="avatax_extension_version" translate="label" type="label" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>AvaTax Extension Version:</label>
+                    <comment model="ClassyLlama\AvaTax\Model\Config\Comment" />
+                </field>
                 <field id="enabled" translate="label" type="select" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable AvaTax</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
