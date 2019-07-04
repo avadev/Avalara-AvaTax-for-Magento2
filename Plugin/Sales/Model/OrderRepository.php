@@ -84,7 +84,7 @@ class OrderRepository
         $taxes = $extensionAttribute->getAppliedTaxes() ? $extensionAttribute->getAppliedTaxes() : [];
 
         /** @var OrderTaxDetailsItemInterface[]|array $taxesForItems */
-        $taxesForItems = $extensionAttribute->getItemAppliedTaxes() ? $extensionAttribute->getAppliedTaxes() : [];
+        $taxesForItems = $extensionAttribute->getItemAppliedTaxes() ? $extensionAttribute->getItemAppliedTaxes() : [];
 
         $ratesIdQuoteItemId = [];
         $isModuleEnabled = $this->isModuleEnabled($order);
