@@ -91,7 +91,7 @@ class QueueFailureNotification implements MessageInterface
     {
         // Each week there are failures would introduce a new identity for the Message
         // and prompt the admin user to acknowledge the notification.
-        return md5('AVATAX_QUEUE_FAILURE_' . implode(':', array_keys($this->getQueueFailureStats())));
+        return sha1('AVATAX_QUEUE_FAILURE_' . implode(':', array_keys($this->getQueueFailureStats())));
     }
 
     /**
