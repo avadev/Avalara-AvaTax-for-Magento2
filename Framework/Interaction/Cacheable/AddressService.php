@@ -24,6 +24,7 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Framework\Serialize\Serializer\Serialize;
 
 class AddressService
 {
@@ -45,22 +46,30 @@ class AddressService
     protected $type = null;
 
     /**
+     * @var Serialize
+     */
+    protected $serializer;
+
+    /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      * @param Address $interactionAddress
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param null $type
+     * @param Serialize $serializer
      */
     public function __construct(
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
         Address $interactionAddress,
+        Serialize $serializer,
         MetaDataObjectFactory $metaDataObjectFactory,
         $type = null
     ) {
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->interactionAddress = $interactionAddress;
+        $this->serializer = $serializer;
         $this->metaDataObject = $metaDataObjectFactory->create(
             ['metaDataProperties' => \ClassyLlama\AvaTax\Framework\Interaction\Address::$validFields]
         );
@@ -78,7 +87,12 @@ class AddressService
     public function validate(ValidateRequest $validateRequest, $storeId)
     {
         $addressCacheKey = $this->getCacheKey($validateRequest->getAddress()) . $storeId;
-        $validateResult = @unserialize($this->cache->load($addressCacheKey));
+        $cacheData = $this->cache->load($addressCacheKey);
+        if (false === $cacheData || null === $cacheData || '' === $cacheData) {
+            $validateResult = '';
+        } else {
+            $validateResult = $this->serializer->unserialize($cacheData);
+        }
 
         if ($validateResult instanceof ValidateResult) {
             $this->avaTaxLogger->addDebug('Loaded \AvaTax\ValidateResult from cache.', [
@@ -93,7 +107,7 @@ class AddressService
             $addressService = $this->interactionAddress->getAddressService($this->type, $storeId);
             $validateResult = $addressService->validate($validateRequest);
 
-            $serializedValidateResult = serialize($validateResult);
+            $serializedValidateResult = $this->serializer->serialize($validateResult);
             $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
 
             $validAddress =
