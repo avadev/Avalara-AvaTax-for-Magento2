@@ -15,7 +15,6 @@
 var config = {
     map: {
         '*': {
-            "Magento_Checkout/js/model/shipping-save-processor/default": 'ClassyLlama_AvaTax/js/model/shipping-save-processor/default',
             "Magento_Checkout/js/model/shipping-save-processor/gift-registry": 'ClassyLlama_AvaTax/js/model/shipping-save-processor/gift-registry',
             "Magento_Tax/template/checkout/cart/totals/tax": 'ClassyLlama_AvaTax/template/checkout/cart/totals/tax',
             "Magento_Checkout/template/payment-methods/list": 'ClassyLlama_AvaTax/template/payment-methods/list',
@@ -47,6 +46,13 @@ var config = {
             },
             'ClassyLlama_AvaTax/js/action/account-add-exemption': {
                 'ClassyLlama_AvaTax/js/customer-account-add-exemption': true
+            }
+        }
+    },
+    config: {
+        mixins: {
+            'Magento_Checkout/js/model/shipping-save-processor/default': {
+                'ClassyLlama_AvaTax/js/model/shipping-save-processor/default': true
             }
         }
     }

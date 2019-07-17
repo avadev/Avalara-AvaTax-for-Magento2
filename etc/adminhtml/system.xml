@@ -72,7 +72,7 @@
                     <config_path>tax/avatax/filter_tax_by_region</config_path>
                     <label>Filter Tax Calculation By Region</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so, as filtering tax calculation by region may complicate report reconciliation. Non-nexus tax requests are not counted as billable transactions, so filtering by region does not reduce costs.]]></comment>
+                    <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so. See the [documentation](https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/sales-tax.md#filter_by_region) for more details.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="tax_mode" negative="1">1</field>
@@ -87,6 +87,15 @@
                         <field id="enabled">1</field>
                         <field id="tax_mode" negative="1">1</field>
                         <field id="filter_tax_by_region">1</field>
+                    </depends>
+                </field>
+                <field id="calculate_tax_before_discounts" translate="label" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Calculate Tax Before Discount</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Should tax be calculated on each item before discounts are applied ]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="tax_mode" negative="1">1</field>
                     </depends>
                 </field>
                 <field id="connection_settings_header" translate="label" type="label" sortOrder="1010" showInDefault="1" showInWebsite="0" showInStore="0">
@@ -216,6 +225,14 @@
                     <label>Location Code</label>
                     <frontend_class>validate-length maximum-length-50</frontend_class>
                     <comment><![CDATA[Optional, unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                 <field id="shipping_tax_code" translate="label" type="text" sortOrder="3065" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <config_path>tax/avatax/shipping_tax_code</config_path>
+                    <label>Shipping Tax Code</label>
+                    <comment>The Avalara tax code used to classify the shipping service type.</comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

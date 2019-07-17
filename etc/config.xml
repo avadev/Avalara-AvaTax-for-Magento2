@@ -23,6 +23,7 @@
                 <commit_submitted_transactions>1</commit_submitted_transactions>
                 <tax_calculation_countries_enabled>CA,US</tax_calculation_countries_enabled>
                 <use_business_identification_number>1</use_business_identification_number>
+                <shipping_tax_code>FR020100</shipping_tax_code>
                 <sku_shipping>Shipping</sku_shipping>
                 <sku_gift_wrap_order>GwOrder</sku_gift_wrap_order>
                 <sku_gift_wrap_item>GwItems</sku_gift_wrap_item>
@@ -58,6 +59,7 @@
                 <production_license_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <development_account_number backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <development_license_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <calculate_tax_before_discounts>0</calculate_tax_before_discounts>
             </avatax>
             <avatax_customs>
                 <enabled>0</enabled>

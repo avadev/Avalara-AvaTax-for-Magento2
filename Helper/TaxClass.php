@@ -24,11 +24,6 @@ use Magento\Store\Model\ScopeInterface;
 class TaxClass
 {
     /**
-     * Avatax shipping tax code
-     */
-    const SHIPPING_LINE_AVATAX_TAX_CODE = 'FR020100';
-
-    /**
      * Avatax gift certificate tax code
      */
     const GIFT_CARD_LINE_AVATAX_TAX_CODE = 'PG050000';
@@ -177,12 +172,13 @@ class TaxClass
 
     /**
      * Get AvaTax Tax Code for shipping
+     * Default Configuration Setting: FR020100
      *
      * @return string
      */
     public function getAvataxTaxCodeForShipping()
     {
-        return self::SHIPPING_LINE_AVATAX_TAX_CODE;
+        return $this->config->getShippingTaxCode();
     }
 
     /**

@@ -1,3 +1,30 @@
+### 1.5.7 (2019-05-06)
+* Fixed issue where Incorrect tax details displayed for Canada transactions
+* Updated support documentation
+
+### 1.5.6 (2019-05-02)
+* Fixed issue where Incorrect tax details displayed for Canada transactions
+
+### 1.5.5 (2019-04-24)
+* Fixed issue where Incorrect tax details displayed for Canada transactions
+
+### 1.5.4 (2019-04-12)
+* Fixed issue where Shipping Method Changing When "Same as Billing" Checked https://github.com/classyllama/ClassyLlama_AvaTax/issues/222
+* Fixed issue where Restocking Fee Causing Unbalance errors/Warning Banner Can't be Disabled https://github.com/classyllama/ClassyLlama_AvaTax/issues/226
+
+### 1.5.3 (2019-02-22)
+* Added config fields to allow for calculating tax prior to discounts and send custom shipping tax code [PR #239](https://github.com/classyllama/ClassyLlama_AvaTax/pull/239) and [PR #231](https://github.com/classyllama/ClassyLlama_AvaTax/pull/231)
+* Updated support documentation
+
+### 1.5.1 (2019-01-30)
+* Fix issue with payload extender in shipping-save-processor [#181](https://github.com/classyllama/ClassyLlama_AvaTax/issues/181)
+* Add message about known issue with admin order creation [#215](https://github.com/classyllama/ClassyLlama_AvaTax/issues/215)
+
+### 1.5.0 (2018-12-19)
+
+* Add support for payload extender in shipping-save-processor [#181](https://github.com/classyllama/ClassyLlama_AvaTax/issues/181)
+* Add support for Magento 2.3 [#108](https://github.com/classyllama/ClassyLlama_AvaTax/issues/108)
+
 ### 1.4.9 (2018-10-25)
 
 * Fix issue where $0 rates are inaccurate in tax summary [PR #193](https://github.com/classyllama/ClassyLlama_AvaTax/pull/193)

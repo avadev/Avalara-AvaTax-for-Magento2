@@ -21,13 +21,15 @@ use Magento\Directory\Model\Config\Source\Country;
 class TaxCalculationCountries extends Country
 {
     /**
-     * @param bool $isMultiselect
-     * @param string $foregroundCountries
-     * @return array
+     * @inheritdoc
      */
-    public function toOptionArray($isMultiselect = false, $foregroundCountries = '')
+    public function toOptionArray($isMultiselect = true, $foregroundCountries = '')
     {
         // Make US and CA show at top of list
-        return parent::toOptionArray(true, Config::$taxCalculationCountriesDefault);
+        if (!$foregroundCountries) {
+            $foregroundCountries = Config::$taxCalculationCountriesDefault;
+        }
+
+        return parent::toOptionArray($isMultiselect, $foregroundCountries);
     }
 }

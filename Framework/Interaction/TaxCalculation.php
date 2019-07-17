@@ -89,7 +89,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         TaxDetailsItemInterfaceFactory $taxDetailsItemDataObjectFactory,
         StoreManagerInterface $storeManager,
         TaxClassManagementInterface $taxClassManagement,
-        \Magento\Framework\Api\DataObjectHelper $dataObjectHelper,
+        DataObjectHelper $dataObjectHelper,
         PriceCurrencyInterface $priceCurrency,
         AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory,
