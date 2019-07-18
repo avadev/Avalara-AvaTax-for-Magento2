@@ -230,20 +230,19 @@ class ConfigSaveObserver implements ObserverInterface
     protected function checkCredentialsForMode($scopeId, $scopeType, $isProduction)
     {
         // Check that credentials have been set for whichever mode has been chosen
-        if ($this->config->getAccountNumber($scopeId, $scopeType, $isProduction) !== '' && $this->config->getLicenseKey(
-                $scopeId,
-                $scopeType,
-                $isProduction
-            ) !== '' && $this->config->getCompanyCode($scopeId, $scopeType, $isProduction) !== '') {
+        if (
+            $this->config->getAccountNumber($scopeId, $scopeType, $isProduction) !== '' &&
+            $this->config->getLicenseKey($scopeId, $scopeType, $isProduction) !== '' &&
+            $this->config->getCompanyId($scopeId, $scopeType, $isProduction) !== null
+        ) {
             return true;
         }
 
         // One or more of the supplied mode's credentials is blank
         $this->messageManager->addWarningMessage(
             __(
-                'The AvaTax extension is set to "%1" mode, but %2 credentials are incomplete.',
-                $isProduction,
-                strtolower($isProduction)
+                'The AvaTax extension is set to "%1" mode, but the %1 credentials are incomplete.',
+                $isProduction ? 'production' : 'development'
             )
         );
 
