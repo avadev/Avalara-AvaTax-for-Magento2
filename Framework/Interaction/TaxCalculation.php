@@ -31,6 +31,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\CalculatorFactory;
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
+use Magento\Framework\Api\DataObjectHelper;
 
 class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 {
