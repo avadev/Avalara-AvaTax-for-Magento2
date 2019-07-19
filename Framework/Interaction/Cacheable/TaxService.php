@@ -25,6 +25,7 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Framework\Serialize\Serializer\Serialize;
 
 class TaxService
 {
@@ -59,22 +60,30 @@ class TaxService
     protected $type = null;
 
     /**
+     * @var Serialize
+     */
+    protected $serializer;
+
+    /**
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      * @param Tax $taxInteraction
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param null $type
+     * @param Serialize $serializer
      */
     public function __construct(
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
         Tax $taxInteraction,
+        Serialize $serializer,
         MetaDataObjectFactory $metaDataObjectFactory,
         $type = null
     ) {
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->taxInteraction = $taxInteraction;
+        $this->serializer = $serializer;
         $this->metaDataObject = $metaDataObjectFactory->create(
             ['metaDataProperties' => \ClassyLlama\AvaTax\Framework\Interaction\Tax::$validFields]
         );
@@ -92,7 +101,12 @@ class TaxService
     public function getTax(GetTaxRequest $getTaxRequest, $storeId, $useCache = false)
     {
         $cacheKey = $this->getCacheKey($getTaxRequest) . $storeId;
-        $getTaxResult = @unserialize($this->cache->load($cacheKey));
+        $cacheData = $this->cache->load($cacheKey);
+        if (false === $cacheData || null === $cacheData || '' === $cacheData) {
+            $getTaxResult='';
+        } else {
+            $getTaxResult = $this->serializer->unserialize($cacheData);
+        }
 
         if ($getTaxResult instanceof GetTaxResult && $useCache) {
             $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from cache.', [
@@ -110,7 +124,7 @@ class TaxService
 
         // Only cache successful requests
         if ($useCache && $getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-            $serializedGetTaxResult = serialize($getTaxResult);
+            $serializedGetTaxResult = $this->serializer->serialize($getTaxResult);
             $this->cache->save(
                 $serializedGetTaxResult,
                 $cacheKey,
