@@ -15,8 +15,8 @@
 
 namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote;
 
-use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy as InteractionGet;
-use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation\Proxy as TaxCalculation;
+use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
+use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation as TaxCalculation;
 use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
