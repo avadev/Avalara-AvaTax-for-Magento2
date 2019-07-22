@@ -25,7 +25,7 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
-use Magento\Framework\Serialize\Serializer\Serialize;
+use ClassyLlama\AvaTax\Model\Serialize;
 
 class TaxService
 {
@@ -102,12 +102,11 @@ class TaxService
     {
         $cacheKey = $this->getCacheKey($getTaxRequest) . $storeId;
         $cacheData = $this->cache->load($cacheKey);
-        if (false === $cacheData || null === $cacheData || '' === $cacheData) {
-            $getTaxResult='';
-        } else {
-            $getTaxResult = $this->serializer->unserialize($cacheData);
+        try {
+            $getTaxResult = !empty($cacheData) ? $this->serializer->unserialize($cacheData, ['allowed_classes' => true]) : '';
+        } catch (\Throwable $exception) {
+            $getTaxResult = '';
         }
-
         if ($getTaxResult instanceof GetTaxResult && $useCache) {
             $this->avaTaxLogger->addDebug('Loaded \AvaTax\GetTaxResult from cache.', [
                 'result' => var_export($getTaxResult, true),

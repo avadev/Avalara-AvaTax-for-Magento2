@@ -24,7 +24,7 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
-use Magento\Framework\Serialize\Serializer\Serialize;
+use ClassyLlama\AvaTax\Model\Serialize;
 
 class AddressService
 {
@@ -88,12 +88,11 @@ class AddressService
     {
         $addressCacheKey = $this->getCacheKey($validateRequest->getAddress()) . $storeId;
         $cacheData = $this->cache->load($addressCacheKey);
-        if (false === $cacheData || null === $cacheData || '' === $cacheData) {
+        try {
+            $validateResult = !empty($cacheData) ? $this->serializer->unserialize($cacheData, ['allowed_classes' => true]) : '';
+        } catch (\Throwable $exception) {
             $validateResult = '';
-        } else {
-            $validateResult = $this->serializer->unserialize($cacheData);
         }
-
         if ($validateResult instanceof ValidateResult) {
             $this->avaTaxLogger->addDebug('Loaded \AvaTax\ValidateResult from cache.', [
                 'request' => var_export($validateRequest, true),
