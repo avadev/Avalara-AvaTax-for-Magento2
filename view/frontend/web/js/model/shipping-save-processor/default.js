@@ -40,9 +40,25 @@ define(
     ) {
         'use strict';
 
-        return {
-            validateAddressContainerSelector: '#validate_address',
-            saveShippingInformation: function () {
+        var payloadExtenderLoaded = false;
+        var getPayloadExtender = function() {
+            var extenderRequest = new $.Deferred();
+            require(
+                ['Magento_Checkout/js/model/shipping-save-processor/payload-extender'],
+                function (payloadExtender) {
+                    extenderRequest.resolve(payloadExtender);
+                    // Used for compatibility with Magento versions prior to 2.1.15
+                    payloadExtenderLoaded = true;
+                }, function (err) {
+                    extenderRequest.reject(err);
+                }
+            );
+            return extenderRequest.promise();
+        };
+
+        return function (module) {
+            var validateAddressContainerSelector = '#validate_address';
+            module.saveShippingInformation = function () {
                 var payload;
 
                 if (!quote.billingAddress()) {
@@ -58,38 +74,47 @@ define(
                     }
                 };
 
-                fullScreenLoader.startLoader();
+                return $.when(getPayloadExtender()).then(function (extender) {
+                    extender(payload);
+                    return payload;
+                }, function (err) {
+                    // payloadExtender doesn't exist in 2.1, no problem
+                    return $.when(payload);
+                }).done(function (pl) {
+                    fullScreenLoader.startLoader();
 
-                return storage.post(
-                    resourceUrlManager.getUrlForSetShippingInformation(quote),
-                    JSON.stringify(payload)
-                ).done(
-                    function (response) {
-                        quote.setTotals(response.totals);
-                        paymentService.setPaymentMethods(methodConverter(response.payment_methods));
-                        // Begin Edit
-                        try {
-                            checkoutValidationHandler.validationResponseHandler(response);
-                        } catch (e) {
-                            $(this.validateAddressContainerSelector + " *").hide();
+                    return storage.post(
+                        resourceUrlManager.getUrlForSetShippingInformation(quote),
+                        JSON.stringify(pl)
+                    ).done(
+                        function (response) {
+                            quote.setTotals(response.totals);
+                            paymentService.setPaymentMethods(methodConverter(response.payment_methods));
+                            // Begin Edit
+                            try {
+                                checkoutValidationHandler.validationResponseHandler(response);
+                            } catch (e) {
+                                $(validateAddressContainerSelector + " *").hide();
+                            }
+                            // End Edit
+                            fullScreenLoader.stopLoader(!payloadExtenderLoaded);
                         }
-                        // End Edit
-                        fullScreenLoader.stopLoader();
-                    }
-                ).fail(
-                    function (response) {
-                        // Begin Edit - Native error message display is not obvious enough, so add to an alert box
-                        var messageObject = JSON.parse(response.responseText);
-                        alert({
-                            title: $.mage.__('Error'),
-                            content: messageObject.message
-                        });
-                        //errorProcessor.process(response);
-                        // End Edit
-                        fullScreenLoader.stopLoader();
-                    }
-                );
-            }
+                    ).fail(
+                        function (response) {
+                            // Begin Edit - Native error message display is not obvious enough, so add to an alert box
+                            var messageObject = JSON.parse(response.responseText);
+                            alert({
+                                title: $.mage.__('Error'),
+                                content: messageObject.message
+                            });
+                            //errorProcessor.process(response);
+                            // End Edit
+                            fullScreenLoader.stopLoader(!payloadExtenderLoaded);
+                        }
+                    );
+                });
+            };
+            return module;
         };
     }
 );

@@ -46,11 +46,7 @@ var config = {
             },
             'ClassyLlama_AvaTax/js/action/account-add-exemption': {
                 'ClassyLlama_AvaTax/js/customer-account-add-exemption': true
-            }
-        }
-    },
-    config: {
-        mixins: {
+            },
             'Magento_Checkout/js/model/shipping-save-processor/default': {
                 'ClassyLlama_AvaTax/js/model/shipping-save-processor/default': true
             }
