@@ -25,8 +25,13 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+use ClassyLlama\AvaTax\Model\Serialize;
 
-class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
+/**
+ * Class Cacheable
+ * @package ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax
+ */
+class Cacheable implements RestTaxInterface
 {
     /**
      * 1 day in seconds
@@ -54,17 +59,26 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
     protected $metaDataObject = null;
 
     /**
+     * @var Serialize
+     */
+    private $serializer;
+
+    /**
+     * Cacheable constructor.
+     * @param Serialize $serializer
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      * @param RestTaxInterface $taxInteraction
      * @param MetaDataObjectFactory $metaDataObjectFactory
      */
     public function __construct(
+        Serialize $serializer,
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
         RestTaxInterface $taxInteraction,
         MetaDataObjectFactory $metaDataObjectFactory
     ) {
+        $this->serializer = $serializer;
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->taxInteraction = $taxInteraction;
@@ -95,8 +109,12 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
         }
 
         $cacheKey = $this->getCacheKey($request) . $scopeId;
-        $getTaxResult = @unserialize($this->cache->load($cacheKey));
-
+        $cacheData = $this->cache->load($cacheKey);
+        try {
+            $getTaxResult = !empty($cacheData) ? $this->serializer->unserialize($cacheData, ['allowed_classes' => true]) : '';
+        } catch (\Throwable $exception) {
+            $getTaxResult = '';
+        }
         if ($getTaxResult instanceof TaxResult && !$forceNew) {
             $getTaxResultData = $getTaxResult->getData('raw_result');
             $getTaxRequestData = $getTaxResult->getData('raw_request');
@@ -117,7 +135,11 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestTaxInterface
 
         // Only cache successful requests
         if (!$forceNew) {
-            $serializedGetTaxResult = serialize($getTaxResult);
+            try {
+                $serializedGetTaxResult = $this->serializer->serialize($getTaxResult);
+            } catch (\Throwable $exception) {
+                $serializedGetTaxResult = '';
+            }
             $this->cache->save(
                 $serializedGetTaxResult,
                 $cacheKey,

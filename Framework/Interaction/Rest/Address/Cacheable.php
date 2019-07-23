@@ -24,8 +24,13 @@ use Magento\Framework\Exception\LocalizedException;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result as AddressResult;
+use ClassyLlama\AvaTax\Model\Serialize;
 
-class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
+/**
+ * Class Cacheable
+ * @package ClassyLlama\AvaTax\Framework\Interaction\Rest\Address
+ */
+class Cacheable implements RestAddressInterface
 {
     /**
      * @var CacheInterface
@@ -48,17 +53,26 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
     protected $metaDataObject;
 
     /**
+     * @var Serialize
+     */
+    private $serializer;
+
+    /**
+     * Cacheable constructor.
+     * @param Serialize $serializer
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      * @param RestAddressInterface $interactionAddress
      * @param MetaDataObjectFactory $metaDataObjectFactory
      */
     public function __construct(
+        Serialize $serializer,
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
         RestAddressInterface $interactionAddress,
         MetaDataObjectFactory $metaDataObjectFactory
     ) {
+        $this->serializer = $serializer;
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->interactionAddress = $interactionAddress;
@@ -84,8 +98,12 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
     public function validate( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
         $addressCacheKey = $this->getCacheKey($request->getAddress()) . $scopeId;
-        $validateResult = @unserialize($this->cache->load($addressCacheKey));
-
+        $cacheData = $this->cache->load($addressCacheKey);
+        try {
+            $validateResult = !empty($cacheData) ? $this->serializer->unserialize($cacheData, ['allowed_classes' => true]) : '';
+        } catch (\Throwable $exception) {
+            $validateResult = '';
+        }
         if ($validateResult instanceof AddressResult) {
             $this->avaTaxLogger->addDebug('Loaded address validate result from cache.', [
                 'request' => var_export($request->getData(), true),
@@ -105,14 +123,14 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
                 'message' => $e->getMessage(),
                 'class' => get_class($e),
             ];
-            $serializedException = serialize($exceptionData);
+            $serializedException = $this->serializer->serialize($exceptionData);
             $this->cache->save($serializedException, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
             throw $e;
         } catch (\Exception $e) {
             throw $e;
         }
 
-        $serializedValidateResult = serialize($validateResult);
+        $serializedValidateResult = $this->serializer->serialize($validateResult);
         $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
 
         if ($validateResult->hasValidatedAddresses() && is_array($validateResult->getValidatedAddresses())) {
