@@ -68,7 +68,7 @@ This is the recommended installation method as it allows you to easily update th
    1. 2.x.x Release Candidate: 
 
       ```
-      composer require avalara/avatax-magento:2.0.3-RC1
+      composer require avalara/avatax-magento:2.0.4-RC1
       ```
 
    2. 1.x.x Stable
