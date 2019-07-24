@@ -24,8 +24,13 @@ use Magento\Framework\Exception\LocalizedException;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result as AddressResult;
+use Zend\Serializer\Adapter\PhpSerialize;
 
-class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
+/**
+ * Class Cacheable
+ * @package ClassyLlama\AvaTax\Framework\Interaction\Rest\Address
+ */
+class Cacheable implements RestAddressInterface
 {
     /**
      * @var CacheInterface
@@ -48,17 +53,26 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
     protected $metaDataObject;
 
     /**
+     * @var PhpSerialize
+     */
+    private $phpSerialize;
+
+    /**
+     * Cacheable constructor.
+     * @param PhpSerialize $phpSerialize
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      * @param RestAddressInterface $interactionAddress
      * @param MetaDataObjectFactory $metaDataObjectFactory
      */
     public function __construct(
+        PhpSerialize $phpSerialize,
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
         RestAddressInterface $interactionAddress,
         MetaDataObjectFactory $metaDataObjectFactory
     ) {
+        $this->phpSerialize = $phpSerialize;
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->interactionAddress = $interactionAddress;
@@ -84,8 +98,23 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
     public function validate( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
     {
         $addressCacheKey = $this->getCacheKey($request->getAddress()) . $scopeId;
-        $validateResult = @unserialize($this->cache->load($addressCacheKey));
-
+        $cacheData = $this->cache->load($addressCacheKey);
+        try {
+            /**
+             * Magento 2.2.x, 2.3.x
+             * - we can not use \Magento\Framework\Serialize\Serializer\Serialize::unserialize. Magento realization does
+             *   not allow us to control 'allowed_classes' restriction option of unserialize().
+             * - we can not use native PHP serialize() and unserialize() in our own realization, because it won't pass
+             *   Magento Coding Standard.
+             * Magento 2.1.x
+             * - \Magento\Framework\Serialize\Serializer\Serialize - class is absent
+             * Was chosen \Zend\Serializer\Adapter\PhpSerialize::unserialize. It exists in 2.1.x - 2.3.x
+             * It allows us to configure 'allowed_classes' restriction option (Magento 2.2.x, 2.3.x)
+             */
+            $validateResult = !empty($cacheData) ? $this->phpSerialize->unserialize($cacheData) : '';
+        } catch (\Throwable $exception) {
+            $validateResult = '';
+        }
         if ($validateResult instanceof AddressResult) {
             $this->avaTaxLogger->addDebug('Loaded address validate result from cache.', [
                 'request' => var_export($request->getData(), true),
@@ -105,14 +134,14 @@ class Cacheable implements \ClassyLlama\AvaTax\Api\RestAddressInterface
                 'message' => $e->getMessage(),
                 'class' => get_class($e),
             ];
-            $serializedException = serialize($exceptionData);
+            $serializedException = $this->phpSerialize->serialize($exceptionData);
             $this->cache->save($serializedException, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
             throw $e;
         } catch (\Exception $e) {
             throw $e;
         }
 
-        $serializedValidateResult = serialize($validateResult);
+        $serializedValidateResult = $this->phpSerialize->serialize($validateResult);
         $this->cache->save($serializedValidateResult, $addressCacheKey, [Config::AVATAX_CACHE_TAG]);
 
         if ($validateResult->hasValidatedAddresses() && is_array($validateResult->getValidatedAddresses())) {
