@@ -25,7 +25,7 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
-use ClassyLlama\AvaTax\Model\Serialize;
+use Zend\Serializer\Adapter\PhpSerialize;
 
 /**
  * Class Cacheable
@@ -59,26 +59,26 @@ class Cacheable implements RestTaxInterface
     protected $metaDataObject = null;
 
     /**
-     * @var Serialize
+     * @var PhpSerialize
      */
-    private $serializer;
+    private $phpSerialize;
 
     /**
      * Cacheable constructor.
-     * @param Serialize $serializer
+     * @param PhpSerialize $phpSerialize
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      * @param RestTaxInterface $taxInteraction
      * @param MetaDataObjectFactory $metaDataObjectFactory
      */
     public function __construct(
-        Serialize $serializer,
+        PhpSerialize $phpSerialize,
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
         RestTaxInterface $taxInteraction,
         MetaDataObjectFactory $metaDataObjectFactory
     ) {
-        $this->serializer = $serializer;
+        $this->phpSerialize = $phpSerialize;
         $this->cache = $cache;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->taxInteraction = $taxInteraction;
@@ -111,7 +111,18 @@ class Cacheable implements RestTaxInterface
         $cacheKey = $this->getCacheKey($request) . $scopeId;
         $cacheData = $this->cache->load($cacheKey);
         try {
-            $getTaxResult = !empty($cacheData) ? $this->serializer->unserialize($cacheData, ['allowed_classes' => true]) : '';
+            /**
+             * Magento 2.2.x, 2.3.x
+             * - we can not use \Magento\Framework\Serialize\Serializer\Serialize::unserialize. Magento realization does
+             *   not allow us to control 'allowed_classes' restriction option of unserialize().
+             * - we can not use native PHP serialize() and unserialize() in our own realization, because it won't pass
+             *   Magento Coding Standard.
+             * Magento 2.1.x
+             * - \Magento\Framework\Serialize\Serializer\Serialize - class is absent
+             * Was chosen \Zend\Serializer\Adapter\PhpSerialize::unserialize. It exists in 2.1.x - 2.3.x
+             * It allows us to configure 'allowed_classes' restriction option (Magento 2.2.x, 2.3.x)
+             */
+            $getTaxResult = !empty($cacheData) ? $this->phpSerialize->unserialize($cacheData) : '';
         } catch (\Throwable $exception) {
             $getTaxResult = '';
         }
@@ -136,7 +147,7 @@ class Cacheable implements RestTaxInterface
         // Only cache successful requests
         if (!$forceNew) {
             try {
-                $serializedGetTaxResult = $this->serializer->serialize($getTaxResult);
+                $serializedGetTaxResult = $this->phpSerialize->serialize($getTaxResult);
             } catch (\Throwable $exception) {
                 $serializedGetTaxResult = '';
             }
