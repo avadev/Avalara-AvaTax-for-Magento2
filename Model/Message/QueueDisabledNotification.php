@@ -70,7 +70,7 @@ class QueueDisabledNotification implements MessageInterface
      */
     public function getIdentity()
     {
-        return md5('AVATAX_QUEUE_DISABLED_NOTIFICATION');
+        return sha1('AVATAX_QUEUE_DISABLED_NOTIFICATION');
     }
 
     /**
