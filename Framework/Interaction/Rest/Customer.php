@@ -24,7 +24,14 @@ use ClassyLlama\AvaTax\Helper\Customer as CustomerHelper;
 use ClassyLlama\AvaTax\Model\Factory\LinkCustomersModelFactory;
 use Magento\Framework\DataObjectFactory;
 use Psr\Log\LoggerInterface;
+use GuzzleHttp\Exception\ClientException as GuzzleHttpClientException;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\DataObject;
 
+/**
+ * Class Customer
+ * @package ClassyLlama\AvaTax\Framework\Interaction\Rest
+ */
 class Customer extends Rest implements RestCustomerInterface
 {
     /**
@@ -71,10 +78,8 @@ class Customer extends Rest implements RestCustomerInterface
         \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory $customerModelFactory,
         \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
         LinkCustomersModelFactory $customersModelFactory
-    )
-    {
+    ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
-
         $this->customerHelper = $customerHelper;
         $this->config = $config;
         $this->customerModelFactory = $customerModelFactory;
@@ -90,8 +95,7 @@ class Customer extends Rest implements RestCustomerInterface
         $isProduction = null,
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    )
-    {
+    ) {
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
 
@@ -128,18 +132,25 @@ class Customer extends Rest implements RestCustomerInterface
         $request,
         $isProduction = null,
         $scopeId = null,
-        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    )
-    {
+        $scopeType = ScopeInterface::SCOPE_STORE
+    ) {
+        /** @var \ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper $client */
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
-
-        // TODO: error handling?
-        return $client->downloadCertificateImage(
-            $this->config->getCompanyId($scopeId, $scopeType),
-            $request->getData('id'),
-            $request->getData('page'),
-            $request->getData('type')
-        );
+        $client->withCatchExceptions(false);
+        try {
+            /** @var string|null $result */
+            $result = $client->downloadCertificateImage(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $request->getData('id'),
+                $request->getData('page'),
+                $request->getData('type')
+            );
+            return $result;
+        } catch (GuzzleHttpClientException $clientException) {
+            throw $clientException;
+        } catch (\Throwable $exception) {
+            throw $exception;
+        }
     }
 
     /**
@@ -150,8 +161,7 @@ class Customer extends Rest implements RestCustomerInterface
         $isProduction = null,
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    )
-    {
+    ) {
         /** @var \Avalara\AvaTaxClient $client */
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
@@ -174,7 +184,6 @@ class Customer extends Rest implements RestCustomerInterface
                 $request->getData('id'),
                 $customerModel
             );
-
         } catch (\Exception $e) {
             //Swallow this error. Continue to try and delete the cert.
             //If the deletion errors, then we'll notify the user that something has gone wrong.
@@ -203,8 +212,7 @@ class Customer extends Rest implements RestCustomerInterface
         $isProduction = null,
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    )
-    {
+    ) {
         // Client must be retrieved before any class from the /avalara/avataxclient/src/Models.php file is instantiated.
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
@@ -237,8 +245,7 @@ class Customer extends Rest implements RestCustomerInterface
         $isProduction = null,
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    )
-    {
+    ) {
         // Client must be retrieved before any class from the /avalara/avataxclient/src/Models.php file is instantiated.
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
@@ -270,8 +277,7 @@ class Customer extends Rest implements RestCustomerInterface
         $isProduction = null,
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    )
-    {
+    ) {
         // Client must be retrieved before any class from the /avalara/avataxclient/src/Models.php file is instantiated.
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
@@ -309,11 +315,11 @@ class Customer extends Rest implements RestCustomerInterface
 
         // Customer calls where there is no customer should be suppressed as debug messages to avoid noisy errors
         if (isset($responseObject['error']['code']) && ($responseObject['error']['code'] === 'EntityNotFoundError' || ($responseObject['error']['code'] === 'CertificatesError' && array_reduce(
-                        $responseObject['error']['details'],
-                        function ($isMissingCustomer, $errorDetails) {
-                            return $isMissingCustomer || (string)$errorDetails['number'] === '1203';
-                        },
-                        false
+            $responseObject['error']['details'],
+            function ($isMissingCustomer, $errorDetails) {
+                return $isMissingCustomer || (string)$errorDetails['number'] === '1203';
+            },
+            false
                     )))) {
             $logMethod = LOG_DEBUG;
             $isMissingCustomerException = true;
@@ -344,8 +350,7 @@ class Customer extends Rest implements RestCustomerInterface
         \Magento\Customer\Api\Data\CustomerInterface $customer,
         $scopeId = null,
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    )
-    {
+    ) {
         /** @var \Avalara\CustomerModel $customerModel */
         $customerModel = $this->customerModelFactory->create();
 

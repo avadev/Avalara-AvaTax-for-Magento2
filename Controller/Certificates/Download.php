@@ -17,8 +17,21 @@ namespace ClassyLlama\AvaTax\Controller\Certificates;
 
 use ClassyLlama\AvaTax\Helper\CertificateDownloadControllerHelper;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Backend\App\Action\Context;
+use Magento\Customer\Model\Session;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\Controller\Result\Raw as ResultRaw;
+use Magento\Framework\Controller\Result\Redirect as ResultRedirect;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Controller\Result\Raw as RawResult;
+use Magento\Framework\DataObject;
 
-class Download extends \Magento\Framework\App\Action\Action
+/**
+ * Class Download
+ * @package ClassyLlama\AvaTax\Controller\Certificates
+ */
+class Download extends Action
 {
     /**
      * @var CertificateDownloadControllerHelper
@@ -26,24 +39,22 @@ class Download extends \Magento\Framework\App\Action\Action
     protected $certificateDownloadControllerHelper;
 
     /**
-     * @var \Magento\Customer\Model\Session
+     * @var Session
      */
     protected $session;
 
     /**
      * Download constructor.
-     *
      * @param CertificateDownloadControllerHelper $certificateDownloadControllerHelper
-     * @param \Magento\Backend\App\Action\Context $context* @param \Magento\Customer\Model\Session                  $session
+     * @param Context $context
+     * @param Session $session
      */
     public function __construct(
         CertificateDownloadControllerHelper $certificateDownloadControllerHelper,
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Customer\Model\Session $session
-    )
-    {
+        Context $context,
+        Session $session
+    ) {
         parent::__construct($context);
-
         $this->certificateDownloadControllerHelper = $certificateDownloadControllerHelper;
         $this->session = $session;
     }
@@ -64,13 +75,24 @@ class Download extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @return \Magento\Framework\Controller\Result\Raw
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\NotFoundException
+     * @return ResultRaw|ResultRedirect
      */
-    public function execute()
+    public function execute(): ResultInterface
     {
-        return $this->certificateDownloadControllerHelper->getDownloadRawResult();
+        /** @var RawResult|null $result */
+        $result = $this->certificateDownloadControllerHelper->getDownloadRawResult();
+        if ($result instanceof RawResult) {
+            return $result;
+        } else {
+            if (null === $result || ($result instanceof DataObject && $result->hasData('error'))) {
+                $this->messageManager->addError(
+                    __('Something went wrong, please check the log file for more information')
+                );
+            }
+            /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
+            $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+            $resultRedirect->setUrl($this->_redirect->getRefererUrl());
+            return $resultRedirect;
+        }
     }
 }
