@@ -200,6 +200,9 @@ define(
 
             updateFieldValue: function (form, field) {
                 var fieldElement = $(form).find("input[name*=" + field + "]");
+                if (field === 'region_id') {
+                    fieldElement = $(form).find("select[name*=" + field + "]");
+                }
                 if (fieldElement.val() !== addressModel.selectedAddress()[field]) {
                     $(fieldElement).attr('value', addressModel.selectedAddress()[field]).trigger('change');
                 }
@@ -229,7 +232,7 @@ define(
                 $(form).find(this.addressValidationFormSelector).hide();
             },
 
-            encodeHtml: function(str) {
+            encodeHtml: function (str) {
                 // This function will escape the contents of the provided string
                 // Sourced from http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/#the-best-way-to-escape-html-in-javascript
                 var div = document.createElement('div');
