@@ -59,7 +59,7 @@ This is the recommended installation method as it allows you to easily update th
 1. Require the desired version of AvaTax (see [note above](#version-notes) for differences in the versions). Latest version can be installed by running following command:
 
    ```
-   composer require avalara/avatax-magento:2.0.4-RC1
+   composer require avalara/avatax-magento:2.1.0
    ```
 
 2. Setup the AvaTax module in magento
@@ -84,7 +84,7 @@ Only use this installation method if you're unable to use Composer. The installa
 
 3. Extract the file and copy the contents of the ClassyLlama_AvaTax-XXX directory into the `app/code/ClassyLlama/AvaTax` directory.
 
-4. Make sure the [Avalara AvaTax PHP library](https://github.com/avadev/AvaTax-Calc-SOAP-PHP/tree/v15.5.1.0) is installed as the module depends on it.
+4. Make sure the [Avalara AvaTax PHP library](https://github.com/avadev/AvaTax-Calc-SOAP-PHP/tree/v15.5.2) is installed as the module depends on it.
 
    ```bash
    composer require avalara/avatax:15.5.2.0

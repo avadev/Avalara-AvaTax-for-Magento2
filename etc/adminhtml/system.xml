@@ -72,7 +72,7 @@
                     <config_path>tax/avatax/filter_tax_by_region</config_path>
                     <label>Filter Tax Calculation By Region</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so. See the [documentation](https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/sales-tax.md#filter_by_region) for more details.]]></comment>
+                    <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so. See the [documentation](https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/develop/docs/sales-tax.md#filter_by_region) for more details.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                         <field id="tax_mode" negative="1">1</field>
