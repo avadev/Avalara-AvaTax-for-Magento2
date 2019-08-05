@@ -22,10 +22,10 @@ This extension contains integration tests to verify the extension's functionalit
 
 # Magento Version Support
 
-- Magento 2.3.x (as of ClassyLlama_AvaTax 1.5.0)
+- Magento 2.3.x
   - :white_check_mark: Community
   - :white_check_mark: Enterprise
-- Magento 2.2.x (as of ClassyLlama_AvaTax 1.2.3)
+- Magento 2.2.x
   - :white_check_mark: Community
   - :white_check_mark: Enterprise
 - Magento 2.1.x
