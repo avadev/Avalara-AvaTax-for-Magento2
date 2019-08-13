@@ -73,7 +73,7 @@
             </avatax_document_management>
             <avatax_advanced>
                 <response_logging_enabled>1</response_logging_enabled>
-                <avatax_timeout>5</avatax_timeout>
+                <avatax_timeout>15</avatax_timeout>
             </avatax_advanced>
         </tax>
     </default>
