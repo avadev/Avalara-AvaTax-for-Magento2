@@ -16,11 +16,23 @@
 namespace ClassyLlama\AvaTax\Helper;
 
 use Magento\Framework\Exception\NotFoundException;
+use Magento\Framework\App\RequestInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use ClassyLlama\AvaTax\Api\RestCustomerInterface;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Controller\Result\RawFactory;
+use Magento\Framework\Controller\Result\Raw as RawResult;
+use Magento\Customer\Model\Data\Customer;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Class CertificateDownloadControllerHelper
+ * @package ClassyLlama\AvaTax\Helper
+ */
 class CertificateDownloadControllerHelper
 {
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @var RequestInterface
      */
     protected $request;
 
@@ -30,42 +42,50 @@ class CertificateDownloadControllerHelper
     protected $urlSigner;
 
     /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     * @var CustomerRepositoryInterface
      */
     protected $customerRepository;
 
     /**
-     * @var \ClassyLlama\AvaTax\Api\RestCustomerInterface
+     * @var RestCustomerInterface
      */
     protected $customerRest;
 
     /**
-     * @var \Magento\Framework\DataObjectFactory
+     * @var DataObjectFactory
      */
     protected $dataObjectFactory;
 
     /**
-     * @var \Magento\Framework\Controller\Result\RawFactory
+     * @var RawFactory
      */
     protected $resultRawFactory;
 
     /**
-     * @param \Magento\Framework\App\RequestInterface           $request
-     * @param UrlSigner                                         $urlSigner
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface     $customerRest
-     * @param \Magento\Framework\Controller\Result\RawFactory   $resultRawFactory
-     * @param \Magento\Framework\DataObjectFactory              $dataObjectFactory
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * CertificateDownloadControllerHelper constructor.
+     * @param LoggerInterface $logger
+     * @param RequestInterface $request
+     * @param UrlSigner $urlSigner
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param RestCustomerInterface $customerRest
+     * @param RawFactory $resultRawFactory
+     * @param DataObjectFactory $dataObjectFactory
      */
     public function __construct(
-        \Magento\Framework\App\RequestInterface $request,
+        LoggerInterface $logger,
+        RequestInterface $request,
         UrlSigner $urlSigner,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
-        \Magento\Framework\Controller\Result\RawFactory $resultRawFactory,
-        \Magento\Framework\DataObjectFactory $dataObjectFactory
-    )
-    {
+        CustomerRepositoryInterface $customerRepository,
+        RestCustomerInterface $customerRest,
+        RawFactory $resultRawFactory,
+        DataObjectFactory $dataObjectFactory
+    ) {
+        $this->logger = $logger;
         $this->request = $request;
         $this->urlSigner = $urlSigner;
         $this->customerRepository = $customerRepository;
@@ -75,10 +95,10 @@ class CertificateDownloadControllerHelper
     }
 
     /**
-     * @return \Magento\Framework\Controller\Result\Raw
+     * Get document certificate
+     *
+     * @return RawResult|\Magento\Framework\DataObject|null
      * @throws NotFoundException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getDownloadRawResult()
     {
@@ -103,24 +123,46 @@ class CertificateDownloadControllerHelper
         }
 
         // If we have specified a customer ID, use the store that user is associated with, otherwise default to session
-        if ($customerId !== null) {
-            $customerModel = $this->customerRepository->getById($customerId);
-            $storeId = $customerModel->getStoreId();
+        if (null !== $customerId) {
+            try {
+                /** @var Customer $customerModel */
+                $customerModel = $this->customerRepository->getById($customerId);
+                $storeId = (int)$customerModel->getStoreId();
+            } catch (\Throwable $exception) {
+                $this->logger->error($exception->getMessage(), ['class' => self::class, $exception->getTraceAsString()]);
+            }
         }
 
-        $certificateStream = $this->customerRest->downloadCertificate(
-            $this->dataObjectFactory->create(['data' => ['id' => $certificateId]]),
-            null,
-            $storeId
-        );
-
-        $resultRaw = $this->resultRawFactory->create();
-        $resultRaw->setHeader('Content-type', 'application/pdf', true)->setHeader(
-            'Content-Disposition',
-            'inline; filename="certificate.pdf"',
-            true
-        )->setContents($certificateStream); //set content for download file here
-
-        return $resultRaw;
+        try {
+            /** @var string|null $certificateStream */
+            $certificateStream = $this->customerRest->downloadCertificate(
+                $this->dataObjectFactory->create(['data' => ['id' => $certificateId]]),
+                null,
+                $storeId
+            );
+            if (null !== $certificateStream) {
+                /** @var RawResult $resultRaw */
+                $resultRaw = $this->resultRawFactory->create();
+                $resultRaw->setHeader('Content-type', 'application/pdf', true)->setHeader(
+                    'Content-Disposition',
+                    'inline; filename="certificate.pdf"',
+                    true
+                )->setContents($certificateStream); //set content for download file here
+                return $resultRaw;
+            }
+            return null;
+        } catch (\Throwable $exception) {
+            /** @var array $errorData */
+            $errorData = [
+                'class' => self::class,
+                'trace' => $exception->getTraceAsString(),
+                'error_message' => $exception->getMessage()
+            ];
+            $this->logger->error($exception->getMessage(), $errorData);
+            /** @var \Magento\Framework\DataObject $error */
+            $error = $this->dataObjectFactory->create();
+            $error->setData('error', $errorData);
+            return $error;
+        }
     }
 }

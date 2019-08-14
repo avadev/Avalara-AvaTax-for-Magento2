@@ -16,11 +16,19 @@
 namespace ClassyLlama\AvaTax\Helper;
 
 use Psr\Log\LoggerInterface;
+use GuzzleHttp\Psr7\Response as GuzzleHttpResponse;
+use ClassyLlama\AvaTax\Helper\Config as ConfigHelper;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\DataObject;
 
+/**
+ * Class AvaTaxClientWrapper
+ * @package ClassyLlama\AvaTax\Helper
+ */
 class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
 {
     /**
-     * @var Config
+     * @var ConfigHelper
      */
     protected $config;
 
@@ -30,30 +38,36 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
     protected $logger;
 
     /**
-     * @param Config          $config
+     * @var DataObjectFactory
+     */
+    private $dataObjectFactory;
+
+    /**
+     * AvaTaxClientWrapper constructor.
+     * @param DataObjectFactory $dataObjectFactory
+     * @param Config $config
      * @param LoggerInterface $logger
-     * @param string          $appName
-     * @param string          $appVersion
-     * @param string          $machineName
-     * @param string          $environment
-     * @param array           $guzzleParams
-     *
+     * @param string $appName
+     * @param string $appVersion
+     * @param string $machineName
+     * @param string $environment
+     * @param array $guzzleParams
      * @throws \Exception
      */
     public function __construct(
-        \ClassyLlama\AvaTax\Helper\Config $config,
+        DataObjectFactory $dataObjectFactory,
+        ConfigHelper $config,
         LoggerInterface $logger,
-        $appName,
-        $appVersion,
-        $machineName = "",
-        $environment,
+        string $appName,
+        string $appVersion,
+        string $machineName = "",
+        string $environment,
         array $guzzleParams = []
-    )
-    {
+    ) {
         parent::__construct($appName, $appVersion, $machineName, $environment, $guzzleParams);
-
         $this->config = $config;
         $this->logger = $logger;
+        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**
@@ -124,6 +138,106 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
             ]
         ];
 
-        return $this->restCall($path, 'GET', $guzzleParams);
+        return $this->tryToMakeRestCall($path, 'GET', $guzzleParams);
+    }
+
+    /**
+     * Try to load a certificate PDF file
+     *
+     * @param string|null $apiUrl
+     * @param string|null $method
+     * @param array $guzzleParams
+     * @return string|null
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Throwable
+     */
+    private function tryToMakeRestCall(string $apiUrl = '', string $method = 'GET', array $guzzleParams = [])
+    {
+        if (!empty($apiUrl)) {
+            // this causes the value to revert to the default "forever" timeout in guzzle
+            $guzzleParams['timeout'] = !empty($timeout = (int)$this->config->getAvaTaxApiTimeout()) ? $timeout : 0;
+            // set authentication on the parameters
+            if (count($this->auth) == 2) {
+                if (!isset($guzzleParams['auth'])) {
+                    $guzzleParams['auth'] = $this->auth;
+                }
+                $guzzleParams['headers'] = [
+                    'Accept' => 'application/json',
+                    'X-Avalara-Client' => "{$this->appName}; {$this->appVersion}; PhpRestClient; 18.12.0; {$this->machineName}"
+                ];
+            } else {
+                $guzzleParams['headers'] = [
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . $this->auth[0] ?? '',
+                    'X-Avalara-Client' => "{$this->appName}; {$this->appVersion}; PhpRestClient; 18.12.0; {$this->machineName}"
+                ];
+            }
+            try {
+                /** @var GuzzleHttpResponse $response */
+                $response = $this->client->request($method, $apiUrl, $guzzleParams);
+                if (200 === (int)$response->getStatusCode()) {
+                    $this->logRequests(
+                        'Certificate PDF file request',
+                        $apiUrl,
+                        $method,
+                        $guzzleParams,
+                        $response
+                    );
+                    return !empty($contents = (string)$response->getBody()->getContents()) ? $contents : null;
+                }
+                // case, when the response code from AvaTax is not equal to 200
+                $this->logRequests(
+                    'Certificate PDF file request, status code is not 200',
+                    $apiUrl,
+                    $method,
+                    $guzzleParams,
+                    $response
+                );
+                return null;
+            } catch (\Throwable $exception) {
+                if (false === (bool)$this->catchExceptions) {
+                    throw $exception;
+                }
+                $this->logRequests(
+                    $exception->getMessage(),
+                    $apiUrl,
+                    $method,
+                    $guzzleParams
+                );
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Log requests|responses data
+     *
+     * @param string|null $context
+     * @param string|null $apiUrl
+     * @param string|null $method
+     * @param array $guzzleParams
+     * @param GuzzleHttpResponse|null $response
+     */
+    private function logRequests(
+        string $context = '',
+        string $apiUrl = '',
+        string $method = '',
+        array $guzzleParams = [],
+        GuzzleHttpResponse $response = null
+    ) {
+        /** @var DataObject $data */
+        $data = $this->dataObjectFactory->create();
+        $data->setData('context', $context);
+        $data->setData('request', [
+            'api_url' => $apiUrl,
+            'http_method' => $method,
+            'guzzle_parameters' => $guzzleParams
+        ]);
+        $data->setData('response', [
+            'status_code' => null !== $response ? $response->getStatusCode() : ''
+        ]);
+        $data->setData('additional_data', ['class' => self::class]);
+        $this->logger->debug(print_r($data, true));
     }
 }
