@@ -198,7 +198,7 @@ class Customer extends Rest implements RestCustomerInterface
                 $request->getData('id')
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
-            $this->handleException($clientException, $request);
+            $this->handleException($clientException, $request, LOG_ERR, true);
         }
 
         return $this->formatResult($result);
@@ -230,7 +230,9 @@ class Customer extends Rest implements RestCustomerInterface
             // Validate the response; pass the customer id for context in case of an error.
             $this->handleException(
                 $clientException,
-                $this->dataObjectFactory->create(['customer_id' => $customer->getId()])
+                $this->dataObjectFactory->create(['customer_id' => $customer->getId()]),
+                LOG_ERR,
+                true
             );
         }
 
@@ -308,10 +310,20 @@ class Customer extends Rest implements RestCustomerInterface
     /**
      * {@inheritDoc}
      */
-    protected function handleException($exception, $request = null, $logMethod = LOG_ERR)
+    protected function handleException($exception, $request = null, $logMethod = LOG_ERR, $cacheThrowableException = false)
     {
         $isMissingCustomerException = false;
-        $responseObject = json_decode((string)$exception->getResponse()->getBody(), true);
+        if($cacheThrowableException) {
+            try {
+                $responseBody = $exception->getResponse()->getBody();
+            } catch (\Throwable  $throwable) {
+                throw new \Exception();
+            }
+        } else {
+            $responseBody = $exception->getResponse()->getBody();
+        }
+
+        $responseObject = json_decode((string)$responseBody, true);
 
         // Customer calls where there is no customer should be suppressed as debug messages to avoid noisy errors
         if (isset($responseObject['error']['code']) && ($responseObject['error']['code'] === 'EntityNotFoundError' || ($responseObject['error']['code'] === 'CertificatesError' && array_reduce(
