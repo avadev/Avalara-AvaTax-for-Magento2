@@ -189,7 +189,7 @@ class Customer extends Rest implements RestCustomerInterface
                 $request->getData('id')
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
-            $this->handleException($clientException, $request);
+            $this->handleException($clientException, $request, LOG_ERR, true);
         }
 
         return $this->formatResult($result);
