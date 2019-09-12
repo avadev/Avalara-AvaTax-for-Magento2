@@ -137,6 +137,11 @@ class ExtensionAttributesPersistencePlugin
 
         // Update each table reference with extension attribute data
         foreach (array_keys($tablesToUpdate) as $tableName) {
+
+            // The "if" have been added for excluding conflict with extension Magento_NegotiableQuote(Magento Commerce 2.3.*)
+            // It will be removed after implementing the compatibility between ClassyLlama_AvaTax and Magento_B2b
+            if($tableName == 'negotiable_quote_item'){ continue; }
+
             $data = array_merge(...$tableData[$tableName]);
             $joinReferenceField = $tablesToUpdate[$tableName]['join_reference_field'];
             // If a user switches their destination address from one that has cross border data to one that doesn't
