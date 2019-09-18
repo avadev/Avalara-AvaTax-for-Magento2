@@ -27,6 +27,8 @@
     <preference for="ClassyLlama\AvaTax\Api\TokenInterface" type="ClassyLlama\AvaTax\Model\Token"/>
     <preference for="ClassyLlama\AvaTax\Api\TaxCacheInterface" type="ClassyLlama\AvaTax\Model\TaxCache"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\SDKTokenInterface" type="ClassyLlama\AvaTax\Model\Data\SDKToken"/>
+    <preference for="ClassyLlama\AvaTax\Api\Framework\Interaction\Request\TaxCompositeInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Request\TaxComposite"/>
+    <preference for="ClassyLlama\AvaTax\Api\Framework\Interaction\Storage\ConfigInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Storage\Config"/>
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
@@ -49,6 +51,13 @@
 
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
+
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Storage\ResultStorage">
+        <arguments>
+            <argument name="namespace" xsi:type="string">creditmemo_tax_estimation</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">

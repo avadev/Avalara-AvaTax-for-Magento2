@@ -74,6 +74,8 @@
             <avatax_advanced>
                 <response_logging_enabled>1</response_logging_enabled>
                 <avatax_timeout>15</avatax_timeout>
+                <avatax_adjustment_taxes>0</avatax_adjustment_taxes>
+                <result_cache_ttl>15</result_cache_ttl>
             </avatax_advanced>
         </tax>
     </default>
