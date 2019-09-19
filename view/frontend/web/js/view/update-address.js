@@ -23,9 +23,8 @@ define(
         'use strict';
 
         return function (address, dontCheckForBillingAddress) {
-            var newAddress = [];
             var quoteShippingAddress = quote.shippingAddress();
-            newAddress = $.extend(quoteShippingAddress, newAddress);
+            var newAddress = $.extend(quoteShippingAddress, address);
             quote.shippingAddress(newAddress);
 
             // dontCheckForBillingAddress allows for the billing address to be updated even when billing address same
