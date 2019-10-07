@@ -21,36 +21,52 @@ use Magento\Framework\Registry;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Ui\Component\AbstractComponent;
 use Magento\Ui\Component\Layout\Tabs\TabInterface;
+use ClassyLlama\AvaTax\Model\Certificates as CertificatesList;
+use ClassyLlama\AvaTax\Model\ResourceModel\Config as ResourceModelConfig;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Company as RestCompany;
+use Magento\Backend\Model\Url as ModelUrl;
+use Magento\Backend\Block\Template\Context;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
+use Magento\Backend\Model\Auth\Session as AuthSession;
+use Magento\User\Model\User;
+use Magento\Framework\DataObject;
 
 /**
- * Class ExportButton
+ * Class TaxCertificates
+ * @package ClassyLlama\AvaTax\Ui\Component
  */
 class TaxCertificates extends AbstractComponent implements TabInterface
 {
     /**
      * Component name
+     *
+     * @var string
      */
     const NAME = 'taxCertificates';
 
+    /**
+     * @var string
+     */
     const COMPONENT = 'ClassyLlama_AvaTax/js/form/certificates-fieldset';
 
     /**
-     * @var \ClassyLlama\AvaTax\Model\ResourceModel\Config
+     * @var ResourceModelConfig
      */
     protected $configResourceModel;
 
     /**
-     * @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Company
+     * @var RestCompany
      */
     protected $companyRest;
 
     /**
-     * @var \Magento\Backend\Model\Url
+     * @var ModelUrl
      */
     protected $backendUrl;
 
     /**
-     * @var \Magento\Backend\Block\Template\Context
+     * @var Context
      */
     protected $sessionContext;
 
@@ -60,44 +76,55 @@ class TaxCertificates extends AbstractComponent implements TabInterface
     protected $registry;
 
     /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     * @var CustomerRepositoryInterface
      */
     protected $customerRepository;
 
     /**
-     * @var \ClassyLlama\AvaTax\Helper\DocumentManagementConfig
+     * @var DocumentManagementConfig
      */
     protected $documentManagementConfig;
 
     /**
-     * ValidateAddress constructor
-     *
-     * @param ContextInterface                                       $context
-     * @param \ClassyLlama\AvaTax\Model\ResourceModel\Config         $configResourceModel
-     * @param \ClassyLlama\AvaTax\Framework\Interaction\Rest\Company $companyRest
-     * @param \Magento\Backend\Model\Url                             $backendUrl
-     * @param \Magento\Backend\Block\Template\Context                $sessionContext
-     * @param Registry                                               $registry
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface      $customerRepository
-     * @param \ClassyLlama\AvaTax\Helper\DocumentManagementConfig    $documentManagementConfig
-     * @param array                                                  $components
-     * @param array                                                  $data
+     * @var CertificatesList
+     */
+    private $certificatesList;
+
+    /**
+     * @var AuthSession
+     */
+    private $authSession;
+
+    /**
+     * TaxCertificates constructor.
+     * @param AuthSession $authSession
+     * @param CertificatesList $certificatesList
+     * @param ContextInterface $context
+     * @param ResourceModelConfig $configResourceModel
+     * @param RestCompany $companyRest
+     * @param ModelUrl $backendUrl
+     * @param Context $sessionContext
+     * @param Registry $registry
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param DocumentManagementConfig $documentManagementConfig
+     * @param array $components
+     * @param array $data
      */
     public function __construct(
+        AuthSession $authSession,
+        CertificatesList $certificatesList,
         ContextInterface $context,
-        \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel,
-        \ClassyLlama\AvaTax\Framework\Interaction\Rest\Company $companyRest,
-        \Magento\Backend\Model\Url $backendUrl,
-        \Magento\Backend\Block\Template\Context $sessionContext,
+        ResourceModelConfig $configResourceModel,
+        RestCompany $companyRest,
+        ModelUrl $backendUrl,
+        Context $sessionContext,
         Registry $registry,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig,
+        CustomerRepositoryInterface $customerRepository,
+        DocumentManagementConfig $documentManagementConfig,
         array $components = [],
         array $data = []
-    )
-    {
+    ) {
         parent::__construct($context, $components, $data);
-
         $this->configResourceModel = $configResourceModel;
         $this->companyRest = $companyRest;
         $this->backendUrl = $backendUrl;
@@ -105,6 +132,8 @@ class TaxCertificates extends AbstractComponent implements TabInterface
         $this->registry = $registry;
         $this->customerRepository = $customerRepository;
         $this->documentManagementConfig = $documentManagementConfig;
+        $this->certificatesList = $certificatesList;
+        $this->authSession = $authSession;
     }
 
     /**
@@ -167,6 +196,26 @@ class TaxCertificates extends AbstractComponent implements TabInterface
         $gridComponent = $this->getComponent('customer_tax_certificates_grid');
         $config = $gridComponent->getData('config');
         $config['shouldShowWarning'] = $this->shouldShowWarning();
+
+        /** @var User|null $user */
+        $user = $this->authSession->getUser();
+        if (null !== $user && !empty($userId = (int)$user->getId())) {
+            /** @var array $certificates */
+            $certificates = (array)$this->certificatesList->getCertificatesList($userId);
+            $data = [];
+            /** @var DataObject $certificate */
+            foreach ($certificates as $certificate) {
+                if ($certificate instanceof DataObject) {
+                    /** @var array $item */
+                    $item = $certificate->getData();
+                    $item['exemption_reason'] = $certificate->getData('exemption_reason')->getData();
+                    $item['exposure_zone'] = $certificate->getData('exposure_zone')->getData();
+                    $item['validated_exemption_reason'] = $certificate->getData('validated_exemption_reason')->getData();
+                    $data[] = $item;
+                }
+            }
+            $config['certificates'] = $data;
+        }
 
         $gridComponent->setData('config', $config);
 
