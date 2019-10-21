@@ -167,6 +167,27 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+
+                <!-- This code scope needed for Magento 2.3.2 and later. Magento team added extra private method (filterNodes($configData)) to Magento\Config\Controller\Adminhtml\System\Config\Save for validation the file system.xml before save configuration data to the database.
+                     For the successful pass of the validation, there was added the declarative code. -->
+
+                <!-- Start -->
+                <field id="production_company_code" type="hidden">
+                    <config_path>tax/avatax/production_company_code</config_path>
+                    <label>Company Code (Production)</label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="development_company_code" type="hidden" >
+                    <config_path>tax/avatax/development_company_code</config_path>
+                    <label>Company Code (Development)</label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <!-- End -->
+
                 <field id="data_mapping_header" translate="label" type="label" sortOrder="3000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Data Mapping</strong>]]></label>
                     <!-- Reference: https://github.com/magento/magento2/issues/2340
