@@ -13,6 +13,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 /** @var \ClassyLlama\AvaTax\Block\ViewModel\CustomerCertificates $viewModel */
+/** @var \Magento\Framework\View\Element\Template $block */
 $viewModel = $this->getData('view_model');
 
 $certificates = [];
@@ -21,7 +22,9 @@ try {
     $certificates = $viewModel->getCertificates();
 } catch (\ClassyLlama\AvaTax\Exception\AvataxConnectionException $e) {
     // We will just show an empty list
-}
+};
+
+$statuses =  $viewModel->getCertificateStatusName();
 ?>
 <div class="table-wrapper">
     <table class="data table">
@@ -47,8 +50,8 @@ try {
                     <td data-th="<?php echo __('Expiration Date') ?>"><?php echo $certificate->getData(
                             'expiration_date'
                         ); ?></td>
-                    <td data-th="<?php echo __('Status') ?>"><?php echo $certificate->getData('valid') ? __('Approved')
-                            : __('Denied'); ?></td>
+                    <td data-th="<?php echo __('Status') ?>"><?php echo $certificate->getData('valid') ? $block->escapeHtml($statuses['approved'])
+                            : $block->escapeHtml($statuses['denied']); ?></td>
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
                             <a target="_blank"

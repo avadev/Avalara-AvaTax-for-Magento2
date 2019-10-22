@@ -155,4 +155,14 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
     {
         return $this->certificateHelper->getCertificates($this->getCustomerId());
     }
+
+    /**
+     * Certificate Status Names
+     *
+     * @return array
+     */
+    public function getCertificateStatusName()
+    {
+        return $this->certificateHelper->getCertificateStatusNames();
+    }
 }
