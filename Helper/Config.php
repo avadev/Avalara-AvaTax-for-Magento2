@@ -145,6 +145,13 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_ADVANCED_API_TIMEOUT = 'tax/avatax_advanced/avatax_timeout';
 
     const XML_PATH_AVATAX_SHIPPING_TAX_CODE = 'tax/avatax/shipping_tax_code';
+
+    const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_CUSTOM_STATUS_NAME = 'tax/avatax_document_management/custom_status_name_certificate';
+
+    const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_APPROVED = 'tax/avatax_document_management/approved_status_name';
+
+    const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_DENIED = 'tax/avatax_document_management/denied_status_name';
+
     /**#@-*/
 
     /**
@@ -1245,6 +1252,22 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_SHIPPING_TAX_CODE,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Config Data
+     *
+     * @param $configPath
+     * @param null $store
+     * @return array
+     */
+    public function getConfigData($configPath, $store = null)
+    {
+        return $this->scopeConfig->getValue(
+            $configPath,
             ScopeInterface::SCOPE_STORE,
             $store
         );

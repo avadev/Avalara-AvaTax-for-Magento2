@@ -16,8 +16,10 @@
 namespace ClassyLlama\AvaTax\Helper;
 
 use Magento\Framework\DataObject;
-use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use Magento\Framework\DataObjectFactory;
+
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
+use ClassyLlama\AvaTax\Helper\Config as AvataxConfig;
 
 class CertificateHelper
 {
@@ -40,6 +42,11 @@ class CertificateHelper
     protected $urlSigner;
 
     /**
+     * @var AvataxConfig
+     */
+    protected $avataxConfig;
+
+    /**
      * @var DataObjectFactory
      */
     protected $dataObjectFactory;
@@ -54,18 +61,21 @@ class CertificateHelper
      *
      * @param DataObjectFactory                             $dataObjectFactory
      * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest
+     * @param Config                                        $avataxConfig
      * @param \Magento\Framework\UrlInterface               $urlBuilder
      * @param UrlSigner                                     $urlSigner
      */
     public function __construct(
         DataObjectFactory $dataObjectFactory,
         \ClassyLlama\AvaTax\Api\RestCustomerInterface $customerRest,
+        AvataxConfig $avataxConfig,
         \Magento\Framework\UrlInterface $urlBuilder,
         UrlSigner $urlSigner
     )
     {
         $this->urlBuilder = $urlBuilder;
         $this->urlSigner = $urlSigner;
+        $this->avataxConfig = $avataxConfig;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->customerRest = $customerRest;
     }
@@ -133,5 +143,35 @@ class CertificateHelper
         );
 
         return $this->certificates[$customerId];
+    }
+
+    /**
+     * Get Names of Certificate Status
+     *
+     * @return array
+     */
+    public function getCertificateStatusNames()
+    {
+        $certificateStatusNames = [
+            'approved' => 'Approved',
+            'denied'   => 'Denied'
+        ];
+
+        if(!$this->avataxConfig->getConfigData(Config::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_CUSTOM_STATUS_NAME)) {
+            return $certificateStatusNames;
+        }
+
+        $approved = $this->avataxConfig->getConfigData(Config::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_APPROVED);
+        $denied = $this->avataxConfig->getConfigData(Config::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_DENIED);
+
+        if($approved) {
+            $certificateStatusNames['approved'] = $approved;
+        };
+
+        if($denied) {
+            $certificateStatusNames['denied'] = $approved;
+        };
+
+        return $certificateStatusNames;
     }
 }
