@@ -200,6 +200,8 @@ class TaxCertificates extends AbstractComponent implements TabInterface
         /** @var User|null $user */
         $user = $this->authSession->getUser();
         if (null !== $user && !empty($userId = (int)$user->getId())) {
+            /** @var int $userId */
+            $userId = !empty((int)$customerId = $this->registry->registry(RegistryConstants::CURRENT_CUSTOMER_ID)) ? $customerId : $userId;
             /** @var array $certificates */
             $certificates = (array)$this->certificatesList->getCertificatesList($userId);
             $data = [];
