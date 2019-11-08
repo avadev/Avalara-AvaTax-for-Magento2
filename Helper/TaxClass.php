@@ -208,6 +208,17 @@ class TaxClass
             return null;
         }
 
+        return $this->getAvataxTaxCodeForCustomerGroup($customerGroupId);
+    }
+
+    /**
+     * Get AvaTax Customer Usage Type for customer group
+     *
+     * @param int $customerGroupId
+     * @return null|string
+     */
+    public function getAvataxTaxCodeForCustomerGroup($customerGroupId)
+    {
         try {
             $customerGroup = $this->customerGroupRepository->getById($customerGroupId);
             $taxClassId = $customerGroup->getTaxClassId();
