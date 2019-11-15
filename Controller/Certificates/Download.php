@@ -85,9 +85,14 @@ class Download extends Action
             return $result;
         } else {
             if (null === $result || ($result instanceof DataObject && $result->hasData('error'))) {
-                $this->messageManager->addError(
-                    __('Something went wrong, please check the log file for more information')
-                );
+                $codeExplainInfo = __('Something went wrong, please check the log file for more information');
+
+                if($result->getData('error')['code'] == '400'){
+                    $codeExplainInfo = __('The certificate file can\'t be displayed. 
+                    It hasn\'t been generated or upload to the AvaTax Service early.');
+                };
+
+                $this->messageManager->addError($codeExplainInfo);
             }
             /** @var \Magento\Framework\Controller\Result\Redirect $resultRedirect */
             $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

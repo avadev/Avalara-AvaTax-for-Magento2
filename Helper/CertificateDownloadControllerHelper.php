@@ -156,7 +156,8 @@ class CertificateDownloadControllerHelper
             $errorData = [
                 'class' => self::class,
                 'trace' => $exception->getTraceAsString(),
-                'error_message' => $exception->getMessage()
+                'error_message' => $exception->getMessage(),
+                'code' => $exception->getCode()
             ];
             $this->logger->error($exception->getMessage(), $errorData);
             /** @var \Magento\Framework\DataObject $error */
