@@ -169,7 +169,7 @@ class CertificateHelper
         };
 
         if($denied) {
-            $certificateStatusNames['denied'] = $approved;
+            $certificateStatusNames['denied'] = $denied;
         };
 
         return $certificateStatusNames;
