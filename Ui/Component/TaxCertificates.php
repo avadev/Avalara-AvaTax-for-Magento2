@@ -31,6 +31,7 @@ use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
 use Magento\Backend\Model\Auth\Session as AuthSession;
 use Magento\User\Model\User;
 use Magento\Framework\DataObject;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class TaxCertificates
@@ -96,7 +97,13 @@ class TaxCertificates extends AbstractComponent implements TabInterface
     private $authSession;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * TaxCertificates constructor.
+     * @param LoggerInterface $logger
      * @param AuthSession $authSession
      * @param CertificatesList $certificatesList
      * @param ContextInterface $context
@@ -111,6 +118,7 @@ class TaxCertificates extends AbstractComponent implements TabInterface
      * @param array $data
      */
     public function __construct(
+        LoggerInterface $logger,
         AuthSession $authSession,
         CertificatesList $certificatesList,
         ContextInterface $context,
@@ -134,6 +142,7 @@ class TaxCertificates extends AbstractComponent implements TabInterface
         $this->documentManagementConfig = $documentManagementConfig;
         $this->certificatesList = $certificatesList;
         $this->authSession = $authSession;
+        $this->logger = $logger;
     }
 
     /**
@@ -210,9 +219,15 @@ class TaxCertificates extends AbstractComponent implements TabInterface
                 if ($certificate instanceof DataObject) {
                     /** @var array $item */
                     $item = $certificate->getData();
-                    $item['exemption_reason'] = $certificate->getData('exemption_reason')->getData();
-                    $item['exposure_zone'] = $certificate->getData('exposure_zone')->getData();
-                    $item['validated_exemption_reason'] = $certificate->getData('validated_exemption_reason')->getData();
+
+                    // case, when a certificate does not have signed_date/expiration_date at the Avalara side
+                    !$certificate->hasData('signed_date') ? $item['signed_date'] = [] : false;
+                    !$certificate->hasData('expiration_date') ? $item['expiration_date'] = [] : false;
+
+                    $item['exemption_reason'] = $this->configureAdditionalInformation($certificate, 'exemption_reason');
+                    $item['exposure_zone'] = $this->configureAdditionalInformation($certificate, 'exposure_zone');
+                    $item['validated_exemption_reason'] = $this->configureAdditionalInformation($certificate, 'validated_exemption_reason');
+
                     $data[] = $item;
                 }
             }
@@ -243,6 +258,28 @@ class TaxCertificates extends AbstractComponent implements TabInterface
         $this->setData('config', $config);
 
         parent::prepare();
+    }
+
+    /**
+     * Configure additional information
+     *
+     * @param DataObject|null $certificate
+     * @param string $option
+     * @return array
+     */
+    private function configureAdditionalInformation(DataObject $certificate = null, $option = '')
+    {
+        if (null !== $certificate && !empty($option)) {
+            try {
+                return $certificate->getData($option)->getData();
+            } catch (\Throwable $exception) {
+                $this->logger->error($exception->getMessage(), [
+                    'class' => self::class,
+                    'trace' => $exception->getTraceAsString()
+                ]);
+            }
+        }
+        return [];
     }
 
     /**
