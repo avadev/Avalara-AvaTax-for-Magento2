@@ -25,6 +25,7 @@
                 </resource>
                 <resource id="Magento_Customer::customer">
                     <resource id="ClassyLlama_AvaTax::customer_certificates" sortOrder="50" title="AvaTax Certificates" translate="title"/>
+                    <resource id="ClassyLlama_AvaTax::avalara_update_customer_information" sortOrder="60" title="Update Customer Information at Avalara" translate="title"/>
                 </resource>
                 <resource id="ClassyLlama_AvaTax::CrossBorderType" sortOrder="10" title="CrossBorderType">
                     <resource id="ClassyLlama_AvaTax::CrossBorderType_save" sortOrder="10" title="Save CrossBorderType"/>

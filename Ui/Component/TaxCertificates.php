@@ -239,6 +239,10 @@ class TaxCertificates extends AbstractComponent implements TabInterface
             'avatax/certificatestoken/get',
             ['form_key' => $this->sessionContext->getFormKey()]
         );
+        $config['customer_avalara_update_url'] = $this->backendUrl->getUrl(
+            'avatax/customer/update',
+            ['form_key' => $this->sessionContext->getFormKey(), 'customer_id' => $config['customer_id']]
+        );
         $config['available_exemption_zones'] = $this->getAvailableExemptionZones();
         $this->setData('config', $config);
 
