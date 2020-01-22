@@ -62,6 +62,11 @@
                 <button data-bind="click: addExemption, i18n: 'Add Exemption'"></button>
                 <!-- ko template: getTemplate() --><!-- /ko -->
             </div>
+            <div class="customer-tax-exemption-action"
+                 data-bind='scope: "avalara-customer-information-update", mageInit: {"Magento_Ui/js/core/app": {"components": {"avalara-customer-information-update": {"component": "ClassyLlama_AvaTax/js/action/avalara-customer-information-update", "config": {customerUpdateUrl: customer_avalara_update_url}}}}}'>
+                <button data-bind="click: updateCustomerInformationAvalara, i18n: 'Update Customer Information at Avalara'"></button>
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </div>
         </div>
         <!-- END EDIT -->
     </div>
