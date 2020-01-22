@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Observer\Model\Customer;
 use ClassyLlama\AvaTax\Exception\AvaTaxCustomerDoesNotExistException;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\Customer as CustomerHelper;
+use Magento\Store\Model\ScopeInterface;
 
 class AfterSaveObserver implements ObserverInterface
 {
@@ -47,6 +50,16 @@ class AfterSaveObserver implements ObserverInterface
     protected $avaTaxLogger;
 
     /**
+     * @var \Magento\Framework\App\CacheInterface
+     */
+    protected $cache;
+
+    /**
+     * @var CustomerHelper
+     */
+    protected $customerHelper;
+
+    /**
      * BeforeSaveObserver constructor.
      *
      * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface       $restCustomerInterface
@@ -54,13 +67,17 @@ class AfterSaveObserver implements ObserverInterface
      * @param \Magento\Framework\App\State                        $appState
      * @param \Magento\Framework\Message\ManagerInterface         $messageManager
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger       $avaTaxLogger
+     * @param \Magento\Framework\App\CacheInterface               $cache
+     * @param CustomerHelper                                      $customerHelper
      */
     public function __construct(
         \ClassyLlama\AvaTax\Api\RestCustomerInterface $restCustomerInterface,
         \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig,
         \Magento\Framework\App\State $appState,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
+        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
+        \Magento\Framework\App\CacheInterface $cache,
+        CustomerHelper $customerHelper
     )
     {
         $this->restCustomerInterface = $restCustomerInterface;
@@ -68,6 +85,8 @@ class AfterSaveObserver implements ObserverInterface
         $this->appState = $appState;
         $this->messageManager = $messageManager;
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->cache = $cache;
+        $this->customerHelper = $customerHelper;
     }
 
     /**
@@ -85,6 +104,9 @@ class AfterSaveObserver implements ObserverInterface
 
         try {
             $this->restCustomerInterface->updateCustomer($customer, null, $customer->getStoreId());
+            $this->cache->clean([Config::AVATAX_CACHE_TAG,
+             Config::AVATAX_CACHE_TAG . '-' . 
+             $this->customerHelper->getCustomerCode($customer, null, ScopeInterface::SCOPE_STORE)]);
         } catch (AvaTaxCustomerDoesNotExistException $avaTaxCustomerDoesNotExistException) {
             // Ignore errors where the customer doesn't exist
         } catch (\Exception $exception) {
