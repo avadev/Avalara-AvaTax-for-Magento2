@@ -113,6 +113,12 @@ define([
         targetModule.prototype.refreshTotals = function refreshTotals() {
             GenCert.hide();
             this.dialogElement.modal('closeModal');
+
+            this.refreshCache();
+        };
+
+        targetModule.prototype.refreshCache = function refreshCache() {
+
             fullScreenLoader.startLoader();
 
             // Clear cached AvaTax taxes for this customer and then trigger a "collect totals"
