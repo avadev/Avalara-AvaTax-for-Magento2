@@ -23,4 +23,11 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="avatax_checkout_billing_address_validation_config" xsi:type="object">ClassyLlama\AvaTax\Model\BillingAddressValidationConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
