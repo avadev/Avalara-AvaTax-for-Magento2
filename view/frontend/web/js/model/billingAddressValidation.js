@@ -65,7 +65,6 @@ define(
                         addressValidationForm.fillValidateForm(self.validationContainer);
                         if (addressModel.isDifferent() || addressModel.error() != null) {
                             isValid = false;
-                            $('body').trigger('processStop');
                             self.modal.openModal();
                             $('.validateAddressForm').show();
                         } else {

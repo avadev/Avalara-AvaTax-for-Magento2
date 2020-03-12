@@ -18,8 +18,7 @@ define([
     'ClassyLlama_AvaTax/js/view/address-validation-form',
     'Magento_Checkout/js/model/checkout-data-resolver',
     'Magento_Checkout/js/action/select-billing-address',
-    'Magento_Checkout/js/action/create-billing-address',
-    'Magento_Checkout/js/model/quote'
+    'Magento_Checkout/js/action/create-billing-address'
 ], function (
     $,
     ko,
@@ -27,13 +26,14 @@ define([
     addressValidationForm,
     checkoutDataResolver,
     selectBillingAddress,
-    createBillingAddress,
-    quote
+    createBillingAddress
 ) {
 
     $.widget('ClassyLlama_AvaTax.checkoutBillingAddressValidationModal', $.mage.modal, {
+        validationContainer: '.billingValidationModal .modal-content > div',
+        formSelector: '.billing-address-form form',
         options: {
-            title: $.mage.__('Verify Your Address'),
+            title: $.mage.__('Verify Your Billing Address'),
             modalClass: 'billingValidationModal',
             focus: '.billingValidationModal .action-primary',
             responsive: true,
@@ -43,10 +43,7 @@ define([
                     text: $.mage.__('Edit Address'),
                     class: 'action-secondary action-dismiss',
                     click: function () {
-                        var paymentMethod = quote.paymentMethod().method;
-                        $(`input[value=${paymentMethod}]`).parents('.payment-method').find('.action-edit-address').trigger('click');
-                        window.checkoutConfig.billingAddressValidation.isAddressValid = false;
-                        this.closeModal();
+                        this.editAddress();
                     }
                 },
                 {
@@ -59,13 +56,12 @@ define([
                             addressValidationForm.updateFormFields(this.formSelector);
                         }
                         window.checkoutConfig.billingAddressValidation.isAddressValid = true;
+                        this.clickNativePlaceOrder();
                         this.closeModal();
                     }
                 }
             ]
         },
-        validationContainer: '.billingValidationModal .modal-content > div',
-        formSelector: '.billing-address-form form',
 
         _create: function () {
             this._super();
@@ -76,10 +72,7 @@ define([
             this._super();
             var self = this;
             $(this.validationContainer + " .edit-address").on('click', function () {
-                var paymentMethod = quote.paymentMethod().method;
-                $(`input[value=${paymentMethod}]`).parents('.payment-method').find('.action-edit-address').trigger('click');
-                window.checkoutConfig.billingAddressValidation.isAddressValid = false;
-                self.closeModal();
+                self.editAddress();
             });
         },
 
@@ -87,6 +80,19 @@ define([
             this._super();
         },
 
+        editAddress: function () {
+            self.clickNativeEditBillingAddress();
+            window.checkoutConfig.billingAddressValidation.isAddressValid = false;
+            self.closeModal();
+        },
+
+        clickNativePlaceOrder: function () {
+            $('.payment-method._active button[type=submit].checkout').click();
+        },
+
+        clickNativeEditBillingAddress: function () {
+            $('.payment-method._active .action-edit-address').click();
+        }
     });
 
     return $.ClassyLlama_AvaTax.checkoutBillingAddressValidationModal;
