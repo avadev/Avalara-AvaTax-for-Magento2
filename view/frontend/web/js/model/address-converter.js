@@ -31,12 +31,10 @@ define(
         return {
             /**
              * Convert address form data to Address object
-             * @param {Object} form
              * @returns {Object}
+             * @param formData
              */
-            formAddressDataToCustomerAddress: function(form) {
-                var formData = $(form).serializeObject();
-
+            formAddressDataToCustomerAddress: function(formData) {
                 // clone address form data to new object
                 var addressData = $.extend(true, {}, formData),
                     region,

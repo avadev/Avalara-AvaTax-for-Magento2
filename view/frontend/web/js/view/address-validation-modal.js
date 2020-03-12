@@ -98,7 +98,8 @@ define([
                         if (isValid) {
                             e.preventDefault();
                             addressModel.error(null);
-                            var addressObject = addressConverter.formAddressDataToCustomerAddress($(self.formSelector));
+                            var formData = $(self.formSelector).serializeObject();
+                            var addressObject = addressConverter.formAddressDataToCustomerAddress(formData);
                             var inCountry = $.inArray(addressObject.countryId, self.options.countriesEnabled.split(',')) >= 0;
                             if (inCountry) {
                                 addressModel.originalAddress(addressObject);
