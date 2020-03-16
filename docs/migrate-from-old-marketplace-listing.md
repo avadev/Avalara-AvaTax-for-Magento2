@@ -23,6 +23,10 @@
   ```
   bin/magento setup:upgrade
   ```
+- Generate DI configuration
+  ```
+  bin/magento setup:di:compile
+  ```
 - Disable maintenance mode:
   ```
   bin/magento maintenance:disable
