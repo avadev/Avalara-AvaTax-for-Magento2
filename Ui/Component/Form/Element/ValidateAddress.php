@@ -19,11 +19,13 @@ use ClassyLlama\AvaTax\Helper\Config;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Ui\Component\AbstractComponent;
+use ClassyLlama\AvaTax\Api\UiComponentV1Interface;
 
 /**
- * Class ExportButton
+ * Class ValidateAddress
+ * @package ClassyLlama\AvaTax\Ui\Component\Form\Element
  */
-class ValidateAddress extends AbstractComponent
+class ValidateAddress extends AbstractComponent implements UiComponentV1Interface
 {
     /**
      * Component name

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd" component="Magento_Customer/js/form/components/form">
+    <fieldset name="general">
+        <container name="validateButton" class="ClassyLlama\AvaTax\Ui\Component\Form\Address\ValidateAddress">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/form/address/element/button</item>
+                    <item name="sortOrder" xsi:type="string">10000</item>
+                </item>
+            </argument>
+        </container>
+        <container name="baseValidateAddress" class="ClassyLlama\AvaTax\Ui\Component\Form\Address\ValidateAddress">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/form/address/element/validationForm</item>
+                    <item name="sortOrder" xsi:type="string">10001</item>
+                </item>
+            </argument>
+        </container>
+    </fieldset>
+</form>
