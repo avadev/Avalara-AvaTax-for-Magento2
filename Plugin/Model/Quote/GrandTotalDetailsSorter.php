@@ -8,10 +8,10 @@ namespace ClassyLlama\AvaTax\Plugin\Model\Quote;
 
 class GrandTotalDetailsSorter
 {
-    const CUSTOMS_RATE_TITLE = 'Customs Duty and Import Tax';
+    const CUSTOMS_RATE_TITLE = 'Duty';
 
     /**
-     * Sorts the total rates by percentage ascending
+     * Sorts the total rates by percentage ascending and sorts order of taxes by title
      *
      * @param \Magento\Quote\Model\Cart\TotalsConverter $subject
      * @param                                           $totalSegments
@@ -25,6 +25,8 @@ class GrandTotalDetailsSorter
 
         foreach($taxGrandtotalDetails as $taxGrandtotalDetail) {
             $rates = $taxGrandtotalDetail->getRates();
+
+            /** Sorts the total rates by percentage ascending */
             usort($rates, function ($leftRate, $rightRate){
                 $leftPercent = $leftRate->getPercent();
                 $rightPercent = $rightRate->getPercent();
@@ -49,6 +51,23 @@ class GrandTotalDetailsSorter
 
             $taxGrandtotalDetail->setRates($rates);
         }
+
+        /** Sorts order of taxes by title */
+        usort($taxGrandtotalDetails, function ($leftTax, $rightTax){
+
+            $leftTitle = $leftTax->getRates()[0]->getTitle() === self::CUSTOMS_RATE_TITLE;
+            $rightTitle = $rightTax->getRates()[0]->getTitle() === self::CUSTOMS_RATE_TITLE;
+
+            if($leftTitle && $rightTitle) {
+                return 0;
+            }
+
+            if($rightTitle) {
+                return 1;
+            }
+
+            return -1;
+        });
 
         $taxExtensionAttributes->setTaxGrandtotalDetails($taxGrandtotalDetails);
         $totalSegments['tax']->setExtensionAttributes($taxExtensionAttributes);

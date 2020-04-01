@@ -26,7 +26,7 @@
 
 >  Important Note: This extension's support for this Avalara feature requires that you [install version 2.x.x of the extension](./getting-started.md#version-notes).
 
-This AvaTax connector for Magento provides a set of features to support Customs Duty and Import Tax (hereafter referred to as CDIT). These features include:
+This AvaTax connector for Magento provides a set of features to support Duty (hereafter referred to as CDIT). These features include:
 
 - HS Code and Unit of Measure configuration for Products and their Destinations
 - Map Native and Custom Shipping Methods with AvaTax’s shipping modes

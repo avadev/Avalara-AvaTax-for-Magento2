@@ -28,8 +28,8 @@
         }
     }
 
-    .cart-totals tbody .totals-tax-details th,
-    .table-totals tbody .totals-tax-details th.mark {
+    .cart-totals tbody .totals-tax-details:not(.custom-tax) th,
+    .table-totals tbody .totals-tax-details:not(.custom-tax) th.mark {
         padding-left: 10px;
     }
 
@@ -66,6 +66,14 @@
             }
         }
     }
+}
+
+.totals-tax-summary.totals-tax-holder {
+    transform: translateY(100%);
+}
+
+.totals-tax-details.custom-tax {
+    transform: translateY(-100%);
 }
 
 .media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
