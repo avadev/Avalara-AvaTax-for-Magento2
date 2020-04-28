@@ -16,6 +16,10 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="checkout" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
+        <referenceContainer name="content">
+            <block class="ClassyLlama\AvaTax\Block\CustomerAddress" name="init_validation_modal"
+                   template="ClassyLlama_AvaTax::init_checkout_billing_validation_modal.phtml" />
+        </referenceContainer>
         <referenceBlock name="checkout.root">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">
@@ -40,6 +44,27 @@
                                                         <item name="grand-total" xsi:type="array">
                                                             <item name="config" xsi:type="array">
                                                                 <item name="template" xsi:type="string">ClassyLlama_AvaTax/checkout/summary/grand-total</item>
+                                                            </item>
+                                                        </item>
+                                                    </item>
+                                                </item>
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
+                                <item name="steps" xsi:type="array">
+                                    <item name="children" xsi:type="array">
+                                        <item name="billing-step" xsi:type="array">
+                                            <item name="children" xsi:type="array">
+                                                <item name="payment" xsi:type="array">
+                                                    <item name="children" xsi:type="array">
+                                                        <item name="additional-payment-validators" xsi:type="array">
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="billing-address-validator" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">
+                                                                        ClassyLlama_AvaTax/js/view/billingAddressValidation
+                                                                    </item>
+                                                                </item>
                                                             </item>
                                                         </item>
                                                     </item>
