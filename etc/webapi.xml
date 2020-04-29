@@ -40,4 +40,10 @@
             <resource ref="self" />
         </resources>
     </route>
+    <route url="/V1/carts/billing-validate-address" method="POST">
+        <service class="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" method="saveValidAddress"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 </routes>
