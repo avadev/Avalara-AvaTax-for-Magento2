@@ -52,22 +52,22 @@
 <!-- // END EDIT -->
 <!-- ko if: ifShowValue() && ifShowDetails() -->
     <tr class="totals-tax-summary"
-        data-bind="mageInit: {'toggleAdvanced':{'selectorsToggleClass': 'shown', 'baseToggleClass': 'expanded', 'toggleContainers': '.totals-tax-details'}}">
+        data-bind="mageInit: {'toggleAdvanced':{'selectorsToggleClass': 'shown', 'baseToggleClass': 'expanded', 'toggleContainers': '.totals-tax-details:not(.custom-tax)'}}, css: {'totals-tax-holder': hasCustomsTax()}">
         <th data-bind="text: title" class="mark" scope="row"></th>
         <td data-bind="attr: {'data-th': title }" class="amount">
             <!-- ko if: isCalculated() -->
             <span class="price"
-                  data-bind="text: getValue()"></span>
+                  data-bind="text: getValueDetail()"></span>
             <!-- /ko -->
             <!-- ko ifnot: isCalculated() -->
             <span class="not-calculated"
-                  data-bind="text: getValue()"></span>
+                  data-bind="text: getValueDetail()"></span>
             <!-- /ko -->
         </td>
     </tr>
     <!-- ko foreach: getDetails() -->
         <!-- ko foreach: rates -->
-        <tr class="totals-tax-details" data-bind="css: { shown: $parents[1].hasCustomsTax() }">
+        <tr class="totals-tax-details" data-bind="css: { shown: $parents[1].hasCustomsTax(), 'custom-tax': $parents[1].getCustomTaxClass($data) }">
             <!-- // BEGIN EDIT - Retrieve tax values from extension attributes -->
             <th class="mark" scope="row" data-bind="text: $parents[1].getTaxTitle($data)"></th>
             <td class="amount" rowspan="1">

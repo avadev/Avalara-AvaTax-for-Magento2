@@ -340,7 +340,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
             // Rename the tax title to our own label
             if (\in_array($taxType, $customsTaxTypes)) {
-                $taxTitle = (string)__('Customs Duty and Import Tax');
+                $taxTitle = (string)__('Duty');
             }
 
             $taxableAmount = (float)$lineItemDetail->getData('taxable_amount');
