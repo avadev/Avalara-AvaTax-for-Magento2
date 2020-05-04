@@ -54,6 +54,7 @@ define(
                         self.modal = addressValidationModal(self.options);
                     }
                     $('.validateAddressForm').show();
+                    delete addressObject.email;
                     addressModel.originalAddress(addressObject);
                     addressModel.error(null);
                     setBillingAddress().done(function (response) {
