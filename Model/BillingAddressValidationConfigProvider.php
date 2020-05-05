@@ -42,7 +42,7 @@ class BillingAddressValidationConfigProvider implements ConfigProviderInterface
     {
         $config = [];
         $config['billingAddressValidation'] = [
-            'validationEnabled' => $this->customerAddress->isValidationEnabled(),
+            'validationEnabled' => (bool)$this->customerAddress->isValidationEnabled(),
             'hasChoice'         => $this->customerAddress->getChoice(),
             'instructions'      => $this->serializer->unserialize($this->customerAddress->getInstructions()),
             'errorInstructions' => $this->serializer->unserialize($this->customerAddress->getErrorInstructions()),
