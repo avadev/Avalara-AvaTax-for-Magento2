@@ -54,7 +54,7 @@ define(
                         self.modal = addressValidationModal(self.options);
                     }
                     $('.validateAddressForm').show();
-                    delete addressObject.email;
+                    addressObject = self.cleanUnAddressObject(addressObject);
                     addressModel.originalAddress(addressObject);
                     addressModel.error(null);
                     setBillingAddress().done(function (response) {
@@ -74,7 +74,35 @@ define(
                     });
                     return isValid;
                 }
+            },
+            cleanUnAddressObject: function (address) {
+                var allowedAddressProperties = [
+                    "customerId",
+                    "countryId",
+                    "region",
+                    "regionId",
+                    "regionCode",
+                    "street",
+                    "company",
+                    "telephone",
+                    "fax",
+                    "postcode",
+                    "city",
+                    "firstname",
+                    "lastname",
+                    "middlename",
+                    "prefix",
+                    "suffix",
+                    "vatId",
+                ];
+                for (var element of Object.keys(address)) {
+                    if (!allowedAddressProperties.includes(element)) {
+                        delete address[element]
+                    }
+                }
+                return address;
             }
+
         }
     }
 );
