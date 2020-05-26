@@ -7,11 +7,11 @@
  * @api
  */
 
-define([], function () {
+define(['mage/translate'], function ($t) {
     'use strict';
 
-    var customsTitle = 'Duty',
-        totalTaxTitle = 'Import Fees';
+    var customsTitle = $t('Duty'),
+        totalTaxTitle = $t('Import Fees');
 
     return function (taxModule) {
         taxModule.prototype.hasCustomsTax = function () {
