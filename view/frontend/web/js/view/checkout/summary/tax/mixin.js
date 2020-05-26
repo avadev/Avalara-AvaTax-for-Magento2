@@ -7,15 +7,13 @@
  * @api
  */
 
-define([], function () {
+define(['mage/translate'], function ($t) {
     'use strict';
 
-    var customsTitle = 'Duty',
-        totalTaxTitle = 'Import Fees';
+    var customsTitle = $t('Duty'),
+        totalTaxTitle = $t('Import Fees');
 
     return function (taxModule) {
-        var parentIfShowDetails = taxModule.prototype.ifShowDetails;
-
         taxModule.prototype.hasCustomsTax = function () {
             return this.getDetails().some(function (detail) {
                 return detail.rates.some(function (rate) {
@@ -26,15 +24,6 @@ define([], function () {
 
         taxModule.prototype.getTotalTaxTitle = function () {
             return totalTaxTitle;
-        };
-
-        // Override the show details logic to force showing details if we have customs tax
-        taxModule.prototype.ifShowDetails = function () {
-            if (parentIfShowDetails.call(this)) {
-                return true;
-            }
-
-            return this.hasCustomsTax();
         };
 
         taxModule.prototype.getValueDetail = function () {
