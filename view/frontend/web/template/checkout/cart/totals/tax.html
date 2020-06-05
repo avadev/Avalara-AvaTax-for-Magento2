@@ -16,7 +16,7 @@
 <!-- ko if: ifShowValue() && !ifShowDetails() -->
 <tr class="totals-tax">
     <th data-bind="text: getTotalTaxTitle()" class="mark" colspan="1" scope="row"></th>
-    <td data-bind="attr: {'data-th': title}" class="amount">
+    <td data-bind="attr: {'data-th': getTotalTaxTitle()}" class="amount">
         <span class="price" data-bind="text: getValue()"></span>
     </td>
 </tr>
