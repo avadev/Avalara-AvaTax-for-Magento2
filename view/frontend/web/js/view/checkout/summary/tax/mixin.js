@@ -23,7 +23,11 @@ define(['mage/translate'], function ($t) {
         };
 
         taxModule.prototype.getTotalTaxTitle = function () {
-            return totalTaxTitle;
+            if (taxModule.prototype.hasCustomsTax()) {
+                return totalTaxTitle;
+            } else {
+                return this.title;
+            }
         };
 
         taxModule.prototype.getValueDetail = function () {

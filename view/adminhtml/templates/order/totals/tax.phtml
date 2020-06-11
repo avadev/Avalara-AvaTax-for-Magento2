@@ -6,14 +6,65 @@
 
 // @codingStandardsIgnoreFile
 
-/** @var $block \Magento\Sales\Block\Adminhtml\Order\Totals\Tax */
+/** @var $block Tax */
+
+use ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter;
+use Magento\Sales\Block\Adminhtml\Order\Totals\Tax;
+use Magento\Sales\Model\Order\Invoice;
+
 ?>
 <?php
-/** @var $_source \Magento\Sales\Model\Order\Invoice */
+/** @var $_source Invoice */
 $_source = $block->getSource();
 $_order = $block->getOrder();
 $_fullInfo = $block->getFullTaxInfo();
+$hasCustomDuty = false;
 ?>
+
+<?php if ($_fullInfo): ?>
+    <?php if (isset($_fullInfo[0]['rates'])): ?>
+        <?php foreach ($_fullInfo as $info): ?>
+            <?php if (isset($info['hidden']) && $info['hidden']) {
+                continue;
+            } ?>
+            <?php
+            $rates = $info['rates'];
+            ?>
+            <?php foreach ($rates as $rate): ?>
+                <?php if ($rate['title'] === GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                    <?php $hasCustomDuty = true; ?>
+                    <?php if ($block->displayFullSummary()): ?>
+                        <td class="admin__total-mark"><?= /* @escapeNotVerified */
+                            $rate['title'] ?><br/></td>
+                    <?php endif; ?>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <?php foreach ($_fullInfo as $info): ?>
+            <?php
+            $amount = $info['tax_amount'];
+            $baseAmount = $info['base_tax_amount'];
+            ?>
+            <?php if ($info['title'] == GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                <?php $hasCustomDuty = true; ?>
+                <?php if ($block->displayFullSummary()): ?>
+                    <tr>
+                        <td class="label">
+                            <div class="summary-collapse" tabindex="0">
+                                <?= /* @escapeNotVerified */
+                                $info['title'] ?>
+                            </div>
+                        </td>
+                        <td><?= /* @escapeNotVerified */
+                            $block->displayAmount($amount, $baseAmount) ?></td>
+                    </tr>
+                <?php endif; ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
+<?php endif; ?>
+
 
 <?php if ($block->displayFullSummary() && $_fullInfo): ?>
 <tr class="summary-total" onclick="expandDetails(this, '.summary-details')">
@@ -26,8 +77,13 @@ $_fullInfo = $block->getFullTaxInfo();
                 <?= /* @escapeNotVerified */
                 __('Total Tax') ?>
             <?php else: ?>
-                <?= /* @escapeNotVerified */
-                __('Tax') ?>
+                <?php if ($hasCustomDuty): ?>
+                    <?= /* @escapeNotVerified */
+                    __('Import Fees') ?>
+                <?php else: ?>
+                    <?= /* @escapeNotVerified */
+                    __('Tax') ?>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </td>
@@ -39,11 +95,12 @@ $_fullInfo = $block->getFullTaxInfo();
             <a class="admin__field-tooltip-action action-help" target="_blank" tabindex="1"
                href="<?= $block->getUrl('avatax/queue/index') ?>">
                 <div class="admin__field-tooltip-content">
-                    Note that this tax total is based on the original calculated tax applied to the order and charged to
+                    <?= /* @escapeNotVerified */
+                    __('Note that this tax total is based on the original calculated tax applied to the order and charged to
                     the customer. Due to rounding issues or changes to tax rates, it is possible for tax calculated by
-                    AvaTax for this invoice or credit memo to differ. Any such 'unbalanced' amounts can be seen in the
+                    AvaTax for this invoice or credit memo to differ. Any such \'unbalanced\' amounts can be seen in the
                     log of the AvaTax queue. AvaTax is the central authority for the actual tax amount to be remitted
-                    by the merchant.
+                    by the merchant.') ?>
                 </div>
             </a>
         </div>
@@ -71,13 +128,13 @@ $_fullInfo = $block->getFullTaxInfo();
                     <!-- BEGIN EDIT -->
                     <?php if (!is_null(
                             $rate['percent']
-                        ) && $rate['title'] !== \ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
-                    <!-- END EDIT -->
+                        )
+                        && $rate['title']
+                        !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE
+                    ): ?>
+                        <!-- END EDIT -->
                         <td class="admin__total-mark"><?= /* @escapeNotVerified */
                             $rate['title'] ?> (<?= (float)$rate['percent'] ?>%)<br/></td>
-                    <?php else: ?>
-                        <td class="admin__total-mark"><?= /* @escapeNotVerified */
-                            $rate['title'] ?><br/></td>
                     <?php endif; ?>
                     <?php if ($isFirst): ?>
                         <td rowspan="<?= count($rates) ?>"><?= /* @escapeNotVerified */
@@ -98,22 +155,24 @@ $_fullInfo = $block->getFullTaxInfo();
             $baseAmount = $info['base_tax_amount'];
             $isFirst = 1;
             ?>
+            <?php if (!is_null(
+                    $info['percent']
+                )
+                && $info['title']
+                !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE
+            ): ?>
+                <tr class="summary-details<?php if ($isTop): echo ' summary-details-first'; endif; ?>"
+                    style="display:none;">
+                    <!-- BEGIN EDIT -->
 
-            <tr class="summary-details<?php if ($isTop): echo ' summary-details-first'; endif; ?>"
-                style="display:none;">
-                <!-- BEGIN EDIT -->
-                <?php if (!is_null(
-                        $info['percent']
-                    ) && $info['title'] !== \ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
-                <!-- END EDIT -->
+                    <!-- END EDIT -->
                     <td class="admin__total-mark"><?= $block->escapeHtml($info['title']) ?>
                         (<?= (float)$info['percent'] ?>%)<br/></td>
-                <?php else: ?>
-                    <td class="admin__total-mark"><?= $block->escapeHtml($info['title']) ?><br/></td>
-                <?php endif; ?>
-                <td><?= /* @escapeNotVerified */
-                    $block->displayAmount($amount, $baseAmount) ?></td>
-            </tr>
+
+                    <td><?= /* @escapeNotVerified */
+                        $block->displayAmount($amount, $baseAmount) ?></td>
+                </tr>
+            <?php endif; ?>
             <?php
             $isFirst = 0;
             $isTop = 0;
