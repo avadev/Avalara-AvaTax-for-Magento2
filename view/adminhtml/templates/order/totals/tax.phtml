@@ -43,11 +43,8 @@ $hasCustomDuty = false;
     <?php else: ?>
         <?php foreach ($_fullInfo as $info): ?>
             <?php
-            $percent = $info['percent'];
             $amount = $info['tax_amount'];
             $baseAmount = $info['base_tax_amount'];
-            $isFirst = 1;
-            $isTop = 1;
             ?>
             <?php if ($info['title'] == GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
                 <?php $hasCustomDuty = true; ?>
