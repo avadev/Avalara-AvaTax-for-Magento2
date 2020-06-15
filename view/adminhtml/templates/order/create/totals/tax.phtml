@@ -1,0 +1,118 @@
+<?php
+
+/** @var Tax $block */
+
+use ClassyLlama\AvaTax\Block\Adminhtml\Order\Create\Totals\Tax;
+use ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter;
+
+$taxAmount = $block->getTotal()->getValue();
+$customDuty = false;
+$fullInfo = $block->getTotal()->getFullInfo();
+?>
+<?php if (($taxAmount == 0 && $this->helper(\Magento\Tax\Helper\Data::class)->displayZeroTax()) || ($taxAmount > 0)) :
+    global $taxIter;
+    $taxIter++;
+    ?>
+
+    <?php foreach ($fullInfo as $info) : ?>
+    <?php if (isset($info['hidden']) && $info['hidden']) :
+        continue;
+    endif; ?>
+    <?php $percent = $info['percent']; ?>
+    <?php $amount = $info['amount']; ?>
+    <?php $rates = $info['rates']; ?>
+
+    <?php foreach ($rates as $rate) : ?>
+        <?php
+        if ($rate['title'] === GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE):?>
+            <?php $customDuty = $info;
+            $customDuty['rate_percent'] = (float)$rate['percent'];
+            ?>
+            <?php if ($this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary()): ?>
+                <tr>
+                    <td class="admin__total-mark" style="<?= $block->escapeHtmlAttr($block->getTotal()->getStyle()) ?>"
+                        colspan="<?= (int)$block->getColspan() ?>">
+                        <?= $block->escapeHtml($rate['title']) ?>
+                        <br/>
+                    </td>
+                    <td style="<?= $block->escapeHtmlAttr($block->getTotal()->getStyle()) ?>"
+                        class="admin__total-amount">
+                        <?= /* @noEscape */
+                        $block->formatPrice(($amount * (float)$rate['percent']) / $percent) ?>
+                    </td>
+                </tr>
+            <?php endif; ?>
+        <?php endif; ?>
+    <?php endforeach; ?>
+<?php endforeach; ?>
+
+
+    <?php $class = $block->escapeHtmlAttr("{$block->getTotal()->getCode()} "
+    . ($this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary() ? 'summary-total' : '')); ?>
+    <tr<?php if ($this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary()) : ?>
+        onclick="expandDetails(this, '.summary-details-<?= $block->escapeHtmlAttr($block->escapeJs($taxIter)) ?>')"
+    <?php endif; ?>
+            class="<?= /* @noEscape */
+            $class ?> row-totals">
+        <td style="<?= $block->escapeHtmlAttr($block->getTotal()->getStyle()) ?>" class="admin__total-mark"
+            colspan="<?= (int)$block->getColspan() ?>">
+            <?php if ($this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary()) : ?>
+                <div class="summary-collapse"><?= /* @escapeNotVerified */
+                    __('Tax') ?></div>
+            <?php else : ?>
+                <?php if ($customDuty): ?>
+                    <?= /* @escapeNotVerified */
+                    __('Import Fees') ?>
+                <?php else: ?>
+                    <?= /* @escapeNotVerified */
+                    __('Tax') ?>
+                <?php endif; ?>
+            <?php endif; ?>
+        </td>
+        <td style="<?= $block->escapeHtmlAttr($block->getTotal()->getStyle()) ?>" class="admin__total-amount">
+            <?php if ($this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary() && $customDuty): ?>
+                <?= /* @noEscape */
+                $block->formatPrice($block->getTotal()->getValue() - ($customDuty['amount']
+                        * (float)$customDuty['rate_percent']) / $customDuty['percent']) ?>
+            <?php else: ?>
+                <?= /* @noEscape */
+                $block->formatPrice($block->getTotal()->getValue()) ?>
+            <?php endif; ?>
+        </td>
+    </tr>
+
+    <?php if ($this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary()) : ?>
+    <?php $isTop = 1; ?>
+    <?php foreach ($fullInfo as $info) : ?>
+        <?php if (isset($info['hidden']) && $info['hidden']) :
+            continue;
+        endif; ?>
+        <?php $percent = $info['percent']; ?>
+        <?php $amount = $info['amount']; ?>
+        <?php $rates = $info['rates']; ?>
+
+        <?php foreach ($rates as $rate) : ?>
+            <?php if ($rate['title'] !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                <tr class="summary-details-<?= $block->escapeHtmlAttr($taxIter) ?> summary-details<?= ($isTop
+                    ? ' summary-details-first' : '') ?>" style="display:none;">
+                    <td class="admin__total-mark" style="<?= $block->escapeHtmlAttr($block->getTotal()->getStyle()) ?>"
+                        colspan="<?= (int)$block->getColspan() ?>">
+                        <?= $block->escapeHtml($rate['title']) ?>
+                        <?php if ($rate['percent'] !== null) : ?>
+                            (<?= (float)$rate['percent'] ?>%)
+                        <?php endif; ?>
+                        <br/>
+                    </td>
+                    <td style="<?= $block->escapeHtmlAttr($block->getTotal()->getStyle()) ?>"
+                        class="admin__total-amount">
+                        <?= /* @noEscape */
+                        $block->formatPrice(($amount * (float)$rate['percent']) / $percent) ?>
+                    </td>
+                </tr>
+            <?php endif; ?>
+            <?php $isTop = 0; ?>
+        <?php endforeach; ?>
+    <?php endforeach; ?>
+<?php endif; ?>
+<?php endif; ?>
+

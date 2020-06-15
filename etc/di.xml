@@ -303,4 +303,5 @@
             <argument name="taxCalculation" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation\Proxy</argument>
         </arguments>
     </type>
+    <preference for="Magento\Tax\Model\Sales\Pdf\Tax" type="ClassyLlama\AvaTax\Model\Sales\Pdf\Tax"/>
 </config>
