@@ -18,7 +18,7 @@ use Magento\Sales\Model\Order\Invoice;
 $_source = $block->getSource();
 $_order = $block->getOrder();
 $_fullInfo = $block->getFullTaxInfo();
-$hasCustomDuty = false;
+$customDuty = false;
 ?>
 
 <?php if ($_fullInfo): ?>
@@ -32,7 +32,7 @@ $hasCustomDuty = false;
             ?>
             <?php foreach ($rates as $rate): ?>
                 <?php if ($rate['title'] === GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
-                    <?php $hasCustomDuty = true; ?>
+                    <?php $customDuty = $rate; ?>
                     <?php if ($block->displayFullSummary()): ?>
                         <td class="admin__total-mark"><?= /* @escapeNotVerified */
                             $rate['title'] ?><br/></td>
@@ -46,8 +46,8 @@ $hasCustomDuty = false;
             $amount = $info['tax_amount'];
             $baseAmount = $info['base_tax_amount'];
             ?>
-            <?php if ($info['title'] == GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
-                <?php $hasCustomDuty = true; ?>
+            <?php if ($info['title'] === GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                <?php $customDuty = $info; ?>
                 <?php if ($block->displayFullSummary()): ?>
                     <tr>
                         <td class="label">
@@ -67,17 +67,17 @@ $hasCustomDuty = false;
 
 
 <?php if ($block->displayFullSummary() && $_fullInfo): ?>
-<tr class="summary-total" onclick="expandDetails(this, '.summary-details')">
+    <tr class="summary-total" onclick="expandDetails(this, '.summary-details')">
 <?php else: ?>
-<tr>
-    <?php endif; ?>
+    <tr>
+<?php endif; ?>
     <td class="label">
         <div class="summary-collapse" tabindex="0">
             <?php if ($this->helper('Magento\Tax\Helper\Data')->displayFullSummary()): ?>
                 <?= /* @escapeNotVerified */
-                __('Total Tax') ?>
+                __('Tax') ?>
             <?php else: ?>
-                <?php if ($hasCustomDuty): ?>
+                <?php if ($customDuty): ?>
                     <?= /* @escapeNotVerified */
                     __('Import Fees') ?>
                 <?php else: ?>
@@ -88,8 +88,14 @@ $hasCustomDuty = false;
         </div>
     </td>
     <td>
-        <?= /* @escapeNotVerified */
-        $block->displayAmount($_source->getTaxAmount(), $_source->getBaseTaxAmount()) ?>
+        <?php if ($block->displayFullSummary() && $customDuty): ?>
+            <?= /* @escapeNotVerified */
+            $block->displayAmount($_source->getTaxAmount() - $customDuty['tax_amount'],
+                $_source->getBaseTaxAmount() - $customDuty['base_tax_amount']) ?>
+        <?php else: ?>
+            <?= /* @escapeNotVerified */
+            $block->displayAmount($_source->getTaxAmount(), $_source->getBaseTaxAmount()) ?>
+        <?php endif; ?>
         <!-- BEGIN EDIT -->
         <div class="admin__field-tooltip">
             <a class="admin__field-tooltip-action action-help" target="_blank" tabindex="1"
@@ -126,11 +132,8 @@ $hasCustomDuty = false;
                 <tr class="summary-details<?php if ($isTop): echo ' summary-details-first'; endif; ?>"
                     style="display:none;">
                     <!-- BEGIN EDIT -->
-                    <?php if (!is_null(
-                            $rate['percent']
-                        )
-                        && $rate['title']
-                        !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE
+                    <?php if (!is_null($rate['percent'])
+                        && $rate['title'] !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE
                     ): ?>
                         <!-- END EDIT -->
                         <td class="admin__total-mark"><?= /* @escapeNotVerified */
@@ -155,11 +158,7 @@ $hasCustomDuty = false;
             $baseAmount = $info['base_tax_amount'];
             $isFirst = 1;
             ?>
-            <?php if (!is_null(
-                    $info['percent']
-                )
-                && $info['title']
-                !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE
+            <?php if (!is_null($info['percent']) && $info['title'] !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE
             ): ?>
                 <tr class="summary-details<?php if ($isTop): echo ' summary-details-first'; endif; ?>"
                     style="display:none;">

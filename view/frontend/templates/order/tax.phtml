@@ -15,7 +15,7 @@ $_source = $block->getSource();
 $_fullInfo = $this->helper('Magento\Tax\Helper\Data')->getCalculatedTaxes($_source);
 global $taxIter;
 $taxIter++;
-$hasCustomDuty = false;
+$customDuty = false;
 ?>
 <?php if ($_fullInfo): ?>
     <?php foreach ($_fullInfo as $info): ?>
@@ -24,7 +24,7 @@ $hasCustomDuty = false;
         $title = $info['title'];
         ?>
         <?php if ($title === GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
-            <?php $hasCustomDuty = true; ?>
+            <?php $customDuty = $info; ?>
             <?php if ($block->displayFullSummary()): ?>
                 <tr class="totals tax details details-<?= /* @escapeNotVerified */
                 $taxIter ?> <?= ($block->getIsPlaneMode()) ? ' plane' : '' ?>">
@@ -58,7 +58,7 @@ $hasCustomDuty = false;
             <div class="detailed"><?= /* @escapeNotVerified */
                 __('Tax') ?></div>
         <?php else: ?>
-            <?php if ($hasCustomDuty): ?>
+            <?php if ($customDuty): ?>
                 <?= /* @escapeNotVerified */
                 __('Import Fees') ?>
             <?php else: ?>
@@ -69,8 +69,13 @@ $hasCustomDuty = false;
     </th>
     <td <?= /* @escapeNotVerified */
     $block->getValueProperties() ?> data-th="<?= $block->escapeHtml(__('Tax')) ?>">
-        <?= /* @escapeNotVerified */
-        $_order->formatPrice($_source->getTaxAmount()) ?>
+        <?php if ($block->displayFullSummary() && $customDuty): ?>
+            <?= /* @escapeNotVerified */
+            $_order->formatPrice($_source->getTaxAmount() - $customDuty['tax_amount']) ?>
+        <?php else: ?>
+            <?= /* @escapeNotVerified */
+            $_order->formatPrice($_source->getTaxAmount()) ?>
+        <?php endif; ?>
     </td>
 </tr>
 
