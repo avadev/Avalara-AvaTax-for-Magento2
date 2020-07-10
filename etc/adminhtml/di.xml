@@ -32,4 +32,7 @@
     <type name="Magento\Sales\Model\AdminOrder\Create">
         <plugin name="avatax_sales_model_admin_order_create" type="ClassyLlama\AvaTax\Plugin\Sales\Model\AdminOrder\Create" />
     </type>
+    <type name="Magento\Framework\View\Layout\Generic">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxGeneric" type="ClassyLlama\AvaTax\Plugin\View\Layout\GenericPlugin"/>
+    </type>
 </config>
