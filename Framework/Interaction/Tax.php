@@ -500,6 +500,9 @@ class Tax
         $customerUsageType = $quote->getCustomer()
             ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer())
             : null;
+        if (is_null($customerUsageType)) {
+            $customerUsageType = $this->taxClassHelper->getAvataxTaxCodeForCustomerGroup($quote->getCustomerGroupId());
+        }
         return [
             'StoreId' => $store->getId(),
             'Commit' => false, // quotes should never be committed
@@ -725,6 +728,9 @@ class Tax
 
         $customer = $this->getCustomerById($order->getCustomerId());
         $customerUsageType = $customer ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($customer) : null;
+        if (is_null($customerUsageType)) {
+            $customerUsageType = $this->taxClassHelper->getAvataxTaxCodeForCustomerGroup($order->getCustomerGroupId());
+        }
 
         $orderIncrementId = '';
         try {
