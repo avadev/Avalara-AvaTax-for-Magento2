@@ -15,10 +15,10 @@
 
 namespace ClassyLlama\AvaTax\Setup;
 
-use Magento\Framework\Setup\UpgradeSchemaInterface;
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-use Magento\Framework\DB\Ddl\Table;
+use Magento\Framework\Setup\UpgradeSchemaInterface;
 
 /**
  * @codeCoverageIgnore
@@ -28,9 +28,18 @@ class UpgradeSchema implements UpgradeSchemaInterface
     /**
      * Define connection name to connect to 'sales' database on split database install; falls back to default for a
      * conventional install
+     *
      * @var string
      */
     private static $connectionName = 'sales';
+
+    /**
+     * Define connection name to connect to 'quote' database on split database install; falls back to default for a
+     * conventional install
+     *
+     * @var string
+     */
+    private static $checkoutConnectionName = 'checkout';
 
     /**
      * {@inheritdoc}
@@ -48,11 +57,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     $setup->getTable('tax_class'),
                     'avatax_code',
                     [
-                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                        'length' => 255,
+                        'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length'   => 255,
                         'nullable' => true,
-                        'default' => null,
-                        'comment' => 'AvaTax Code'
+                        'default'  => null,
+                        'comment'  => 'AvaTax Code'
                     ]
                 );
         }
@@ -78,7 +87,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     [
                         'nullable' => false,
                         'identity' => true,
-                        'primary' => true
+                        'primary'  => true
                     ],
                     'Entity ID'
                 )
@@ -98,7 +107,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     1,
                     [
                         'nullable' => true,
-                        'default' => null,
+                        'default'  => null,
                         'unsigned' => true,
                     ],
                     'Is Unbalanced In Relation To AvaTax Calculated Tax Amount'
@@ -109,7 +118,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     '12,4',
                     [
                         'nullable' => true,
-                        'default' => null,
+                        'default'  => null,
                         'unsigned' => false,
                     ],
                     'Base AvaTax Calculated Tax Amount'
@@ -158,7 +167,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     [
                         'nullable' => false,
                         'identity' => true,
-                        'primary' => true
+                        'primary'  => true
                     ],
                     'Entity ID'
                 )
@@ -178,7 +187,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     1,
                     [
                         'nullable' => true,
-                        'default' => null,
+                        'default'  => null,
                         'unsigned' => true,
                     ],
                     'Is Unbalanced In Relation To AvaTax Calculated Tax Amount'
@@ -189,7 +198,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     '12,4',
                     [
                         'nullable' => true,
-                        'default' => null,
+                        'default'  => null,
                         'unsigned' => false,
                     ],
                     'Base AvaTax Calculated Tax Amount'
@@ -229,7 +238,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             /**
              * Create table 'avatax_cross_border_class'
              */
-            $table = $setup->getConnection(self::$connectionName)
+            $table = $setup->getConnection()
                 ->newTable(
                     $setup->getTable('avatax_cross_border_class')
                 )
@@ -240,7 +249,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     [
                         'nullable' => false,
                         'identity' => true,
-                        'primary' => true
+                        'primary'  => true
                     ],
                     'Class ID'
                 )
@@ -259,7 +268,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     255,
                     [
                         'nullable' => false,
-                        'default' => '',
+                        'default'  => '',
                     ],
                     'HS Code'
                 )
@@ -292,13 +301,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )
                 ->setComment('Cross Border Class');
 
-            $setup->getConnection(self::$connectionName)->createTable($table);
+            $setup->getConnection()->createTable($table);
 
 
             /**
              * Create table 'avatax_cross_border_class_country'
              */
-            $table = $setup->getConnection(self::$connectionName)
+            $table = $setup->getConnection()
                 ->newTable(
                     $setup->getTable('avatax_cross_border_class_country')
                 )
@@ -309,7 +318,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     [
                         'nullable' => false,
                         'identity' => true,
-                        'primary' => true
+                        'primary'  => true
                     ],
                     'Link ID'
                 )
@@ -366,7 +375,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )
                 ->setComment('AvaTax Sales Credit Memo Table');
 
-            $setup->getConnection(self::$connectionName)->createTable($table);
+            $setup->getConnection()->createTable($table);
         }
 
         // TODO: Consolidate with initial table creation above
@@ -376,26 +385,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'cross_border_type',
                 'cross_border_type_id',
                 [
-                    'type' => 'integer',
+                    'type'     => 'integer',
                     'unsigned' => true,
                     'nullable' => true,
-                    'length' => 11,
+                    'length'   => 11,
                 ]
             );
         }
 
-        if(version_compare($context->getVersion(), '2.0.4', '<')) {
+        if (version_compare($context->getVersion(), '2.0.4', '<')) {
             $installer = $setup;
             $installer->startSetup();
 
-            $table_classyllama_avatax_crossbordertype = $setup->getConnection()->newTable($setup->getTable('classyllama_avatax_crossbordertype'));
+            $table_classyllama_avatax_crossbordertype = $setup->getConnection()
+                ->newTable($setup->getTable('classyllama_avatax_crossbordertype'));
 
 
             $table_classyllama_avatax_crossbordertype->addColumn(
                 'entity_id',
                 \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 null,
-                array('identity' => true,'nullable' => false,'primary' => true,'unsigned' => true,),
+                ['identity' => true, 'nullable' => false, 'primary' => true, 'unsigned' => true,],
                 'Entity ID'
             );
 
@@ -404,7 +414,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'type',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 null,
-                ['nullable' => False],
+                ['nullable' => false],
                 'type'
             );
 
@@ -417,39 +427,43 @@ class UpgradeSchema implements UpgradeSchemaInterface
         // TODO: Add foreign key on avatax_cross_border_class.cross_border_type
 
         $extensionTables = [
-            'avatax_quote_item' => [
-                'id_field' => 'quote_item_id',
+            'avatax_quote_item'            => [
+                'id_field'       => 'quote_item_id',
                 'id_field_label' => 'Quote Item ID',
-                'foreign_table' => 'quote_item',
-                'foreign_field' => 'item_id',
-                'comment' => 'AvaTax Quote Item Extension',
+                                'foreign_table' => 'quote_item',
+                                'foreign_field' => 'item_id',
+                'comment'        => 'AvaTax Quote Item Extension',
+                'connection'        => self::$checkoutConnectionName,
             ],
-            'avatax_sales_order_item' => [
-                'id_field' => 'order_item_id',
+            'avatax_sales_order_item'      => [
+                'id_field'       => 'order_item_id',
                 'id_field_label' => 'Order Item ID',
-                'foreign_table' => 'sales_order_item',
-                'foreign_field' => 'item_id',
-                'comment' => 'AvaTax Order Item Extension',
+                'foreign_table'  => 'sales_order_item',
+                'foreign_field'  => 'item_id',
+                'comment'        => 'AvaTax Order Item Extension',
+                'connection'        => self::$connectionName,
             ],
-            'avatax_sales_invoice_item' => [
-                'id_field' => 'invoice_item_id',
+            'avatax_sales_invoice_item'    => [
+                'id_field'       => 'invoice_item_id',
                 'id_field_label' => 'Invoice Item ID',
-                'foreign_table' => 'sales_invoice_item',
-                'foreign_field' => 'entity_id',
-                'comment' => 'AvaTax Invoice Item Extension',
+                'foreign_table'  => 'sales_invoice_item',
+                'foreign_field'  => 'entity_id',
+                'comment'        => 'AvaTax Invoice Item Extension',
+                'connection'        => self::$connectionName,
             ],
             'avatax_sales_creditmemo_item' => [
-                'id_field' => 'creditmemo_item_id',
+                'id_field'       => 'creditmemo_item_id',
                 'id_field_label' => 'Credit Memo Item ID',
-                'foreign_table' => 'sales_creditmemo_item',
-                'foreign_field' => 'entity_id',
-                'comment' => 'AvaTax Credit Memo Item Extension',
+                'foreign_table'  => 'sales_creditmemo_item',
+                'foreign_field'  => 'entity_id',
+                'comment'        => 'AvaTax Credit Memo Item Extension',
+                'connection'        => self::$connectionName,
             ],
         ];
 
         if (version_compare($context->getVersion(), '2.0.4', '<')) {
             foreach ($extensionTables as $tableName => $tableInfo) {
-                $table = $setup->getConnection(self::$connectionName)
+                $table = $setup->getConnection($tableInfo['connection'])
                     ->newTable(
                         $setup->getTable($tableName)
                     )
@@ -460,7 +474,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         [
                             'nullable' => false,
                             'identity' => true,
-                            'primary' => true
+                            'primary'  => true
                         ],
                         'ID'
                     )
@@ -510,7 +524,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         ],
                         'Pref. Program Indicator'
                     )
-                    ->addForeignKey(
+                    ->setComment($tableInfo['comment']);
+
+                if (isset($tableInfo['foreign_table']) && !empty($tableInfo['foreign_table'])) {
+                    $table->addForeignKey(
                         $setup->getFkName(
                             $tableName,
                             $tableInfo['id_field'],
@@ -521,16 +538,16 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         $setup->getTable($tableInfo['foreign_table']),
                         $tableInfo['foreign_field'],
                         Table::ACTION_CASCADE
-                    )
-                    ->setComment($tableInfo['comment']);
+                    );
+                }
 
-                $setup->getConnection(self::$connectionName)->createTable($table);
+                $setup->getConnection($tableInfo['connection'])->createTable($table);
             }
         }
 
         if (version_compare($context->getVersion(), '2.0.5', '<')) {
             foreach ($extensionTables as $tableName => $tableInfo) {
-                $setup->getConnection(self::$connectionName)
+                $setup->getConnection($tableInfo['connection'])
                     ->addIndex(
                         $tableName,
                         $setup->getIdxName(
@@ -544,19 +561,17 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
-
-
         if (version_compare($context->getVersion(), '2.0.7', '<')) {
             $setup->getConnection(self::$connectionName)
                 ->addColumn(
                     'avatax_sales_invoice',
                     'avatax_response',
                     [
-                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                        'length' => null,
+                        'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length'   => null,
                         'nullable' => true,
-                        'default' => null,
-                        'comment' => 'AvaTax Response'
+                        'default'  => null,
+                        'comment'  => 'AvaTax Response'
                     ]
                 );
 
@@ -565,11 +580,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'avatax_sales_creditmemo',
                     'avatax_response',
                     [
-                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                        'length' => null,
+                        'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length'   => null,
                         'nullable' => true,
-                        'default' => null,
-                        'comment' => 'AvaTax Response'
+                        'default'  => null,
+                        'comment'  => 'AvaTax Response'
                     ]
                 );
 
@@ -584,7 +599,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     [
                         'nullable' => false,
                         'identity' => true,
-                        'primary' => true
+                        'primary'  => true
                     ],
                     'ID'
                 )
@@ -625,16 +640,16 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         if (version_compare($context->getVersion(), '2.0.8', '<')) {
-            $setup->getConnection(self::$connectionName)
+            $setup->getConnection(self::$checkoutConnectionName)
                 ->addColumn(
                     'quote_address',
                     'avatax_messages',
                     [
-                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                        'length' => null,
+                        'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length'   => null,
                         'nullable' => true,
-                        'default' => null,
-                        'comment' => 'AvaTax Messages'
+                        'default'  => null,
+                        'comment'  => 'AvaTax Messages'
                     ]
                 );
         }

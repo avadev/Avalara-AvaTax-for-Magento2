@@ -23,6 +23,7 @@ class UpgradeData implements UpgradeDataInterface
     /**
      * Define connection name to connect to 'sales' database on split database install; falls back to default for a
      * conventional install
+     *
      * @var string
      */
     private static $connectionName = 'sales';
@@ -59,11 +60,12 @@ class UpgradeData implements UpgradeDataInterface
      * Upgrade scripts
      *
      * @param ModuleDataSetupInterface $setup
-     * @param ModuleContextInterface   $context
+     * @param ModuleContextInterface $context
      *
      * @throws \Exception
      */
-    public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context) {
+    public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+    {
         $setup->startSetup();
 
         /**
@@ -71,7 +73,7 @@ class UpgradeData implements UpgradeDataInterface
          */
         $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
-        if (version_compare($context->getVersion(), '1.0.0', '<' )) {
+        if (version_compare($context->getVersion(), '1.0.0', '<')) {
 
             // Only copy data and drop columns from "sales_invoice" if the columns exist
             $tableName = $setup->getTable('sales_invoice');
@@ -165,8 +167,8 @@ class UpgradeData implements UpgradeDataInterface
         /**
          * For conversion to REST, initially disable module and delete pre-existing credentials
          */
-        if (version_compare($context->getVersion(), '2.0.0', '<' )) {
-            $connection = $setup->getConnection(self::$connectionName);
+        if (version_compare($context->getVersion(), '2.0.0', '<')) {
+            $connection = $setup->getConnection();
 
             /** @var \Magento\Framework\DB\Select $select */
             $select = $connection->select()
@@ -192,13 +194,14 @@ class UpgradeData implements UpgradeDataInterface
                 \Magento\Catalog\Model\Product::ENTITY,
                 strtolower(\ClassyLlama\AvaTax\Helper\CustomsConfig::PRODUCT_ATTR_CROSS_BORDER_TYPE),
                 [
-                    'group' => 'AvaTax',
-                    'type' => 'int',
-                    'label' => 'AvaTax Cross Border Type',
-                    'input' => 'text',                      // TODO: Update input type and add source model once Cross Border Type entity is available
+                    'group'      => 'AvaTax',
+                    'type'       => 'int',
+                    'label'      => 'AvaTax Cross Border Type',
+                    'input'      => 'text',
+                    // TODO: Update input type and add source model once Cross Border Type entity is available
                     'sort_order' => 10,
-                    'required' => false,
-                    'global' => ScopedAttributeInterface::SCOPE_STORE,
+                    'required'   => false,
+                    'global'     => ScopedAttributeInterface::SCOPE_STORE,
                 ]
             );
         }
@@ -220,28 +223,29 @@ class UpgradeData implements UpgradeDataInterface
                 Customer::ENTITY,
                 CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE,
                 [
-                    'type' => 'text',
-                    'label' => 'Override Avatax "Is Seller Importer of Record" setting',
-                    'input' => 'select',
-                    'note' => 'Overrides Importer of Record. Select "Use Default" to keep the Avatax setting, "Override '.
-                              'to Yes" to set Customer as Importer of record, "Override to No" to set the Customer as '.
-                              'not the Importer of Record.',
-                    'visible' => true,
+                    'type'         => 'text',
+                    'label'        => 'Override Avatax "Is Seller Importer of Record" setting',
+                    'input'        => 'select',
+                    'note'         => 'Overrides Importer of Record. Select "Use Default" to keep the Avatax setting, "Override '
+                        .
+                        'to Yes" to set Customer as Importer of record, "Override to No" to set the Customer as ' .
+                        'not the Importer of Record.',
+                    'visible'      => true,
                     'user_defined' => 0,
-                    'required' => false,
-                    'sort_order' => 999,
-                    'position' => 999,
-                    'system' => 0,
-                    'backend' => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
-                    'source' => \ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Customer\ImporterOfRecord::class
+                    'required'     => false,
+                    'sort_order'   => 999,
+                    'position'     => 999,
+                    'system'       => 0,
+                    'backend'      => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
+                    'source'       => \ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Customer\ImporterOfRecord::class
                 ]
             );
             $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY,
                 CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE
             )->addData([
-                    'attribute_set_id' => $attributeSetId,
-                    'attribute_group_id' => $attributeGroupId,
-                    'used_in_forms' => ['adminhtml_customer'],
+                'attribute_set_id'   => $attributeSetId,
+                'attribute_group_id' => $attributeGroupId,
+                'used_in_forms'      => ['adminhtml_customer'],
             ]);
 
             $attribute->save();
