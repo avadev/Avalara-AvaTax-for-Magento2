@@ -20,7 +20,6 @@
   * [Installation](#installation)
     + [Version Notes](#version-notes)
     + [Install via Composer](#install-via-composer)
-    + [Install by Copying Files](#install-by-copying-files)
   * [Configuration](#configuration)
   * [Important Notes](#important-notes)
 - [Common Problems](#common-problems)
@@ -46,7 +45,7 @@ For support with your AvaTax account, please visit [avalara.com/technical-suppor
 
 ### Supported Magento Versions
 
-Refer to [README](https://github.com/avadev/Avalara-AvaTax-for-Magento2#magento-version-support) for supported versions/editions.
+Refer to [README](https://github.com/astoundcommerce/avatax#magento-version-support) for supported versions/editions.
 
 ###  Installation
 
@@ -71,36 +70,6 @@ This is the recommended installation method as it allows you to easily update th
    ```
 
 3. If you are deploying the extension to a production environment, follow the [devdocs.magento.com deployment instructions](http://devdocs.magento.com/guides/v2.0/howdoi/deploy/deploy-to-prod.html#deploy-prod)
-
-#### Install by Copying Files
-
-Only use this installation method if you're unable to use Composer. The installation method above is the preferred method.
-
-**Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
-
-1. Create an `app/code/ClassyLlama/AvaTax` directory in your Magento installation.
-
-2. Download the latest source code from this page: [https://github.com/avadev/Avalara-AvaTax-for-Magento2/releases](https://github.com/avadev/Avalara-AvaTax-for-Magento2/releases )
-
-3. Extract the file and copy the contents of the ClassyLlama_AvaTax-XXX directory into the `app/code/ClassyLlama/AvaTax` directory.
-
-4. Make sure the [Avalara AvaTax PHP library](https://github.com/avadev/AvaTax-Calc-SOAP-PHP/tree/v15.5.2) is installed as the module depends on it.
-
-   ```bash
-   composer require avalara/avatax:15.5.2.0
-   ```
-
-5. To confirm the Avalara AvaTax library exists check for the presence of `vendor/avalara/avatax` in your Magento installation directory. NOTE: You **should** use Composer to download the avalara/avatax dependency because files in the `vendor` directory only get loaded by PHP if the dependencies were installed via Composer. If for whatever reason you're unable to use Composer to install extensions, you can review this [Github issue](https://github.com/classyllama/ClassyLlama_AvaTax/issues/62) for a workaround.
-
-6. Run following commands from your root Magento installation directory
-
-   ```bash
-   bin/magento module:enable --clear-static-content ClassyLlama_AvaTax
-   bin/magento setup:upgrade
-   bin/magento cache:flush
-   ```
-
-7. If you are deploying the extension to a production environment, follow the [devdocs.magento.com deployment instructions](http://devdocs.magento.com/guides/v2.0/howdoi/deploy/deploy-to-prod.html#deploy-prod)
 
 ### Configuration
 
@@ -143,7 +112,7 @@ Solution: You'll need to install the PHP SoapClient library, per the [prerequisi
 
 ## Release Notes
 
-See this page for release notes: [https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/master/CHANGELOG.md](https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/master/CHANGELOG.md)
+See this page for release notes: [https://github.com/astoundcommerce/avatax/releases](https://github.com/astoundcommerce/avatax/releases)
 
 
 ## Pre-Launch Sales Record Cleanup
@@ -164,13 +133,6 @@ TRUNCATE TABLE `avatax_log`;
 
    ```bash
    composer remove avalara/avatax-magento
-   ```
-
-   If you installed the module by copying files, run these commands in the root of your Magento installation directory:
-
-   ```bash
-   rm -rf app/code/ClassyLlama/Avatax
-   composer remove avalara/avatax
    ```
 
 3. Run the following queries in your Magento database:
