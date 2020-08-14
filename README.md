@@ -18,7 +18,7 @@ Contact Avalara for any support requests, either via [their support email](suppo
   
 # Automated Tests
 
-This extension contains integration tests to verify the extension's functionality. These tests should only need to be run by developers maintaining this extension. Instructions for running tests can be found [here](https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/master/Tests/README.md).
+This extension contains integration tests to verify the extension's functionality. These tests should only need to be run by developers maintaining this extension. Instructions for running tests can be found [here](https://github.com/astoundcommerce/avatax/blob/master/Tests/README.md).
 
 # Magento Version Support
 
