@@ -285,6 +285,16 @@ class ShippingInformationManagement
         }
 
         if (!is_null($validAddress)) {
+            /*
+             * AVASUP-695: M2. The order can't be placed if the cart price discount is applied:
+             *             internal error is displayed after click the Place order CTA.
+             *
+             * we are normalizing only address values here, so we are not going to send any extension attributes here
+             * because extension attributes could rise an exception if conversion interfaces have not been implemented properly
+             * like RuleDiscountInterface in Magento 2.3.4, this interface does not have setDiscountData,
+             * what leads to conversion exception for discounts aggregation
+             */
+            $validAddress->unsetData('extension_attributes');
             $paymentDetailsExtension->setValidAddress($validAddress);
         } else {
             $paymentDetailsExtension->setErrorMessage($errorMessage);
