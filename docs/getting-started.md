@@ -18,7 +18,6 @@
   * [Prerequisites](#prerequisites)
   * [Supported Magento Versions](#supported-magento-versions)
   * [Installation](#installation)
-    + [Version Notes](#version-notes)
     + [Install via Composer](#install-via-composer)
   * [Configuration](#configuration)
   * [Important Notes](#important-notes)
@@ -55,7 +54,7 @@ Refer to [README](https://github.com/astoundcommerce/avatax#magento-version-supp
 
 This is the recommended installation method as it allows you to easily update the extension in the future. **Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
 
-1. Require the desired version of AvaTax (see [note above](#version-notes) for differences in the versions). Latest version can be installed by running following command:
+1. Require the desired version of AvaTax. Latest version can be installed by running following command:
 
    ```
    composer require avalara/avatax-magento:2.1.0
