@@ -14,7 +14,7 @@ Contact Avalara for any support requests, either via [their support email](suppo
   - [Sales Tax](docs/sales-tax.md)
   - [Address Validation](docs/address-validation.md)
   - [Cross-Border](docs/customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
-  - [Document Management (Tax Exemptions)](docs/document-management.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
+  - [Tax Exemption Certificates](docs/document-management.md) (available in the [2.x.x Release Candidate version of this extension](docs/getting-started.md#version-notes))
   
 # Automated Tests
 

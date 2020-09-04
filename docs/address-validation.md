@@ -7,7 +7,7 @@
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
   - [Cross-Border](./customs-duty-import-tax.md)
-  - [Document Management (Tax Exemptions)](./document-management.md)
+  - [Tax Exemption Certificates](./document-management.md)
 
 # Address Validation
 
