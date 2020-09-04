@@ -6,7 +6,7 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
+  - [Cross-Border](./customs-duty-import-tax.md)
   - [Document Management (Tax Exemptions)](./document-management.md)
 
 # Getting Started
@@ -77,7 +77,7 @@ This is the recommended installation method as it allows you to easily update th
 2. Details on configuring each of the extension features:
   - [Sales Tax](./sales-tax.md#configuration)
   - [Address Validation](./address-validation.md#configuration)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md#configuration)
+  - [Cross-Border](./customs-duty-import-tax.md#configuration)
   - [Document Management (Tax Exemptions)](./document-management.md#configuration)	
 3. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Shipping Settings`. Click on the **Origin** section. Enter the address that will be used as the origin or **Shipped From** location in AvaTax's tax calculation. **It is *required*** that you specify a postal code in the origin address, no matter what country is specified. Otherwise you will get errors in checkout and when saving customers.
 
