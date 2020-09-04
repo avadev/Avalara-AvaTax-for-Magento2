@@ -16,7 +16,7 @@
 - [Overview](#overview)
 - [Requirements](#requirements)
 - [Set up](#set-up)
-- [Magento ENV.PHP Configuration Update](#magento-env.php-configuration-update)
+- [Magento's ENV.PHP Configuration Update](#magentos-envphp-configuration-update)
 - [Frequently Asked Questions and Related Links](#frequently-asked-questions-and-related-links)
 - [Troubleshooting](#troubleshooting)
 - [Frontend Features Overview](#frontend-features-overview)
@@ -85,7 +85,7 @@ You will retrieve the 3 credentials (username, password, and client-id) using th
    created in Magento. The certificates created and loaded through Magento will receive the legal business name of the CertCapture Company
    chosen in this configuration.
    
-## Magento ENV.PHP Configuration Update
+## Magento's ENV.PHP Configuration Update
 The primary difference in the configuration files is the URL pointing to the Sandbox or Production CertCapture environment.
 - "sbx-api.certcapture" and "sbx.certcapture" 
 - "api.certcapture" and "app.certcapture"
