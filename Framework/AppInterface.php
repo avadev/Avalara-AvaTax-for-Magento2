@@ -20,5 +20,5 @@ interface AppInterface
     /**
      * If this is updated it must also be updated in composer.json
      */
-    const APP_VERSION = '2.1.8-alpha9';
+    const APP_VERSION = '2.1.8-alpha8';
 }
