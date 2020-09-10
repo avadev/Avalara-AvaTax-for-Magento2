@@ -1,7 +1,7 @@
 {
     "name": "avalara/avatax-magento",
     "type": "magento2-module",
-    "version": "2.1.9-alpha",
+    "version": "2.1.9-alpha2",
     "license": "OSL-3.0",
     "description": "Magento module for Avalara's AvaTax suite of business tax calculation and processing services. Uses the AvaTax REST v2 API.",
     "require": {
