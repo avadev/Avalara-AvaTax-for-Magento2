@@ -25,12 +25,12 @@
 
 ## Overview
 
->  Important Note: This extension's support for this Avalara feature requires version 2.1.8 of the extention. If your already using the
-   Magento AvaTax extension make sure your running 2.1.8 or higher. You can see what version your running by logging into your
+>  Important Note: This extension's support for this Avalara feature requires version 2.1.8 of the extension. If your already using the
+   Magento AvaTax extension make sure you're running 2.1.8 or higher. You can see what version you're running by logging into your
    Magento instance Stores > Settings > Configuration > Sales > Tax > AvaTax -General > AvaTax Extension Version.
 
->  Heads up! Cross-border must be enabled on your account by Avalara before you can use this feature! Please [contact Avalara](https://avlr.co/2YuiDkM) to
-   set up cross-border.
+>  Heads up! This feature requires you to have Avalara CertCapture Enterprise before you can use this feature! Please [contact Avalara](https://avlr.co/2YuiDkM)
+   to set up.
 
 This AvaTax connector for Magento provides a set of features to support Document Management (also referred to as Tax Exemption Certificates). This
 feature includes:
