@@ -6,8 +6,8 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
-  - [Document Management (Tax Exemptions)](./document-management.md)
+  - [Cross-Border](./customs-duty-import-tax.md)
+  - [Tax Exemption Certificates](./document-management.md)
 
 # Getting Started
 
@@ -18,7 +18,6 @@
   * [Prerequisites](#prerequisites)
   * [Supported Magento Versions](#supported-magento-versions)
   * [Installation](#installation)
-    + [Version Notes](#version-notes)
     + [Install via Composer](#install-via-composer)
   * [Configuration](#configuration)
   * [Important Notes](#important-notes)
@@ -55,7 +54,7 @@ Refer to [README](https://github.com/astoundcommerce/avatax#magento-version-supp
 
 This is the recommended installation method as it allows you to easily update the extension in the future. **Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
 
-1. Require the desired version of AvaTax (see [note above](#version-notes) for differences in the versions). Latest version can be installed by running following command:
+1. Require the desired version of AvaTax. Latest version can be installed by running following command:
 
    ```
    composer require avalara/avatax-magento:2.1.0
@@ -77,8 +76,8 @@ This is the recommended installation method as it allows you to easily update th
 2. Details on configuring each of the extension features:
   - [Sales Tax](./sales-tax.md#configuration)
   - [Address Validation](./address-validation.md#configuration)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md#configuration)
-  - [Document Management (Tax Exemptions)](./document-management.md#configuration)	
+  - [Cross-Border](./customs-duty-import-tax.md#configuration)
+  - [Tax Exemption Certificates](./document-management.md#configuration)	
 3. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Shipping Settings`. Click on the **Origin** section. Enter the address that will be used as the origin or **Shipped From** location in AvaTax's tax calculation. **It is *required*** that you specify a postal code in the origin address, no matter what country is specified. Otherwise you will get errors in checkout and when saving customers.
 
 ### Important Notes
