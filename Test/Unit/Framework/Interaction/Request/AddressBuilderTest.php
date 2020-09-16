@@ -93,7 +93,9 @@ class AddressBuilderTest extends TestCase
     public function checkThatWeGetTheCorrectResponseType()
     {
         $storeId = 1;
-        [$originMockAddress, $addressTypeTo] = $this->getMockData();
+        $mockData = $this->getMockData();
+        $originMockAddress = array_shift($mockData);
+        $addressTypeTo = array_pop($mockData);
 
         $this->orderMock->expects(static::atLeastOnce())
             ->method('getIsVirtual')
