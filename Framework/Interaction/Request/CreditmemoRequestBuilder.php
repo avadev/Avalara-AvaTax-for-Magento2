@@ -531,7 +531,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
      */
     private function getToken(int $limit = 24): string
     {
-        return (string)substr(base_convert(sha1((string)random_int(0, mt_getrandmax())), 16, 36), 0, $limit);
+        return (string)substr(base_convert(sha1((string)random_int(0, PHP_INT_MAX)), 16, 36), 0, $limit);
     }
 
     /**
