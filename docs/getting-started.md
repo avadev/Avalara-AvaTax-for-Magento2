@@ -175,7 +175,7 @@ Reproduce the issue that is being experienced on the site and then retrieve the 
 
 - In the backend, navigate to `Stores > AvaTax Logs`
 - Locate the log entry for the SOAP call that matches the test case and click the **View** link 
-  ![](images/AvaTax_Logs__Taxes__Stores__Magento_Admin_2017-09-03_20-48-18.png?raw=true)
+  ![](images/AvaTax_Logs__Taxes__Stores__Magento_Admin.png?raw=true)
 
 Reviewing the details of the **Request** and **Result** sections can reveal errors that may not be presented on the frontend.
 
