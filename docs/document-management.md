@@ -87,8 +87,8 @@ Retrieve the 3 credentials above using these steps:
 
 * Create a CertCapture user that will specifically be used for the API authentication.
 	* Login
-	    * Development - Login to https://app.certcapture.com/
-	    * Production - Login to https://sbx.certcapture.com/
+	    * Development - Login to https://sbx.certcapture.com/
+	    * Production - Login to https://app.certcapture.com/
 	* Go to "Settings > Account Settings > Manage Users"
 	* Click "Add User"
 		* Name: "Magento 2 API User"
