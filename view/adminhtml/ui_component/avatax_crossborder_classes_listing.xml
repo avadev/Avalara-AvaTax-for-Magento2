@@ -161,6 +161,7 @@
                     <item name="label" xsi:type="string" translate="true">Destination Countries</item>
                     <item name="sortOrder" xsi:type="number">20</item>
                     <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/ui/grid/columns/comma-separated</item>
+                    <item name="sortable" xsi:type="boolean">false</item>
                 </item>
             </argument>
         </column>
