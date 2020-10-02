@@ -38,8 +38,8 @@ class CustomerAddress extends \Magento\Framework\View\Element\Template
      */
     public function __construct(
         Context $context,
-        array $data = [],
-        Config $config
+        Config $config,
+        array $data = []
     ) {
         parent::__construct($context, $data);
         $this->config = $config;
