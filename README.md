@@ -3,7 +3,7 @@
 Agile, successful companies focus on their core business and outsource complex, administrative functions – such as payroll and sales tax management – to the experts. Avalara can address your sales tax challenges with AvaTax. It’s the fastest, easiest, most accurate and affordable way to calculate sales tax; manage exemption certificates; file returns; and remit payments across multiple tax regions. Our tax decision engine determines rates based on 100,000+ taxability rules in 11,000+ taxing jurisdictions and instantly applies them to each transaction within your Magento shopping cart. 
 
 # Support 
- 
+
 Contact Avalara for any support requests, either via [their support email](support@avalara.com) or via [this page](https://salestax.avalara.com/contact-us/).
 
 <!-- This list is in each of the documentation files. Ensure any updates are applied to the list in each file. -->
