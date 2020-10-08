@@ -6,130 +6,210 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md)
-  - [Document Management (Tax Exemptions)](./document-management.md)
+  - [Cross-Border](./customs-duty-import-tax.md)
+  - [Tax Exemption Certificates](./document-management.md)
 
-# Document Management
+# Tax Exemption Certificates
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Configuration](#configuration)
-  * [SDK Credentials](#sdk-credentials)
-  * [Checkout Link Text](#checkout-link-text)
-- [Frontend Features](#frontend-features)
-- [Backend Features](#backend-features)
+- [Requirements](#requirements)
+- [Set up](#set-up)
+- [Magento's ENV.PHP Configuration Update](#magentos-envphp-configuration-update)
+- [Frequently Asked Questions and Related Links](#frequently-asked-questions-and-related-links)
+- [Troubleshooting](#troubleshooting)
+- [Frontend Features Overview](#frontend-features-overview)
+- [Backend Features Overview](#backend-features-overview)
+- [CertCapture for eCommerce SDK Back-end Configuration Settings](#certcapture-for-ecommerce-sdk-back-end-configuration-settings)
 
 ## Overview
 
->  Important Note: This extension's support for this Avalara feature requires that you [install version 2.x.x of the extension](./getting-started.md#version-notes).
+>  Important Note: This extension's support for this Avalara feature requires version 2.1.8 of the extension. If your already using the
+   Magento AvaTax extension make sure you're running 2.1.8 or higher. You can see what version you're running by logging into your
+   Magento instance Stores > Settings > Configuration > Sales > Tax > AvaTax -General > AvaTax Extension Version.
 
-This AvaTax connector for Magento provides a set of features to support Document Management (also referred to as Tax Exemptions). These features include:
+>  Heads up! This feature requires you to have Avalara CertCapture Enterprise before you can use this feature! Please [contact Avalara](https://avlr.co/2YuiDkM)
+   to set up.
 
-- Reviewing Tax Exemption Documents for customers
-- Adding & Removing Tax Exemption Documents for customers
-- Adding Tax Exemption Documents during checkout
+This AvaTax connector for Magento provides a set of features to support Document Management (also referred to as Tax Exemption Certificates). This
+feature includes:
 
-When a **Tax Exemption** is applied to a customer's account, tax is automatically removed from their cart when shipping to that Exemption's region.
+- The ability for Seller to review customer certificate status, remove, print, download Exemption Certificates
+- The ability for Seller to update customer information and invite customers to fill out Exemption Certificates
+- Customers can review certificate status, remove, download and add Exemption Certificates
+- Customers can fill out an Exemption Certificate during checkout
 
-## Configuration
+When an **Exemption Certificate** is applied to a customer's account; tax is automatically removed from their cart when shipping to that Exemption region,
+once the certificate is approved.
 
-1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - Document Management** section.
-2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.0.0-rc1.png?raw=true)
+## Requirements
 
-### SDK Credentials
+- AvaTax for Magento 2 version 2.1.8 or higher
+- Install and configure the integration using Composer by following [Getting Started](getting-started.md)
+- CertCapture Enterprise and User Access; [contact Avalara to get set up](https://avlr.co/2YuiDkM)
+    - [Get Started using CertCapture](https://help.avalara.com/0021_Avalara_CertCapture)
+- Single Use Exemption Certificates are NOT supported by default see FAQ below for more details.
 
-In order to use Document Management (CertCapture), you'll need to ensure that your account has CertCapture API access enabled.
+## Set up
 
-To connect to CertCapture, you'll need to add your SDK credentials to your Magento installation's `app/etc/env.php` file. Here is [an example `env.php` file](files/env.php), showing the `cert-capture` array added to the file.
+I.  Enable Document Management in Magento
+ 
+In the Magento admin, go to Stores > Settings > Configuration > Sales > Tax. Click on the **AvaTax - Document Management** section -
+Enable Document Management set to Yes
 
-**`env.php` Development Configuration**
+II.  Connect to your CertCapture Account 
 
-```
+Modify the env.php file to Connect to the appropriate CertCapture instance using the eCommerce, API credentials and CertCapture Client ID.
+
+**CertCapture for eCommerce Plug-in Credentials**
+
+In order to use this feature set in Magento you will need to connect directly to CertCapture with your CertCapture for eCommerce plug-in credentials
+- CertCapture for eCommerce Username (CertCapture > Settings > Company Settings > Company Details > eCommerce Settings > Manage
+  eCommerce Account)
+- CertCapture for eCommerce Password (CertCapture > Settings > Company Settings > Company Details > eCommerce Settings > Manage
+  eCommerce Account)
+- CertCapture Client ID (CertCapture > Settings > Company Settings > Company Details >Company Information > Company ID)
+
+You will input these credentials into Magento installation's app/etc/env.php file. Here is an [example env.php](files/env.php) file, showing the cert-capture array
+added to the file.
+
+You will retrieve the 3 credentials (username, password, and client-id) using these steps:
+1. Log into your CertCapture account
+1. Set the username and password for the e-commerce Account
+    a. Go to Settings > Company Settings > Company Details > eCommerce Settings and add eCommerce Account. 
+    b. The Username and Password you configure will be the ones you enter in the env.php file.
+1. To retrieve the client-id, go to "Settings > Company Settings > Company Details" and use the "Company ID" value that is listed on that page
+   as your client-id.
+1. Note: If you have multiple CertCapture Companies in your Account you will need to decide which one will be the destination for the certificates
+   created in Magento. The certificates created and loaded through Magento will receive the legal business name of the CertCapture Company
+   chosen in this configuration.
+   
+## Magento's ENV.PHP Configuration Update
+The primary difference in the configuration files is the URL pointing to the Sandbox or Production CertCapture environment.
+- "sbx-api.certcapture" and "sbx.certcapture" 
+- "api.certcapture" and "app.certcapture"
+
+**Magento Development Configuration (env.php)**
+
+```php
 <?php
 return [
-  // ...
-  'cert-capture' => [
-    'url' => 'https://sbx-api.certcapture.com/v2/auth/get-token',
-    'sdk-url' => 'https://sbx.certcapture.com/gencert2/js',
-    'auth' => [
-      'username' => '', // Certcapture username
-      'password' => '' // Certcapture password
-    ],
-    'client-id' => '' // The certcapture client id you will use
-  ],
-  // ...
+ // ...
+ 'cert-capture' => [
+ 'url' => 'https://sbx-api.certcapture.com/v2/auth/get-token',
+ 'sdk-url' => 'https://sbx.certcapture.com/gencert2/js',
+ 'auth' => [
+ 'username' => '', // Certcapture username
+ 'password' => '' // Certcapture password
+ ],
+ 'client-id' => '' // The certcapture client id you will use
+ ],
+ // ...
 ];
 ```
 
-**`env.php` Production Configuration**
+**Magento Production Configuration (env.php)**
 
-```
+```php
 <?php
 return [
-  // ...
-  'cert-capture' => [
-    'url' => 'https://api.certcapture.com/v2/auth/get-token',
-    'sdk-url' => 'https://app.certcapture.com/gencert2/js',
-    'auth' => [
-      'username' => '', // Certcapture username
-      'password' => '' // Certcapture password
-    ],
-    'client-id' => '' // The certcapture client id you will use
-  ],
-  // ...
+ // ...
+ 'cert-capture' => [
+ 'url' => 'https://api.certcapture.com/v2/auth/get-token',
+ 'sdk-url' => 'https://app.certcapture.com/gencert2/js',
+ 'auth' => [
+ 'username' => '', // Certcapture username
+ 'password' => '' // Certcapture password
+ ],
+ 'client-id' => '' // The certcapture client id you will use
+ ],
+ // ...
 ];
 ```
 
-> In the Magento admin (`Stores > Settings > Configuration > Sales > Tax > AvaTax - General`), there is a setting called **Mode** that allows an admin to toggle between Development and Production mode. That setting is _not_ respected for CertCapture—you'll need to configure the `env.php` file differently for each environment. Long-term, the Avalara API will be upgraded to support generating tokens for Document Management, and at that point this `env.php` configuration will no longer be necessary.
+> In the Magento admin (Stores > Settings > Configuration > Sales > Tax > AvaTax - General), there is a setting
+  called Mode that allows an admin to toggle between Development and Production mode. That setting is not respected for
+  CertCapture—you'll need to configure the env.php file differently for each environment if you are using a CertCapture Sandbox
+  environment along with a CertCapture Production environment. Long-term, the Avalara API will be upgraded to support generating
+  tokens for Document Management, and at that point this env.php configuration will no longer be necessary.
 
-Retrieve the 3 credentials above using these steps:
+III.  Review Configuration Settings
 
-* Create a CertCapture user that will specifically be used for the API authentication.
-	* Login
-	    * Development - Login to https://app.certcapture.com/
-	    * Production - Login to https://sbx.certcapture.com/
-	* Go to "Settings > Account Settings > Manage Users"
-	* Click "Add User"
-		* Name: "Magento 2 API User"
-		* Email: It's recommended to use a company email, rather than one linked to a specific individual (for example, "apiuser@example.com")
-		* User Role: API User
-		* Status: Active
-	* Login to that newly created user account. Click the "My Profile" link at the top right of the page. Click on the "REST API Access" tab. Input a password. You'll use that password for the "cert-capture > auth > password" value in the `env.php` file, and you'll use the email in the "cert-capture > auth > username" value.
-* To retrieve the `client-id`, go to "Settings > Company Settings > Company Details" and use the "Company ID" value that is listed on that page as your `client-id`.
+**Default Magento Configuration**
+- Checkout Link Text
+    - You can configure what text you want to display to a user during checkout to initiate the Document Management workflow. These
+      options include:
+        - Add certification when the customer has no certifications (also used for guests)
+        - Add certification when the customer has certifications
+        - Manage existing certifications
+    - Change the Status name of the Certificate 
+        - You can set the "Approved" status to another way of letting your customer know the certificate is ready for use
+        - You can set the "Denied" status to another message like "Pending", "Pending Approval", "Please Contact Us at"
 
-### Checkout Link Text
+IV. Test Customer Workflow
 
-You can configure what text you want to display to a user during checkout to initiate the Document Management workflow. These options include:
+**Default CertCapture Workflow**
+- Customer Record Creation - 2 methods
+    - Direct from Cart 
+        - If it is the customer's first time providing a certificate through your Magento site their customer record will be created in
+          CertCapture during the certificate creation/upload process. Once their customer record is stored in CertCapture if they return
+          they will not need to re-enter their contact details
+    - From Customer Account Page
+        - sophia how do you do it this way in M2
+- Certificate Validation
+    - Certificates created using the Document Management UI will be automatically set to valid and attached to the customer record in
+      CertCapture
+    - Certificates uploaded will NOT be automatically validated
+    
+## Frequently Asked Questions and Related Links
 
-- Add certification when the customer has no certifications (also used for guests)
-- Add certification when the customer has certifications
-- Manage existing certifications
+[Avalara Help Center - CertCapture FAQ's](https://help.avalara.com/Frequently_Asked_Questions/CertCapture_-_Knowledge_Base)
 
+**Why don't single-use Exemption Certificates work?**
+A. Currently, the integration has no default support for passing a PurchaseOrder value. With other 3rd party plugin's with Purchase Order number
+support; your System Integrator can easily customize the integration by mapping your Purchase Order numbers on calls to AvaTax. 
 
+**How are Exemption Certificates by the customer identified in AvaTax?**
+A. The customerCode passed in a request to calculate tax is passed to AvaTax and the customerCode matched with the ShipTo location will determine if
+a Customer Tax Certificate will apply. You can configure the customerCode in the Magento AvaTax integration by going to Stores > Configuration > Sales > Tax > AvaTax-General > Data Mapping > Customer Code Format. IMPORTANT: Select a value that will uniquely ID your customer. 
 
-## Frontend Features
+**Why is my tax not getting removed after the certificate is created?**
+A. This is likely a result of the certificate being in PENDING status, rather than being in APPROVED status (someone hasn't gotten around to validating
+your certificate yet).
+
+## Troubleshooting
+
+Having trouble? Please check these steps before posting a support request:
+
+- Check the [documentation](../README.md) to ensure that the plugin is configured properly.
+- Please ensure that you meet the requirements.
+- Check the FAQs to see if they address your question.
+
+## Frontend Features Overview
 
 Document Management is supported on the frontend for:
-
-1. Allowing customers to view certificates on their account
-
-1. Allow customers to delete certificates from their account
-
-1. Allow customers to add certificates from any supported region
-
+1. Allowing customers to view certificates on their account - My Account > Tax Certificates > View Certificate
+1. Allow customers to delete certificates from their account - My Account > Tax Certificates > Delete Certificate 
+1. Allow customers to add certificates from any supported region - My Account > Tax Certificates > Add Exemption
 1. Allow customers to add certificates during checkout for their current destination
 
-![](images/document-management-features.jpg?raw=true)
+![](images/exemption-certificates-1.png?raw=true)
 
-
-
-## Backend Features
+## Backend Features Overview 
 
 Document Management is supported on the frontend for:
 
-1. View a customer's certificates
-2. Delete a customer's certificates
-3. Add certificates from any supported region to a customer's account
+1. View a customer's certificates - Customers > All Customers > Edit > Tax Certificates > View Certificate 
+1. Delete a customer's certificates - Customers > All Customers > Edit > Tax Certificates > Delete Certificate
+1. Invite a customer to create a certificate from any supported region to a customer's account - Customers > All Customers > Edit > Tax Certificates > Invite a Customer to Add a Certificate
+1. Update a customers information - Customers > All Customers > Edit > Tax Certificates > Update Customer Infomation at Avalara
 
-![](images/document-management-backend.jpg?raw=true)
+## CertCapture for eCommerce SDK Back-end Configuration Settings
+
+Review the link below for examples of use cases and further configuration options if needed: 
+- [Install CertCapture for eCommerce](https://help.avalara.com/0021_Avalara_CertCapture/All_About_CertCapture/Install_CertCapture_for_eCommerce?origin=deflection)
+
+Customizing the configuration settings directly in the code in Magento may lead to unexpected conflicts with CertCapture, AvaTax and other parts of
+Magento. Make sure you have a qualified Magento developer to make any custom code changes and be sure to test any changes before releasing to your
+production store.
