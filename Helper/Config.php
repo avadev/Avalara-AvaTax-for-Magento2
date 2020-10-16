@@ -244,6 +244,11 @@ class Config extends AbstractHelper
     protected $backendUrl;
 
     /**
+     * @var \Magento\Framework\Encryption\EncryptorInterface
+     */
+    private $encryptor;
+
+    /**
      * Class constructor
      *
      * @param Context $context
@@ -252,6 +257,7 @@ class Config extends AbstractHelper
      * @param State $appState
      * @param TaxClassRepositoryInterface $taxClassRepository
      * @param \Magento\Backend\Model\UrlInterface $backendUrl
+     * @param \Magento\Framework\Encryption\EncryptorInterface $encryptor
      */
     public function __construct(
         Context $context,
@@ -259,13 +265,15 @@ class Config extends AbstractHelper
         ATConfigFactory $avaTaxConfigFactory,
         State $appState,
         TaxClassRepositoryInterface $taxClassRepository,
-        \Magento\Backend\Model\UrlInterface $backendUrl
+        \Magento\Backend\Model\UrlInterface $backendUrl,
+        \Magento\Framework\Encryption\EncryptorInterface $encryptor
     ) {
         $this->magentoProductMetadata = $magentoProductMetadata;
         $this->avaTaxConfigFactory = $avaTaxConfigFactory;
         $this->appState = $appState;
         $this->taxClassRepository = $taxClassRepository;
         $this->backendUrl = $backendUrl;
+        $this->encryptor = $encryptor;
         parent::__construct($context);
     }
 
@@ -523,11 +531,11 @@ class Config extends AbstractHelper
      */
     public function getAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(
+        return $this->encryptor->decrypt((string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_PRODUCTION_ACCOUNT_NUMBER,
             $scopeType,
             $store
-        );
+        ));
     }
 
     /**
@@ -539,11 +547,11 @@ class Config extends AbstractHelper
      */
     public function getLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(
+        return $this->encryptor->decrypt((string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_PRODUCTION_LICENSE_KEY,
             $scopeType,
             $store
-        );
+        ));
     }
 
     /**
@@ -554,11 +562,11 @@ class Config extends AbstractHelper
      */
     public function getCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(
+        return $this->encryptor->decrypt((string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_PRODUCTION_COMPANY_CODE,
             $scopeType,
             $store
-        );
+        ));
     }
 
     /**
@@ -570,11 +578,11 @@ class Config extends AbstractHelper
      */
     public function getDevelopmentAccountNumber($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(
+        return $this->encryptor->decrypt((string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DEVELOPMENT_ACCOUNT_NUMBER,
             $scopeType,
             $store
-        );
+        ));
     }
 
     /**
@@ -586,11 +594,11 @@ class Config extends AbstractHelper
      */
     public function getDevelopmentLicenseKey($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(
+        return $this->encryptor->decrypt((string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DEVELOPMENT_LICENSE_KEY,
             $scopeType,
             $store
-        );
+        ));
     }
 
     /**
@@ -602,11 +610,11 @@ class Config extends AbstractHelper
      */
     public function getDevelopmentCompanyCode($store, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (string)$this->scopeConfig->getValue(
+        return $this->encryptor->decrypt((string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_DEVELOPMENT_COMPANY_CODE,
             $scopeType,
             $store
-        );
+        ));
     }
 
     /**
