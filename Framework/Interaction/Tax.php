@@ -139,7 +139,8 @@ class Tax
         'type' => [
             'type' => 'string',
             'options' =>
-                ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
+                ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice',
+                 '-1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
             'required' => true,
         ],
         'exchange_rate' => ['type' => 'double'],
