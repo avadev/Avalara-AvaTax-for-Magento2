@@ -30,10 +30,6 @@
 		</item>
 		<item name="spinner" xsi:type="string">classyllama_avatax_crossbordertype_columns</item>
 	</argument>
-	<argument name="context" xsi:type="configurableObject">
-		<argument name="class" xsi:type="string">Magento\Framework\View\Element\UiComponent\Context</argument>
-		<argument name="namespace" xsi:type="string">classyllama_avatax_crossbordertype_index</argument>
-	</argument>
 	<listingToolbar name="listing_top">
 		<argument name="data" xsi:type="array">
 			<item name="config" xsi:type="array">
