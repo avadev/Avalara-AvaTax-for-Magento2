@@ -15,44 +15,26 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Tax;
 
-use AvaTax\GetTaxRequest;
-use AvaTax\GetTaxResult;
-use AvaTax\LineFactory;
-use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\TaxService;
-use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
-use ClassyLlama\AvaTax\Framework\Interaction\Address;
+use ClassyLlama\AvaTax\Api\RestTaxInterface;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax;
-use ClassyLlama\AvaTax\Helper\Config;
-use Magento\Framework\DataObject;
-use Magento\Quote\Model\Quote\Item as QuoteItem;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
+use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\DataObject;
 
 class Get
 {
     /**
      * @var TaxCalculation
      */
-    protected $taxCalculation = null;
-
-    /**
-     * @var Address
-     */
-    protected $interactionAddress = null;
+    protected $taxCalculation;
 
     /**
      * @var Tax
      */
-    protected $interactionTax = null;
-
-    /**
-     * @var LineFactory
-     */
-    protected $lineFactory = null;
-
-    /**
-     * @var Config
-     */
-    protected $config = null;
+    protected $interactionTax;
 
     /**
      * @var Get\ResponseFactory
@@ -65,52 +47,45 @@ class Get
     protected $avaTaxLogger;
 
     /**
-     * @var TaxService
+     * @var RestTaxInterface
      */
-    protected $taxService = null;
-
-    /**#@+
-     * Keys for non-base and base tax details
-     */
-    const KEY_TAX_DETAILS = 'tax_details';
-
-    const KEY_BASE_TAX_DETAILS = 'base_tax_details';
-    /**#@-*/
+    protected $taxService;
 
     /**
-     * @param TaxCalculation $taxCalculation
-     * @param Address $interactionAddress
-     * @param Tax $interactionTax
-     * @param LineFactory $lineFactory
-     * @param Config $config
-     * @param Get\ResponseFactory $getTaxResponseFactory
-     * @param AvaTaxLogger $avaTaxLogger
-     * @param TaxService $taxService
+     * @var ExtensionAttributesFactory
+     */
+    protected $extensionAttributesFactory;
+
+    /**
+     * @param TaxCalculation             $taxCalculation
+     * @param Tax                        $interactionTax
+     * @param Get\ResponseFactory        $getTaxResponseFactory
+     * @param AvaTaxLogger               $avaTaxLogger
+     * @param RestTaxInterface           $taxService
+     * @param ExtensionAttributesFactory $extensionAttributesFactory
      */
     public function __construct(
         TaxCalculation $taxCalculation,
-        Address $interactionAddress,
         Tax $interactionTax,
-        LineFactory $lineFactory,
-        Config $config,
         Get\ResponseFactory $getTaxResponseFactory,
         AvaTaxLogger $avaTaxLogger,
-        TaxService $taxService
-    ) {
+        RestTaxInterface $taxService,
+        ExtensionAttributesFactory $extensionAttributesFactory
+    )
+    {
         $this->taxCalculation = $taxCalculation;
-        $this->interactionAddress = $interactionAddress;
         $this->interactionTax = $interactionTax;
-        $this->lineFactory = $lineFactory;
-        $this->config = $config;
         $this->getTaxResponseFactory = $getTaxResponseFactory;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->taxService = $taxService;
+        $this->extensionAttributesFactory = $extensionAttributesFactory;
     }
 
     /**
      * Process invoice or credit memo
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface|\Magento\Sales\Api\Data\CreditmemoInterface $object
+     *
      * @return \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface
      * @throws \ClassyLlama\AvaTax\Exception\TaxCalculationException
      */
@@ -119,8 +94,8 @@ class Get
         $storeId = $object->getStoreId();
         $taxService = $this->taxService;
         try {
-            /** @var $getTaxRequest GetTaxRequest */
-            $getTaxRequest = $this->interactionTax->getGetTaxRequestForSalesObject($object);
+            /** @var $getTaxRequest \Magento\Framework\DataObject */
+            $getTaxRequest = $this->interactionTax->getTaxRequestForSalesObject($object);
         } catch (\Exception $e) {
             $message = __('Error while building the request to send to AvaTax. ');
             $this->avaTaxLogger->error(
@@ -136,7 +111,9 @@ class Get
                     ),
                 ]
             );
-            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message . $e->getMessage(), $e->getCode(), $e);
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException(
+                $message . $e->getMessage(), $e->getCode(), $e
+            );
         }
 
         if (is_null($getTaxRequest)) {
@@ -146,58 +123,79 @@ class Get
         }
 
         try {
-            $getTaxResult = $taxService->getTax($getTaxRequest, $storeId);
-            if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
-                // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
-                $avataxTaxAmount = abs($getTaxResult->getTotalTax());
-                $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
-
-                /** @var $response \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface */
-                $response = $this->getTaxResponseFactory->create();
-                $response->setIsUnbalanced($unbalanced)
-                    ->setBaseAvataxTaxAmount($avataxTaxAmount);
-
-                return $response;
-            } else {
-                $message = $this->getErrorMessageFromGetTaxResult($getTaxResult);
-
-                $this->avaTaxLogger->warning(
-                    $message,
-                    [ /* context */
-                        'request' => var_export($getTaxRequest, true),
-                        'result' => var_export($getTaxResult, true),
-                    ]
-                );
-
-                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
-            }
-        } catch (\SoapFault $exception) {
-            $message = "Exception: \n";
-            if ($exception) {
-                $message .= $exception->faultstring;
-            }
-            $message .= $taxService->__getLastRequest() . "\n";
-            $message .= $taxService->__getLastResponse() . "\n";
-            $this->avaTaxLogger->critical(
-                "Exception: \n" . ($exception) ? $exception->faultstring: "",
-                [ /* context */
-                    'request' => var_export($taxService->__getLastRequest(), true),
-                    'result' => var_export($taxService->__getLastResponse(), true),
-                ]
+            /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $getTaxResult */
+            $getTaxResult = $taxService->getTax(
+                $getTaxRequest,
+                null,
+                $storeId,
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                [\ClassyLlama\AvaTax\Api\RestTaxInterface::FLAG_FORCE_NEW_RATES => true]
             );
 
+            if (!$object->getExtensionAttributes()) {
+                /** @var \Magento\Sales\Api\Data\CreditmemoExtensionInterface|\Magento\Sales\Api\Data\InvoiceExtensionInterface $extensionAttributes */
+                $extensionAttributes = $this->extensionAttributesFactory->create(get_class($object));
+                $object->setExtensionAttributes($extensionAttributes);
+            }
+
+            $object->getExtensionAttributes()->setAvataxResponse(
+                \json_encode($this->convertTaxResultToArray($getTaxResult))
+            );
+
+            // Since credit memo tax amounts come back from AvaTax as negative numbers, get absolute value
+            $avataxTaxAmount = abs($getTaxResult->getTotalTax());
+            $unbalanced = ($avataxTaxAmount != $object->getBaseTaxAmount());
+
+            /** @var $response \ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface */
+            $response = $this->getTaxResponseFactory->create();
+            $response->setIsUnbalanced($unbalanced)->setBaseAvataxTaxAmount($avataxTaxAmount);
+
+            return $response;
+        }
+        catch(AvataxConnectionException $avataxConnectionException) {
+            // Don't double log connection exceptions
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($avataxConnectionException->getMessage());
+        }
+        catch (\Exception $exception) {
+            $message = $exception->getMessage();
+            $this->avaTaxLogger->error($message);
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         }
     }
 
     /**
+     * Data object's don't convert to an array recursively, so this function will walk them and convert nested
+     * data objects into arrays to be json_encoded
+     *
+     * @param DataObject $taxResult
+     *
+     * @return array
+     */
+    public function convertTaxResultToArray($taxResult)
+    {
+        $array = $taxResult->toArray();
+
+        array_walk_recursive(
+            $array,
+            function (&$property) {
+                if ($property instanceof DataObject) {
+                    $property = $this->convertTaxResultToArray($property);
+                }
+            }
+        );
+
+        return $array;
+    }
+
+    /**
      * Convert quote/order/invoice/creditmemo to the AvaTax object and request tax from the Get Tax API
      *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails
-     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails
+     * @param \Magento\Quote\Model\Quote                          $quote
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface         $taxQuoteDetails
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface         $baseTaxQuoteDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-     * @return \Magento\Tax\Api\Data\TaxDetailsInterface[]
+     *
+     * @return array
      * @throws \ClassyLlama\AvaTax\Exception\TaxCalculationException
      * @throws \Exception
      */
@@ -206,7 +204,8 @@ class Get
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         \Magento\Tax\Api\Data\QuoteDetailsInterface $baseTaxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-    ) {
+    )
+    {
         $storeId = $quote->getStoreId();
         $taxService = $this->taxService;
         try {
@@ -218,92 +217,85 @@ class Get
             // Taxes need to be calculated on the base prices/amounts, not the current currency prices. As a result of this,
             // only the $baseTaxQuoteDetails will have taxes calculated for it. The taxes for the current currency will be
             // calculated by multiplying the base tax rates * currency conversion rate.
-            /** @var $getTaxRequest GetTaxRequest */
-            $getTaxRequest = $this->interactionTax
-                ->getGetTaxRequestForQuote($quote, $baseTaxQuoteDetails, $shippingAssignment);
+            /** @var $getTaxRequest \Magento\Framework\DataObject */
+            $getTaxRequest = $this->interactionTax->getTaxRequestForQuote(
+                $quote,
+                $baseTaxQuoteDetails,
+                $shippingAssignment
+            );
 
             if (is_null($getTaxRequest)) {
                 $message = __('$quote was empty or address was not valid so not running getTax request.');
                 throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
             }
 
-            $getTaxResult = $taxService->getTax($getTaxRequest, $storeId, true);
-            if ($getTaxResult->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+            $getTaxResult = $taxService->getTax($getTaxRequest, null, $storeId);
 
-                $store = $quote->getStore();
-                $baseTaxDetails =
-                    $this->taxCalculation->calculateTaxDetails($baseTaxQuoteDetails, $getTaxResult, true, $store);
-                /**
-                 * If quote is using a currency other than the base currency, calculate tax details for both quote
-                 * currency and base currency. Otherwise use the same tax details object.
-                 */
-                if ($quote->getBaseCurrencyCode() != $quote->getQuoteCurrencyCode()) {
-                    $taxDetails =
-                        $this->taxCalculation->calculateTaxDetails($taxQuoteDetails, $getTaxResult, false, $store);
-                } else {
-                    $taxDetails = $baseTaxDetails;
-                }
+            if (!$quote->getExtensionAttributes()) {
+                /** @var \Magento\Quote\Api\Data\CartExtensionInterface $extensionAttributes */
+                $extensionAttributes = $this->extensionAttributesFactory->create(\Magento\Quote\Model\Quote::class);
+                $quote->setExtensionAttributes($extensionAttributes);
+            }
 
-                return [
-                    self::KEY_TAX_DETAILS => $taxDetails,
-                    self::KEY_BASE_TAX_DETAILS => $baseTaxDetails
-                ];
-            } else {
-                $message = __('Bad result code: %1', $getTaxResult->getResultCode());
-                $this->avaTaxLogger->warning(
-                    $message,
-                    [ /* context */
-                        'request' => var_export($getTaxRequest, true),
-                        'result' => var_export($getTaxResult, true),
-                    ]
-                );
-                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
-            }
-        } catch (\SoapFault $exception) {
-            $message = "Exception: \n";
-            if ($exception) {
-                $message .= $exception->faultstring;
-            }
-            $message .= $taxService->__getLastRequest() . "\n";
-            $message .= $taxService->__getLastResponse() . "\n";
-            $this->avaTaxLogger->error(
-                "Exception: \n" . ($exception) ? $exception->faultstring: "",
-                [ /* context */
-                    'request' => var_export($taxService->__getLastRequest(), true),
-                    'result' => var_export($taxService->__getLastResponse(), true),
-                ]
+            $quote->getExtensionAttributes()->setAvataxResponse(
+                \json_encode($this->convertTaxResultToArray($getTaxResult))
             );
-            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
-        } catch (\Exception $exception) {
+
+            $store = $quote->getStore();
+            $baseTaxDetails = $this->taxCalculation->calculateTaxDetails(
+                $baseTaxQuoteDetails,
+                $getTaxResult,
+                true,
+                $store
+            );
+            /**
+             * If quote is using a currency other than the base currency, calculate tax details for both quote
+             * currency and base currency. Otherwise use the same tax details object.
+             */
+            if ($quote->getBaseCurrencyCode() != $quote->getQuoteCurrencyCode()) {
+                $taxDetails = $this->taxCalculation->calculateTaxDetails(
+                    $taxQuoteDetails,
+                    $getTaxResult,
+                    false,
+                    $store
+                );
+            } else {
+                $taxDetails = $baseTaxDetails;
+            }
+
+            $avaTaxMessages = [];
+
+            if($getTaxResult->getMessages() !== null) {
+                $landedCostMessages = array_filter(
+                    $getTaxResult->getMessages(),
+                    function ($message) {
+                        return \in_array($message->getRefersTo(), CustomsConfig::CUSTOMS_NAMES);
+                    }
+                );
+
+                $avaTaxMessages = array_map(
+                    function ($message) {
+                        return $message->getSummary();
+                    },
+                    $landedCostMessages
+                );
+            }
+
+
+            return [
+                $taxDetails,
+                $baseTaxDetails,
+                $avaTaxMessages
+            ];
+        }
+        catch(AvataxConnectionException $avataxConnectionException) {
+            // Don't double log connection exceptions
+            throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($avataxConnectionException->getMessage());
+        }
+        catch (\Exception $exception) {
             $message = $exception->getMessage();
             $this->avaTaxLogger->error($message);
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
         }
-    }
-
-    /**
-     * Get formatted error message from GetTaxResult
-     *
-     * @param GetTaxResult $getTaxResult
-     * @return string
-     */
-    protected function getErrorMessageFromGetTaxResult(GetTaxResult $getTaxResult)
-    {
-        $message = '';
-
-        $message .= __('Result code: ') . $getTaxResult->getResultCode() . PHP_EOL;
-
-        /** @var \AvaTax\Message $avataxMessage */
-        foreach ($getTaxResult->getMessages() as $avataxMessage) {
-            $message .= __('Message:') . PHP_EOL;
-            $message .= __('    Name: ') . $avataxMessage->getName() . PHP_EOL;
-            $message .= __('    Summary: ') . $avataxMessage->getSummary() . PHP_EOL;
-            $message .= __('    Details: ') . $avataxMessage->getDetails() . PHP_EOL;
-            $message .= __('    RefersTo: ') . $avataxMessage->getRefersTo() . PHP_EOL;
-            $message .= __('    Severity: ') . $avataxMessage->getSeverity() . PHP_EOL;
-            $message .= __('    Source: ') . $avataxMessage->getSource() . PHP_EOL;
-        }
-
-        return $message;
     }
 }

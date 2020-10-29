@@ -15,10 +15,24 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" type="ClassyLlama\AvaTax\Model\ValidAddressManagement" />
+    <preference for="ClassyLlama\AvaTax\Api\RestInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest" />
+    <preference for="ClassyLlama\AvaTax\Api\RestTaxInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax" />
+    <preference for="ClassyLlama\AvaTax\Api\RestAddressInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Address" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface" type="\ClassyLlama\AvaTax\Model\CrossBorderClass" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderClassRepository" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\ProductCrossBorderDetailsInterface" type="ClassyLlama\AvaTax\Model\ProductCrossBorderDetails" />
+    <preference for="ClassyLlama\AvaTax\Api\RestCustomerInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Customer" />
+    <preference for="ClassyLlama\AvaTax\Api\TokenInterface" type="ClassyLlama\AvaTax\Model\Token"/>
+    <preference for="ClassyLlama\AvaTax\Api\TaxCacheInterface" type="ClassyLlama\AvaTax\Model\TaxCache"/>
+    <preference for="ClassyLlama\AvaTax\Api\Data\SDKTokenInterface" type="ClassyLlama\AvaTax\Model\Data\SDKToken"/>
+    <preference for="ClassyLlama\AvaTax\Api\Framework\Interaction\Request\TaxCompositeInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Request\TaxComposite"/>
+    <preference for="ClassyLlama\AvaTax\Api\Framework\Interaction\Storage\ConfigInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Storage\Config"/>
+
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
     </type>
-    <preference for="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" type="ClassyLlama\AvaTax\Model\ValidAddressManagement" />
     <type name="Magento\Tax\Model\Sales\Total\Quote\Subtotal">
         <plugin name="avatax_tax_model_sales_total_quote_subtotal" type="ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote\Subtotal" />
     </type>
@@ -34,33 +48,25 @@
     <type name="Magento\Quote\Model\Quote\Config">
         <plugin name="avatax_quote_model_quote_config" type="ClassyLlama\AvaTax\Plugin\Quote\Model\Quote\Config" />
     </type>
-    <type name="Magento\Sales\Api\OrderRepositoryInterface">
-        <plugin name="save_order_tax" type="Magento\Tax\Model\Plugin\OrderSave" disabled="true"/>
-        <plugin name="avatax_sales_model_order_repository" type="ClassyLlama\AvaTax\Plugin\Sales\Model\OrderRepository" />
-    </type>
-
-    <!--
-    /**
-     * Add plugin and preferences to display tax summary information on frontend
-     * See https://github.com/classyllama/ClassyLlama_AvaTax/issues/70 for details
-     */
-     -->
-    <type name="Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector">
-        <plugin name="avatax_quote_tax_collector" type="ClassyLlama\AvaTax\Plugin\Sales\Total\Quote\CommonTaxCollector" />
-    </type>
-    <preference for="Magento\Tax\Model\Quote\GrandTotalDetailsPlugin" type="ClassyLlama\AvaTax\Model\Quote\GrandTotalDetailsPlugin" />
-    <preference for="Magento\Tax\Api\Data\GrandTotalRatesInterface" type="ClassyLlama\AvaTax\Model\Tax\Calculation\GrandTotalRates" />
-    <preference for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface" type="ClassyLlama\AvaTax\Model\Tax\Calculation\GrandTotalRates" />
 
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
+
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Storage\ResultStorage">
+        <arguments>
+            <argument name="namespace" xsi:type="string">creditmemo_tax_estimation</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="avatax_tax_classes_customer_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Customer\Collection</item>
                 <item name="avatax_tax_classes_product_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\Tax\Classes\Product\Collection</item>
+                <item name="avatax_crossborder_classes_listing_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\Grid\Collection</item>
                 <item name="avatax_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
-                <item name="avatax_queue_listing_data_source" xsi:type="string">AvaTaxQueueGridDataProvider</item>
+                <item name="avatax_queue_listing_data_source" xsi:type="string">AvaTaxQueueGridDataProvider</item>\
+                <item name="classyllama_avatax_crossbordertype_grid_data_source" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Grid\Collection</item>
             </argument>
         </arguments>
     </type>
@@ -113,6 +119,89 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="tax/avatax/production_license_key" xsi:type="string">1</item>
+                <item name="tax/avatax/development_license_key" xsi:type="string">1</item>
+            </argument>
+            <argument name="environment" xsi:type="array">
+                <item name="tax/avatax/enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/tax_mode" xsi:type="string">1</item>
+                <item name="tax/avatax/commit_submitted_transactions" xsi:type="string">1</item>
+                <item name="tax/avatax/live_mode" xsi:type="string">1</item>
+                <item name="tax/avatax/production_account_number" xsi:type="string">1</item>
+                <item name="tax/avatax/production_company_code" xsi:type="string">1</item>
+                <item name="tax/avatax/production_company_id" xsi:type="string">1</item>
+                <item name="tax/avatax/production_license_key" xsi:type="string">1</item>
+                <item name="tax/avatax/development_account_number" xsi:type="string">1</item>
+                <item name="tax/avatax/development_company_code" xsi:type="string">1</item>
+                <item name="tax/avatax/development_license_key" xsi:type="string">1</item>
+                <item name="tax/avatax/development_company_id" xsi:type="string">1</item>
+                <item name="tax/avatax/location_code" xsi:type="string">1</item>
+                <item name="tax/avatax/address_validation_enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/logging_file_enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/logging_file_mode" xsi:type="string">1</item>
+                <item name="tax/avatax/logging_file_builtin_rotation_enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/queue_admin_notification_enabled" xsi:type="string">1</item>
+                <item name="tax/avatax/queue_failure_notification_enabled" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper">
+        <arguments>
+            <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Rest">
+        <arguments>
+            <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax">
+        <arguments>
+            <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Rest\Address">
+        <arguments>
+            <argument name="logger" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Address\Validation">
+        <arguments>
+            <argument name="addressService" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Cacheable</argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get">
+        <arguments>
+            <argument name="taxService" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Cacheable</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\CrossBorderClassFilterProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
+        <arguments>
+            <argument name="customFilters" xsi:type="array">
+                <item name="country_ids" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CrossBorderClass\CountryFilter</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ClassyLlama\AvaTax\Api\SearchCriteria\CrossBorderClassCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CollectionProcessor\CrossBorderClassFilterProcessor</item>
+                <item name="sorting" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\SortingProcessor</item>
+                <item name="pagination" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\PaginationProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="ClassyLlama\AvaTax\Model\CrossBorderClassRepository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">ClassyLlama\AvaTax\Api\SearchCriteria\CrossBorderClassCollectionProcessor</argument>
+        </arguments>
+    </type>
+
     <!--
     /**
      * The following code will rewrite the connection name to connect to 'sales' database on split database install;
@@ -140,29 +229,82 @@
         </arguments>
     </type>
 
-    <!--
-    /**
-     * Add sensitive and environment-specific settings to the configuration type pool.
-     * This ensures that their values are not dumped by app:config:dump in app/etc/config.php, which is usually in version control.
-     *
-     * See:
-     * - https://devdocs.magento.com/guides/v2.2/extension-dev-guide/configuration/sensitive-and-environment-settings.html
-     */
-      -->
-    <type name="Magento\Config\Model\Config\TypePool">
+    <preference for="ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderTypeRepository"/>
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterface" type="ClassyLlama\AvaTax\Model\CrossBorderType"/>
+    <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderTypeSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <virtualType name="ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
-            <argument name="sensitive" xsi:type="array">
-                <item name="tax/avatax/production_account_number" xsi:type="string">1</item>
-                <item name="tax/avatax/production_license_key" xsi:type="string">1</item>
-                <item name="tax/avatax/production_company_code" xsi:type="string">1</item>
-                <item name="tax/avatax/development_account_number" xsi:type="string">1</item>
-                <item name="tax/avatax/development_license_key" xsi:type="string">1</item>
-                <item name="tax/avatax/development_company_code" xsi:type="string">1</item>
-            </argument>
-            <argument name="environment" xsi:type="array">
-                <item name="tax/avatax/live_mode" xsi:type="string">1</item>
-            </argument>
+            <argument name="mainTable" xsi:type="string">classyllama_avatax_crossbordertype</argument>
+            <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderType\Collection</argument>
         </arguments>
+    </virtualType>
+
+    <virtualType name="classyLlamaExtensionAttributesSave" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin">
+        <arguments>
+            <argument name="shouldLoad" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+
+    <!--region Extension Attribute Persistence -->
+    <type name="Magento\Sales\Model\ResourceModel\Order">
+        <plugin sortOrder="1" name="classyllama_avatax_order_extension_attribute_persistence" type="classyLlamaExtensionAttributesSave"/>
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_creditmemo_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_creditmemo_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order\Invoice\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_invoice_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="\Magento\Sales\Model\ResourceModel\Order\Invoice\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_invoice_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_order_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_order_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+
+    <type name="Magento\Quote\Model\ResourceModel\Quote\Item">
+        <plugin sortOrder="1" name="classyllama_avatax_quote_item_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
+    </type>
+    <type name="Magento\Quote\Model\ResourceModel\Quote\Item\Collection">
+        <plugin sortOrder="1" name="classyllama_avatax_quote_item_collection_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Data\Collection\ExtensionAttributeCollectionLoader"/>
+    </type>
+    <!--endregion-->
+
+    <!-- Plugin to transfer extension attributes from Order -> Invoice -> CreditMemo -->
+    <type name="Magento\Sales\Model\Convert\Order">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxOrder" type="ClassyLlama\AvaTax\Plugin\Model\Convert\OrderPlugin"/>
+    </type>
+
+    <type name="Magento\Quote\Model\Cart\TotalsConverter">
+        <!-- We need the tax details plugin to run first -->
+        <plugin sortOrder="1" name="add_tax_details"/>
+        <plugin sortOrder="2" name="classy_llama_ava_tax_grand_total_details_sorter" type="ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter"/>
+    </type>
+
+    <type name="Magento\Quote\Model\Cart\CartTotalRepository">
+        <plugin name="avataxCustomsMessages" type="ClassyLlama\AvaTax\Model\Plugin\CartTotalRepository" />
+    </type>
+    <type name="Magento\Customer\Controller\Account\CreatePost">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxCreatePost" type="ClassyLlama\AvaTax\Plugin\Controller\Account\CreatePostPlugin"/>
+    </type>
+
+    <type name="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax">
+        <arguments>
+            <argument name="interactionGetTax" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy</argument>
+            <argument name="taxCalculation" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Tax\Model\Sales\Pdf\Tax">
+        <plugin name="classyLlamaAvaTaxPdfTaxTotals" type="ClassyLlama\AvaTax\Plugin\Model\Sales\Pdf\TaxPlugin"/>
     </type>
 
     <type name="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax">

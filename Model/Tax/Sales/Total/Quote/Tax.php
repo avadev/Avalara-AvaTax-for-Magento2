@@ -18,17 +18,15 @@ namespace ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get as InteractionGet;
 use ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation as TaxCalculation;
 use ClassyLlama\AvaTax\Helper\Config;
-use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Item;
-use Magento\Quote\Model\Quote\Address as QuoteAddress;
+use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax\Customs as CustomsTax;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressFactory;
 use Magento\Customer\Api\Data\RegionInterfaceFactory as CustomerAddressRegionFactory;
-use Magento\Quote\Model\Quote\Address;
-use Magento\Tax\Model\Calculation;
-use Magento\Quote\Api\Data\ShippingAssignmentInterface;
-use Magento\Framework\DataObject;
 use Magento\Framework\Exception\RemoteServiceUnavailableException;
 use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Model\Quote\Item;
 use Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
 use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
@@ -78,9 +76,16 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $taxClassHelper;
 
     /**
+     * @var CustomsTax
+     */
+    protected $customsTax;
+
+    /**
      * Registry key to track whether AvaTax GetTaxRequest was successful
      */
     const AVATAX_GET_TAX_REQUEST_ERROR = 'avatax_get_tax_request_error';
+
+    const MINIMUM_POST_CODE_LENGTH = 3;
 
     /**
      * Class constructor
@@ -101,6 +106,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+     * @param CustomsTax
      */
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
@@ -118,7 +124,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Registry $coreRegistry,
-        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
+        \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
+        CustomsTax $customsTax
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->taxCalculation = $taxCalculation;
@@ -128,6 +135,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $this->messageManager = $messageManager;
         $this->coreRegistry = $coreRegistry;
         $this->taxClassHelper = $taxClassHelper;
+        $this->customsTax = $customsTax;
         parent::__construct(
             $taxConfig,
             $taxCalculationService,
@@ -157,6 +165,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
         $address = $shippingAssignment->getShipping()->getAddress();
 
+        // Reset any messaging unless we actually run our collector, useful when estimating tax in non-enabled countries
+        $total->setAvataxMessages(null);
+
         $storeId = $quote->getStoreId();
         // This will allow a merchant to configure default tax settings for their site using Magento's core tax
         // calculation and AvaTax's calculation will only kick in during cart/checkout. This is useful for countries
@@ -173,8 +184,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         // If postcode is not present, then collect totals is being run from a context where customer has not submitted
         // their address, such as on the product listing, product detail, or cart page. Once the user enters their
         // postcode in the "Estimate Shipping & Tax" form on the cart page, or submits their shipping address in the
-        // checkout, then a postcode will be present; but only send request if the postcode is at least 4 characters.
-        if (!$postcode || \strlen($postcode) < 4) {
+        // checkout, then a postcode will be present; but only send request if the postcode is at least 3 characters.
+        if (!$postcode || \strlen($postcode) < static::MINIMUM_POST_CODE_LENGTH) {
             return parent::collect($quote, $shippingAssignment, $total);
         }
 
@@ -183,12 +194,18 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return $this;
         }
 
+        $this->customsTax->assignCrossBorderDetails($shippingAssignment);
         $taxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, false);
         $baseTaxQuoteDetails = $this->getTaxQuoteDetails($shippingAssignment, $total, $storeId, true);
 
         // Get array of tax details
         try {
-            $taxDetailsList = $this->interactionGetTax->getTaxDetailsForQuote($quote, $taxQuoteDetails, $baseTaxQuoteDetails, $shippingAssignment);
+            list($taxDetails, $baseTaxDetails, $avaTaxMessages) = $this->interactionGetTax->getTaxDetailsForQuote(
+                $quote,
+                $taxQuoteDetails,
+                $baseTaxQuoteDetails,
+                $shippingAssignment
+            );
         } catch (\Exception $e) {
             switch ($this->config->getErrorAction($quote->getStoreId())) {
                 case Config::ERROR_ACTION_DISABLE_CHECKOUT:
@@ -207,9 +224,6 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                     break;
             }
         }
-
-        $taxDetails = $taxDetailsList[InteractionGet::KEY_TAX_DETAILS];
-        $baseTaxDetails = $taxDetailsList[InteractionGet::KEY_BASE_TAX_DETAILS];
 
         $itemsByType = $this->organizeItemTaxDetailsByType($taxDetails, $baseTaxDetails);
 
@@ -234,6 +248,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             $total->addTotalAmount('extra_tax', $total->getExtraTaxAmount());
             $total->addBaseTotalAmount('extra_tax', $total->getBaseExtraTaxAmount());
         }
+
+        $total->setAvataxMessages(json_encode($avaTaxMessages));
 
         return $this;
     }
@@ -326,6 +342,16 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $extensionAttribute->setAvataxDescription($item->getName());
         $extensionAttribute->setAvataxRef1($this->taxClassHelper->getRef1ForProduct($product));
         $extensionAttribute->setAvataxRef2($this->taxClassHelper->getRef2ForProduct($product));
+
+        // Cross-border details. These should not exist on the quote item if Customs is not enabled.
+        $quoteItemExtAttribute = $item->getExtensionAttributes();
+        if ($quoteItemExtAttribute) {
+            $extensionAttribute->setHsCode($quoteItemExtAttribute->getHsCode());
+            $extensionAttribute->setUnitName($quoteItemExtAttribute->getUnitName());
+            $extensionAttribute->setUnitAmount($quoteItemExtAttribute->getUnitAmount());
+            $extensionAttribute->setPrefProgramIndicator($quoteItemExtAttribute->getPrefProgramIndicator());
+        }
+
         $quoteDetailsItem->setExtensionAttributes($extensionAttribute);
 
         return $quoteDetailsItem;

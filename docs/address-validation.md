@@ -6,8 +6,8 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
-  - [Document Management (Tax Exemptions)](./document-management.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
+  - [Cross-Border](./customs-duty-import-tax.md)
+  - [Tax Exemption Certificates](./document-management.md)
 
 # Address Validation
 
@@ -36,7 +36,7 @@ The following sections explain how address validation works in the four areas li
 ## Configuration
 
 1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - Address Validation** section.
-2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.0.0-rc1.png?raw=true)
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.1.8.png?raw=true)
 
 ## Frontend Checkout
 
