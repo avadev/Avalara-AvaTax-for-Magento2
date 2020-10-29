@@ -30,14 +30,38 @@
         <attribute code="avatax_description" type="string" />
         <attribute code="avatax_ref1" type="string" />
         <attribute code="avatax_ref2" type="string" />
+        <attribute code="hs_code" type="string" />
+        <attribute code="unit_name" type="string" />
+        <attribute code="unit_amount" type="float" />
+        <attribute code="pref_program_indicator" type="string" />
+    </extension_attributes>
+    <extension_attributes for="Magento\Quote\Api\Data\CartInterface">
+        <attribute code="avatax_response" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\OrderInterface">
+        <attribute code="avatax_response" type="string">
+            <join reference_table="avatax_sales_order" reference_field="order_id" join_on_field="entity_id">
+                <field>avatax_response</field>
+            </join>
+        </attribute>
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\InvoiceInterface">
         <attribute code="avatax_is_unbalanced" type="string" />
         <attribute code="base_avatax_tax_amount" type="string" />
+        <attribute code="avatax_response" type="string">
+             <join reference_table="avatax_sales_invoice" reference_field="parent_id" join_on_field="entity_id">
+                <field>avatax_response</field>
+            </join>
+        </attribute>
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\CreditmemoInterface">
         <attribute code="avatax_is_unbalanced" type="string" />
         <attribute code="base_avatax_tax_amount" type="string" />
+        <attribute code="avatax_response" type="string">
+            <join reference_table="avatax_sales_creditmemo" reference_field="parent_id" join_on_field="entity_id">
+                <field>avatax_response</field>
+            </join>
+        </attribute>
     </extension_attributes>
     <extension_attributes for="Magento\Tax\Api\Data\AppliedTaxRateInterface">
         <attribute code="rate_percent" type="float" />
@@ -47,18 +71,95 @@
         <attribute code="tax" type="float" />
     </extension_attributes>
 
-    <!--
-    /**
-     * Add and redefine extension attributes to display tax summary information on frontend
-     * See https://github.com/classyllama/ClassyLlama_AvaTax/issues/70 for details
-     */
-     -->
-    <extension_attributes for="ClassyLlama\AvaTax\Api\Data\GrandTotalRatesInterface">
-        <attribute code="tax" type="float" />
+    <extension_attributes for="Magento\Quote\Api\Data\CartItemInterface">
+        <attribute code="hs_code" type="string">
+            <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">
+                <field>hs_code</field>
+            </join>
+        </attribute>
+        <attribute code="unit_name" type="string">
+            <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">
+                <field>unit_name</field>
+            </join>
+        </attribute>
+        <attribute code="unit_amount" type="float">
+            <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">
+                <field>unit_amount</field>
+            </join>
+        </attribute>
+        <attribute code="pref_program_indicator" type="string">
+            <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">
+                <field>pref_program_indicator</field>
+            </join>
+        </attribute>
     </extension_attributes>
-    <!--Redefine existing extension attribute to use new interface-->
-    <extension_attributes for="Magento\Quote\Api\Data\TotalSegmentInterface">
-        <attribute code="tax_grandtotal_details" type="ClassyLlama\AvaTax\Api\Data\GrandTotalDetailsInterface[]" />
+    <extension_attributes for="Magento\Sales\Api\Data\OrderItemInterface">
+        <attribute code="hs_code" type="string">
+            <join reference_table="avatax_sales_order_item" reference_field="order_item_id" join_on_field="item_id">
+                <field>hs_code</field>
+            </join>
+        </attribute>
+        <attribute code="unit_name" type="string">
+            <join reference_table="avatax_sales_order_item" reference_field="order_item_id" join_on_field="item_id">
+                <field>unit_name</field>
+            </join>
+        </attribute>
+        <attribute code="unit_amount" type="float">
+            <join reference_table="avatax_sales_order_item" reference_field="order_item_id" join_on_field="item_id">
+                <field>unit_amount</field>
+            </join>
+        </attribute>
+        <attribute code="pref_program_indicator" type="string">
+            <join reference_table="avatax_sales_order_item" reference_field="order_item_id" join_on_field="item_id">
+                <field>pref_program_indicator</field>
+            </join>
+        </attribute>
     </extension_attributes>
-    
+    <extension_attributes for="Magento\Sales\Api\Data\InvoiceItemInterface">
+        <attribute code="hs_code" type="string">
+            <join reference_table="avatax_sales_invoice_item" reference_field="invoice_item_id" join_on_field="entity_id">
+                <field>hs_code</field>
+            </join>
+        </attribute>
+        <attribute code="unit_name" type="string">
+            <join reference_table="avatax_sales_invoice_item" reference_field="invoice_item_id" join_on_field="entity_id">
+                <field>unit_name</field>
+            </join>
+        </attribute>
+        <attribute code="unit_amount" type="float">
+            <join reference_table="avatax_sales_invoice_item" reference_field="invoice_item_id" join_on_field="entity_id">
+                <field>unit_amount</field>
+            </join>
+        </attribute>
+        <attribute code="pref_program_indicator" type="string">
+            <join reference_table="avatax_sales_invoice_item" reference_field="invoice_item_id" join_on_field="entity_id">
+                <field>pref_program_indicator</field>
+            </join>
+        </attribute>
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\CreditmemoItemInterface">
+        <attribute code="hs_code" type="string">
+            <join reference_table="avatax_sales_creditmemo_item" reference_field="creditmemo_item_id" join_on_field="entity_id">
+                <field>hs_code</field>
+            </join>
+        </attribute>
+        <attribute code="unit_name" type="string">
+            <join reference_table="avatax_sales_creditmemo_item" reference_field="creditmemo_item_id" join_on_field="entity_id">
+                <field>unit_name</field>
+            </join>
+        </attribute>
+        <attribute code="unit_amount" type="float">
+            <join reference_table="avatax_sales_creditmemo_item" reference_field="creditmemo_item_id" join_on_field="entity_id">
+                <field>unit_amount</field>
+            </join>
+        </attribute>
+        <attribute code="pref_program_indicator" type="string">
+            <join reference_table="avatax_sales_creditmemo_item" reference_field="creditmemo_item_id" join_on_field="entity_id">
+                <field>pref_program_indicator</field>
+            </join>
+        </attribute>
+    </extension_attributes>
+    <extension_attributes for="Magento\Quote\Api\Data\TotalsInterface">
+        <attribute code="avatax_messages" type="string[]"/>
+    </extension_attributes>
 </config>

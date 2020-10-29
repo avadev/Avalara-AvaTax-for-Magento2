@@ -38,6 +38,8 @@ use Magento\Eav\Model\Config as EavConfig;
 use Magento\Framework\Exception\NoSuchEntityException;
 use ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo as CreditMemoResourceModel;
 use ClassyLlama\AvaTax\Model\ResourceModel\Invoice as InvoiceResourceModel;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use ClassyLlama\AvaTax\Model\Order\Creditmemo\Total\AvataxAdjustmentTaxes;
 
 /**
  * Queue Processing
@@ -115,13 +117,19 @@ class Processing
     protected $avataxCreditMemoFactory;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
      * Processing constructor.
+     * @param ScopeConfigInterface $scopeConfig
      * @param AvaTaxLogger $avaTaxLogger
      * @param Config $avaTaxConfig
      * @param Get $interactionGetTax
      * @param DateTime $dateTime
      * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param CreditMemoRepositoryInterface $creditmemoRepository
+     * @param CreditmemoRepositoryInterface $creditmemoRepository
      * @param OrderRepositoryInterface $orderRepository
      * @param OrderManagementInterface $orderManagement
      * @param OrderStatusHistoryInterfaceFactory $orderStatusHistoryFactory
@@ -132,6 +140,7 @@ class Processing
      * @param CreditMemoFactory $avataxCreditMemoFactory
      */
     public function __construct(
+        ScopeConfigInterface $scopeConfig,
         AvaTaxLogger $avaTaxLogger,
         Config $avaTaxConfig,
         Get $interactionGetTax,
@@ -147,6 +156,7 @@ class Processing
         InvoiceFactory $avataxInvoiceFactory,
         CreditMemoFactory $avataxCreditMemoFactory
     ) {
+        $this->scopeConfig = $scopeConfig;
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
         $this->interactionGetTax = $interactionGetTax;
@@ -351,20 +361,11 @@ class Processing
             $queue->setHasRecordBeenSentToAvaTax(true);
         } catch (\Exception $e) {
 
-            $message = '';
-            if ($e instanceof \ClassyLlama\AvaTax\Exception\TaxCalculationException) {
-                $message .= __('An error occurred when attempting to send %1 #%2 to AvaTax. Error: %3',
-                    ucfirst($queue->getEntityTypeCode()),
-                    $entity->getIncrementId(),
-                    $e->getMessage()
-                );
-            } else {
-                $message .= __('An unexpected exception occurred when attempting to send %1 #%2 to AvaTax. Error: %3',
-                    ucfirst($queue->getEntityTypeCode()),
-                    $entity->getIncrementId(),
-                    $e->getMessage()
-                );
-            }
+            $message = __('An error occurred when attempting to send %1 #%2 to AvaTax. Error: %3',
+                ucfirst($queue->getEntityTypeCode()),
+                $entity->getIncrementId(),
+                $e->getMessage()
+            );
 
             // Log the error
             $this->avaTaxLogger->error(
@@ -404,6 +405,10 @@ class Processing
     {
         // Get the associated AvataxEntity record (related to extension attributes) for this entity type
         $avaTaxRecord = $this->getAvataxEntity($entity);
+
+        if($entity->getExtensionAttributes()) {
+            $avaTaxRecord->setAvataxResponse($entity->getExtensionAttributes()->getAvataxResponse());
+        }
 
         if ($avaTaxRecord->getParentId()) {
             // Record exists, compare existing values to new
@@ -559,11 +564,20 @@ class Processing
             $adjustmentMessage = null;
             if ($entity instanceof CreditmemoInterface) {
                 if (abs($entity->getBaseAdjustmentNegative()) > 0 || abs($entity->getBaseAdjustmentPositive()) > 0) {
-                    $adjustmentMessage = __('The difference was at least partly caused by the fact that the creditmemo '
+                    if ((bool)$this->scopeConfig->getValue(
+                        AvataxAdjustmentTaxes::ADJUSTMENTS_CONFIG_PATH,
+                        ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                        $entity->getStoreId()
+                    )) {
+                        $adjustmentMessage = __('The difference was caused by the different tax calculation '
+                            . 'on the Magento side and Avalara.');
+                    } else {
+                        $adjustmentMessage = __('The difference was at least partly caused by the fact that the creditmemo '
                             . 'contained an adjustment of %1 and Magento doesn\'t factor that into its calculation, '
                             . 'but AvaTax does.',
-                        $entity->getBaseAdjustment()
-                    );
+                            $entity->getBaseAdjustment()
+                        );
+                    }
                 }
             }
 

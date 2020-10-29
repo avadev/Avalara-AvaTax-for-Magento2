@@ -25,17 +25,19 @@ define(
         'ClassyLlama_AvaTax/js/view/checkout-validation-handler',
         'Magento_Ui/js/modal/alert'
     ],
-    function ($,
-              quote,
-              resourceUrlManager,
-              storage,
-              paymentService,
-              methodConverter,
-              errorProcessor,
-              fullScreenLoader,
-              selectBillingAddressAction,
-              checkoutValidationHandler,
-              alert) {
+    function (
+        $,
+        quote,
+        resourceUrlManager,
+        storage,
+        paymentService,
+        methodConverter,
+        errorProcessor,
+        fullScreenLoader,
+        selectBillingAddressAction,
+        checkoutValidationHandler,
+        alert
+    ) {
         'use strict';
 
         var payloadExtenderLoaded = false;

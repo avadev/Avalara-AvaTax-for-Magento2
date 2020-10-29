@@ -17,5 +17,5 @@ if (defined('BP')) {
 \Magento\Framework\Component\ComponentRegistrar::register(
     \Magento\Framework\Component\ComponentRegistrar::LIBRARY,
     'Avalara_AvaTax',
-    $vendorPath . DIRECTORY_SEPARATOR . 'avalara' . DIRECTORY_SEPARATOR . 'avatax'
+    $vendorPath . DIRECTORY_SEPARATOR . 'avalara' . DIRECTORY_SEPARATOR . 'avataxclient'
 );

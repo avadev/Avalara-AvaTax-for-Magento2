@@ -1,0 +1,133 @@
+<?php
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+use ClassyLlama\AvaTax\Block\Checkout\Tax;
+use ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter;
+
+?>
+
+<?php
+/**
+ * @var $block Tax
+ * @see \ClassyLlama\AvaTax\Block\Checkout\Tax
+ */
+?>
+<?php
+$_value = $block->getTotal()->getValue();
+$_style = $block->escapeHtmlAttr($block->getTotal()->getStyle());
+
+$attributes = 'class="totals-tax"';
+
+if ($this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary() && $_value != 0) {
+    $attributes
+        = 'class="totals-tax-summary" data-mage-init=\'{"toggleAdvanced": {"selectorsToggleClass": "shown", "baseToggleClass": "expanded", "toggleContainers": ".totals-tax-details"}}\'';
+}
+$customDuty = false;
+$displayFullSummary = $this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary();
+$fullInfo = $block->getTotal()->getFullInfo();
+?>
+
+<?php if ($_value != 0) : ?>
+    <?php foreach ($fullInfo as $info) : ?>
+        <?php if (isset($info['hidden']) && $info['hidden']) {
+            continue;
+        } ?>
+        <?php $amount = $info['amount']; ?>
+        <?php $rates = $info['rates']; ?>
+        <?php foreach ($rates as $rate) : ?>
+            <?php if ($rate['title'] === GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                <?php $customDuty = $info;?>
+                <?php if ($displayFullSummary): ?>
+                    <tr class="totals-tax-details">
+                        <th class="mark" style="<?= /* @noEscape */
+                        $_style ?>" colspan="<?= (int)$block->getColspan() ?>" scope="row">
+                            <?= $block->escapeHtml($rate['title']) ?>
+                        </th>
+                        <td style="<?= /* @noEscape */
+                        $_style ?>" class="amount" rowspan="<?= count($rates) ?>"
+                            data-th="<?= $block->escapeHtmlAttr($rate['title']) ?>]">
+                            <?= /* @noEscape */
+                            $this->helper(\Magento\Checkout\Helper\Data::class)->formatPrice($amount) ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<tr <?= /* @noEscape */
+$attributes ?>>
+    <th style="<?= /* @noEscape */
+    $_style ?>" class="mark" colspan="<?= (int)$block->getColspan() ?>" scope="row">
+        <?php if ($displayFullSummary) : ?>
+            <span class="detailed"><?= $block->escapeHtml($block->getTotal()->getTitle()) ?></span>
+        <?php else : ?>
+            <?php if ($customDuty) : ?>
+                <?= /* @escapeNotVerified */
+                __('Import Fees') ?>
+            <?php else : ?>
+                <?= $block->escapeHtml($block->getTotal()->getTitle()) ?>
+            <?php endif; ?>
+        <?php endif; ?>
+    </th>
+    <td style="<?= /* @noEscape */
+    $_style ?>" class="amount" data-th="<?= $block->escapeHtmlAttr($block->getTotal()->getTitle()) ?>">
+        <?php if ($displayFullSummary && $customDuty) : ?>
+            <?= /* @noEscape */
+            $this->helper(\Magento\Checkout\Helper\Data::class)->formatPrice($_value - $customDuty['amount']) ?>
+        <?php else : ?>
+            <?= /* @noEscape */
+            $this->helper(\Magento\Checkout\Helper\Data::class)->formatPrice($_value) ?>
+        <?php endif; ?>
+    </td>
+</tr>
+
+<?php if ($displayFullSummary && $_value != 0) : ?>
+    <?php foreach ($fullInfo as $info) : ?>
+        <?php if (isset($info['hidden']) && $info['hidden']) {
+            continue;
+        } ?>
+        <?php $percent = $info['percent']; ?>
+        <?php $amount = $info['amount']; ?>
+        <?php $rates = $info['rates']; ?>
+        <?php $isFirst = 1; ?>
+
+        <?php foreach ($rates as $rate) : ?>
+            <?php if ($rate['title'] !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                <tr class="totals-tax-details">
+                    <th class="mark" style="<?= /* @noEscape */
+                    $_style ?>" colspan="<?= (int)$block->getColspan() ?>" scope="row">
+                        <?= $block->escapeHtml($rate['title']) ?>
+                        <?php if ($rate['percent'] !== null) : ?>
+                            (<?= (float)$rate['percent'] ?>%)
+                        <?php endif; ?>
+                    </th>
+                    <?php if ($isFirst) : ?>
+                        <td style="<?= /* @noEscape */
+                        $_style ?>" class="amount" rowspan="<?= count($rates) ?>"
+                            data-th="<?= $block->escapeHtmlAttr($rate['title']) ?><?php if ($rate['percent']
+                                !== null
+                            ) : ?>(<?= (float)$rate['percent'] ?>%)<?php endif; ?>">
+                            <?= /* @noEscape */
+                            $this->helper(\Magento\Checkout\Helper\Data::class)->formatPrice($amount) ?>
+                        </td>
+                    <?php endif; ?>
+                </tr>
+                <?php $isFirst = 0; ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endforeach; ?>
+<?php endif; ?>

@@ -36,11 +36,11 @@ define([
         validateAddress: function (data, event) {
             var self = this,
                 settings = {
-                    validationEnabled: this.validationEnabled,
-                    hasChoice: 1,
-                    countriesEnabled: this.countriesEnabled,
-                    errorInstructions: this.errorInstructions,
-                    validationFormSelector: this.addressValidationFormSelector
+                validationEnabled: this.validationEnabled,
+                hasChoice: 1,
+                countriesEnabled: this.countriesEnabled,
+                errorInstructions: this.errorInstructions,
+                validationFormSelector: this.addressValidationFormSelector
                 },
                 form = $(event.target).closest(this.formSelector),
                 hasErrors = form.find('.admin__field-error:visible').length;

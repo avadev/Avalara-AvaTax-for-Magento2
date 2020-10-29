@@ -28,6 +28,7 @@ use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\DataObject\Copy;
 use Magento\Customer\Model\Address\Mapper;
 use Magento\Framework\Exception\LocalizedException;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
@@ -196,9 +197,9 @@ class ShippingInformationManagement
                 $validAddress = $this->validationInteraction->validateAddress($shippingAddress, $storeId);
             } catch (AddressValidateException $e) {
                 $errorMessage = $e->getMessage();
-            } catch (\SoapFault $e) {
-                // If there is a SoapFault, it will have already been logged, so just disable address validation, as we
-                // don't want to display SoapFault error message to user
+            } catch (AvataxConnectionException $e) {
+                // If there is a connection error, it will have already been logged, so just disable address validation, as we
+                // don't want to display error message to user
                 $shouldValidateAddress = false;
             } catch (\Exception $e) {
                 $this->avaTaxLogger->error(

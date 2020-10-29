@@ -1,0 +1,48 @@
+<!-- ko if: shouldShowWarning -->
+<p class="message"
+   data-bind="i18n: 'Please note that you can only view certificates for a customer from the website/store that customer is associated to. This means if you have 2 different Avalara credentials for 2 different stores and one customer uploads certificates to both, only certificates uploaded through the store that customer is associated to will be visible here.'"></p>
+<!-- /ko -->
+<div class="admin__data-grid-wrap admin__data-grid-wrap-static">
+    <table class="data-grid">
+        <thead>
+            <tr>
+                <th class="data-grid-th" data-bind="i18n: 'State'"></th>
+                <th class="data-grid-th" data-bind="i18n: 'Signed Date'"></th>
+                <th class="data-grid-th" data-bind="i18n: 'Expiration Date'"></th>
+                <th class="data-grid-th" data-bind="i18n: 'Status'"></th>
+                <th class="data-grid-th" colspan="2">&nbsp;</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <!-- ko if: certificates.length > 0 -->
+            <!-- ko foreach: certificates -->
+            <tr data-role="row">
+                <td data-bind="text: exposure_zone.name"></td>
+                <td data-bind="text: signed_date"></td>
+                <td data-bind="text: expiration_date"></td>
+                <td data-bind="i18n: valid ? 'Yes' : 'No'"></td>
+                <td>
+                    <!-- ko if: valid -->
+                    <a target="_blank" data-bind="attr: {href: certificate_url}, i18n: 'View Certificate'"></a>
+                    <!-- /ko -->
+                </td>
+                <td>
+                    <!-- ko if: valid -->
+                    <a href="javascript:void(0)" data-bind="
+                        click: $parent.handleDelete.bind($parent, certificate_delete_url),
+                        i18n: 'Delete Certificate'">
+                    </a>
+                    <!-- /ko -->
+                </td>
+            </tr>
+            <!-- /ko -->
+            <!-- /ko -->
+            <!-- ko if: certificates.length === 0 -->
+            <tr class="data-grid-tr-no-data even">
+                <td class="empty-text" colspan="7" data-bind="i18n: 'No certificates found for this customer'"></td>
+            </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+</div>
