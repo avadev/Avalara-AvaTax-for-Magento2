@@ -1,0 +1,17 @@
+<div data-bind="afterRender: setModalElement">
+    <!-- ko if: hasDefaultBillingAddress === true -->
+    <div>
+        <p data-bind="i18n: 'This customer will be synced to AvaTax (using the customer\'s email and default billing address) and AvaTax will send an email to the customer, asking them to add an exemption certificate in the AvaTax interface. Would you like to proceed?'"></p>
+        <button class="action primary" data-bind="click: closeModal, i18n: 'Cancel'"></button>
+        <button class="action primary" data-bind="click: sendInvite, i18n: 'Proceed'"></button>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: hasDefaultBillingAddress === false -->
+    <div>
+        <p data-bind="i18n: 'We are unable to create a customer in AvaTax because this customer does not have a default billing address.'"></p>
+
+        <p data-bind="i18n: 'Please click on the &quot;Addresses&quot; tab, add a &quot;Default Billing Address&quot; and then click on this button again.'"></p>
+        <button class="action primary" data-bind="click: closeModal, i18n: 'Cancel'"></button>
+    </div>
+    <!-- /ko -->
+</div>

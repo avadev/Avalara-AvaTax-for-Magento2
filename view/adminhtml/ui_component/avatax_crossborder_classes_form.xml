@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">avatax_crossborder_classes_form.avatax_crossborder_classes_data_source</item>
+            <item name="deps" xsi:type="string">avatax_crossborder_classes_form.avatax_crossborder_classes_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">General Information</item>
+        <item name="config" xsi:type="array">
+            <item name="dataScope" xsi:type="string">data</item>
+            <item name="namespace" xsi:type="string">avatax_crossborder_classes_form</item>
+        </item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+        <item name="buttons" xsi:type="array">
+            <item name="save_and_continue" xsi:type="string">ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\SaveAndContinueButton</item>
+            <item name="save" xsi:type="string">ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\SaveButton</item>
+            <item name="reset" xsi:type="string">ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\ResetButton</item>
+            <item name="delete" xsi:type="string">ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\DeleteButton</item>
+            <item name="back" xsi:type="string">ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit\BackButton</item>
+        </item>
+    </argument>
+    <dataSource name="avatax_crossborder_classes_data_source">
+        <argument name="dataProvider" xsi:type="configurableObject">
+            <argument name="class" xsi:type="string">ClassyLlama\AvaTax\Ui\DataProvider\CrossBorderClassDataProvider</argument>
+            <argument name="name" xsi:type="string">avatax_crossborder_classes_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">class_id</argument>
+            <argument name="requestFieldName" xsi:type="string">id</argument>
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="submit_url" xsi:type="url" path="avatax/crossborder_classes/save"/>
+                </item>
+            </argument>
+        </argument>
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+    </dataSource>
+
+    <container name="release_notification_text" template="ui/form/components/complex">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string"/>
+                <item name="additionalClasses" xsi:type="string">release-notification-text</item>
+                <item name="text" xsi:type="string" translate="true"><![CDATA[
+                    <p>If Duty is enabled, calculation of duties and taxes requires accurate HS codes be associated with each product in a given transaction.
+                    HS codes depend on both the classification of the product and the destination country. Cross Border Classes allow you to configure the HS codes you will use,
+                    associating them with appropriate destination countries and unit information.
+                    <a href="https://www.avalara.com/hs-codes/" target="_blank">Browse for appropriate HS codes for your products</a>.</p>
+                ]]></item>
+            </item>
+        </argument>
+    </container>
+
+    <fieldset name="general">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" />
+            </item>
+        </argument>
+        <field name="destination_countries">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Countries</item>
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Destination Countries</item>
+                    <item name="default" xsi:type="string">0</item>
+                    <item name="dataType" xsi:type="string">int</item>
+                    <item name="formElement" xsi:type="string">multiselect</item>
+                    <item name="dataScope" xsi:type="string">destination_countries</item>
+                    <item name="sortOrder" xsi:type="number">10</item>
+                    <item name="validation" xsi:type="array">
+                        <item name="required-entry" xsi:type="boolean">true</item>
+                    </item>
+                </item>
+            </argument>
+        </field>
+        <field name="cross_border_type_id">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\CrossBorderType</item>
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Cross Border Type</item>
+                    <item name="dataType" xsi:type="string">number</item>
+                    <item name="dataScope" xsi:type="string">cross_border_type_id</item>
+                    <item name="sortOrder" xsi:type="number">20</item>
+                    <item name="validation" xsi:type="array">
+                        <item name="required-entry" xsi:type="boolean">true</item>
+                    </item>
+                    <item name="notice" xsi:type="string" translate="true">
+                        Your Cross Border Types will be assigned to specific products.
+                        A product’s Cross Border Type, combined with the destination country of a given transaction,
+                        will determine the appropriate Cross Border Class that applies (including its HS code and unit information).
+                    </item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="filterOptions" xsi:type="string">true</item>
+                    <item name="elementTmpl" xsi:type="string">ui/grid/filters/elements/ui-select</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="visible" xsi:type="string">1</item>
+                    <item name="required" xsi:type="string">1</item>
+                    <item name="multiple" xsi:type="boolean">false</item>
+                    <item name="component" xsi:type="string">Magento_Catalog/js/components/attribute-set-select</item>
+                </item>
+            </argument>
+        </field>
+        <field name="hs_code">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">HS Code</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="dataScope" xsi:type="string">hs_code</item>
+                    <item name="sortOrder" xsi:type="number">30</item>
+                    <item name="validation" xsi:type="array">
+                        <item name="required-entry" xsi:type="boolean">true</item>
+                    </item>
+                    <item name="notice" xsi:type="string" translate="true">
+                        See above for information on browsing for HS codes.
+                    </item>
+                </item>
+            </argument>
+        </field>
+        <!-- Disabling unit of measure field until AvaTax Api stabilizes on it -->
+        <!--
+        <field name="unit_name">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Unit Name</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="dataScope" xsi:type="string">unit_name</item>
+                    <item name="sortOrder" xsi:type="number">40</item>
+                    <item name="notice" xsi:type="string" translate="true">
+                        If relevant, enter an HS Code Unit of Measure. If left blank, this value won’t be sent to Avalara.
+                    </item>
+                </item>
+            </argument>
+        </field>
+        <field name="unit_amount_product_attr">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\ProductAttributes</item>
+                <item name="config" xsi:type="array">
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="filterOptions" xsi:type="string">true</item>
+                    <item name="elementTmpl" xsi:type="string">ui/grid/filters/elements/ui-select</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="visible" xsi:type="string">1</item>
+                    <item name="required" xsi:type="string">1</item>
+                    <item name="multiple" xsi:type="boolean">false</item>
+                    <item name="label" xsi:type="string" translate="true">Value Attribute</item>
+                    <item name="component" xsi:type="string">Magento_Catalog/js/components/attribute-set-select</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="dataScope" xsi:type="string">unit_amount_product_attr</item>
+                    <item name="sortOrder" xsi:type="number">50</item>
+                    <item name="notice" xsi:type="string" translate="true">
+                        <![CDATA[Only select a product attribute if you’ve input a "Unit Name" above.
+                        The value of the selected attribute for a given product will be sent to Avalara as the unit amount.]]>
+                    </item>
+                </item>
+            </argument>
+        </field>
+        -->
+        <field name="pref_program_indicator">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Pref. Program Indicator</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="dataScope" xsi:type="string">pref_program_indicator</item>
+                    <item name="sortOrder" xsi:type="number">60</item>
+                </item>
+            </argument>
+        </field>
+    </fieldset>
+</form>

@@ -1,0 +1,19 @@
+<div data-bind="afterRender: setModalElement">
+    <!-- ko if: showSdkView() === false -->
+    <div class="exemption-zone-select-view fieldset">
+        <div class="field">
+            <p data-bind="i18n: 'Select a new state/exposure zone'"></p>
+        </div>
+        <div class="field">
+            <select name="exemption-zone" data-bind="options: availableExemptionZones, value: exemptionZone, optionsCaption: optionsCaption"></select>
+        </div>
+        <button class="action primary" data-bind="click: proceedToSdk, i18n: 'Proceed'"></button>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: showSdkView() === true -->
+    <div class="cert-capture-sdk-view" data-bind="afterRender: renderSdk"></div>
+    <!-- /ko -->
+    <!-- ko if: certificateUploadSuccess() === true -->
+    <button class="action primary" data-bind="click: closeModal, i18n: 'Refresh Certificates'"></button>
+    <!-- /ko -->
+</div>

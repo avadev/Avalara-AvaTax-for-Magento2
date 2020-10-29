@@ -32,7 +32,7 @@ abstract class MetaDataAbstract
      *
      * @var array
      */
-    public static $types = ['boolean', 'integer', 'string', 'double', 'object', 'array'];
+    public static $types = ['boolean', 'integer', 'string', 'double', 'dataObject', 'array'];
 
     /**
      * Store all metadata

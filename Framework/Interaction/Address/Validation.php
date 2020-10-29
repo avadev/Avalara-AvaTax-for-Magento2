@@ -15,51 +15,54 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Address;
 
-use AvaTax\SeverityLevel;
-use AvaTax\TextCase;
-use AvaTax\ValidateRequestFactory;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
+use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Address;
-use ClassyLlama\AvaTax\Framework\Interaction\Cacheable\AddressService;
+use ClassyLlama\AvaTax\Api\RestAddressInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Framework\DataObjectFactory;
+use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 
 class Validation
 {
     /**
      * @var Address
      */
-    protected $interactionAddress = null;
+    protected $interactionAddress;
 
     /**
-     * @var AddressService
+     * @var RestAddressInterface
      */
-    protected $addressService = null;
+    protected $addressService;
 
     /**
-     * @var ValidateRequestFactory
+     * @var DataObjectFactory
      */
-    protected $validateRequestFactory = null;
+    protected $dataObjectFactory;
 
     /**
-     * Error message to use when response does not contain error messages
+     * @var RestConfig
      */
-    const GENERIC_VALIDATION_MESSAGE = 'An unknown address validation error occurred';
+    protected $restConfig;
 
     /**
      * @param Address $interactionAddress
-     * @param AddressService $addressService
-     * @param ValidateRequestFactory $validateRequestFactory
+     * @param RestAddressInterface $addressService
+     * @param DataObjectFactory $dataObjectFactory
+     * @param RestConfig $restConfig
      */
     public function __construct(
         Address $interactionAddress,
-        AddressService $addressService,
-        ValidateRequestFactory $validateRequestFactory
+        RestAddressInterface $addressService,
+        DataObjectFactory $dataObjectFactory,
+        RestConfig $restConfig
     ) {
         $this->interactionAddress = $interactionAddress;
         $this->addressService = $addressService;
-        $this->validateRequestFactory = $validateRequestFactory;
+        $this->dataObjectFactory = $dataObjectFactory;
+        $this->restConfig = $restConfig;
     }
 
     /**
@@ -70,53 +73,42 @@ class Validation
      * @return array|\Magento\Customer\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|/AvaTax/ValidAddress|\Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface|\Magento\Sales\Api\Data\OrderAddressInterface|array|null
      * @throws AddressValidateException
      * @throws LocalizedException
+     * @throws AvataxConnectionException
      */
     public function validateAddress($addressInput, $storeId)
     {
-        $returnCoordinates = 1;
-        $validateRequest = $this->validateRequestFactory->create(
-            [
+        $validateRequestData = [
             'address' => $this->interactionAddress->getAddress($addressInput),
-                'textCase' => (TextCase::$Mixed ? TextCase::$Mixed : TextCase::$Default),
-                'coordinates' => $returnCoordinates,
-            ]
-        );
-        $validateResult = $this->addressService->validate($validateRequest, $storeId);
+            'text_case' => $this->restConfig->getTextCaseMixed(),
+        ];
+        $validateRequest = $this->dataObjectFactory->create(['data' => $validateRequestData]);
+        $validateResult = $this->addressService->validate($validateRequest, null, $storeId);
 
-        if ($validateResult->getResultCode() == SeverityLevel::$Success) {
-            $validAddresses = $validateResult->getValidAddresses();
-
-            if (isset($validAddresses[0])) {
-                $validAddress = $validAddresses[0];
-            } else {
-                return null;
-            }
-            // Convert data back to the type it was passed in as
-            switch (true) {
-                case ($addressInput instanceof \Magento\Customer\Api\Data\AddressInterface):
-                    $validAddress = $this->interactionAddress
-                        ->convertAvaTaxValidAddressToCustomerAddress($validAddress, $addressInput);
-                    break;
-                case ($addressInput instanceof \Magento\Quote\Api\Data\AddressInterface):
-                    $validAddress = $this->interactionAddress
-                        ->convertAvaTaxValidAddressToQuoteAddress($validAddress, $addressInput);
-                    break;
-                default:
-                    throw new LocalizedException(__(
-                        'Input parameter "$addressInput" was not of a recognized/valid type: "%1".',
-                        [gettype($addressInput),]
-                    ));
-                    break;
-            }
-
-            return $validAddress;
-        } else {
-            $messages = $validateResult->getMessages();
-            $firstMessage = array_shift($messages);
-            $message = $firstMessage instanceof \AvaTax\Message
-                ? $firstMessage->getSummary()
-                : self::GENERIC_VALIDATION_MESSAGE;
-            throw new AddressValidateException(__($message));
+        $validAddresses = ($validateResult->hasValidatedAddresses()) ? $validateResult->getValidatedAddresses() : null;
+        if (is_null($validAddresses) || !is_array($validAddresses) || empty($validAddresses)) {
+            return null;
         }
+
+        $validAddress = array_shift($validAddresses);
+
+        // Convert data back to the type it was passed in as
+        switch (true) {
+            case ($addressInput instanceof \Magento\Customer\Api\Data\AddressInterface):
+                $validAddress = $this->interactionAddress
+                    ->convertAvaTaxValidAddressToCustomerAddress($validAddress, $addressInput);
+                break;
+            case ($addressInput instanceof \Magento\Quote\Api\Data\AddressInterface):
+                $validAddress = $this->interactionAddress
+                    ->convertAvaTaxValidAddressToQuoteAddress($validAddress, $addressInput);
+                break;
+            default:
+                throw new LocalizedException(__(
+                    'Input parameter "$addressInput" was not of a recognized/valid type: "%1".',
+                    [gettype($addressInput),]
+                ));
+                break;
+        }
+
+        return $validAddress;
     }
 }

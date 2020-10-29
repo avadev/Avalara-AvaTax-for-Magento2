@@ -6,8 +6,8 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
-  - [Document Management (Tax Exemptions)](./document-management.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
+  - [Cross-Border](./customs-duty-import-tax.md)
+  - [Tax Exemption Certificates](./document-management.md)
 
 # Getting Started
 
@@ -18,9 +18,7 @@
   * [Prerequisites](#prerequisites)
   * [Supported Magento Versions](#supported-magento-versions)
   * [Installation](#installation)
-    + [Version Notes](#version-notes)
     + [Install via Composer](#install-via-composer)
-    + [Install by Copying Files](#install-by-copying-files)
   * [Configuration](#configuration)
   * [Important Notes](#important-notes)
 - [Common Problems](#common-problems)
@@ -46,36 +44,21 @@ For support with your AvaTax account, please visit [avalara.com/technical-suppor
 
 ### Supported Magento Versions
 
-Refer to [README](https://github.com/avadev/Avalara-AvaTax-for-Magento2#magento-version-support) for supported versions/editions.
+Refer to [README](https://github.com/astoundcommerce/avatax#magento-version-support) for supported versions/editions.
 
 ###  Installation
 
 >  Please note, that installing the 2.x.x releases of AvaTax will remove all your config settings for any 1.x.x version you currently have installed. Please go through the configuration steps again if this is not a fresh install of AvaTax.
 
-#### Version Notes
-
-There are two versions of this extension:
-
-* 2.x.x Release Candidate - This version contains the following enhancements to this extension: [Customs, Duty & Import Tax](./customs-duty-import-tax.md) and [Document Management](./document-management.md). If you'd like to use this version of the extension, you will need to work with your Avalara support representative to ensure your account has these features activated. Please report issues by [creating Github issues](https://github.com/avadev/Avalara-AvaTax-for-Magento2/issues).
-* 1.x.x Stable - This version supports Sales Tax & Address Validation. If you don't need any of the new features present in 2.x.x, you should install this version.
-
 #### Install via Composer
 
 This is the recommended installation method as it allows you to easily update the extension in the future. **Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
 
-1. Require the desired version of AvaTax (see [note above](#version-notes) for differences in the versions):
+1. Require the desired version of AvaTax. Latest version can be installed by running following command:
 
-   1. 2.x.x Release Candidate: 
-
-      ```
-      composer require avalara/avatax-magento:2.0.4-RC1
-      ```
-
-   2. 1.x.x Stable
-
-      ```
-      composer require avalara/avatax-magento
-      ```
+   ```
+   composer require avalara/avatax-magento:2.1.0
+   ```
 
 2. Setup the AvaTax module in magento
 
@@ -87,44 +70,14 @@ This is the recommended installation method as it allows you to easily update th
 
 3. If you are deploying the extension to a production environment, follow the [devdocs.magento.com deployment instructions](http://devdocs.magento.com/guides/v2.0/howdoi/deploy/deploy-to-prod.html#deploy-prod)
 
-#### Install by Copying Files
-
-Only use this installation method if you're unable to use Composer. The installation method above is the preferred method.
-
-**Important:** Installation must be performed by an experienced Magento developer and these instructions assume that is the case. Installation support can only be provided to developers.
-
-1. Create an `app/code/ClassyLlama/AvaTax` directory in your Magento installation.
-
-2. Download the latest source code from this page: [https://github.com/avadev/Avalara-AvaTax-for-Magento2/releases](https://github.com/avadev/Avalara-AvaTax-for-Magento2/releases )
-
-3. Extract the file and copy the contents of the ClassyLlama_AvaTax-XXX directory into the `app/code/ClassyLlama/AvaTax` directory.
-
-4. Make sure the [Avalara AvaTax PHP library](https://github.com/avadev/AvaTax-Calc-SOAP-PHP/tree/v15.5.1.0) is installed as the module depends on it.
-
-   ```bash
-   composer require avalara/avatax:15.5.2.0
-   ```
-
-5. To confirm the Avalara AvaTax library exists check for the presence of `vendor/avalara/avatax` in your Magento installation directory. NOTE: You **should** use Composer to download the avalara/avatax dependency because files in the `vendor` directory only get loaded by PHP if the dependencies were installed via Composer. If for whatever reason you're unable to use Composer to install extensions, you can review this [Github issue](https://github.com/classyllama/ClassyLlama_AvaTax/issues/62) for a workaround.
-
-6. Run following commands from your root Magento installation directory
-
-   ```bash
-   bin/magento module:enable --clear-static-content ClassyLlama_AvaTax
-   bin/magento setup:upgrade
-   bin/magento cache:flush
-   ```
-
-7. If you are deploying the extension to a production environment, follow the [devdocs.magento.com deployment instructions](http://devdocs.magento.com/guides/v2.0/howdoi/deploy/deploy-to-prod.html#deploy-prod)
-
 ### Configuration
 
 1. To configure the extension, go to `Stores > Settings > Configuration > Sales > Tax.` 
 2. Details on configuring each of the extension features:
   - [Sales Tax](./sales-tax.md#configuration)
   - [Address Validation](./address-validation.md#configuration)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md#configuration)
-  - [Document Management (Tax Exemptions)](./document-management.md#configuration)	
+  - [Cross-Border](./customs-duty-import-tax.md#configuration)
+  - [Tax Exemption Certificates](./document-management.md#configuration)	
 3. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Shipping Settings`. Click on the **Origin** section. Enter the address that will be used as the origin or **Shipped From** location in AvaTax's tax calculation. **It is *required*** that you specify a postal code in the origin address, no matter what country is specified. Otherwise you will get errors in checkout and when saving customers.
 
 ### Important Notes
@@ -158,7 +111,7 @@ Solution: You'll need to install the PHP SoapClient library, per the [prerequisi
 
 ## Release Notes
 
-See this page for release notes: [https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/master/CHANGELOG.md](https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/master/CHANGELOG.md)
+See this page for release notes: [https://github.com/astoundcommerce/avatax/releases](https://github.com/astoundcommerce/avatax/releases)
 
 
 ## Pre-Launch Sales Record Cleanup
@@ -179,13 +132,6 @@ TRUNCATE TABLE `avatax_log`;
 
    ```bash
    composer remove avalara/avatax-magento
-   ```
-
-   If you installed the module by copying files, run these commands in the root of your Magento installation directory:
-
-   ```bash
-   rm -rf app/code/ClassyLlama/Avatax
-   composer remove avalara/avatax
    ```
 
 3. Run the following queries in your Magento database:
@@ -229,7 +175,7 @@ Reproduce the issue that is being experienced on the site and then retrieve the 
 
 - In the backend, navigate to `Stores > AvaTax Logs`
 - Locate the log entry for the SOAP call that matches the test case and click the **View** link 
-  ![](images/AvaTax_Logs__Taxes__Stores__Magento_Admin_2017-09-03_20-48-18.png?raw=true)
+  ![](images/AvaTax_Logs__Taxes__Stores__Magento_Admin.png?raw=true)
 
 Reviewing the details of the **Request** and **Result** sections can reveal errors that may not be presented on the frontend.
 
