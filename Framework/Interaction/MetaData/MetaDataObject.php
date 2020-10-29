@@ -37,37 +37,37 @@ class MetaDataObject
     /**
      * @var MetaDataObjectFactory
      */
-    protected $metaDataObjectFactory = null;
+    protected $metaDataObjectFactory;
 
     /**
      * @var ArrayTypeFactory
      */
-    protected $arrayTypeFactory = null;
+    protected $arrayTypeFactory;
 
     /**
      * @var BooleanTypeFactory
      */
-    protected $booleanTypeFactory = null;
+    protected $booleanTypeFactory;
 
     /**
      * @var DoubleTypeFactory
      */
-    protected $doubleTypeFactory = null;
+    protected $doubleTypeFactory;
 
     /**
      * @var IntegerTypeFactory
      */
-    protected $integerTypeFactory = null;
+    protected $integerTypeFactory;
 
     /**
-     * @var ObjectTypeFactory
+     * @var DataObjectTypeFactory
      */
-    protected $objectTypeFactory = null;
+    protected $dataObjectTypeFactory;
 
     /**
      * @var StringTypeFactory
      */
-    protected $stringTypeFactory = null;
+    protected $stringTypeFactory;
 
     /**
      * Stores all of the validation fields
@@ -89,7 +89,7 @@ class MetaDataObject
      * @param BooleanTypeFactory $booleanTypeFactory
      * @param DoubleTypeFactory $doubleTypeFactory
      * @param IntegerTypeFactory $integerTypeFactory
-     * @param ObjectTypeFactory $objectTypeFactory
+     * @param DataObjectTypeFactory $dataObjectTypeFactory
      * @param StringTypeFactory $stringTypeFactory
      * @param array $metaDataProperties
      */
@@ -99,7 +99,7 @@ class MetaDataObject
         BooleanTypeFactory $booleanTypeFactory,
         DoubleTypeFactory $doubleTypeFactory,
         IntegerTypeFactory $integerTypeFactory,
-        ObjectTypeFactory $objectTypeFactory,
+        DataObjectTypeFactory $dataObjectTypeFactory,
         StringTypeFactory $stringTypeFactory,
         array $metaDataProperties
     ) {
@@ -108,7 +108,7 @@ class MetaDataObject
         $this->booleanTypeFactory = $booleanTypeFactory;
         $this->doubleTypeFactory = $doubleTypeFactory;
         $this->integerTypeFactory = $integerTypeFactory;
-        $this->objectTypeFactory = $objectTypeFactory;
+        $this->dataObjectTypeFactory = $dataObjectTypeFactory;
         $this->stringTypeFactory = $stringTypeFactory;
         foreach ($metaDataProperties as $name => $metaDataRule) {
             if (in_array($metaDataRule[MetaDataAbstract::ATTR_TYPE], MetaDataAbstract::$types)) {
@@ -169,7 +169,8 @@ class MetaDataObject
 
         foreach ($this->requiredRules as $requiredRule) {
             if (!array_key_exists($requiredRule->getName(), $validatedData) ||
-                empty($validatedData[$requiredRule->getName()])) {
+                empty($validatedData[$requiredRule->getName()]) ||
+                is_null($validatedData[$requiredRule->getName()])) {
                 throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(__(
                     '%1 is a required field and was either not passed in or did not pass validation.',
                     [
@@ -211,7 +212,7 @@ class MetaDataObject
     /**
      * Returns an hashed cache key representing a combination of all relevant data on the object as defined by metadata
      *
-     * @param $object
+     * @param \Magento\Framework\DataObject $object
      * @return string
      */
     public function getCacheKeyFromObject($object)
@@ -220,9 +221,8 @@ class MetaDataObject
 
         foreach ($this->metaDataProperties as $name => $keyGenerator) {
             /** @var $keyGenerator MetaDataAbstract */
-            $methodName = 'get' . $name;
-            if (method_exists($object, $methodName)) {
-                $cacheKey .= $keyGenerator->getCacheKey(call_user_func([$object, $methodName]));
+            if ($object->hasData($name)) {
+                $cacheKey .= $keyGenerator->getCacheKey($object->getData($name));
             }
         }
 

@@ -1,0 +1,182 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var $block Tax */
+
+use ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter;
+use Magento\Sales\Block\Adminhtml\Order\Totals\Tax;
+use Magento\Sales\Model\Order\Invoice;
+
+?>
+<?php
+/** @var $_source Invoice */
+$_source = $block->getSource();
+$_order = $block->getOrder();
+$_fullInfo = $block->getFullTaxInfo();
+$customDuty = false;
+?>
+
+<?php if ($_fullInfo): ?>
+    <?php if (isset($_fullInfo[0]['rates'])): ?>
+        <?php foreach ($_fullInfo as $info): ?>
+            <?php if (isset($info['hidden']) && $info['hidden']) {
+                continue;
+            } ?>
+            <?php
+            $rates = $info['rates'];
+            ?>
+            <?php foreach ($rates as $rate): ?>
+                <?php if ($rate['title'] === GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                    <?php $customDuty = $rate; ?>
+                    <?php if ($block->displayFullSummary()): ?>
+                        <td class="admin__total-mark"><?= /* @escapeNotVerified */
+                            $rate['title'] ?><br/></td>
+                    <?php endif; ?>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <?php foreach ($_fullInfo as $info): ?>
+            <?php
+            $amount = $info['tax_amount'];
+            $baseAmount = $info['base_tax_amount'];
+            ?>
+            <?php if ($info['title'] === GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE): ?>
+                <?php $customDuty = $info; ?>
+                <?php if ($block->displayFullSummary()): ?>
+                    <tr>
+                        <td class="label">
+                            <div class="summary-collapse" tabindex="0">
+                                <?= /* @escapeNotVerified */
+                                $info['title'] ?>
+                            </div>
+                        </td>
+                        <td><?= /* @escapeNotVerified */
+                            $block->displayAmount($amount, $baseAmount) ?></td>
+                    </tr>
+                <?php endif; ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
+<?php endif; ?>
+
+
+<?php if ($block->displayFullSummary() && $_fullInfo): ?>
+    <tr class="summary-total" onclick="expandDetails(this, '.summary-details')">
+<?php else: ?>
+    <tr>
+<?php endif; ?>
+    <td class="label">
+        <div class="summary-collapse" tabindex="0">
+            <?php if ($this->helper('Magento\Tax\Helper\Data')->displayFullSummary()): ?>
+                <?= /* @escapeNotVerified */
+                __('Tax') ?>
+            <?php else: ?>
+                <?php if ($customDuty): ?>
+                    <?= /* @escapeNotVerified */
+                    __('Import Fees') ?>
+                <?php else: ?>
+                    <?= /* @escapeNotVerified */
+                    __('Tax') ?>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+    </td>
+    <td>
+        <?php if ($block->displayFullSummary() && $customDuty): ?>
+            <?= /* @escapeNotVerified */
+            $block->displayAmount($_source->getTaxAmount() - $customDuty['tax_amount'],
+                $_source->getBaseTaxAmount() - $customDuty['base_tax_amount']) ?>
+        <?php else: ?>
+            <?= /* @escapeNotVerified */
+            $block->displayAmount($_source->getTaxAmount(), $_source->getBaseTaxAmount()) ?>
+        <?php endif; ?>
+        <!-- BEGIN EDIT -->
+        <div class="admin__field-tooltip">
+            <a class="admin__field-tooltip-action action-help" target="_blank" tabindex="1"
+               href="<?= $block->getUrl('avatax/queue/index') ?>">
+                <div class="admin__field-tooltip-content">
+                    <?= /* @escapeNotVerified */
+                    __('Note that this tax total is based on the original calculated tax applied to the order and charged to
+                    the customer. Due to rounding issues or changes to tax rates, it is possible for tax calculated by
+                    AvaTax for this invoice or credit memo to differ. Any such \'unbalanced\' amounts can be seen in the
+                    log of the AvaTax queue. AvaTax is the central authority for the actual tax amount to be remitted
+                    by the merchant.') ?>
+                </div>
+            </a>
+        </div>
+        <!-- END EDIT -->
+    </td>
+</tr>
+<?php if ($block->displayFullSummary()): ?>
+    <?php $isTop = 1; ?>
+    <?php if (isset($_fullInfo[0]['rates'])): ?>
+        <?php foreach ($_fullInfo as $info): ?>
+            <?php if (isset($info['hidden']) && $info['hidden']) {
+                continue;
+            } ?>
+            <?php
+            $percent = $info['percent'];
+            $amount = $info['amount'];
+            $baseAmount = $info['base_amount'];
+            $rates = $info['rates'];
+            $isFirst = 1;
+            ?>
+
+            <?php foreach ($rates as $rate): ?>
+                <tr class="summary-details<?php if ($isTop): echo ' summary-details-first'; endif; ?>"
+                    style="display:none;">
+                    <!-- BEGIN EDIT -->
+                    <?php if (!is_null($rate['percent'])
+                        && $rate['title'] !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE
+                    ): ?>
+                        <!-- END EDIT -->
+                        <td class="admin__total-mark"><?= /* @escapeNotVerified */
+                            $rate['title'] ?> (<?= (float)$rate['percent'] ?>%)<br/></td>
+                    <?php endif; ?>
+                    <?php if ($isFirst): ?>
+                        <td rowspan="<?= count($rates) ?>"><?= /* @escapeNotVerified */
+                            $block->displayAmount($amount, $baseAmount) ?></td>
+                    <?php endif; ?>
+                </tr>
+                <?php
+                $isFirst = 0;
+                $isTop = 0;
+                ?>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <?php foreach ($_fullInfo as $info): ?>
+            <?php
+            $percent = $info['percent'];
+            $amount = $info['tax_amount'];
+            $baseAmount = $info['base_tax_amount'];
+            $isFirst = 1;
+            ?>
+            <?php if (!is_null($info['percent']) && $info['title'] !== GrandTotalDetailsSorter::CUSTOMS_RATE_TITLE
+            ): ?>
+                <tr class="summary-details<?php if ($isTop): echo ' summary-details-first'; endif; ?>"
+                    style="display:none;">
+                    <!-- BEGIN EDIT -->
+
+                    <!-- END EDIT -->
+                    <td class="admin__total-mark"><?= $block->escapeHtml($info['title']) ?>
+                        (<?= (float)$info['percent'] ?>%)<br/></td>
+
+                    <td><?= /* @escapeNotVerified */
+                        $block->displayAmount($amount, $baseAmount) ?></td>
+                </tr>
+            <?php endif; ?>
+            <?php
+            $isFirst = 0;
+            $isTop = 0;
+            ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
+<?php endif; ?>
+

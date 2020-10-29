@@ -15,7 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Observer;
 
+use ClassyLlama\AvaTax\Api\RestInterface;
 use ClassyLlama\AvaTax\Helper\Config;
+use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
@@ -39,33 +41,43 @@ class ConfigSaveObserver implements ObserverInterface
     protected $moduleChecks;
 
     /**
-     * @var \ClassyLlama\AvaTax\Framework\Interaction\Tax
+     * @var RestInterface
      */
-    protected $interactionTax;
+    protected $interactionRest;
+
+    /**
+     * @var CustomsConfig
+     */
+    protected $customsConfig;
 
     /**
      * Constructor
      *
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
-     * @param Config $config
-     * @param \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks
-     * @param \ClassyLlama\AvaTax\Framework\Interaction\Tax $interactionTax
+     * @param Config                                      $config
+     * @param CustomsConfig                               $customsConfig
+     * @param \ClassyLlama\AvaTax\Helper\ModuleChecks     $moduleChecks
+     * @param RestInterface                               $interactionRest
      */
     public function __construct(
         \Magento\Framework\Message\ManagerInterface $messageManager,
         Config $config,
+        CustomsConfig $customsConfig,
         \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks,
-        \ClassyLlama\AvaTax\Framework\Interaction\Tax $interactionTax
-    ) {
+        RestInterface $interactionRest
+    )
+    {
         $this->messageManager = $messageManager;
         $this->config = $config;
         $this->moduleChecks = $moduleChecks;
-        $this->interactionTax = $interactionTax;
+        $this->interactionRest = $interactionRest;
+        $this->customsConfig = $customsConfig;
     }
 
     /**
      *
      * @param \Magento\Framework\Event\Observer $observer
+     *
      * @return $this
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
@@ -73,7 +85,7 @@ class ConfigSaveObserver implements ObserverInterface
         if ($observer->getStore()) {
             $scopeId = $observer->getStore();
             $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        } elseif ($observer->getWebsite()) {
+        } else if ($observer->getWebsite()) {
             $scopeId = $observer->getWebsite();
             $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE;
         } else {
@@ -97,14 +109,16 @@ class ConfigSaveObserver implements ObserverInterface
      *
      * @param $scopeId
      * @param $scopeType
+     *
      * @return array
      */
     protected function getErrors($scopeId, $scopeType)
     {
-        $errors = array();
+        $errors = [];
         $errors = array_merge(
             $errors,
-            $this->sendPing($scopeId, $scopeType)
+            $this->sendPing($scopeId, $scopeType),
+            $this->checkConflictingShippingMethods($scopeId, $scopeType)
         );
 
         return $errors;
@@ -117,7 +131,7 @@ class ConfigSaveObserver implements ObserverInterface
      */
     protected function getNotices()
     {
-        $notices = array();
+        $notices = [];
         $notices = array_merge(
             $notices,
             // This check is also being displayed at the top of the page via
@@ -129,83 +143,110 @@ class ConfigSaveObserver implements ObserverInterface
         return $notices;
     }
 
+    protected function checkConflictingShippingMethods($scopeId, $scopeType)
+    {
+        $errors = [];
+
+        $groundShippingMethods = $this->customsConfig->getGroundShippingMethods($scopeId, $scopeType);
+        $oceanShippingMethods = $this->customsConfig->getOceanShippingMethods($scopeId, $scopeType);
+        $airShippingMethods = $this->customsConfig->getAirShippingMethods($scopeId, $scopeType);
+
+        $shippingMethods = array_filter(
+            array_merge(
+                $groundShippingMethods,
+                $oceanShippingMethods,
+                $airShippingMethods
+            )
+        );
+
+        if (\count($shippingMethods) > 0 && \count($shippingMethods) !== \count(\array_flip($shippingMethods))) {
+            $errors[] = __(
+                'There are shipping method(s) that have erroneously been selected in multiple Shipping Method lists (Ground Shipping Methods, Ocean Shipping Methods, and Air Shipping Methods). Ensure that the shipping methods selected in one list are not selected in either of the other lists and then save this page.'
+            );
+        }
+
+        return $errors;
+    }
+
     /**
      * Ping AvaTax using configured live/production mode
      *
      * @param $scopeId
      * @param $scopeType
+     *
      * @return array
      */
     protected function sendPing($scopeId, $scopeType)
     {
         $errors = [];
+        $message = '';
+
         if (!$this->config->isModuleEnabled($scopeId, $scopeType)) {
             return $errors;
         }
 
-        $message = '';
-        $type = $this->config->getLiveMode($scopeId, $scopeType)
-            ? Config::API_PROFILE_NAME_PROD : Config::API_PROFILE_NAME_DEV;
-        if ($this->checkCredentialsForMode($scopeId, $scopeType, $type)) {
+        $isProduction = $this->config->isProductionMode($scopeId, $scopeType);
+        $mode = $this->config->getMode($isProduction);
+
+        if ($this->checkCredentialsForMode($scopeId, $scopeType, $isProduction)) {
             try {
-                $result = $this->interactionTax->getTaxService($type, $scopeId, $scopeType)->ping();
-                if (is_object($result) && $result->getResultCode() != \AvaTax\SeverityLevel::$Success) {
-                    foreach ($result->getMessages() as $messages) {
-                        $message .= $messages->getName() . ': ' . $messages->getSummary() . "\n";
-                    }
-                } elseif (is_object($result) && $result->getResultCode() == \AvaTax\SeverityLevel::$Success) {
+                $result = $this->interactionRest->ping($isProduction, $scopeId, $scopeType);
+
+                if ($result) {
                     $this->messageManager->addSuccess(
-                        __('Successfully connected to AvaTax using the '
-                            . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>.', $type
+                        __(
+                            'Successfully connected to AvaTax using the ' . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>.',
+                            $mode
                         )
                     );
+                } else {
+                    $message = __('Authentication failed');
                 }
             } catch (\Exception $exception) {
                 $message = $exception->getMessage();
             }
 
             if ($message) {
-                $errors[] = __('Error connecting to AvaTax using the '
-                    . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>: %2', $type, $message);
+                $errors[] = __(
+                    'Error connecting to AvaTax using the ' . '<a href="#row_tax_avatax_connection_settings_header">%1 credentials</a>: %2',
+                    $mode,
+                    $message
+                );
             }
         }
+
         return $errors;
     }
-
-
 
     /**
      * Check that credentials have been set for the supplied mode
      *
      * @param $scopeId
      * @param $scopeType
-     * @param $mode
+     * @param $isProduction
+     *
      * @return bool
      */
-    protected function checkCredentialsForMode($scopeId, $scopeType, $mode)
+    protected function checkCredentialsForMode($scopeId, $scopeType, $isProduction)
     {
         // Check that credentials have been set for whichever mode has been chosen
-        if ($mode == Config::API_PROFILE_NAME_PROD) {
-            if (
-                $this->config->getAccountNumber($scopeId, $scopeType) != ''
-                && $this->config->getLicenseKey($scopeId, $scopeType) != ''
-                && $this->config->getCompanyCode($scopeId, $scopeType) != ''
-            ) {
-                return true;
-            }
-        } else {
-            if (
-                $this->config->getDevelopmentAccountNumber($scopeId, $scopeType) != ''
-                && $this->config->getDevelopmentLicenseKey($scopeId, $scopeType) != ''
-                && $this->config->getDevelopmentCompanyCode($scopeId, $scopeType) != ''
-            ) {
-                return true;
-            }
+        if ($this->config->getAccountNumber($scopeId, $scopeType, $isProduction) !== '' && $this->config->getLicenseKey(
+                $scopeId,
+                $scopeType,
+                $isProduction
+            ) !== '' && $this->config->getCompanyCode($scopeId, $scopeType, $isProduction) !== '') {
+            return true;
         }
+
         // One or more of the supplied mode's credentials is blank
         $this->messageManager->addWarningMessage(
-            __('The AvaTax extension is set to "%1" mode, but %2 credentials are incomplete.', $mode, strtolower($mode))
+            __(
+                'The AvaTax extension is set to "%1" mode, but %2 credentials are incomplete.',
+                $isProduction,
+                strtolower($isProduction)
+            )
         );
+
         return false;
     }
 }

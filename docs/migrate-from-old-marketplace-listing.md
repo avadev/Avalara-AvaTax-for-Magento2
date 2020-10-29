@@ -7,25 +7,11 @@
   ```
   php <magento_root>/bin/magento maintenance:enable
   ```
-- Enter the following command in <magento_root> directory:
+- Enter the following command in <magento_root> directory (will remove old package):
   ```
   composer remove classyllama/module-avatax
   ```
-- After applying an update, you must clean the cache.
-  ```
-  bin/magento cache:clean
-  ```
-- Clear the var and generated subdirectories:
-  ```
-  rm -rf <Magento install dir>/var/cache/*
-  rm -rf <Magento install dir>/var/page_cache/*
-  rm -rf <Magento install dir>/generated/code/*
-  ```
-- Update the database schema and data:
-  ```
-  bin/magento setup:upgrade
-  ```
-- Enter the following command in <magento_root> directory:
+- Enter the following command in <magento_root> directory (will install new package):
   ```
   composer require avalara/avatax-magento
   ```
@@ -33,21 +19,20 @@
   ```
   bin/magento cache:clean
   ```
-- Clear the var and generated subdirectories:
-  ```
-  rm -rf <Magento install dir>/var/cache/*
-  rm -rf <Magento install dir>/var/page_cache/*
-  rm -rf <Magento install dir>/generated/code/*
-  ```
 - Update the database schema and data:
   ```
   bin/magento setup:upgrade
+  ```
+- Generate DI configuration
+  ```
+  bin/magento setup:di:compile
   ```
 - Disable maintenance mode:
   ```
   bin/magento maintenance:disable
   ```
 - Thoroughly test the development site to ensure the AvaTax extension is working as expected
+- If you had custom developments which have dependencies on classyllama/module-avatax - make sure that you adjust them to the new one avalara/avatax-magento
 - Add the changes to source control (these instructions assume you're using Git)
   ```
   git add composer.*

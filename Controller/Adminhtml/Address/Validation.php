@@ -15,7 +15,6 @@
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Address;
 
-use ClassyLlama\AvaTax\Framework\Interaction\Address\Validation as ValidationInteraction;
 use ClassyLlama\AvaTax\Model\ValidAddressManagement;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -26,11 +25,6 @@ use Magento\Framework\Controller\Result\JsonFactory;
 
 class Validation extends Action
 {
-    /**
-     * @var ValidationInteraction
-     */
-    protected $validationInteraction = null;
-
     /**
      * @var ValidAddressManagement
      */
@@ -54,7 +48,6 @@ class Validation extends Action
     /**
      * Validation constructor
      *
-     * @param ValidationInteraction $validationInteraction
      * @param ValidAddressManagement $validAddressManagement
      * @param CustomerAddressInterfaceFactory $customerAddressFactory
      * @param DataObjectHelper $dataObjectHelper
@@ -62,14 +55,12 @@ class Validation extends Action
      * @param Context $context
      */
     public function __construct(
-        ValidationInteraction $validationInteraction,
         ValidAddressManagement $validAddressManagement,
         CustomerAddressInterfaceFactory $customerAddressFactory,
         DataObjectHelper $dataObjectHelper,
         JsonFactory $resultJsonFactory,
         Context $context
     ) {
-        $this->validationInteraction = $validationInteraction;
         $this->validAddressManagement = $validAddressManagement;
         $this->customerAddressFactory = $customerAddressFactory;
         $this->dataObjectHelper = $dataObjectHelper;

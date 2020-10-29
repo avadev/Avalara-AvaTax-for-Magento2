@@ -6,8 +6,8 @@
 - Extension Features
   - [Sales Tax](./sales-tax.md)
   - [Address Validation](./address-validation.md)
-  - [Customs, Duty & Import Tax (CDIT)](./customs-duty-import-tax.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
-  - [Document Management (Tax Exemptions)](./document-management.md) (available in the [2.x.x Release Candidate version of this extension](./getting-started.md#version-notes))
+  - [Cross-Border](./customs-duty-import-tax.md)
+  - [Tax Exemption Certificates](./document-management.md)
 
 # Sales Tax
 
@@ -33,12 +33,12 @@ A cron task runs every five minutes to send invoices and credit memos to AvaTax.
 ## Configuration
 
 1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - General** section.
-2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.0.0-rc1.png?raw=true)
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.1.8.png?raw=true)
 3. The comment text underneath each of the options in this section should explain the purpose of the setting, but here are some notes about some of the settings:
    - <a name="filter_by_region">**Filter Tax Calculation By Region**
        - Avalara's recommendation is to leave this option set to the default of **No**. With this option set to **No**, Magento will contact Avalara's API for all regions when tax is being calculated in Magento. This will result in more API calls to AvaTax, however based on how Avalara charges for API calls, the impact of these additional API calls may be minimal or non-existent. Read more about how Avalara charges for API calls [here](https://www.avalara.com/us/en/legal/avatax-terms.html). If your site has a large number of people calculating tax (whether in the cart or checkout), but not placing an order, then the 10:1 ratio of "API calls" vs "Documents Recorded" may make it more expensive to have all API calls sent to Avalara for regions where taxes are not being calculated. Here is an overview of how many API calls are made for a standard Magento checkout:
-           - Guest checkout (user adds one product to cart, proceeds to checkout, enters shipping address, and then finishes placing order): 3 API calls are sent to Avalara ([screenshot](https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/images/screenshot_tax_requests_customer.jpg?raw=true))
-           - Customer checkout (user logs in, adds one product to cart, proceeds to checkout, leaves pre-existing shispping address selected, and then finishes placing order): 2 API calls are sent to Avalara ([screenshot](https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/images/screenshot_tax_requests_guest.jpg?raw=true))
+           - Guest checkout (user adds one product to cart, proceeds to checkout, enters shipping address, and then finishes placing order): 3 API calls are sent to Avalara ([screenshot](https://github.com/astoundcommerce/avatax/blob/develop/docs/images/screenshot_tax_requests_customer.jpg?raw=true))
+           - Customer checkout (user logs in, adds one product to cart, proceeds to checkout, leaves pre-existing shispping address selected, and then finishes placing order): 2 API calls are sent to Avalara ([screenshot](https://github.com/astoundcommerce/avatax/blob/develop/docs/images/screenshot_tax_requests_guest.jpg?raw=true))
        - If you change the option to **Yes**, Magento will only contact the AvaTax API for regions where you have a tax nexus. However this may cause issues in the future if you need to see all historical transactions in Avalara, and it might affect report reconciling. Talk to your Avalara support representative before changing this to **No**.
        - This setting does _not_ limit API requests for Address Validation
    - **Data Mapping — Shipping SKU, Adjustment Refund SKU, Adjustment Fee SKU, Gift Wrap Order SKU, Gift Wrap Items SKU, and Gift Wrap Printed Card SKU:** SKUs sent to AvaTax for the associated event. For example, when tax is requested for a single-product order sent to state X, it's possible state X charges tax on shipping. Therefore, two products will be sent in the request: one for the cart item and another for shipping. The correct shipping tax code (FR020100) will always be sent; however, this allows you to customize the SKU in case you want to add custom functionality in your AvaTax dashboard. The same is true when creating a Credit Memo with an adjustment refund or fee in the Magento Admin.
@@ -88,7 +88,7 @@ Many merchants will not need to use Customer Usage Type. Unless you have custome
    3. Select the appropriate Customer Group from the **Group** dropdown.
 4. Now, when this customer places an order, the associated Customer Usage Type will be sent to the AvaTax API in the **CustomerUsageType** field.
 
-If you are utilizing customer groups in a way that mixes taxable and tax exempt customers within the same group(s), then you would need to consider custom development to accommodate exempting specific customers from sales tax. A possible solution is the introduction of a plugin for the [_\ClassyLlama\AvaTax\Helper\TaxClass::getAvataxTaxCodeForCustomer_](https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/develop/Helper/TaxClass.php) method that could read the value of a custom attribute for a customer and replace the CustomerUsageType for the customer’s assigned customer group with the appropriate value (e.g. ‘F’ = Religious/Education) to achieve tax exempt status for the lookup.
+If you are utilizing customer groups in a way that mixes taxable and tax exempt customers within the same group(s), then you would need to consider custom development to accommodate exempting specific customers from sales tax. A possible solution is the introduction of a plugin for the [_\ClassyLlama\AvaTax\Helper\TaxClass::getAvataxTaxCodeForCustomer_](https://github.com/astoundcommerce/avatax/blob/develop/Helper/TaxClass.php) method that could read the value of a custom attribute for a customer and replace the CustomerUsageType for the customer’s assigned customer group with the appropriate value (e.g. ‘F’ = Religious/Education) to achieve tax exempt status for the lookup.
 
 ## AvaTax Queue
 
@@ -131,7 +131,7 @@ These tables are not used for anything, but if you need to generate custom repor
 
 Note: An entry is not made in these tables for an invoice or credit memo until it has been submitted to AvaTax. 
 
-Note: Prior to version 0.4.0 of this extension, two fields (avatax\_is\_unbalanced and base\_avatax\_tax\_amount) were added to the sales\_invoice and sales\_creditmemo tables that tracked this information. Per the [0.4.0 release notes](https://github.com/avadev/Avalara-AvaTax-for-Magento2/releases/tag/0.4.0), if a merchant upgrades to 0.4.0, the columns on those tables will be migrated to the avatax\_sales\_invoice and avatax\_sales\_creditmemo tables mentioned above.
+Note: Prior to version 0.4.0 of this extension, two fields (avatax\_is\_unbalanced and base\_avatax\_tax\_amount) were added to the sales\_invoice and sales\_creditmemo tables that tracked this information. Per the [0.4.0 release notes](https://github.com/astoundcommerce/avatax/releases/tag/0.4.0), if a merchant upgrades to 0.4.0, the columns on those tables will be migrated to the avatax\_sales\_invoice and avatax\_sales\_creditmemo tables mentioned above.
 
 ## AvaTax Logging
 

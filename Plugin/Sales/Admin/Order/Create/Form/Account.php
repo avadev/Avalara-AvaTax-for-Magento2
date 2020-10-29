@@ -33,7 +33,7 @@ class Account
     {
         if ($this->avaTaxConfigHelper->isModuleEnabled()) {
             $html = '<div>';
-            $html .= __('If you are changing a customer group that affects tax calculation, please see <a href="https://github.com/classyllama/ClassyLlama_AvaTax/blob/develop/docs/getting-started.md#admin-order-create-sales-tax-issue" target="_blank">this readme</a> for how to ensure the appropriate taxes are calculated.');
+            $html .= __('If you are changing a customer group that affects tax calculation, please see <a href="https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/develop/docs/getting-started.md#admin-order-create-sales-tax-issue" target="_blank">this readme</a> for how to ensure the appropriate taxes are calculated.');
             $html .= '</div>';
 
             $result .= $html;

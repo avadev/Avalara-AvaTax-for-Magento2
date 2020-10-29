@@ -1,0 +1,58 @@
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+*/
+-->
+<!-- ko if: isTaxDisplayedInGrandTotal && isDisplayed() -->
+<tr class="grand totals incl">
+    <th class="mark" scope="row">
+        <strong data-bind="i18n: inclTaxLabel"></strong>
+    </th>
+    <td data-bind="attr: {'data-th': inclTaxLabel}" class="amount">
+        <strong><span class="price" data-bind="text: getValue()"></span></strong>
+    </td>
+</tr>
+<tr class="grand totals excl">
+    <th class="mark" scope="row">
+        <strong data-bind="i18n: exclTaxLabel"></strong>
+    </th>
+    <td data-bind="attr: {'data-th': exclTaxLabel}" class="amount">
+        <strong><span class="price" data-bind="text: getGrandTotalExclTax()"></span></strong>
+    </td>
+</tr>
+<!-- /ko -->
+<!-- ko if: !isTaxDisplayedInGrandTotal && isDisplayed() -->
+<tr class="grand totals">
+    <th class="mark" scope="row">
+        <strong data-bind="i18n: title"></strong>
+    </th>
+    <td data-bind="attr: {'data-th': title}" class="amount">
+        <strong><span class="price" data-bind="text: getValue()"></span></strong>
+    </td>
+</tr>
+<!-- /ko -->
+<!-- ko if: isBaseGrandTotalDisplayNeeded() && isDisplayed() -->
+<tr class="totals charge">
+    <th class="mark" data-bind="i18n: basicCurrencyMessage" scope="row"></th>
+    <td class="amount">
+        <span class="price" data-bind="text: getBaseValue(), attr: {'data-th': basicCurrencyMessage}"></span>
+    </td>
+</tr>
+<!-- /ko -->
+<!-- BEGIN EDIT -->
+<!-- ko foreach: totals().extension_attributes.avatax_messages -->
+<tr>
+    <td colspan="2" class="mark" data-bind="text: $data"></td>
+</tr>
+<!-- /ko -->
+<!-- END EDIT -->

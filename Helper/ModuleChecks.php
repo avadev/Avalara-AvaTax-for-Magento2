@@ -85,7 +85,6 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
         $errors = array();
         $errors = array_merge(
             $errors,
-            $this->checkSoapSupport(),
             $this->checkSslSupport(),
             $this->checkOriginAddress(),
             $this->checkNativeTaxRules()
@@ -150,24 +149,6 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
                 );
             }
         }
-        return $errors;
-    }
-
-    /**
-     * Check SOAP support
-     *
-     * @return array
-     */
-    protected function checkSoapSupport()
-    {
-        $errors = [];
-        if (!class_exists('SoapClient')) {
-            $errors[] = __(
-                'The PHP class SoapClient is missing. It must be enabled to use this extension. See %1 for details.',
-                '<a href="http://www.php.net/manual/en/book.soap.php" target="_blank">http://www.php.net/manual/en/book.soap.php</a>'
-            );
-        }
-
         return $errors;
     }
 
