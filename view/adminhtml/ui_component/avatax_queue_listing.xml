@@ -43,6 +43,11 @@
                     <item name="update_url" xsi:type="url" path="mui/index/render"/>
                 </item>
             </argument>
+            <settings>
+                <storageConfig>
+                    <param name="indexField" xsi:type="string">queue_id</param>
+                </storageConfig>
+            </settings>
         </argument>
         <argument name="data" xsi:type="array">
             <item name="js_config" xsi:type="array">
