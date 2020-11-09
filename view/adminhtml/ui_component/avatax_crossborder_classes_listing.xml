@@ -49,6 +49,11 @@
                 <item name="component" xsi:type="string">Magento_Ui/js/grid/provider</item>
             </item>
         </argument>
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">class_id</param>
+            </storageConfig>
+        </settings>
     </dataSource>
 
     <container name="release_notification_text" template="ui/form/components/complex">
