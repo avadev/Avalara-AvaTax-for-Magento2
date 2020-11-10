@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
+use Avalara\DocumentType;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use ClassyLlama\AvaTax\Helper\Config;
@@ -140,7 +141,11 @@ class Tax
             'type' => 'string',
             'options' =>
                 ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice',
-                 '-1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+                 "".DocumentType::C_ANY, "".DocumentType::C_SALESORDER, "".DocumentType::C_SALESINVOICE,
+                 "".DocumentType::C_PURCHASEORDER, "".DocumentType::C_PURCHASEINVOICE,
+                 "".DocumentType::C_RETURNORDER, "".DocumentType::C_RETURNINVOICE,
+                 "".DocumentType::C_INVENTORYTRANSFERORDER, "".DocumentType::C_INVENTORYTRANSFERINVOICE,
+                 "".DocumentType::C_REVERSECHARGEORDER, "".DocumentType::C_REVERSECHARGEINVOICE],
             'required' => true,
         ],
         'exchange_rate' => ['type' => 'double'],
