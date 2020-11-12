@@ -18,7 +18,7 @@
     {
         "*": {
             "addressValidationModal": {
-                "validationEnabled": <?= $this->isValidationEnabled() ?>,
+                "validationEnabled": <?= (int)$this->isValidationEnabled() ?>,
                 "instructions": <?= $this->getInstructions() ?>,
                 "errorInstructions": <?= $this->getErrorInstructions() ?>,
                 "countriesEnabled": "<?= $this->getCountriesEnabled() ?>",
