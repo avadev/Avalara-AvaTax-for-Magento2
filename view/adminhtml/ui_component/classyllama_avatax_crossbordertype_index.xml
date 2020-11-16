@@ -95,13 +95,6 @@
 				</item>
 			</argument>
 		</actionsColumn>
-		<selectionsColumn name="ids">
-			<argument name="data" xsi:type="array">
-				<item name="config" xsi:type="array">
-					<item name="indexField" xsi:type="string">entity_id</item>
-				</item>
-			</argument>
-		</selectionsColumn>
 	</columns>
 	<dataSource name="classyllama_avatax_crossbordertype_grid_data_source">
 		<argument name="dataProvider" xsi:type="configurableObject">
