@@ -242,14 +242,15 @@ class ExtensionAttributesPersistencePlugin
             );
 
             $data = $subject->getConnection()->fetchRow($select);
-
-            foreach ($tablesToUpdate[$tableName]['attribute_codes'] as $attributeCode => $fields) {
-                foreach ($fields as $field) {
-                    $this->extensionAttributeMerger->setExtensionAttribute(
-                        $extensionAttributes,
-                        $attributeCode,
-                        $data[$field]
-                    );
+            if ($data) {
+                foreach ($tablesToUpdate[$tableName]['attribute_codes'] as $attributeCode => $fields) {
+                    foreach ($fields as $field) {
+                        $this->extensionAttributeMerger->setExtensionAttribute(
+                            $extensionAttributes,
+                            $attributeCode,
+                            $data[$field]
+                        );
+                    }
                 }
             }
         }
@@ -259,3 +260,4 @@ class ExtensionAttributesPersistencePlugin
         return $subject;
     }
 }
+
