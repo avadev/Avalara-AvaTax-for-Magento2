@@ -36,7 +36,7 @@
         <argument name="dataProvider" xsi:type="configurableObject">
             <argument name="class" xsi:type="string">Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider</argument>
             <argument name="name" xsi:type="string">avatax_crossborder_classes_listing_data_source</argument>
-            <argument name="primaryFieldName" xsi:type="string">class_id</argument>
+            <argument name="primaryFieldName" xsi:type="string">main_table.class_id</argument>
             <argument name="requestFieldName" xsi:type="string">id</argument>
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -111,6 +111,14 @@
                             <item name="visible" xsi:type="string">avatax_crossborder_classes_listing.avatax_crossborder_classes_listing.avatax_crossborder_classes_columns.${ $.index }:visible</item>
                         </item>
                     </item>
+                    <item name="templates" xsi:type="array">
+                        <item name="filters" xsi:type="array">
+                            <item name="select" xsi:type="array">
+                                <item name="component" xsi:type="string">Magento_Ui/js/form/element/ui-select</item>
+                                <item name="template" xsi:type="string">ui/grid/filters/elements/ui-select</item>
+                            </item>
+                        </item>
+                    </item>
                 </item>
             </argument>
         </filters>
@@ -154,6 +162,7 @@
         <column name="class_id">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
                     <item name="sorting" xsi:type="string">asc</item>
                     <item name="label" xsi:type="string" translate="true">ID</item>
                     <item name="sortOrder" xsi:type="number">10</item>
@@ -162,7 +171,10 @@
         </column>
         <column name="destination_countries">
             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Countries</item>
                 <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">select</item>
+                    <item name="dataType" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Destination Countries</item>
                     <item name="sortOrder" xsi:type="number">20</item>
                     <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/ui/grid/columns/comma-separated</item>
@@ -172,7 +184,10 @@
         </column>
         <column name="cross_border_type_id">
             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\CrossBorderType</item>
                 <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">select</item>
+                    <item name="dataType" xsi:type="string">select</item>
                     <item name="label" xsi:type="string" translate="true">Cross Border Type</item>
                     <item name="sortOrder" xsi:type="number">30</item>
                 </item>
@@ -181,6 +196,7 @@
         <column name="hs_code">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">HS Code</item>
                     <item name="sortOrder" xsi:type="number">40</item>
                 </item>
@@ -208,6 +224,7 @@
         <column name="pref_program_indicator">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Pref. Program Indicator</item>
                     <item name="sortOrder" xsi:type="number">70</item>
                 </item>
