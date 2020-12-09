@@ -71,7 +71,7 @@ class Collection extends SearchResult
      *
      * @return $this
      */
-    protected function _afterLoad(): Collection
+    protected function _afterLoad()
     {
         parent::_afterLoad();
 
@@ -103,7 +103,7 @@ class Collection extends SearchResult
      * @param null $condition
      * @return Collection
      */
-    public function addFieldToFilter($field, $condition = null): Collection
+    public function addFieldToFilter($field, $condition = null)
     {
         if ($field === 'destination_countries') {
             $field = 'avatax_cross_border_class_country.country_id';
