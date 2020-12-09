@@ -15,16 +15,19 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\Grid;
 
+use ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Countries;
+use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass;
 use Magento\Framework\Data\Collection\Db\FetchStrategyInterface as FetchStrategy;
 use Magento\Framework\Data\Collection\EntityFactoryInterface as EntityFactory;
 use Magento\Framework\Event\ManagerInterface as EventManager;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult;
 use Psr\Log\LoggerInterface as Logger;
-use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\Collection as CountryLinkCollection;
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\CollectionFactory as CountryLinkCollectionFactory;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
 
-class Collection extends \Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult
+class Collection extends SearchResult
 {
     /**
      * @var CountryLinkCollectionFactory
@@ -46,7 +49,7 @@ class Collection extends \Magento\Framework\View\Element\UiComponent\DataProvide
      * @param string $mainTable
      * @param string $resourceModel
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function __construct(
         EntityFactory $entityFactory,
@@ -56,7 +59,7 @@ class Collection extends \Magento\Framework\View\Element\UiComponent\DataProvide
         CountryLinkCollectionFactory $countryLinkCollectionFactory,
         CrossBorderClassRepositoryInterface $crossBorderClassRepository,
         $mainTable = 'avatax_cross_border_class',
-        $resourceModel = \ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass::class
+        $resourceModel = CrossBorderClass::class
     ) {
         parent::__construct($entityFactory, $logger, $fetchStrategy, $eventManager, $mainTable, $resourceModel);
         $this->countryLinkCollectionFactory = $countryLinkCollectionFactory;
@@ -68,13 +71,10 @@ class Collection extends \Magento\Framework\View\Element\UiComponent\DataProvide
      *
      * @return $this
      */
-    protected function _afterLoad()
+    protected function _afterLoad(): Collection
     {
         parent::_afterLoad();
 
-        /**
-         * @var CountryLinkCollection $countryLinkCollection
-         */
         $countryLinkCollection = $this->countryLinkCollectionFactory->create();
         $countryLinkCollection->addFieldToFilter('class_id', ['in' => $this->getAllIds()]);
 
@@ -96,5 +96,46 @@ class Collection extends \Magento\Framework\View\Element\UiComponent\DataProvide
         }
 
         return $this;
+    }
+
+    /**
+     * @param array|string $field
+     * @param null $condition
+     * @return Collection
+     */
+    public function addFieldToFilter($field, $condition = null): Collection
+    {
+        if ($field === 'destination_countries') {
+            $field = 'avatax_cross_border_class_country.country_id';
+            $this->joinCountriesTable();
+            if (isset($condition["in"])) {
+                foreach ($condition["in"] as $key => $value) {
+                    if ($value == Countries::OPTION_VAL_ANY) {
+                        $field = [$field, $field];
+                        $condition = [$condition, ['null' => true]];
+                    }
+                }
+            }
+        }
+
+        /* avoid column ambiguous */
+        if ($field === 'class_id') {
+            $field = 'main_table.class_id';
+        }
+
+        return parent::addFieldToFilter($field, $condition);
+    }
+
+    /**
+     * left join `avatax_cross_border_class_country` table to the collection
+     */
+    private function joinCountriesTable()
+    {
+        $this->getSelect()->joinLeft(
+            ['avatax_cross_border_class_country' => $this->getTable('avatax_cross_border_class_country')],
+            'main_table.class_id = avatax_cross_border_class_country.class_id',
+            []
+        )->group('main_table.class_id');
+
     }
 }
