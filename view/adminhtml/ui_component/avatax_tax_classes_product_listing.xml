@@ -48,6 +48,11 @@
                 <item name="component" xsi:type="string">Magento_Ui/js/grid/provider</item>
             </item>
         </argument>
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">class_id</param>
+            </storageConfig>
+        </settings>
     </dataSource>
 
     <container name="listing_top">

@@ -22,7 +22,6 @@ use ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax\Customs as CustomsTax;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressFactory;
 use Magento\Customer\Api\Data\RegionInterfaceFactory as CustomerAddressRegionFactory;
 use Magento\Framework\Exception\RemoteServiceUnavailableException;
-use Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address;
@@ -33,6 +32,14 @@ use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
 
 class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 {
+    /**
+     * Gift wrapping tax class
+     *
+     * Copied from \Magento\GiftWrapping\Model\Total\Quote\Tax\Giftwrapping it is an Enterprise-only module
+     */
+    const ITEM_TYPE = 'item_gw';
+    const QUOTE_TYPE = 'quote_gw';
+    const PRINTED_CARD_TYPE = 'printed_card_gw';
     /**
      * @var InteractionGet
      */
@@ -442,7 +449,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 
         foreach ($itemDataObjects as $itemDataObject) {
             switch ($itemDataObject->getType()) {
-                case Giftwrapping::ITEM_TYPE:
+                case self::ITEM_TYPE:
                     $itemCode = $this->config->getSkuShippingGiftWrapItem($storeId);
                     $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
@@ -487,7 +494,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 
         foreach ($itemDataObjects as $itemDataObject) {
             switch ($itemDataObject->getType()) {
-                case Giftwrapping::QUOTE_TYPE:
+                case self::QUOTE_TYPE:
                     $itemCode = $this->config->getSkuGiftWrapOrder($storeId);
                     $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
@@ -497,7 +504,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                         \ClassyLlama\AvaTax\Framework\Interaction\Line::GIFT_WRAP_ORDER_LINE_DESCRIPTION
                     );
                     break;
-                case Giftwrapping::PRINTED_CARD_TYPE:
+                case self::PRINTED_CARD_TYPE:
                     $itemCode = $this->config->getSkuShippingGiftWrapCard($storeId);
                     $taxCode = $this->taxClassHelper->getAvataxTaxCodeForGiftOptions($storeId);
                     $this->addExtensionAttributesToTaxQuoteDetailsItem(
