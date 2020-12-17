@@ -112,7 +112,7 @@ class Get
                 ]
             );
             throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException(
-                $message . $e->getMessage(), $e->getCode(), $e
+                $message->render() . $e->getMessage(), $e->getCode(), $e
             );
         }
 
@@ -226,7 +226,7 @@ class Get
 
             if (is_null($getTaxRequest)) {
                 $message = __('$quote was empty or address was not valid so not running getTax request.');
-                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message);
+                throw new \ClassyLlama\AvaTax\Exception\TaxCalculationException($message->render());
             }
 
             $getTaxResult = $taxService->getTax($getTaxRequest, null, $storeId);

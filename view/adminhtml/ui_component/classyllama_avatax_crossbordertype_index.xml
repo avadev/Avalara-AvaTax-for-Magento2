@@ -30,10 +30,6 @@
 		</item>
 		<item name="spinner" xsi:type="string">classyllama_avatax_crossbordertype_columns</item>
 	</argument>
-	<argument name="context" xsi:type="configurableObject">
-		<argument name="class" xsi:type="string">Magento\Framework\View\Element\UiComponent\Context</argument>
-		<argument name="namespace" xsi:type="string">classyllama_avatax_crossbordertype_index</argument>
-	</argument>
 	<listingToolbar name="listing_top">
 		<argument name="data" xsi:type="array">
 			<item name="config" xsi:type="array">
@@ -72,7 +68,7 @@
 		<column name="entity_id">
 			<argument name="data" xsi:type="array">
 				<item name="config" xsi:type="array">
-					<item name="filter" xsi:type="string">text</item>
+					<item name="filter" xsi:type="string">textRange</item>
 					<item name="sorting" xsi:type="string">asc</item>
 					<item name="label" translate="true" xsi:type="string">ID</item>
 				</item>
@@ -99,13 +95,6 @@
 				</item>
 			</argument>
 		</actionsColumn>
-		<selectionsColumn name="ids">
-			<argument name="data" xsi:type="array">
-				<item name="config" xsi:type="array">
-					<item name="indexField" xsi:type="string">entity_id</item>
-				</item>
-			</argument>
-		</selectionsColumn>
 	</columns>
 	<dataSource name="classyllama_avatax_crossbordertype_grid_data_source">
 		<argument name="dataProvider" xsi:type="configurableObject">
