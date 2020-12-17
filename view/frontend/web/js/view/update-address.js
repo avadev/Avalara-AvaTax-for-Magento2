@@ -24,7 +24,17 @@ define(
 
         return function (address, dontCheckForBillingAddress) {
             var quoteShippingAddress = quote.shippingAddress();
-            var newAddress = $.extend(quoteShippingAddress, address);
+            var propertiesToUpdateFromCustomerAddress = ['region', 'region_id', 'country_id', 'street', 'postcode', 'city'];
+            var propertiesToUpdateFromQuoteAddress = ['country_id', 'region_code', 'street', 'postcode', 'city', 'region_id', 'region'];
+            var propertiesToUpdate = $.extend(propertiesToUpdateFromCustomerAddress, propertiesToUpdateFromQuoteAddress);
+            var addressChanges = {};
+            for(var index in propertiesToUpdate ) {
+                var property = propertiesToUpdate[index];
+                if(address.hasOwnProperty(property)) {
+                    addressChanges[property] = address[property];
+                }
+            }
+            var newAddress = $.extend(quoteShippingAddress, addressChanges);
             quote.shippingAddress(newAddress);
 
             // dontCheckForBillingAddress allows for the billing address to be updated even when billing address same

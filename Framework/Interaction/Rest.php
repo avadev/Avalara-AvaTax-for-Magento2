@@ -153,22 +153,27 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
             );
 
             if ($response !== null) {
-                $logMessage = __(
-                    'AvaTax connection error: %1',
-                    trim(
-                        array_reduce(
-                            $response['error']['details'],
-                            function ($error, $detail) {
-                                if ($detail['severity'] !== 'Exception' && $detail['severity'] !== 'Error') {
-                                    return $error;
-                                }
+                try {
+                    $logMessage = __(
+                        'AvaTax connection error: %1',
+                        trim(
+                            array_reduce(
+                                $response['error']['details'],
+                                function ($error, $detail) {
+                                    if (isset($detail['severity']) && $detail['severity'] !== 'Exception' && $detail['severity'] !== 'Error') {
+                                        return $error;
+                                    }
 
-                                return $error . ' ' . $detail['description'];
-                            },
-                            ''
+                                    return $error . ' ' . $detail['description'];
+                                },
+                                ''
+                            )
                         )
-                    )
-                );
+                    );
+                } catch (\Exception $ex) {
+                    $logMessage = __(
+                        'AvaTax connection error: %1', $ex->getMessage());
+                }
 
                 $logContext['result'] = json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             }
