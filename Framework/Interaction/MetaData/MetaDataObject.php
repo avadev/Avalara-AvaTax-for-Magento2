@@ -15,7 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\MetaData;
 
+use Magento\Framework\DataObject;
 use Magento\Framework\Phrase;
+use Zend\Validator\NotEmpty;
 
 class MetaDataObject
 {
@@ -166,12 +168,16 @@ class MetaDataObject
                 $validatedData[$name] = $validator->validateData($item);
             }
         }
-
+        $requiredFieldValidator = new NotEmpty([
+            NotEmpty::INTEGER,
+            NotEmpty::BOOLEAN,
+            NotEmpty::SPACE,
+            NotEmpty::NULL,
+        ]);
         foreach ($this->requiredRules as $requiredRule) {
             if (!array_key_exists($requiredRule->getName(), $validatedData) ||
-                empty($validatedData[$requiredRule->getName()]) ||
-                is_null($validatedData[$requiredRule->getName()])) {
-                throw new \ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException(__(
+                !$requiredFieldValidator->isValid($validatedData[$requiredRule->getName()])) {
+                throw new ValidationException(__(
                     '%1 is a required field and was either not passed in or did not pass validation.',
                     [
                         $requiredRule->getName()
@@ -212,7 +218,7 @@ class MetaDataObject
     /**
      * Returns an hashed cache key representing a combination of all relevant data on the object as defined by metadata
      *
-     * @param \Magento\Framework\DataObject $object
+     * @param DataObject $object
      * @return string
      */
     public function getCacheKeyFromObject($object)
