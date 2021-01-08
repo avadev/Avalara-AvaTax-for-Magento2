@@ -15,6 +15,7 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction;
 
+use Avalara\DocumentType;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use ClassyLlama\AvaTax\Helper\Config;
@@ -31,6 +32,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
+use Magento\Customer\Api\AddressRepositoryInterface;
 
 /**
  * Class Tax
@@ -139,7 +141,12 @@ class Tax
         'type' => [
             'type' => 'string',
             'options' =>
-                ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice'],
+                ['SalesOrder', 'SalesInvoice', 'PurchaseOrder', 'PurchaseInvoice', 'ReturnOrder', 'ReturnInvoice',
+                 "".DocumentType::C_ANY, "".DocumentType::C_SALESORDER, "".DocumentType::C_SALESINVOICE,
+                 "".DocumentType::C_PURCHASEORDER, "".DocumentType::C_PURCHASEINVOICE,
+                 "".DocumentType::C_RETURNORDER, "".DocumentType::C_RETURNINVOICE,
+                 "".DocumentType::C_INVENTORYTRANSFERORDER, "".DocumentType::C_INVENTORYTRANSFERINVOICE,
+                 "".DocumentType::C_REVERSECHARGEORDER, "".DocumentType::C_REVERSECHARGEINVOICE],
             'required' => true,
         ],
         'exchange_rate' => ['type' => 'double'],
@@ -211,6 +218,11 @@ class Tax
     protected $customer;
 
     /**
+     * @var AddressRepositoryInterface
+     */
+    protected $customerAddressRepository;
+
+    /**
      * @param Address                                       $address
      * @param Config                                        $config
      * @param \ClassyLlama\AvaTax\Helper\TaxClass           $taxClassHelper
@@ -228,6 +240,7 @@ class Tax
      * @param RestConfig                                    $restConfig
      * @param Customer                                      $customer
      * @param \ClassyLlama\AvaTax\Helper\CustomsConfig      $customsConfig
+     * @param AddressRepositoryInterface                    $customerAddressRepository
      */
     public function __construct(
         Address $address,
@@ -246,7 +259,8 @@ class Tax
         TaxCalculation $taxCalculation,
         RestConfig $restConfig,
         \ClassyLlama\AvaTax\Helper\CustomsConfig $customsConfig,
-        Customer $customer
+        Customer $customer,
+        AddressRepositoryInterface $customerAddressRepository
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -266,6 +280,7 @@ class Tax
         $this->restConfig = $restConfig;
         $this->customer = $customer;
         $this->customsConfig = $customsConfig;
+        $this->customerAddressRepository = $customerAddressRepository;
     }
 
     /**
@@ -753,6 +768,16 @@ class Tax
         if ($address->getVatId()) {
             // Using the VAT ID has been assigned to the address
             return $address->getVatId();
+        } else {
+            // Trying to get vat id from customer address, if not exist in quote address
+            try {
+                $customerAddress = $this->customerAddressRepository->getById($address->getCustomerAddressId());
+                if ($customerAddress->getVatId()) {
+                    return $customerAddress->getVatId();
+                }
+            } catch (\Magento\Framework\Exception\LocalizedException $exception) {
+                // No actions needed
+            }
         }
         if ($customer && $customer->getTaxvat()) {
             // Using the VAT ID assigned to the customer account
