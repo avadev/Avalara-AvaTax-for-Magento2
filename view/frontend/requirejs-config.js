@@ -19,6 +19,7 @@ var config = {
             "Magento_Tax/template/checkout/cart/totals/tax": 'ClassyLlama_AvaTax/template/checkout/cart/totals/tax',
             "Magento_Checkout/template/payment-methods/list": 'ClassyLlama_AvaTax/template/payment-methods/list',
             "Magento_Tax/template/checkout/summary/tax": 'ClassyLlama_AvaTax/template/checkout/summary/tax',
+            multiShippingAddressValidation: 'ClassyLlama_AvaTax/js/multishipping-address-validation',
             // Add the following alias to provide compatibility with Magento 2.2
             addressValidation: 'ClassyLlama_AvaTax/js/addressValidation',
             deleteCertificate: 'ClassyLlama_AvaTax/js/delete-certificate'

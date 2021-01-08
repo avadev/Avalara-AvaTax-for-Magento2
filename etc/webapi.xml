@@ -46,4 +46,10 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/multishipping/save-address" method="POST">
+        <service class="ClassyLlama\AvaTax\Api\MultishippingAddressManagementInterface" method="execute"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 </routes>

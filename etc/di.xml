@@ -29,6 +29,8 @@
     <preference for="ClassyLlama\AvaTax\Api\Data\SDKTokenInterface" type="ClassyLlama\AvaTax\Model\Data\SDKToken"/>
     <preference for="ClassyLlama\AvaTax\Api\Framework\Interaction\Request\TaxCompositeInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Request\TaxComposite"/>
     <preference for="ClassyLlama\AvaTax\Api\Framework\Interaction\Storage\ConfigInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Storage\Config"/>
+    <preference for="ClassyLlama\AvaTax\Api\MultishippingAddressManagementInterface" type="ClassyLlama\AvaTax\Model\MultishippingCheckout\AddressManagement"/>
+    <preference for="ClassyLlama\AvaTax\Api\Data\AddressInterface" type="ClassyLlama\AvaTax\Model\MultishippingCheckout\Address"/>
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />

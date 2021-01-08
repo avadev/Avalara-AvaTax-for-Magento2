@@ -394,7 +394,7 @@ class Address
         $region = $this->getRegionByCodeAndCountry($address->getRegion(), $address->getCountry());
         if (!is_null($region)) {
             $data[QuoteAddressInterface::KEY_REGION_ID] = $region->getId();
-            $data[QuoteAddressInterface::KEY_REGION] = $region;
+            $data[QuoteAddressInterface::KEY_REGION] = $region->getName();
         }
         return $this->quoteAddressFactory->create(['data' => $data]);
     }
