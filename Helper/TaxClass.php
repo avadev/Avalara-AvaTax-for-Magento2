@@ -71,6 +71,11 @@ class TaxClass
     protected $productFactory;
 
     /**
+     * @var \Magento\Catalog\Model\ProductRepository
+     */
+    private $productRepository;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
@@ -78,19 +83,22 @@ class TaxClass
      * @param \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository
      * @param \ClassyLlama\AvaTax\Helper\Config $config
      * @param \Magento\Catalog\Model\ProductFactory $productFactory
+     * @param \Magento\Catalog\Model\ProductRepository $productRepository
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
         \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository,
         \ClassyLlama\AvaTax\Helper\Config $config,
-        \Magento\Catalog\Model\ProductFactory $productFactory
+        \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Catalog\Model\ProductRepository $productRepository
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->taxClassRepository = $taxClassRepository;
         $this->customerGroupRepository = $customerGroupRepository;
         $this->config = $config;
         $this->productFactory = $productFactory;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -121,7 +129,8 @@ class TaxClass
         if ($product->getTypeId() == self::PRODUCT_TYPE_GIFTCARD) {
             return self::GIFT_CARD_LINE_AVATAX_TAX_CODE;
         } else {
-            return $this->getAvaTaxTaxCode($product->getTaxClassId());
+            $simpleProduct = $this->productRepository->get($product->getSku());
+            return $this->getAvaTaxTaxCode($simpleProduct->getTaxClassId() ?: $product->getTaxClassId());
         }
     }
 
