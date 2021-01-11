@@ -19,10 +19,12 @@
     .form.validate {
         display: flex;
         flex-wrap: wrap;
+
         .addressOption {
             display: flex;
             margin: 20px 10px 0 10px;
             flex: 1 0 auto;
+
             .addressLabel {
                 flex: 1;
                 cursor: pointer;
@@ -30,12 +32,14 @@
                 padding: 10px 10px 10px 30px;
                 left: -10px;
                 position: relative;
+
                 .optionTitle {
                     font-weight: bold;
                     font-size: 14px;
                     margin-bottom: 5px;
                 }
             }
+
             .addressRadio {
                 flex: 0;
                 right: -10px;
@@ -43,22 +47,26 @@
                 display: table;
                 position: relative;
             }
+
             &.selected {
                 outline: 1px solid @color-gray80;
                 background: @color-white-smoke;
             }
         }
     }
+
     .validatedAddress {
         margin-top: 10px;
-        padding:10px;
+        padding: 10px;
         outline: 1px solid @color-gray80;
         background: @color-white-smoke;
     }
+
     .address-field-changed {
         text-decoration: none;
         background-color: @color-changed;
     }
+
     .errorMessageContainer {
         .instructions p,
         .originalAddressText {
@@ -68,8 +76,10 @@
             background: @color-white-smoke;
         }
     }
+
     .instructions {
         margin-top: 10px;
+
         a:hover {
             cursor: pointer;
         }
@@ -79,4 +89,13 @@
 .validateAddressForm,
 .validateBinding {
     display: none;
+}
+
+.multishipping-checkout {
+    .form.validate {
+        .addressOption {
+            margin: 0 10px 10px 0;
+        }
+    }
+
 }
