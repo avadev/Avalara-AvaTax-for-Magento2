@@ -23,58 +23,69 @@ use ClassyLlama\AvaTax\Block\Multishipping\Checkout\Shipping;
                 <?php
                 $validationResult = $block->validateAddress($_address);
                 ?>
-                <?php if ($validationResult['isDifferent']): ?>
+                <?php if ($validationResult["error"]): ?>
                     <div class="multishipping-checkout checkout-validate-address">
-                        <div class="instructions noError">
-                            <?= /* @noEscape */
-                            $validationResult['instructions'];
-                            ?>
-                        </div>
-                        <?php if ($validationResult['hasChoice']): ?>
-                            <div class="form validate noError">
-                                <div class="validContainer addressOption selected">
-                                    <div class="addressRadio">
-                                        <input type="radio" class="validAddress av-radiobutton"
-                                               name=<?= /* @noEscape */
-                                               "addressToUse[" . $_index . "]" ?>
-                                               checked
-                                               id="<?= /* @noEscape */
-                                               "valid-" . $_index ?>"
-                                               data-address='<?= $validationResult['validAddress'] ?>'
-                                        />
-                                    </div>
-                                    <label for="<?= /* @noEscape */
-                                    "valid-" . $_index ?>" class="addressLabel">
-                                        <div class="optionTitle"><?= __('Suggested Address'); ?></div>
-                                        <div class="optionAddress validAddressText">
-                                            <?= /* @noEscape */
-                                            $validationResult['validAddressHtml']; ?>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="originalContainer addressOption">
-                                    <div class="addressRadio">
-                                        <input type="radio" class="originalAddress av-radiobutton"
-                                               name=<?= /* @noEscape */
-                                               "addressToUse[" . $_index . "]" ?>
-                                               id="<?= /* @noEscape */
-                                               "original-" . $_index ?>"
-                                               data-address='<?= $validationResult['originalAddress'] ?>'
-                                        />
-                                    </div>
-                                    <label for="<?= "original-" . $_index ?>" class="addressLabel">
-                                        <div class="optionTitle">
-                                            <?= __('Original Address'); ?>
-                                        </div>
-                                        <div class="optionAddress originalAddressText">
-                                            <?= /* @noEscape */
-                                            $validationResult['originalAddressHtml']; ?>
-                                        </div>
-                                    </label>
-                                </div>
+                        <div class="errorMessageContainer">
+                            <?= __("We were unable to validate your address.") ?>
+                            <div class="instructions">
+                                <p> <?= $validationResult["errorInstructions"] ?></p>
                             </div>
-                        <?php endif; ?>
+                        </div>
                     </div>
+                <?php else: ?>
+                    <?php if ($validationResult['isDifferent']): ?>
+                        <div class="multishipping-checkout checkout-validate-address">
+                            <div class="instructions noError">
+                                <?= /* @noEscape */
+                                $validationResult['instructions'];
+                                ?>
+                            </div>
+                            <?php if ($validationResult['hasChoice']): ?>
+                                <div class="form validate noError">
+                                    <div class="validContainer addressOption selected">
+                                        <div class="addressRadio">
+                                            <input type="radio" class="validAddress av-radiobutton"
+                                                   name=<?= /* @noEscape */
+                                                   "addressToUse[" . $_index . "]" ?>
+                                                   checked
+                                                   id="<?= /* @noEscape */
+                                                   "valid-" . $_index ?>"
+                                                   data-address='<?= $validationResult['validAddress'] ?>'
+                                            />
+                                        </div>
+                                        <label for="<?= /* @noEscape */
+                                        "valid-" . $_index ?>" class="addressLabel">
+                                            <div class="optionTitle"><?= __('Suggested Address'); ?></div>
+                                            <div class="optionAddress validAddressText">
+                                                <?= /* @noEscape */
+                                                $validationResult['validAddressHtml']; ?>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="originalContainer addressOption">
+                                        <div class="addressRadio">
+                                            <input type="radio" class="originalAddress av-radiobutton"
+                                                   name=<?= /* @noEscape */
+                                                   "addressToUse[" . $_index . "]" ?>
+                                                   id="<?= /* @noEscape */
+                                                   "original-" . $_index ?>"
+                                                   data-address='<?= $validationResult['originalAddress'] ?>'
+                                            />
+                                        </div>
+                                        <label for="<?= "original-" . $_index ?>" class="addressLabel">
+                                            <div class="optionTitle">
+                                                <?= __('Original Address'); ?>
+                                            </div>
+                                            <div class="optionAddress originalAddressText">
+                                                <?= /* @noEscape */
+                                                $validationResult['originalAddressHtml']; ?>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
             <?php endif; ?>
 
@@ -132,7 +143,8 @@ use ClassyLlama\AvaTax\Block\Multishipping\Checkout\Shipping;
                                                                     ? ' checked="checked"' : '' ?> class="radio"/>
                                                             <?php endif; ?>
                                                         </div>
-                                                        <label for="s_method_<?= (int)$_address->getId() ?>_<?= $block->escapeHtmlAttr($_rate->getCode()) ?>">
+                                                        <label
+                                                            for="s_method_<?= (int)$_address->getId() ?>_<?= $block->escapeHtmlAttr($_rate->getCode()) ?>">
                                                             <?= $block->escapeHtml($_rate->getMethodTitle()) ?>
                                                             <?php $_excl = $block->getShippingPrice($_address,
                                                                 $_rate->getPrice(),

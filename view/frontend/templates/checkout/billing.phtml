@@ -39,6 +39,8 @@ use ClassyLlama\AvaTax\Block\Multishipping\Checkout\Billing;
         }
 
 
+
+
     </script>
 </div>
 <form action="<?= $block->escapeUrl($block->getPostActionUrl()); ?>"
@@ -49,54 +51,69 @@ use ClassyLlama\AvaTax\Block\Multishipping\Checkout\Billing;
         <div class="block-content">
             <?php if ($block->isValidationEnabled()): ?>
                 <?php $validationResult = $block->validateAddress($block->getAddress()); ?>
-                <?php if ($validationResult['isDifferent']): ?>
+                <?php if ($validationResult["error"]): ?>
                     <div class="multishipping-checkout checkout-validate-address">
-                        <div class="instructions noError">
-                            <?= /* @noEscape */
-                            $validationResult['instructions'];
-                            ?>
-                        </div>
-                        <?php if ($validationResult['hasChoice']): ?>
-                            <div class="form validate noError">
-                                <div class="validContainer addressOption selected">
-                                    <div class="addressRadio">
-                                        <input type="radio" class="validAddress av-radiobutton"
-                                               name=<?= /* @noEscape */ "addressToUse"?>
-                                               checked
-                                               id="<?= /* @noEscape */ "valid"?>"
-                                               data-address='<?= $validationResult['validAddress'] ?>'
-                                        />
-                                    </div>
-                                    <label for="<?= /* @noEscape */
-                                    "valid" ?>" class="addressLabel">
-                                        <div class="optionTitle"><?= __('Suggested Address'); ?></div>
-                                        <div class="optionAddress validAddressText">
-                                            <?= /* @noEscape */
-                                            $validationResult['validAddressHtml']; ?>
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="originalContainer addressOption">
-                                    <div class="addressRadio">
-                                        <input type="radio" class="originalAddress av-radiobutton"
-                                               name=<?= /* @noEscape */ "addressToUse"?>
-                                               id="<?= /* @noEscape */ 'original'?>"
-                                               data-address='<?= $validationResult['originalAddress'] ?>'
-                                        />
-                                    </div>
-                                    <label for="<?= "original" ?>" class="addressLabel">
-                                        <div class="optionTitle">
-                                            <?= __('Original Address'); ?>
-                                        </div>
-                                        <div class="optionAddress originalAddressText">
-                                            <?= /* @noEscape */
-                                            $validationResult['originalAddressHtml']; ?>
-                                        </div>
-                                    </label>
-                                </div>
+                        <div class="errorMessageContainer">
+                            <?= __("We were unable to validate your address.") ?>
+                            <div class="instructions">
+                                <p> <?= $validationResult["errorInstructions"] ?></p>
                             </div>
-                        <?php endif; ?>
+                        </div>
                     </div>
+                <?php else: ?>
+                    <?php if ($validationResult['isDifferent']): ?>
+                        <div class="multishipping-checkout checkout-validate-address">
+                            <div class="instructions noError">
+                                <?= /* @noEscape */
+                                $validationResult['instructions'];
+                                ?>
+                            </div>
+                            <?php if ($validationResult['hasChoice']): ?>
+                                <div class="form validate noError">
+                                    <div class="validContainer addressOption selected">
+                                        <div class="addressRadio">
+                                            <input type="radio" class="validAddress av-radiobutton"
+                                                   name=<?= /* @noEscape */
+                                                   "addressToUse" ?>
+                                                   checked
+                                                   id="<?= /* @noEscape */
+                                                   "valid" ?>"
+                                                   data-address='<?= $validationResult['validAddress'] ?>'
+                                            />
+                                        </div>
+                                        <label for="<?= /* @noEscape */
+                                        "valid" ?>" class="addressLabel">
+                                            <div class="optionTitle"><?= __('Suggested Address'); ?></div>
+                                            <div class="optionAddress validAddressText">
+                                                <?= /* @noEscape */
+                                                $validationResult['validAddressHtml']; ?>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="originalContainer addressOption">
+                                        <div class="addressRadio">
+                                            <input type="radio" class="originalAddress av-radiobutton"
+                                                   name=<?= /* @noEscape */
+                                                   "addressToUse" ?>
+                                                   id="<?= /* @noEscape */
+                                                   'original' ?>"
+                                                   data-address='<?= $validationResult['originalAddress'] ?>'
+                                            />
+                                        </div>
+                                        <label for="<?= "original" ?>" class="addressLabel">
+                                            <div class="optionTitle">
+                                                <?= __('Original Address'); ?>
+                                            </div>
+                                            <div class="optionAddress originalAddressText">
+                                                <?= /* @noEscape */
+                                                $validationResult['originalAddressHtml']; ?>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
             <?php endif; ?>
             <div class="box box-billing-address">
