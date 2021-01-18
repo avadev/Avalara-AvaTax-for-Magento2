@@ -91,11 +91,19 @@ class AddressValidation
         $result = [];
         if (in_array($address->getCountryId(), explode(',', $this->customerAddressBlock->getCountriesEnabled()))) {
             /** @var AddressInterface $result */
-            $validAddress = $this->validation->validateAddress($address,
-                $this->storeManager->getStore()->getId());
+            try {
+                $validAddress = $this->validation->validateAddress($address,
+                    $this->storeManager->getStore()->getId());
+            } catch (\Exception $exception) {
+                return [
+                    'error'             => true,
+                    'errorInstructions' => $exception->getMessage()
+                ];
+            }
             if ($validAddress) {
                 $changedFields = $this->compareFields($address, $validAddress);
                 $result = [
+                    'error'               => false,
                     'isDifferent'         => !empty($changedFields),
                     'validAddress'        => $this->prepareAddressJson($validAddress),
                     'originalAddress'     => $this->prepareAddressJson($address),
@@ -103,7 +111,6 @@ class AddressValidation
                     'originalAddressHtml' => $this->prepareAddressString($address),
                     'hasChoice'           => $this->customerAddressBlock->getChoice(),
                     'instructions'        => json_decode($this->customerAddressBlock->getInstructions()),
-                    'errorInstructions'   => json_decode($this->customerAddressBlock->getErrorInstructions()),
                 ];
             }
         }
