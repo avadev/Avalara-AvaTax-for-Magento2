@@ -37,10 +37,6 @@ use ClassyLlama\AvaTax\Block\Multishipping\Checkout\Billing;
                 }
             }
         }
-
-
-
-
     </script>
 </div>
 <form action="<?= $block->escapeUrl($block->getPostActionUrl()); ?>"
@@ -49,8 +45,7 @@ use ClassyLlama\AvaTax\Block\Multishipping\Checkout\Billing;
       class="form multicheckout billing address-validation-multicheckout">
     <div class="block block-billing">
         <div class="block-content">
-            <?php if ($block->isValidationEnabled()): ?>
-                <?php $validationResult = $block->validateAddress($block->getAddress()); ?>
+            <?php if ($block->isValidationEnabled() && $validationResult = $block->validateAddress($block->getAddress())): ?>
                 <?php if ($validationResult["error"]): ?>
                     <div class="multishipping-checkout checkout-validate-address">
                         <div class="errorMessageContainer">

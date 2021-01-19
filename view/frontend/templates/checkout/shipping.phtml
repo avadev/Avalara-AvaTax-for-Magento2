@@ -19,10 +19,7 @@ use ClassyLlama\AvaTax\Block\Multishipping\Checkout\Shipping;
                         $block->getAddressCount()), ['span']) ?>
                 </strong>
             </div>
-            <?php if ($block->isValidationEnabled()): ?>
-                <?php
-                $validationResult = $block->validateAddress($_address);
-                ?>
+            <?php if ($block->isValidationEnabled() && $validationResult = $block->validateAddress($_address)): ?>
                 <?php if ($validationResult["error"]): ?>
                     <div class="multishipping-checkout checkout-validate-address">
                         <div class="errorMessageContainer">
