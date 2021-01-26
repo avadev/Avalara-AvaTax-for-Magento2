@@ -31,6 +31,11 @@
     <preference for="ClassyLlama\AvaTax\Api\Framework\Interaction\Storage\ConfigInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Storage\Config"/>
     <preference for="ClassyLlama\AvaTax\Api\MultishippingAddressManagementInterface" type="ClassyLlama\AvaTax\Model\MultishippingCheckout\AddressManagement"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\AddressInterface" type="ClassyLlama\AvaTax\Model\MultishippingCheckout\Address"/>
+    <preference for="ClassyLlama\AvaTax\Api\Data\BatchQueueTransactionInterface" type="\ClassyLlama\AvaTax\Model\BatchQueueTransaction" />
+    <preference for="ClassyLlama\AvaTax\Api\BatchQueueTransactionRepositoryInterface" type="ClassyLlama\AvaTax\Model\BatchQueueTransactionRepository" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\BatchQueueTransactionSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
+    <preference for="ClassyLlama\AvaTax\Api\QueueRepositoryInterface" type="ClassyLlama\AvaTax\Model\QueueRepository" />
+    <preference for="ClassyLlama\AvaTax\Api\Data\QueueSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
 
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />

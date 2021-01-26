@@ -15,17 +15,30 @@
 
 namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
+use Avalara\BatchAdjustTransactionModel;
+use Avalara\CreateTransactionBatchRequestModel;
+use Avalara\TransactionBatchItemModel;
+use Avalara\TransactionBuilder;
+use ClassyLlama\AvaTax\Api\RestTaxInterface;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result;
+use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Model\Factory\TransactionBuilderFactory;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResultFactory;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
+use Exception;
+use GuzzleHttp\Exception\RequestException;
+use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
 
-class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
-    implements \ClassyLlama\AvaTax\Api\RestTaxInterface
+class Tax extends Rest
+    implements RestTaxInterface
 {
     const LINE_PARAM_NAME_UNIT_NAME = 'AvaTax.LandedCost.UnitName';
     const LINE_PARAM_NAME_UNIT_AMT = 'AvaTax.LandedCost.UnitAmount';
@@ -53,6 +66,11 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     protected $customsConfigHelper;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
@@ -60,6 +78,7 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param TaxResultFactory $taxResultFactory
      * @param RestConfig $restConfig
      * @param CustomsConfig $customsConfigHelper
+     * @param Config $config
      */
     public function __construct(
         LoggerInterface $logger,
@@ -68,28 +87,30 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         TransactionBuilderFactory $transactionBuilderFactory,
         TaxResultFactory $taxResultFactory,
         RestConfig $restConfig,
-        CustomsConfig $customsConfigHelper
+        CustomsConfig $customsConfigHelper,
+        Config $config
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->transactionBuilderFactory = $transactionBuilderFactory;
         $this->taxResultFactory = $taxResultFactory;
         $this->restConfig = $restConfig;
         $this->customsConfigHelper = $customsConfigHelper;
+        $this->config = $config;
     }
 
     /**
      * REST call to post tax transaction
      *
-     * @param \Magento\Framework\DataObject $request
-     * @param null|bool                     $isProduction
-     * @param null|string|int               $scopeId
-     * @param string                        $scopeType
-     * @param array                         $params
+     * @param DataObject $request
+     * @param null|bool $isProduction
+     * @param null|string|int $scopeId
+     * @param string $scopeType
+     * @param array $params
      *
-     * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return Result
+     * @throws LocalizedException
      * @throws AvataxConnectionException
-     * @throws \Exception
+     * @throws Exception
      */
     public function getTax( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
@@ -143,8 +164,8 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     /**
      * Set transaction-level fields for request
      *
-     * @param \Avalara\TransactionBuilder $transactionBuilder
-     * @param \Magento\Framework\DataObject $request
+     * @param TransactionBuilder $transactionBuilder
+     * @param DataObject $request
      */
     protected function setTransactionDetails($transactionBuilder, $request)
     {
@@ -171,7 +192,8 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
             $transactionBuilder->withDiscountAmount($request->getDiscount());
         }
         if ($request->hasExchangeRate()) {
-            $transactionBuilder->withExchangeRate($request->getExchangeRate(), $request->getExchangeRateEffectiveDate());
+            $transactionBuilder->withExchangeRate($request->getExchangeRate(),
+                $request->getExchangeRateEffectiveDate());
         }
         if ($request->hasReportingLocationCode()) {
             $transactionBuilder->withReportingLocationCode($request->getReportingLocationCode());
@@ -185,7 +207,8 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         if ($request->hasTaxOverride()) {
             $override = $request->getTaxOverride();
             if (is_object($override)) {
-                $transactionBuilder->withTaxOverride($override->getType(), $override->getReason(), $override->getTaxAmount(), $override->getTaxDate());
+                $transactionBuilder->withTaxOverride($override->getType(), $override->getReason(),
+                    $override->getTaxAmount(), $override->getTaxDate());
             }
         }
 //        if($request->hasShippingMode()) {
@@ -196,9 +219,9 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     /**
      * Set address entries and fields for request
      *
-     * @param \Avalara\TransactionBuilder $transactionBuilder
-     * @param \Magento\Framework\DataObject $request
-     * @throws \Exception
+     * @param TransactionBuilder $transactionBuilder
+     * @param DataObject $request
+     * @throws Exception
      */
     protected function setLineDetails($transactionBuilder, $request)
     {
@@ -232,7 +255,8 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                         $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_UNIT_AMT, $line->getUnitAmount());
                     }
                     if ($line->hasPreferenceProgram() && $line->getPreferenceProgram() !== '') {
-                        $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_PREF_PROGRAM, $line->getPreferenceProgram());
+                        $transactionBuilder->withLineParameter(self::LINE_PARAM_NAME_PREF_PROGRAM,
+                            $line->getPreferenceProgram());
                     }
                 }
 
@@ -247,8 +271,8 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     /**
      * Set line item entries and fields for request
      *
-     * @param \Avalara\TransactionBuilder $transactionBuilder
-     * @param \Magento\Framework\DataObject $request
+     * @param TransactionBuilder $transactionBuilder
+     * @param DataObject $request
      */
     protected function setAddressDetails($transactionBuilder, $request)
     {
@@ -266,5 +290,67 @@ class Tax extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                 );
             }
         }
+    }
+
+    /**
+     * @param $requests
+     * @param null $isProduction
+     * @param null $scopeId
+     * @param string $scopeType
+     * @param array $params
+     * @return Result
+     * @throws AvataxConnectionException
+     */
+    public function getTaxBatch(
+        $requests,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = ScopeInterface::SCOPE_STORE
+    ): Result {
+        $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
+        $transactions = [];
+        foreach ($requests as $request) {
+            $transactionBuilder = $this->transactionBuilderFactory->create([
+                'client'       => $client,
+                'companyCode'  => $request->getCompanyCode(),
+                'type'         => $request->getType(),
+                'customerCode' => $request->getCustomerCode(),
+            ]);
+            $this->setTransactionDetails($transactionBuilder, $request);
+            try {
+                $this->setLineDetails($transactionBuilder, $request);
+            } catch (Exception $e) {
+            }
+            $this->setAddressDetails($transactionBuilder, $request);
+            $createAdjustmentRequest = $transactionBuilder->createAdjustmentRequest(null, null);
+
+            $requestData = $createAdjustmentRequest['newTransaction'];
+
+            $transaction = new TransactionBatchItemModel();
+            $transaction->createTransactionModel = $requestData;
+            $transactions[] = $transaction;
+        }
+        $transactionBatchRequestModel = new CreateTransactionBatchRequestModel();
+        $transactionBatchRequestModel->name = "Batch" . date("Y-m-d H:i:s");
+        $transactionBatchRequestModel->transactions = $transactions;
+
+        $resultObj = null;
+        try {
+            $resultObj = $client->createTransactionBatch($this->config->getCompanyId(), $transactionBatchRequestModel);
+        } catch (RequestException $clientException) {
+            $this->handleException($clientException, $transactionBatchRequestModel);
+        }
+        $resultGeneric = $this->formatResult($resultObj);
+        $result = $this->taxResultFactory->create(['data' => $resultGeneric->getData()]);
+        $result->setData('raw_result', $resultObj);
+        $result->setData('raw_request', $transactionBatchRequestModel);
+
+        /**
+         * We store the request on the result so we can map request items to response items
+         */
+        $result->setRequest($transactionBatchRequestModel);
+
+        return $result;
     }
 }
