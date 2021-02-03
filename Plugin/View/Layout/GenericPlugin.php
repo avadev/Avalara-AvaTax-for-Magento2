@@ -85,7 +85,7 @@ class GenericPlugin
      * @param LayoutGeneric $subject
      * @param UiComponentInterface $component
      */
-    public function beforeBuild(LayoutGeneric $subject, UiComponentInterface $component): void
+    public function beforeBuild(LayoutGeneric $subject, UiComponentInterface $component)
     {
         if ($component instanceof ComponentForm) {
             // magento <= 2.3.0
@@ -111,7 +111,7 @@ class GenericPlugin
      * @param UiComponentInterface $childComponent
      * @param string $markerInterface
      */
-    private function processComponents(UiComponentInterface $childComponent, $markerInterface = ''): void
+    private function processComponents(UiComponentInterface $childComponent, $markerInterface = '')
     {
         try {
             if (!empty($markerInterface)) {

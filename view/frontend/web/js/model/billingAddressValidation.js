@@ -95,11 +95,14 @@ define(
                     "suffix",
                     "vatId",
                 ];
-                for (var element of Object.keys(address)) {
-                    if (!allowedAddressProperties.includes(element)) {
-                        delete address[element]
+
+                var addressKeys = Object.keys(address);
+                for (var i = 0; i < addressKeys.length; i++) {
+                    if (!allowedAddressProperties.includes(addressKeys[i])) {
+                        delete address[addressKeys[i]];
                     }
                 }
+
                 return address;
             }
 
