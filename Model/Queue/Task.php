@@ -15,15 +15,13 @@
 
 namespace ClassyLlama\AvaTax\Model\Queue;
 
-use ClassyLlama\AvaTax\Framework\Interaction\MetaData\ValidationException;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use ClassyLlama\AvaTax\Model\Queue\Processing\ProcessingStrategyInterface;
 use ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection;
 use ClassyLlama\AvaTax\Model\ResourceModel\Queue\CollectionFactory;
 use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Helper\Config;
-use Exception;
 use Magento\Framework\DB\Select;
-use Magento\Framework\Exception\LocalizedException;
 use Zend_Db_Select_Exception;
 
 /**
@@ -31,7 +29,6 @@ use Zend_Db_Select_Exception;
  */
 class Task
 {
-    const BATCH_COLLECTION_PAGE_SIZE = 1000;
 
     /**
      * @var AvaTaxLogger
@@ -78,17 +75,11 @@ class Task
      */
     protected $deleteFailedCount = 0;
 
-    /**
-     * Seconds to wait before processing an item in the queue, before it gets processed.
-     *
-     * @see https://github.com/classyllama/ClassyLlama_AvaTax/issues/170 for context
-     */
-    const QUEUE_PROCESSING_DELAY = 2 * 60;
 
     /**
-     * @var Processing
+     * @var ProcessingStrategyInterface
      */
-    private $processing;
+    private $queueProcessor;
 
     /**
      * Task constructor.
@@ -96,18 +87,18 @@ class Task
      * @param AvaTaxLogger $avaTaxLogger
      * @param Config $avaTaxConfig
      * @param CollectionFactory $queueCollectionFactory
-     * @param Processing $processing
+     * @param QueueProcessorProvider $queueProcessorProvider
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
         Config $avaTaxConfig,
         CollectionFactory $queueCollectionFactory,
-        Processing $processing
+        QueueProcessorProvider $queueProcessorProvider
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
         $this->queueCollectionFactory = $queueCollectionFactory;
-        $this->processing = $processing;
+        $this->queueProcessor = $queueProcessorProvider->getQueueProcessor();
     }
 
     /**
@@ -171,36 +162,16 @@ class Task
     /**
      * Process pending queue records
      *
-     * @param int $limit
-     * @throws ValidationException
-     * @throws LocalizedException
+     * @param bool $limit
      */
     public function processPendingQueue($limit = false)
     {
         $this->avaTaxLogger->debug(__('Starting queue processing'));
-
-        // Get Collection Last Page Number
-        $queuePagesCountCollection = $this->queueCollectionFactory->create();
-        $queuePagesCountCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PENDING)
-            ->addCreatedAtBeforeFilter(self::QUEUE_PROCESSING_DELAY)
-            ->setPageSize(self::BATCH_COLLECTION_PAGE_SIZE);
-        $lastPageNumber = $queuePagesCountCollection->getLastPageNumber();
-        if ($limit) {
-            $limitLastPage = ceil($limit / self::BATCH_COLLECTION_PAGE_SIZE);
-            $lastPageNumber = $lastPageNumber > $limitLastPage ? $limitLastPage : $lastPageNumber;
-        }
-
-        for ($page = 1; $page <= $lastPageNumber; $page++) {
-            // Initialize the queue collection
-            $queueCollection = $this->queueCollectionFactory->create();
-            $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PENDING)
-                ->addCreatedAtBeforeFilter(self::QUEUE_PROCESSING_DELAY)
-                ->setPageSize(self::BATCH_COLLECTION_PAGE_SIZE)
-                ->setCurPage($page);
-            $this->avaTaxLogger->debug("Queue Batch Collection Page $page processing");
-            $batchQueueTransaction = $this->processing->executeCollection($queueCollection);
-            $this->processCount += $batchQueueTransaction->getRecordCount();
-        }
+        $this->queueProcessor->setLimit($limit);
+        $this->queueProcessor->execute();
+        $this->errorMessages = $this->queueProcessor->getErrorMessages();
+        $this->processCount = $this->queueProcessor->getProcessCount();
+        $this->errorCount = $this->queueProcessor->getErrorCount();
 
         $context = [
             'error_count'   => $this->errorCount,

@@ -21,6 +21,7 @@ use ClassyLlama\AvaTax\Api\QueueRepositoryInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\ResponseFactory;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use ClassyLlama\AvaTax\Model\Queue\Processing\BatchProcessing;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
@@ -91,7 +92,7 @@ class BatchResponseProcessing
      * @param ResponseFactory $responseFactory
      * @param InvoiceInterface $invoice
      * @param CreditmemoRepositoryInterface $creditmemoRepository
-     * @param Processing $processing
+     * @param BatchProcessing $processing
      * @param QueueRepositoryInterface $queueRepository
      */
     public function __construct(
@@ -103,7 +104,7 @@ class BatchResponseProcessing
         ResponseFactory $responseFactory,
         InvoiceInterface $invoice,
         CreditmemoRepositoryInterface $creditmemoRepository,
-        Processing $processing,
+        BatchProcessing $processing,
         QueueRepositoryInterface $queueRepository
     ) {
         $this->avaTaxLogger = $avaTaxLogger;

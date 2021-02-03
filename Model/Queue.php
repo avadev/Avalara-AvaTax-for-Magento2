@@ -73,11 +73,6 @@ class Queue extends AbstractModel
     protected $avaTaxLogger;
 
     /**
-     * @var Queue\Processing
-     */
-    protected $processing;
-
-    /**
      * @var \Magento\Eav\Model\Config
      */
     protected $eavConfig;
@@ -93,7 +88,6 @@ class Queue extends AbstractModel
      * @param Context $context
      * @param Registry $registry
      * @param AvaTaxLogger $avaTaxLogger
-     * @param Queue\Processing $processing
      * @param \Magento\Eav\Model\Config $eavConfig
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
@@ -103,14 +97,12 @@ class Queue extends AbstractModel
         Context $context,
         Registry $registry,
         AvaTaxLogger $avaTaxLogger,
-        Queue\Processing $processing,
         EavConfig $eavConfig,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
-        $this->processing = $processing;
         $this->eavConfig = $eavConfig;
         parent::__construct(
             $context,
@@ -129,14 +121,6 @@ class Queue extends AbstractModel
     protected function _construct()
     {
         $this->_init('ClassyLlama\AvaTax\Model\ResourceModel\Queue');
-    }
-
-    /*
-     * Process this queued entity
-     */
-    public function process()
-    {
-        $this->processing->execute($this);
     }
 
     /**

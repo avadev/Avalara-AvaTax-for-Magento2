@@ -19,6 +19,7 @@ use ClassyLlama\AvaTax\Framework\AppInterface as AvaTaxAppInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Address as TaxAddress;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
+use ClassyLlama\AvaTax\Model\Config\Source\QueueProcessingType;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface;
@@ -133,6 +134,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_QUEUE_COMPLETE_LIFETIME = 'tax/avatax/queue_complete_lifetime';
 
     const XML_PATH_AVATAX_QUEUE_FAILED_LIFETIME = 'tax/avatax/queue_failed_lifetime';
+
+    const XML_PATH_AVATAX_QUEUE_PROCESSING_TYPE = 'tax/avatax/queue_processing_type';
 
     const XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED = 'tax/avatax/queue_admin_notification_enabled';
 
@@ -1211,6 +1214,16 @@ class Config extends AbstractHelper
     public function getQueueAdminNotificationEnabled()
     {
         return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_ADMIN_NOTIFICATION_ENABLED);
+    }
+
+    /**
+     * Return Queue Processing Type
+     *
+     * @return int
+     */
+    public function getQueueProcessingType()
+    {
+        return (int) $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_PROCESSING_TYPE) ?? QueueProcessingType::NORMAL;
     }
 
     /**

@@ -297,7 +297,6 @@ class Tax extends Rest
      * @param null $isProduction
      * @param null $scopeId
      * @param string $scopeType
-     * @param array $params
      * @return Result
      * @throws AvataxConnectionException
      */
