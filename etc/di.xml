@@ -320,4 +320,13 @@
             <argument name="taxCalculation" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation</argument>
         </arguments>
     </type>
+
+    <type name="ClassyLlama\AvaTax\Model\Queue\QueueProcessorProvider">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="normal" xsi:type="string">ClassyLlama\AvaTax\Model\Queue\Processing\NormalProcessing</item>
+                <item name="batch" xsi:type="string">ClassyLlama\AvaTax\Model\Queue\Processing\BatchProcessing</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

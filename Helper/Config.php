@@ -1219,11 +1219,11 @@ class Config extends AbstractHelper
     /**
      * Return Queue Processing Type
      *
-     * @return int
+     * @return string
      */
     public function getQueueProcessingType()
     {
-        return (int) $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_PROCESSING_TYPE) ?? QueueProcessingType::NORMAL;
+        return $this->scopeConfig->getValue(self::XML_PATH_AVATAX_QUEUE_PROCESSING_TYPE) ?? QueueProcessingType::NORMAL;
     }
 
     /**

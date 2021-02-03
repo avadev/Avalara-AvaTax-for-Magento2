@@ -24,9 +24,8 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class QueueProcessingType implements OptionSourceInterface
 {
-    const NORMAL = 1;
-    const BATCH = 2;
-
+    const NORMAL = 'normal';
+    const BATCH = 'batch';
     /**
      * @return array
      */

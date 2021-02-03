@@ -3,10 +3,9 @@
 namespace ClassyLlama\AvaTax\Model\Queue;
 
 use ClassyLlama\AvaTax\Helper\Config;
-use ClassyLlama\AvaTax\Model\Config\Source\QueueProcessingType;
-use ClassyLlama\AvaTax\Model\Queue\Processing\BatchProcessing;
 use ClassyLlama\AvaTax\Model\Queue\Processing\NormalProcessing;
 use ClassyLlama\AvaTax\Model\Queue\Processing\ProcessingStrategyInterface;
+use Magento\Framework\ObjectManagerInterface;
 
 /**
  * Class QueueProcessorProvider
@@ -21,30 +20,30 @@ class QueueProcessorProvider
     private $config;
 
     /**
-     * @var Processing\BatchProcessing
+     * @var ObjectManagerInterface
      */
-    private $batchProcessing;
+    private $objectManager;
 
     /**
-     * @var Processing\NormalProcessing
+     * @var array
      */
-    private $normalProcessing;
+    private $processors;
 
     /**
      * QueueProcessorProvider constructor.
      *
      * @param Config $config
-     * @param BatchProcessing $batchProcessing
-     * @param NormalProcessing $normalProcessing
+     * @param ObjectManagerInterface $objectManager
+     * @param array $processors
      */
     public function __construct(
         Config $config,
-        BatchProcessing $batchProcessing,
-        NormalProcessing $normalProcessing
+        ObjectManagerInterface $objectManager,
+        $processors = []
     ) {
         $this->config = $config;
-        $this->batchProcessing = $batchProcessing;
-        $this->normalProcessing = $normalProcessing;
+        $this->objectManager = $objectManager;
+        $this->processors = $processors;
     }
 
     /**
@@ -52,15 +51,8 @@ class QueueProcessorProvider
      */
     public function getQueueProcessor(): ProcessingStrategyInterface
     {
-        switch ($this->config->getQueueProcessingType()) {
-            case QueueProcessingType::BATCH:
-                $processor = $this->batchProcessing;
-                break;
-            case QueueProcessingType::NORMAL:
-            default:
-                $processor = $this->normalProcessing;
-                break;
-        }
-        return $processor;
+        return isset($this->processors[$this->config->getQueueProcessingType()])
+            ? $this->objectManager->create($this->processors[$this->config->getQueueProcessingType()])
+            : $this->objectManager->create(NormalProcessing::class);
     }
 }
