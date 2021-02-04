@@ -15,42 +15,52 @@
 
 namespace ClassyLlama\AvaTax\Observer\Model\Customer;
 
+use ClassyLlama\AvaTax\Api\RestCustomerInterface;
 use ClassyLlama\AvaTax\Exception\AvaTaxCustomerDoesNotExistException;
+use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
+use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use Exception;
+use Magento\Backend\App\Area\FrontNameResolver;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\App\State;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\Customer as CustomerHelper;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 
 class AfterSaveObserver implements ObserverInterface
 {
     /**
-     * @var \ClassyLlama\AvaTax\Api\RestCustomerInterface
+     * @var RestCustomerInterface
      */
     protected $restCustomerInterface;
 
     /**
-     * @var \ClassyLlama\AvaTax\Helper\DocumentManagementConfig
+     * @var DocumentManagementConfig
      */
     protected $documentManagementConfig;
 
     /**
-     * @var \Magento\Framework\App\State
+     * @var State
      */
     protected $appState;
 
     /**
-     * @var \Magento\Framework\Message\ManagerInterface
+     * @var ManagerInterface
      */
     protected $messageManager;
 
     /**
-     * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
+     * @var AvaTaxLogger
      */
     protected $avaTaxLogger;
 
     /**
-     * @var \Magento\Framework\App\CacheInterface
+     * @var CacheInterface
      */
     protected $cache;
 
@@ -62,21 +72,21 @@ class AfterSaveObserver implements ObserverInterface
     /**
      * BeforeSaveObserver constructor.
      *
-     * @param \ClassyLlama\AvaTax\Api\RestCustomerInterface       $restCustomerInterface
-     * @param \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig
-     * @param \Magento\Framework\App\State                        $appState
-     * @param \Magento\Framework\Message\ManagerInterface         $messageManager
-     * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger       $avaTaxLogger
-     * @param \Magento\Framework\App\CacheInterface               $cache
+     * @param RestCustomerInterface       $restCustomerInterface
+     * @param DocumentManagementConfig $documentManagementConfig
+     * @param State                        $appState
+     * @param ManagerInterface         $messageManager
+     * @param AvaTaxLogger       $avaTaxLogger
+     * @param CacheInterface               $cache
      * @param CustomerHelper                                      $customerHelper
      */
     public function __construct(
-        \ClassyLlama\AvaTax\Api\RestCustomerInterface $restCustomerInterface,
-        \ClassyLlama\AvaTax\Helper\DocumentManagementConfig $documentManagementConfig,
-        \Magento\Framework\App\State $appState,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
-        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
-        \Magento\Framework\App\CacheInterface $cache,
+        RestCustomerInterface $restCustomerInterface,
+        DocumentManagementConfig $documentManagementConfig,
+        State $appState,
+        ManagerInterface $messageManager,
+        AvaTaxLogger $avaTaxLogger,
+        CacheInterface $cache,
         CustomerHelper $customerHelper
     )
     {
@@ -91,26 +101,26 @@ class AfterSaveObserver implements ObserverInterface
 
     /**
      * {@inheritDoc}
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {
-        /** @var \Magento\Customer\Api\Data\CustomerInterface $customer */
+        /** @var CustomerInterface $customer */
         $customer = $observer->getData('customer_data_object');
 
-        if (!$this->documentManagementConfig->isEnabled($customer->getStoreId())) {
+        if (!$customer || !$this->documentManagementConfig->isEnabled($customer->getStoreId())) {
             return;
         }
 
         try {
             $this->restCustomerInterface->updateCustomer($customer, null, $customer->getStoreId());
             $this->cache->clean([Config::AVATAX_CACHE_TAG,
-             Config::AVATAX_CACHE_TAG . '-' . 
+             Config::AVATAX_CACHE_TAG . '-' .
              $this->customerHelper->getCustomerCode($customer, null, ScopeInterface::SCOPE_STORE)]);
         } catch (AvaTaxCustomerDoesNotExistException $avaTaxCustomerDoesNotExistException) {
             // Ignore errors where the customer doesn't exist
-        } catch (\Exception $exception) {
-            if ($this->appState->getAreaCode() == \Magento\Backend\App\Area\FrontNameResolver::AREA_CODE) {
+        } catch (Exception $exception) {
+            if ($this->appState->getAreaCode() == FrontNameResolver::AREA_CODE) {
                 //show error message
                 $this->messageManager->addErrorMessage(__("Error sending updated customer data to Avalara."));
             }
