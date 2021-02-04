@@ -156,7 +156,7 @@ class ExtensionAttributesPersistencePlugin
                     )
                 ) === 0;
 
-            if ($extensionAttributes === null || $allValuesAreNull) {
+            if ($object->isDeleted() || $extensionAttributes === null || $allValuesAreNull) {
                 $deleteId = $object->getData(
                     $tablesToUpdate[$tableName]['join_on_field']
                 );
