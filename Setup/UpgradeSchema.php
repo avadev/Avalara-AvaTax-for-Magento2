@@ -430,10 +430,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             'avatax_quote_item'            => [
                 'id_field'       => 'quote_item_id',
                 'id_field_label' => 'Quote Item ID',
-                                'foreign_table' => 'quote_item',
-                                'foreign_field' => 'item_id',
+                'foreign_table'  => 'quote_item',
+                'foreign_field'  => 'item_id',
                 'comment'        => 'AvaTax Quote Item Extension',
-                'connection'        => self::$checkoutConnectionName,
+                'connection'     => self::$checkoutConnectionName,
             ],
             'avatax_sales_order_item'      => [
                 'id_field'       => 'order_item_id',
@@ -441,7 +441,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'foreign_table'  => 'sales_order_item',
                 'foreign_field'  => 'item_id',
                 'comment'        => 'AvaTax Order Item Extension',
-                'connection'        => self::$connectionName,
+                'connection'     => self::$connectionName,
             ],
             'avatax_sales_invoice_item'    => [
                 'id_field'       => 'invoice_item_id',
@@ -449,7 +449,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'foreign_table'  => 'sales_invoice_item',
                 'foreign_field'  => 'entity_id',
                 'comment'        => 'AvaTax Invoice Item Extension',
-                'connection'        => self::$connectionName,
+                'connection'     => self::$connectionName,
             ],
             'avatax_sales_creditmemo_item' => [
                 'id_field'       => 'creditmemo_item_id',
@@ -457,7 +457,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'foreign_table'  => 'sales_creditmemo_item',
                 'foreign_field'  => 'entity_id',
                 'comment'        => 'AvaTax Credit Memo Item Extension',
-                'connection'        => self::$connectionName,
+                'connection'     => self::$connectionName,
             ],
         ];
 
@@ -653,7 +653,111 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ]
                 );
         }
+        if (version_compare($context->getVersion(), '2.1.6', '<')) {
+            $this->createQueueBatchTransactionsTable($setup);
+        }
 
         $setup->endSetup();
+    }
+
+    private function createQueueBatchTransactionsTable(SchemaSetupInterface $setup)
+    {
+        $table = $setup->getConnection()
+            ->newTable(
+                $setup->getTable('avatax_batch_queue')
+            )
+            ->addColumn(
+                'entity_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                [
+                    'nullable' => false,
+                    'identity' => true,
+                    'primary'  => true
+                ],
+                'Entity Id'
+            )
+            ->addColumn(
+                'batch_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                10,
+                [
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Batch Id'
+            )
+            ->addColumn(
+                'name',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
+                [
+                    'nullable' => false,
+                ],
+                'Batch Name'
+            )
+            ->addColumn(
+                'company_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                10,
+                [
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Company Id'
+            )
+            ->addColumn(
+                'status',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
+                [
+                    'nullable' => false,
+                ],
+                'Status'
+            )
+            ->addColumn(
+                'record_count',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                10,
+                [
+                    'nullable' => false,
+                    'unsigned' => true,
+                ],
+                'Status'
+            )
+            ->addColumn(
+                'input_file_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                20,
+                [
+                    'nullable' => true,
+                ],
+                'Input File Id'
+            )
+            ->addColumn(
+                'result_file_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                20,
+                [
+                    'nullable' => true,
+                ],
+                'Result File Id'
+            )
+            ->addColumn(
+                'created_at',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                null,
+                ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                'Queue Time'
+            )
+            ->addColumn(
+                'updated_at',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                null,
+                ['nullable' => true],
+                'Updated Time'
+            );
+
+        $setup->getConnection()->createTable($table);
     }
 }

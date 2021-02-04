@@ -8,6 +8,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax as InteractionRestTax;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as RestTaxResult;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\ResultFactory as TaxResultFactory;
+use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use ClassyLlama\AvaTax\Model\Factory\TransactionBuilderFactory;
@@ -33,6 +34,7 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
 
     /**
      * TaxComposite constructor.
+     *
      * @param ResultStorage $resultStorage
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
@@ -41,6 +43,7 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
      * @param TaxResultFactory $taxResultFactory
      * @param RestConfig $restConfig
      * @param CustomsConfig $customsConfigHelper
+     * @param Config $config
      */
     public function __construct(
         ResultStorage $resultStorage,
@@ -50,7 +53,8 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
         TransactionBuilderFactory $transactionBuilderFactory,
         TaxResultFactory $taxResultFactory,
         RestConfig $restConfig,
-        CustomsConfig $customsConfigHelper
+        CustomsConfig $customsConfigHelper,
+        Config $config
     ) {
         parent::__construct(
             $logger,
@@ -59,7 +63,8 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
             $transactionBuilderFactory,
             $taxResultFactory,
             $restConfig,
-            $customsConfigHelper
+            $customsConfigHelper,
+            $config
         );
         $this->resultStorage = $resultStorage;
     }

@@ -16,15 +16,20 @@
 namespace ClassyLlama\AvaTax\Model\Queue;
 
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use ClassyLlama\AvaTax\Model\Queue\Processing\ProcessingStrategyInterface;
+use ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection;
 use ClassyLlama\AvaTax\Model\ResourceModel\Queue\CollectionFactory;
 use ClassyLlama\AvaTax\Model\Queue;
 use ClassyLlama\AvaTax\Helper\Config;
+use Magento\Framework\DB\Select;
+use Zend_Db_Select_Exception;
 
 /**
  * Queue Task
  */
 class Task
 {
+
     /**
      * @var AvaTaxLogger
      */
@@ -70,27 +75,30 @@ class Task
      */
     protected $deleteFailedCount = 0;
 
+
     /**
-     * Seconds to wait before processing an item in the queue, before it gets processed.
-     *
-     * @see https://github.com/classyllama/ClassyLlama_AvaTax/issues/170 for context
+     * @var ProcessingStrategyInterface
      */
-    const QUEUE_PROCESSING_DELAY = 2 * 60;
+    private $queueProcessor;
 
     /**
      * Task constructor.
+     *
      * @param AvaTaxLogger $avaTaxLogger
      * @param Config $avaTaxConfig
      * @param CollectionFactory $queueCollectionFactory
+     * @param QueueProcessorProvider $queueProcessorProvider
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
         Config $avaTaxConfig,
-        CollectionFactory $queueCollectionFactory
+        CollectionFactory $queueCollectionFactory,
+        QueueProcessorProvider $queueProcessorProvider
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->avaTaxConfig = $avaTaxConfig;
         $this->queueCollectionFactory = $queueCollectionFactory;
+        $this->queueProcessor = $queueProcessorProvider->getQueueProcessor();
     }
 
     /**
@@ -153,55 +161,20 @@ class Task
 
     /**
      * Process pending queue records
+     *
+     * @param bool $limit
      */
-    public function processPendingQueue()
+    public function processPendingQueue($limit = false)
     {
         $this->avaTaxLogger->debug(__('Starting queue processing'));
-
-        // Initialize the queue collection
-        /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
-        $queueCollection = $this->queueCollectionFactory->create();
-        $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PENDING)
-            ->addCreatedAtBeforeFilter(self::QUEUE_PROCESSING_DELAY);
-
-
-        // Process each queued entity
-        /** @var $queue Queue */
-        foreach ($queueCollection as $queue) {
-            // Process queue
-            try {
-                $queue->process();
-
-                // Increment process count statistic
-                $this->processCount++;
-            } catch (\Exception $e) {
-
-                // Increment error count statistic
-                $this->errorCount++;
-                $previousException = $e->getPrevious();
-                $errorMessage = $e->getMessage();
-                if ($previousException instanceof \Exception) {
-                    $errorMessage .= " \nPREVIOUS ERROR: \n" . $previousException->getMessage();
-                }
-
-                // If record has been sent to AvaTax, immediately mark as failure
-                // to prevent duplicate records from being sent. This situation is likely to occur
-                // when associated record (invoice or credit memo) is unable to be saved.
-                if ($queue->getHasRecordBeenSentToAvaTax()) {
-                    $errorMessage = 'Record was sent to AvaTax, but error occurred after sending record: '
-                        . $errorMessage;
-                    // update queue record with new processing status
-                    $queue->setQueueStatus(Queue::QUEUE_STATUS_FAILED)
-                        ->setMessage($errorMessage)
-                        ->save();
-                }
-
-                $this->errorMessages[] = $errorMessage;
-            }
-        }
+        $this->queueProcessor->setLimit($limit);
+        $this->queueProcessor->execute();
+        $this->errorMessages = $this->queueProcessor->getErrorMessages();
+        $this->processCount = $this->queueProcessor->getProcessCount();
+        $this->errorCount = $this->queueProcessor->getErrorCount();
 
         $context = [
-            'error_count' => $this->errorCount,
+            'error_count'   => $this->errorCount,
             'process_count' => $this->processCount
         ];
         if ($this->getErrorCount() > 0) {
@@ -216,13 +189,13 @@ class Task
 
     /**
      * Reset hung queue records
+     *
      */
     public function resetHungQueuedRecords()
     {
         $this->avaTaxLogger->debug(__('Resetting hung queue records'));
 
         // Initialize the queue collection
-        /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
         $queueCollection = $this->queueCollectionFactory->create();
         $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PROCESSING);
 
@@ -230,21 +203,21 @@ class Task
         $queueCollection->addCreatedAtBeforeFilter(86400);
         $queueCollection->addUpdatedAtBeforeFilter(86400);
 
-        // Reset each hung queued entity
-        /** @var $queue Queue */
-        foreach ($queueCollection as $queue) {
-            // Reset queue
-            $queue->setQueueStatus(Queue::QUEUE_STATUS_PENDING);
-            $queue->save();
-            $this->resetCount++;
-        }
+        /* Reset all queue processing entries */
+        $condition = implode(" ", $queueCollection->getSelect()->getPart(Select::SQL_WHERE));
+        try {
+            $this->resetCount = $queueCollection->updateTableRecords($condition,
+                ['queue_status' => Queue::QUEUE_STATUS_PENDING]);
 
-        $this->avaTaxLogger->debug(
-            __('Finished resetting hung queued records'),
-            [ /* context */
-                'reset_count' => $this->resetCount
-            ]
-        );
+            $this->avaTaxLogger->debug(
+                __('Finished resetting hung queued records'),
+                [ /* context */
+                  'reset_count' => $this->resetCount
+                ]
+            );
+        } catch (Zend_Db_Select_Exception $exception) {
+            $this->avaTaxLogger->error($exception->getMessage());
+        }
     }
 
     /**
@@ -265,12 +238,13 @@ class Task
 
         $this->clearCompleteQueue();
         $this->clearFailedQueue();
+        $this->resetHungQueuedRecords();
 
         $this->avaTaxLogger->debug(
             __('Finished queue clearing'),
             [ /* context */
-                'delete_complete_count' => $this->deleteCompleteCount,
-                'delete_failed_count' => $this->deleteFailedCount,
+              'delete_complete_count' => $this->deleteCompleteCount,
+              'delete_failed_count'   => $this->deleteFailedCount,
             ]
         );
     }
@@ -281,7 +255,7 @@ class Task
     protected function clearCompleteQueue()
     {
         // Initialize the queue collection
-        /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
+        /** @var $queueCollection Collection */
         $queueCollection = $this->queueCollectionFactory->create();
         $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_COMPLETE);
 
@@ -312,7 +286,7 @@ class Task
     protected function clearFailedQueue()
     {
         // Initialize the queue collection
-        /** @var $queueCollection \ClassyLlama\AvaTax\Model\ResourceModel\Queue\Collection */
+        /** @var $queueCollection Collection */
         $queueCollection = $this->queueCollectionFactory->create();
         $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_FAILED);
 

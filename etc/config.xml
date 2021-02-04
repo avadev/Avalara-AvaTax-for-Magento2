@@ -48,6 +48,7 @@
                 <logging_file_builtin_rotation_max_files>60</logging_file_builtin_rotation_max_files>
                 <logging_file_level>300</logging_file_level>
                 <logging_file_detail>2</logging_file_detail>
+                <queue_processing_type>normal</queue_processing_type>
                 <queue_max_retry_attempts>15</queue_max_retry_attempts>
                 <queue_submission_enabled>1</queue_submission_enabled>
                 <queue_complete_lifetime>60</queue_complete_lifetime>
