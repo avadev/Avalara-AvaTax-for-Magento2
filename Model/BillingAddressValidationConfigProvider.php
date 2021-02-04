@@ -46,7 +46,7 @@ class BillingAddressValidationConfigProvider implements ConfigProviderInterface
             'hasChoice'         => $this->customerAddress->getChoice(),
             'instructions'      => $this->serializer->unserialize($this->customerAddress->getInstructions()),
             'errorInstructions' => $this->serializer->unserialize($this->customerAddress->getErrorInstructions()),
-            'countriesEnabled'  => $this->customerAddress->getCountriesEnabled(),
+            'countriesEnabled'  => $this->customerAddress->getCountriesEnabled() ?? "",
         ];
 
         return $config;
