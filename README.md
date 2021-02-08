@@ -22,6 +22,9 @@ This extension contains integration tests to verify the extension's functionalit
 
 # Magento Version Support
 
+- Magento 2.4.x
+  - :white_check_mark: Community
+  - :white_check_mark: Enterprise
 - Magento 2.3.x
   - :white_check_mark: Community
   - :white_check_mark: Enterprise
