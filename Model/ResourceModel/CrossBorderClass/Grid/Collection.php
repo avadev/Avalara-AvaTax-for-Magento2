@@ -99,6 +99,21 @@ class Collection extends SearchResult
     }
 
     /**
+     * @param string $field
+     * @param string $direction
+     * @return Collection
+     */
+    public function setOrder($field, $direction = self::SORT_ORDER_DESC)
+    {
+        if ($field === 'destination_countries') {
+            $field = new \Zend_Db_Expr("GROUP_CONCAT(avatax_cross_border_class_country.country_id)");
+            $this->joinCountriesTable();
+        }
+
+        return parent::setOrder($field, $direction);
+    }
+
+    /**
      * @param array|string $field
      * @param null $condition
      * @return Collection
