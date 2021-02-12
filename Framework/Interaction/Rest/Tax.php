@@ -338,7 +338,7 @@ class Tax extends Rest
         try {
             $resultObj = $client->createTransactionBatch($this->config->getCompanyId(), $transactionBatchRequestModel);
         } catch (RequestException $clientException) {
-            $this->handleException($clientException, $transactionBatchRequestModel);
+            $this->handleException($clientException);
         }
         $resultGeneric = $this->formatResult($resultObj);
         $result = $this->taxResultFactory->create(['data' => $resultGeneric->getData()]);
