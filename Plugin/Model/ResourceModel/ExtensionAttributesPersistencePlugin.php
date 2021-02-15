@@ -38,17 +38,16 @@ class ExtensionAttributesPersistencePlugin
 
     /**
      * @param ExtensionAttributesFactory $extensionAttributesFactory
-     * @param ExtensionAttributeMerger   $extensionAttributeMerger
-     * @param bool                       $shouldLoad
-     * @param bool                       $shouldSave
+     * @param ExtensionAttributeMerger $extensionAttributeMerger
+     * @param bool $shouldLoad
+     * @param bool $shouldSave
      */
     public function __construct(
         ExtensionAttributesFactory $extensionAttributesFactory,
         ExtensionAttributeMerger $extensionAttributeMerger,
         $shouldLoad = true,
         $shouldSave = true
-    )
-    {
+    ) {
         $this->extensionAttributesFactory = $extensionAttributesFactory;
         $this->extensionAttributeMerger = $extensionAttributeMerger;
         $this->shouldLoad = $shouldLoad;
@@ -58,19 +57,21 @@ class ExtensionAttributesPersistencePlugin
     /**
      * Gets join directives from extension attributes
      *
-     * Copied from @see \Magento\Framework\Api\ExtensionAttribute\JoinProcessor::getJoinDirectivesForType
-     *
-     * @param $extensibleEntityClass
+     * Copied from @param $extensibleEntityClass
      *
      * @return array
+     * @see \Magento\Framework\Api\ExtensionAttribute\JoinProcessor::getJoinDirectivesForType
+     *
      */
     protected function getJoinDirectivesForType($extensibleEntityClass)
     {
         $joinDirectives = [];
 
-        foreach ($this->extensionAttributeMerger->getExtensibleConfig(
-            $extensibleEntityClass
-        ) as $attributeCode => $attributeConfig) {
+        foreach (
+            $this->extensionAttributeMerger->getExtensibleConfig(
+                $extensibleEntityClass
+            ) as $attributeCode => $attributeConfig
+        ) {
             if (isset($attributeConfig[Converter::JOIN_DIRECTIVE])) {
                 $joinDirectives[$attributeCode] = $attributeConfig[Converter::JOIN_DIRECTIVE];
                 $joinDirectives[$attributeCode][Converter::DATA_TYPE] = $attributeConfig[Converter::DATA_TYPE];
@@ -81,8 +82,8 @@ class ExtensionAttributesPersistencePlugin
     }
 
     /**
-     * @param AbstractDb    $subject
-     * @param callable      $proceed
+     * @param AbstractDb $subject
+     * @param callable $proceed
      * @param AbstractModel $object
      *
      * @return mixed
@@ -91,7 +92,7 @@ class ExtensionAttributesPersistencePlugin
     {
         $proceed($object);
 
-        if(!$this->shouldSave) {
+        if (!$this->shouldSave) {
             return $subject;
         }
 
@@ -140,7 +141,9 @@ class ExtensionAttributesPersistencePlugin
 
             // The "if" have been added for excluding conflict with extension Magento_NegotiableQuote(Magento Commerce 2.3.*)
             // It will be removed after implementing the compatibility between ClassyLlama_AvaTax and Magento_B2b
-            if($tableName == 'negotiable_quote_item'){ continue; }
+            if ($tableName == 'negotiable_quote_item') {
+                continue;
+            }
 
             $data = array_merge(...$tableData[$tableName]);
             $joinReferenceField = $tablesToUpdate[$tableName]['join_reference_field'];
@@ -184,11 +187,11 @@ class ExtensionAttributesPersistencePlugin
     /**
      * Grabs data from extension attribute join tables and sets them on the object's extension attributes
      *
-     * @param AbstractDb    $subject
-     * @param callable      $proceed
+     * @param AbstractDb $subject
+     * @param callable $proceed
      * @param AbstractModel $object
      * @param               $value
-     * @param null          $field
+     * @param null $field
      *
      * @return AbstractDb
      */
@@ -197,7 +200,7 @@ class ExtensionAttributesPersistencePlugin
         /** @var DataObject $object */
         $proceed($object, $value, $field);
 
-        if(!$this->shouldLoad) {
+        if (!$this->shouldLoad) {
             return $subject;
         }
 
@@ -214,9 +217,9 @@ class ExtensionAttributesPersistencePlugin
         foreach ($joinDirectives as $attributeCode => $directive) {
             if (!isset($tablesToUpdate[$directive['join_reference_table']])) {
                 $tablesToUpdate[$directive['join_reference_table']] = [
-                    'join_reference_field' => $directive['join_reference_field'],
+                    'join_reference_field'       => $directive['join_reference_field'],
                     'join_reference_field_value' => $object->getData($directive['join_on_field']),
-                    'attribute_codes' => []
+                    'attribute_codes'            => []
                 ];
             }
 
@@ -234,7 +237,8 @@ class ExtensionAttributesPersistencePlugin
             $tablesToUpdate[$directive['join_reference_table']]['attribute_codes'][$attributeCode] = $fields;
         }
 
-        foreach (array_unique($tablesToUpdate) as $tableName => $tableDirective) {
+
+        foreach (array_unique(array_keys($tablesToUpdate)) as $tableName) {
             $fields = array_merge(...$tableFields[$tableName]);
             $select = $subject->getConnection()->select()->from($tableName)->columns($fields)->where(
                 $tablesToUpdate[$tableName]['join_reference_field'],
@@ -242,14 +246,15 @@ class ExtensionAttributesPersistencePlugin
             );
 
             $data = $subject->getConnection()->fetchRow($select);
-
-            foreach ($tablesToUpdate[$tableName]['attribute_codes'] as $attributeCode => $fields) {
-                foreach ($fields as $field) {
-                    $this->extensionAttributeMerger->setExtensionAttribute(
-                        $extensionAttributes,
-                        $attributeCode,
-                        $data[$field]
-                    );
+            if ($data) {
+                foreach ($tablesToUpdate[$tableName]['attribute_codes'] as $attributeCode => $fields) {
+                    foreach ($fields as $field) {
+                        $this->extensionAttributeMerger->setExtensionAttribute(
+                            $extensionAttributes,
+                            $attributeCode,
+                            $data[$field]
+                        );
+                    }
                 }
             }
         }
