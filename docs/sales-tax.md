@@ -98,6 +98,8 @@ When invoices and credit memos are created in Magento, new records are added to 
 
 If you are in a development or staging environment and don't have a CRON job setup, you can manually send queued records to AvaTax using the **Process Queue Now** button on the `Stores > AvaTax Queue` page.
 
+You could choose the way how to process items in the queue. There are two options for the  `Configuration -> Tax -> AvaTax Advanced -> Queue Processing Type`, Normal and Batch.
+
 ### Unbalanced Queue Items
 
 Occasionally you may see queue items with a **Queue Status** of **Complete** and a **Message** of something like *"Unbalanced Response - Collected: 11.8400, AvaTax Actual: 11.86"*. In order to understand what an unbalanced queue item is, you need to understand the Magento/AvaTax tax calculation workflow (the example is for an invoice, but same thing applies to credit memos):
