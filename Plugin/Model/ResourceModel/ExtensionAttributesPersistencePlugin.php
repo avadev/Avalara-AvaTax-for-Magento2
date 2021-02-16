@@ -140,7 +140,11 @@ class ExtensionAttributesPersistencePlugin
 
             // The "if" have been added for excluding conflict with extension Magento_NegotiableQuote(Magento Commerce 2.3.*)
             // It will be removed after implementing the compatibility between ClassyLlama_AvaTax and Magento_B2b
-            if($tableName == 'negotiable_quote_item'){ continue; }
+            $tableNameExemptions = [
+                'negotiable_quote_item',
+                'company_order_entity'
+            ];
+            if(in_array($tableName, $tableNameExemptions)) { continue; }
 
             $data = array_merge(...$tableData[$tableName]);
             $joinReferenceField = $tablesToUpdate[$tableName]['join_reference_field'];
