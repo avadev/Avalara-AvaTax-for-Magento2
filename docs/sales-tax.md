@@ -33,7 +33,7 @@ A cron task runs every five minutes to send invoices and credit memos to AvaTax.
 ## Configuration
 
 1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - General** section.
-2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.2.1.png?raw=true)
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.2.2.png?raw=true)
 3. The comment text underneath each of the options in this section should explain the purpose of the setting, but here are some notes about some of the settings:
    - <a name="filter_by_region">**Filter Tax Calculation By Region**
        - Avalara's recommendation is to leave this option set to the default of **No**. With this option set to **No**, Magento will contact Avalara's API for all regions when tax is being calculated in Magento. This will result in more API calls to AvaTax, however based on how Avalara charges for API calls, the impact of these additional API calls may be minimal or non-existent. Read more about how Avalara charges for API calls [here](https://www.avalara.com/us/en/legal/avatax-terms.html). If your site has a large number of people calculating tax (whether in the cart or checkout), but not placing an order, then the 10:1 ratio of "API calls" vs "Documents Recorded" may make it more expensive to have all API calls sent to Avalara for regions where taxes are not being calculated. Here is an overview of how many API calls are made for a standard Magento checkout:
@@ -97,6 +97,8 @@ The AvaTax Queue functionality only works when **Tax Mode** is set to **Estima
 When invoices and credit memos are created in Magento, new records are added to the AvaTax Queue with a **pending** status. If a CRON job is properly configured, then every 5 minutes, all pending records will be submitted to AvaTax with a **Document Type** of **Sales Invoice** or **Return Invoice**, depending on whether the record is a Magento invoice or credit memo (respectively). If there are errors submitting the record, Magento will attempt to resend the record for the number of times configured in the **Max Queue Retry Attempts** field. 
 
 If you are in a development or staging environment and don't have a CRON job setup, you can manually send queued records to AvaTax using the **Process Queue Now** button on the `Stores > AvaTax Queue` page.
+
+You could choose the way how to process items in the queue. There are two options for the  `Configuration -> Tax -> AvaTax Advanced -> Queue Processing Type`, Normal and Batch.
 
 ### Unbalanced Queue Items
 

@@ -90,6 +90,7 @@
                     </depends>
                 </field>
                 <field id="calculate_tax_before_discounts" translate="label" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/calculate_tax_before_discounts</config_path>
                     <label>Calculate Tax Before Discount</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Should tax be calculated on each item before discounts are applied ]]></comment>
@@ -669,6 +670,18 @@
                         <field id="enabled">1</field>
                     </depends>
                     -->
+                </field>
+                <field id="queue_processing_type" translate="label" type="select" sortOrder="6005" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <config_path>tax/avatax/queue_processing_type</config_path>
+                    <label>Queue Processing Type</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\QueueProcessingType</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="queue_submission_enabled">1</field>
+                    </depends>
+                    <comment>Normal Queue Processing - each item of Queue will be processed separately.
+                             Batch Queue Processing - Queue will be processed by 1000 items batch.
+                    </comment>
                 </field>
                 <field id="queue_admin_notification_enabled" translate="label" type="select" sortOrder="6010" showInDefault="1" showInWebsite="0" showInStore="0">
                     <config_path>tax/avatax/queue_admin_notification_enabled</config_path>

@@ -174,7 +174,12 @@ class Tax
         'reason' => ['type' => 'string', 'required' => true],
         'type' => [
             'type' => 'string',
-            'options' => ['None', 'TaxAmount', 'Exemption', 'TaxDate'],
+            'options' => ['None', 'TaxAmount', 'Exemption', 'TaxDate',
+                          "".DocumentType::C_ANY, "".DocumentType::C_SALESORDER, "".DocumentType::C_SALESINVOICE,
+                          "".DocumentType::C_PURCHASEORDER, "".DocumentType::C_PURCHASEINVOICE,
+                          "".DocumentType::C_RETURNORDER, "".DocumentType::C_RETURNINVOICE,
+                          "".DocumentType::C_INVENTORYTRANSFERORDER, "".DocumentType::C_INVENTORYTRANSFERINVOICE,
+                          "".DocumentType::C_REVERSECHARGEORDER, "".DocumentType::C_REVERSECHARGEINVOICE],
             'required' => true,
         ],
         'tax_date' => ['type' => 'string', 'format' => '/\d\d\d\d-\d\d-\d\d/'],
