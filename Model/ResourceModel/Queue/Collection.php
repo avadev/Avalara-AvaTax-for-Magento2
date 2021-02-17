@@ -16,6 +16,8 @@
 namespace ClassyLlama\AvaTax\Model\ResourceModel\Queue;
 
 use ClassyLlama\AvaTax\Model\ResourceModel\Queue;
+use DateInterval;
+use DateTimeZone;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Data\Collection\EntityFactory;
 use Magento\Framework\Data\Collection\Db\FetchStrategyInterface;
@@ -25,6 +27,8 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Framework\Stdlib\DateTime;
 use ClassyLlama\AvaTax\Model\Queue as QueueModel;
+use Zend_Db_Expr;
+use Zend_Db_Select;
 
 class Collection extends AbstractCollection
 {
@@ -38,18 +42,18 @@ class Collection extends AbstractCollection
     /**#@-*/
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime
+     * @var DateTime
      */
     protected $dateTime;
 
     /**
-     * @param \Magento\Framework\Data\Collection\EntityFactory $entityFactory
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \Magento\Framework\Data\Collection\Db\FetchStrategyInterface $fetchStrategy
-     * @param \Magento\Framework\Event\ManagerInterface $eventManager
-     * @param \Magento\Framework\Stdlib\DateTime $dateTime
+     * @param EntityFactory $entityFactory
+     * @param LoggerInterface $logger
+     * @param FetchStrategyInterface $fetchStrategy
+     * @param ManagerInterface $eventManager
+     * @param DateTime $dateTime
      * @param mixed $connection
-     * @param \Magento\Framework\Model\ResourceModel\Db\AbstractDb $resource
+     * @param AbstractDb $resource
      */
     public function __construct(
         EntityFactory $entityFactory,
@@ -83,6 +87,7 @@ class Collection extends AbstractCollection
     public function addQueueStatusFilter($queueStatus)
     {
         $this->addFieldToFilter(Queue::QUEUE_STATUS_FIELD_NAME, $queueStatus);
+
         return $this;
     }
 
@@ -91,15 +96,17 @@ class Collection extends AbstractCollection
      *
      * @param int $secondsBeforeNow
      * @return $this
+     * @throws \Exception
      */
     public function addCreatedAtBeforeFilter($secondsBeforeNow)
     {
-        $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
-        $storeInterval = new \DateInterval('PT' . $secondsBeforeNow . 'S');
+        $datetime = new \DateTime('now', new DateTimeZone('UTC'));
+        $storeInterval = new DateInterval('PT' . $secondsBeforeNow . 'S');
         $datetime->sub($storeInterval);
         $formattedDate = $this->dateTime->formatDate($datetime->getTimestamp());
 
         $this->addFieldToFilter(Queue::CREATED_AT_FIELD_NAME, ['lt' => $formattedDate]);
+
         return $this;
     }
 
@@ -111,12 +118,13 @@ class Collection extends AbstractCollection
      */
     public function addUpdatedAtBeforeFilter($secondsBeforeNow)
     {
-        $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
-        $storeInterval = new \DateInterval('PT' . $secondsBeforeNow . 'S');
+        $datetime = new \DateTime('now', new DateTimeZone('UTC'));
+        $storeInterval = new DateInterval('PT' . $secondsBeforeNow . 'S');
         $datetime->sub($storeInterval);
         $formattedDate = $this->dateTime->formatDate($datetime->getTimestamp());
 
         $this->addFieldToFilter(Queue::UPDATED_AT_FIELD_NAME, ['lt' => $formattedDate]);
+
         return $this;
     }
 
@@ -131,12 +139,12 @@ class Collection extends AbstractCollection
         $select = clone $this->getSelect();
         $connection = $this->getConnection();
 
-        $countExpr = new \Zend_Db_Expr("COUNT(*)");
+        $countExpr = new Zend_Db_Expr("COUNT(*)");
 
-        $select->reset(\Zend_Db_Select::COLUMNS);
+        $select->reset(Zend_Db_Select::COLUMNS);
         $select->columns([
-                self::SUMMARY_COUNT_FIELD_NAME => $countExpr
-            ]);
+            self::SUMMARY_COUNT_FIELD_NAME => $countExpr
+        ]);
         $select->where(Queue::QUEUE_STATUS_FIELD_NAME . ' = ?', $queueStatus);
 
         return $connection->fetchOne($select);
@@ -152,9 +160,9 @@ class Collection extends AbstractCollection
         $select = clone $this->getSelect();
         $connection = $this->getConnection();
 
-        $updatedAtExpr = new \Zend_Db_Expr('MAX(' . Queue::UPDATED_AT_FIELD_NAME . ')');
+        $updatedAtExpr = new Zend_Db_Expr('MAX(' . Queue::UPDATED_AT_FIELD_NAME . ')');
 
-        $select->reset(\Zend_Db_Select::COLUMNS);
+        $select->reset(Zend_Db_Select::COLUMNS);
         $select->columns([
             self::SUMMARY_LAST_UPDATED_AT_FIELD_NAME => $updatedAtExpr
         ]);
@@ -172,13 +180,13 @@ class Collection extends AbstractCollection
         $select = clone $this->getSelect();
         $connection = $this->getConnection();
 
-        $countExpr = new \Zend_Db_Expr("COUNT(*)");
-        $createdAtExpr = new \Zend_Db_Expr('MAX(' . Queue::CREATED_AT_FIELD_NAME . ')');
-        $updatedAtExpr = new \Zend_Db_Expr('MAX(' . Queue::UPDATED_AT_FIELD_NAME . ')');
+        $countExpr = new Zend_Db_Expr("COUNT(*)");
+        $createdAtExpr = new Zend_Db_Expr('MAX(' . Queue::CREATED_AT_FIELD_NAME . ')');
+        $updatedAtExpr = new Zend_Db_Expr('MAX(' . Queue::UPDATED_AT_FIELD_NAME . ')');
 
-        $select->reset(\Zend_Db_Select::COLUMNS);
+        $select->reset(Zend_Db_Select::COLUMNS);
         $select->columns([
-            self::SUMMARY_COUNT_FIELD_NAME => $countExpr,
+            self::SUMMARY_COUNT_FIELD_NAME           => $countExpr,
             self::SUMMARY_LAST_CREATED_AT_FIELD_NAME => $createdAtExpr,
             self::SUMMARY_LAST_UPDATED_AT_FIELD_NAME => $updatedAtExpr
         ]);
@@ -206,12 +214,12 @@ class Collection extends AbstractCollection
         $select = clone $this->getSelect();
         $connection = $this->getConnection();
 
-        $yearWeekExpr = new \Zend_Db_Expr('YEARWEEK(' . Queue::CREATED_AT_FIELD_NAME . ')');
-        $countExpr = new \Zend_Db_Expr("COUNT(*)");
+        $yearWeekExpr = new Zend_Db_Expr('YEARWEEK(' . Queue::CREATED_AT_FIELD_NAME . ')');
+        $countExpr = new Zend_Db_Expr("COUNT(*)");
 
-        $select->reset(\Zend_Db_Select::COLUMNS);
+        $select->reset(Zend_Db_Select::COLUMNS);
         $select->columns([
-            self::SUMMARY_YEAR_WEEK => $yearWeekExpr,
+            self::SUMMARY_YEAR_WEEK        => $yearWeekExpr,
             self::SUMMARY_COUNT_FIELD_NAME => $countExpr
         ]);
         $select->where(Queue::QUEUE_STATUS_FIELD_NAME . ' = ?', QueueModel::QUEUE_STATUS_FAILED);
@@ -225,5 +233,21 @@ class Collection extends AbstractCollection
         }
 
         return $returnArray;
+    }
+
+    /**
+     * Update Data for given condition for collection
+     *
+     * @param $condition
+     * @param $columnData
+     * @return int
+     */
+    public function updateTableRecords($condition, $columnData)
+    {
+        return $this->getConnection()->update(
+            $this->getMainTable(),
+            $columnData,
+            $where = $condition
+        );
     }
 }

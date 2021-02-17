@@ -25,5 +25,8 @@
         <job name="avatax_clearlog" instance="ClassyLlama\AvaTax\Model\Log\Task" method="cronClearLogs">
             <schedule>2 0 */1 * *</schedule>
         </job>
+        <job name="avatax_batch_queue_transactions_response_process" instance="ClassyLlama\AvaTax\Model\Queue\BatchResponseProcessing" method="cronProcessResponse">
+            <schedule>*/15 * * * *</schedule>
+        </job>
     </group>
 </config>
