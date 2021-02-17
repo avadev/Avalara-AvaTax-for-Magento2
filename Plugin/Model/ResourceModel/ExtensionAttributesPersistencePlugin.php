@@ -7,6 +7,7 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Model\ResourceModel;
 
+use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\ExtensionAttributeMerger;
 use Magento\Framework\Api\ExtensionAttribute\Config\Converter;
 use Magento\Framework\Api\ExtensionAttributesFactory;
@@ -37,14 +38,21 @@ class ExtensionAttributesPersistencePlugin
     protected $shouldSave;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * @param ExtensionAttributesFactory $extensionAttributesFactory
-     * @param ExtensionAttributeMerger   $extensionAttributeMerger
-     * @param bool                       $shouldLoad
-     * @param bool                       $shouldSave
+     * @param ExtensionAttributeMerger $extensionAttributeMerger
+     * @param Config $config
+     * @param bool $shouldLoad
+     * @param bool $shouldSave
      */
     public function __construct(
         ExtensionAttributesFactory $extensionAttributesFactory,
         ExtensionAttributeMerger $extensionAttributeMerger,
+        Config $config,
         $shouldLoad = true,
         $shouldSave = true
     )
@@ -53,6 +61,7 @@ class ExtensionAttributesPersistencePlugin
         $this->extensionAttributeMerger = $extensionAttributeMerger;
         $this->shouldLoad = $shouldLoad;
         $this->shouldSave = $shouldSave;
+        $this->config = $config;
     }
 
     /**
@@ -140,10 +149,7 @@ class ExtensionAttributesPersistencePlugin
 
             // The "if" have been added for excluding conflict with extension Magento_NegotiableQuote(Magento Commerce 2.3.*)
             // It will be removed after implementing the compatibility between ClassyLlama_AvaTax and Magento_B2b
-            $tableNameExemptions = [
-                'negotiable_quote_item',
-                'company_order_entity'
-            ];
+            $tableNameExemptions = $this->config->getTableExemptions();
             if(in_array($tableName, $tableNameExemptions)) { continue; }
 
             $data = array_merge(...$tableData[$tableName]);
