@@ -129,7 +129,7 @@ class TaxClass
         if ($product->getTypeId() == self::PRODUCT_TYPE_GIFTCARD) {
             return self::GIFT_CARD_LINE_AVATAX_TAX_CODE;
         } else {
-            $simpleProduct = $this->productRepository->get($product->getSku());
+            $simpleProduct = $this->productRepository->getById($product->getId());
             return $this->getAvaTaxTaxCode($simpleProduct->getTaxClassId() ?: $product->getTaxClassId());
         }
     }
