@@ -200,7 +200,7 @@ define(
 
             updateFieldValue: function (form, field) {
                 var fieldElement = $(form).find("input[name*=" + field + "]");
-                if (['country_id', 'region_id'].includes(field)) {
+                if (['country_id', 'region_id'].indexOf(field) > -1) {
                     fieldElement = $(form).find("select[name*=" + field + "]");
                 }
                 if (fieldElement.val() !== addressModel.selectedAddress()[field]) {
