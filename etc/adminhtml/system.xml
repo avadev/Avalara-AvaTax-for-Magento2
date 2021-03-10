@@ -513,6 +513,10 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[By default, Magento does not calculate taxes for Adjustment Refund and Adjustment Fee. If this option will be enabled, AvaTax will calculate Adjustment related taxes.]]></comment>
                 </field>
+                <field id="avatax_table_exemptions" translate="label" type="textarea" sortOrder="1910" showInDefault="1">
+                    <label>Tables Exemptions List (comma-separated list)</label>
+                    <comment><![CDATA[At each stage of ordering (adding to cart, choosing the payment address and delivery address, delivery method, etc.) the ClassyLama_Avatax extension monitors the correctness of the calculated taxes, updates their values through the Avalara service API and writes to certain tables in the database of the website.]]></comment>
+                </field>
                 <field id="error_handling_header" translate="label" type="label" sortOrder="2000" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[<strong>Error Handling Settings</strong>]]></label>
                     <!-- Reference: https://github.com/magento/magento2/issues/2340
