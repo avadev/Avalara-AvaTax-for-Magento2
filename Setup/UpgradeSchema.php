@@ -549,7 +549,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             foreach ($extensionTables as $tableName => $tableInfo) {
                 $setup->getConnection($tableInfo['connection'])
                     ->addIndex(
-                        $tableName,
+                        $setup->getTable($tableName),
                         $setup->getIdxName(
                             $tableName,
                             [$tableInfo['id_field']],
@@ -564,7 +564,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '2.0.7', '<')) {
             $setup->getConnection(self::$connectionName)
                 ->addColumn(
-                    'avatax_sales_invoice',
+                    $setup->getTable('avatax_sales_invoice'),
                     'avatax_response',
                     [
                         'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -577,7 +577,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $setup->getConnection(self::$connectionName)
                 ->addColumn(
-                    'avatax_sales_creditmemo',
+                    $setup->getTable('avatax_sales_creditmemo'),
                     'avatax_response',
                     [
                         'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -642,7 +642,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '2.0.8', '<')) {
             $setup->getConnection(self::$checkoutConnectionName)
                 ->addColumn(
-                    'quote_address',
+                    $setup->getTable('quote_address'),
                     'avatax_messages',
                     [
                         'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
