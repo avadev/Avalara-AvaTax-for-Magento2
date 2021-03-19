@@ -174,7 +174,7 @@ class ExtensionAttributesPersistencePlugin
 
                 if ($deleteId) {
                     $subject->getConnection()->delete(
-                        $tableName,
+                        $subject->getTable($tableName),
                         "{$joinReferenceField} = {$deleteId}"
                     );
                 }
@@ -183,7 +183,7 @@ class ExtensionAttributesPersistencePlugin
             }
 
             $subject->getConnection()->insertOnDuplicate(
-                $tableName,
+                $subject->getTable($tableName),
                 array_merge(...$tableData[$tableName]),
                 array_merge(...$tableFields[$tableName])
             );
@@ -248,7 +248,7 @@ class ExtensionAttributesPersistencePlugin
 
         foreach (array_unique(array_keys($tablesToUpdate)) as $tableName) {
             $fields = array_merge(...$tableFields[$tableName]);
-            $select = $subject->getConnection()->select()->from($tableName)->columns($fields)->where(
+            $select = $subject->getConnection()->select()->from($subject->getTable($tableName))->columns($fields)->where(
                 $tablesToUpdate[$tableName]['join_reference_field'],
                 $tablesToUpdate[$tableName]['join_reference_field_value']
             );

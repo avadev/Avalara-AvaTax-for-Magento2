@@ -136,7 +136,7 @@ class CrossBorderClass extends \Magento\Framework\Model\ResourceModel\Db\Abstrac
     {
         $select = $this->getConnection()->select()
             ->from(
-                $this->getConnection()->getTableName('avatax_cross_border_class'),
+                $this->getTable('avatax_cross_border_class'),
                 ['unit_amount_product_attr']
             )
             ->group('unit_amount_product_attr');
