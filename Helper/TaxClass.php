@@ -131,18 +131,18 @@ class TaxClass
      * @param \Magento\Catalog\Model\Product $product
      * @param string $storeId
      * @return null|string
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getAvataxTaxCodeForProduct(\Magento\Catalog\Model\Product $product, $storeId)
     {
         if ($product->getTypeId() == self::PRODUCT_TYPE_GIFTCARD) {
             return self::GIFT_CARD_LINE_AVATAX_TAX_CODE;
         } else {
-            $itemSku = $this->getSkusByProductIds->execute(
-                [$product->getId()]
-            )[$product->getId()];
-
             try {
+                $itemSkuArray = $this->getSkusByProductIds->execute(
+                    [$product->getId()]
+                );
+
+                $itemSku = $itemSkuArray[$product->getId()] ?? $product->getSku();
                 $simpleProduct = $this->productRepository->get($itemSku);
             } catch (\Throwable $e) {
                 $simpleProduct = $product;
