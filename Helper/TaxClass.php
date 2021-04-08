@@ -76,7 +76,7 @@ class TaxClass
     private $productRepository;
 
     /**
-     * @var \Magento\InventoryCatalogApi\Model\GetSkusByProductIdsInterface
+     * @var \ClassyLlama\AvaTax\Model\GetSkusByProductIds
      */
     private $getSkusByProductIds;
 
@@ -89,7 +89,7 @@ class TaxClass
      * @param \ClassyLlama\AvaTax\Helper\Config $config
      * @param \Magento\Catalog\Model\ProductFactory $productFactory
      * @param \Magento\Catalog\Model\ProductRepository $productRepository
-     * @param \Magento\InventoryCatalogApi\Model\GetSkusByProductIdsInterface $getSkusByProductIds
+     * @param \ClassyLlama\AvaTax\Model\GetSkusByProductIds $getSkusByProductIds
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -98,7 +98,7 @@ class TaxClass
         \ClassyLlama\AvaTax\Helper\Config $config,
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Catalog\Model\ProductRepository $productRepository,
-        \Magento\InventoryCatalogApi\Model\GetSkusByProductIdsInterface $getSkusByProductIds
+        \ClassyLlama\AvaTax\Model\GetSkusByProductIds $getSkusByProductIds
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->taxClassRepository = $taxClassRepository;
