@@ -98,7 +98,7 @@ define(
 
                 var addressKeys = Object.keys(address);
                 for (var i = 0; i < addressKeys.length; i++) {
-                    if (!allowedAddressProperties.includes(addressKeys[i])) {
+                    if (allowedAddressProperties.indexOf(addressKeys[i]) < 0) {
                         delete address[addressKeys[i]];
                     }
                 }

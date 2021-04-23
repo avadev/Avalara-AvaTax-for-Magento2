@@ -20,6 +20,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Address as TaxAddress;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObject;
 use ClassyLlama\AvaTax\Framework\Interaction\MetaData\MetaDataObjectFactory;
 use ClassyLlama\AvaTax\Model\Config\Source\QueueProcessingType;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface;
@@ -154,6 +155,8 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_APPROVED = 'tax/avatax_document_management/approved_status_name';
 
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_DENIED = 'tax/avatax_document_management/denied_status_name';
+
+    const XML_PATH_AVATAX_ADVANCED_AVATAX_TABLE_EXEMPTIONS = 'tax/avatax_advanced/avatax_table_exemptions';
 
     /**#@-*/
 
@@ -1268,6 +1271,14 @@ class Config extends AbstractHelper
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function getTableExemptions()
+    {
+        return explode(",", $this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADVANCED_AVATAX_TABLE_EXEMPTIONS));
     }
 
     /**

@@ -172,7 +172,7 @@ class UpgradeData implements UpgradeDataInterface
 
             /** @var \Magento\Framework\DB\Select $select */
             $select = $connection->select()
-                ->from(['main' => 'core_config_data'])
+                ->from(['main' => $setup->getTable('core_config_data')])
                 ->where('main.path IN (?)', [
                     'tax/avatax/enabled',
                     'tax/avatax/production_account_number',

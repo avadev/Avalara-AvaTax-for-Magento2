@@ -76,6 +76,11 @@ class TaxClass
     private $productRepository;
 
     /**
+     * @var \ClassyLlama\AvaTax\Model\GetSkusByProductIds
+     */
+    private $getSkusByProductIds;
+
+    /**
      * Class constructor
      *
      * @param ScopeConfigInterface $scopeConfig
@@ -84,6 +89,7 @@ class TaxClass
      * @param \ClassyLlama\AvaTax\Helper\Config $config
      * @param \Magento\Catalog\Model\ProductFactory $productFactory
      * @param \Magento\Catalog\Model\ProductRepository $productRepository
+     * @param \ClassyLlama\AvaTax\Model\GetSkusByProductIds $getSkusByProductIds
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -91,7 +97,8 @@ class TaxClass
         \Magento\Customer\Api\GroupRepositoryInterface $customerGroupRepository,
         \ClassyLlama\AvaTax\Helper\Config $config,
         \Magento\Catalog\Model\ProductFactory $productFactory,
-        \Magento\Catalog\Model\ProductRepository $productRepository
+        \Magento\Catalog\Model\ProductRepository $productRepository,
+        \ClassyLlama\AvaTax\Model\GetSkusByProductIds $getSkusByProductIds
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->taxClassRepository = $taxClassRepository;
@@ -99,6 +106,7 @@ class TaxClass
         $this->config = $config;
         $this->productFactory = $productFactory;
         $this->productRepository = $productRepository;
+        $this->getSkusByProductIds = $getSkusByProductIds;
     }
 
     /**
@@ -129,7 +137,17 @@ class TaxClass
         if ($product->getTypeId() == self::PRODUCT_TYPE_GIFTCARD) {
             return self::GIFT_CARD_LINE_AVATAX_TAX_CODE;
         } else {
-            $simpleProduct = $this->productRepository->get($product->getSku());
+            try {
+                $itemSkuArray = $this->getSkusByProductIds->execute(
+                    [$product->getId()]
+                );
+
+                $itemSku = $itemSkuArray[$product->getId()] ?? $product->getSku();
+                $simpleProduct = $this->productRepository->get($itemSku);
+            } catch (\Throwable $e) {
+                $simpleProduct = $product;
+            }
+
             return $this->getAvaTaxTaxCode($simpleProduct->getTaxClassId() ?: $product->getTaxClassId());
         }
     }

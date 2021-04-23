@@ -22,7 +22,8 @@ var config = {
             multiShippingAddressValidation: 'ClassyLlama_AvaTax/js/multishipping-address-validation',
             // Add the following alias to provide compatibility with Magento 2.2
             addressValidation: 'ClassyLlama_AvaTax/js/addressValidation',
-            deleteCertificate: 'ClassyLlama_AvaTax/js/delete-certificate'
+            deleteCertificate: 'ClassyLlama_AvaTax/js/delete-certificate',
+            addressValidationModal: 'ClassyLlama_AvaTax/js/view/checkout-billing-address-validation-modal'
         }
     },
     config: {
