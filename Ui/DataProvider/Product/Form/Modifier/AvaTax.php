@@ -48,6 +48,10 @@ class AvaTax extends AbstractModifier
      */
     public function modifyMeta(array $meta)
     {
+        if(!array_key_exists('avatax', $meta)){
+            return $meta;
+        }
+        
         $meta['avatax']['children']['container_avatax_cross_border_type']['children']['avatax_cross_border_type']['arguments']['data'] = [
             'options' => $this->crossBorderTypeFactory->create(),
             'config' => array_merge(
