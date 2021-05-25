@@ -108,6 +108,7 @@ Solution: You'll need to install the PHP SoapClient library, per the [prerequisi
 - <a name="admin-order-create-sales-tax-issue">Admin Guest Order Create Sales Tax Issue With Customer Group</a> - If you are creating an order in the admin for a new user and select a customer group that should be tax exempt please be aware that the totals section on the create order form may not always calculate tax correctly. Placing the order will collect the tax totals as expected.
 - Unit of Measure HS Codes are currently in development within AvaTax's API, therefore the API around Unit of Measure is unstable. For this reason, this module currently does not support any HS Codes that require a Unit of Measure. Avoid using HS Codes with Unit of Measure as they will break checkout.
 - If a user proceeds to the 2nd step of checkout (chooses a shipping address and shipping method), then returns to the cart, the cart tax estimator will send 2 requests to the AvaTax API for tax information. It is also possible during these 2 calculations, that no shipping information will be provided, therefore the estimator can show that there is no cost for shipping. If you proceed to checkout, on the 2nd step of checkout the tax calculations, including shipping, will be accurate.
+- Website owner does not able to upgrade to the newer version of extension due to MySQL DDL errors. Please, review the [approach](./issues/AVASUP-934/approach.md)
 
 ## Release Notes
 
