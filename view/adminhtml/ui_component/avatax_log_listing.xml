@@ -170,7 +170,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">textRange</item>
                     <item name="sortable" xsi:type="boolean">false</item>
-                    <item name="label" xsi:type="string" translate="true">Store  ID</item>
+                    <item name="label" xsi:type="string" translate="true">Store ID</item>
                     <item name="sortOrder" xsi:type="number">30</item>
                 </item>
             </argument>
