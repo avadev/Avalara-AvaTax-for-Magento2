@@ -33,7 +33,7 @@ A cron task runs every five minutes to send invoices and credit memos to AvaTax.
 ## Configuration
 
 1. In the Magento admin, go to `Stores > Settings > Configuration > Sales > Tax`. Click on the **AvaTax - General** section.
-2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.2.3.png?raw=true)
+2. Review each of the options in this section and input the appropriate value. This is [a screenshot of the configuration options.](images/configuration_screenshot_2.x.png?raw=true)
 3. The comment text underneath each of the options in this section should explain the purpose of the setting, but here are some notes about some of the settings:
    - <a name="filter_by_region">**Filter Tax Calculation By Region**
        - Avalara's recommendation is to leave this option set to the default of **No**. With this option set to **No**, Magento will contact Avalara's API for all regions when tax is being calculated in Magento. This will result in more API calls to AvaTax, however based on how Avalara charges for API calls, the impact of these additional API calls may be minimal or non-existent. Read more about how Avalara charges for API calls [here](https://www.avalara.com/us/en/legal/avatax-terms.html). If your site has a large number of people calculating tax (whether in the cart or checkout), but not placing an order, then the 10:1 ratio of "API calls" vs "Documents Recorded" may make it more expensive to have all API calls sent to Avalara for regions where taxes are not being calculated. Here is an overview of how many API calls are made for a standard Magento checkout:
