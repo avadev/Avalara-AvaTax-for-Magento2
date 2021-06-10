@@ -2,6 +2,7 @@
 
 namespace ClassyLlama\AvaTax\Component\Layout;
 
+use Magento\Framework\View\Element\ComponentVisibilityInterface;
 use Magento\Framework\View\Element\UiComponent\BlockWrapperInterface;
 use Magento\Framework\View\Element\UiComponent\DataSourceInterface;
 use Magento\Framework\View\Element\UiComponentInterface;
@@ -44,6 +45,9 @@ class Tabs extends \Magento\Ui\Component\Layout\Tabs
 
             if ($childComponent instanceof BlockWrapperInterface) {
                 $this->addWrappedBlock($childComponent, $childrenAreas);
+                continue;
+            }
+            if ($childComponent instanceof ComponentVisibilityInterface && !$childComponent->isComponentVisible()) {
                 continue;
             }
 
