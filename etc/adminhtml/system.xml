@@ -740,6 +740,14 @@
                     </depends>
                 </field>
             </group>
+            <group id="avatax_certificate_capture" translate="label" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax - Certificate Capture Management</label>
+                <field id="disable_certcapture_auto_validation" type="select" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Disable certificates auto validation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[By default, new certificates are automatically validated in CertCapture, unless this behavior is altered.]]></comment>
+                </field>
+            </group>
             <group id="classes">
                 <field id="shipping_tax_class">
                     <comment>This setting will be ignored if AvaTax is enabled, as shipping Tax Code is hard-coded as FR020100 and AvaTax will determine whether tax applies to an order.</comment>
