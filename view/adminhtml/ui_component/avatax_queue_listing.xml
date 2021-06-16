@@ -176,7 +176,7 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">textRange</item>
                     <item name="sortable" xsi:type="boolean">false</item>
-                    <item name="label" xsi:type="string" translate="true">Store Id</item>
+                    <item name="label" xsi:type="string" translate="true">Store Identifier</item>
                 </item>
             </argument>
         </column>
