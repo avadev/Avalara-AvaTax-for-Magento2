@@ -32,7 +32,7 @@ use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFacto
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class Address
-{
+{convertAvaTaxValidAddressToQuoteAddress
     /**
      * @var MetaDataObject
      */
@@ -388,7 +388,7 @@ class Address
         if ($address->hasLine2()) {
             $addressLine2 = $address->getLine2();
             $street[] = $addressLine2;
-            if ($addressLine2 == '') {
+            if ($addressLine2 == '' && $street[0] != $originalStreet[1]) {
                 $originalStreet[1] = array_key_exists(1, $originalStreet) ? $originalStreet[1] : '';
                 $street[] = $originalStreet[1];
             }
@@ -396,7 +396,7 @@ class Address
         if ($address->hasLine3()) {
             $addressLine3 = $address->getLine3();
             $street[] = $addressLine3;
-            if ($addressLine3 == '') {
+            if ($addressLine3 == ''&& $street[1] != $originalStreet[2]) {
                 $originalStreet[2] = array_key_exists(2, $originalStreet) ? $originalStreet[2] : '';
                 $street[] = $originalStreet[2];
             }
