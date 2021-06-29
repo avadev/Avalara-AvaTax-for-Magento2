@@ -37,6 +37,27 @@ use ClassyLlama\AvaTax\Block\Multishipping\Checkout\Shipping;
                                 $validationResult['instructions'];
                                 ?>
                             </div>
+                            <div class="form validate noError">
+                                <div class="validContainer addressOption selected">
+                                    <div class="addressRadio">
+                                        <input type="radio" class="validAddress av-radiobutton"
+                                               name=<?= /* @noEscape */
+                                               "addressToUse[" . $_index . "]" ?>
+                                               checked
+                                               id="<?= /* @noEscape */
+                                               "valid-" . $_index ?>"
+                                               data-address='<?= $validationResult['validAddress'] ?>'
+                                        />
+                                    </div>
+                                    <label for="<?= /* @noEscape */
+                                    "valid-" . $_index ?>" class="addressLabel">
+                                        <div class="optionTitle"><?= __('Suggested Address'); ?></div>
+                                        <div class="optionAddress validAddressText">
+                                            <?= /* @noEscape */
+                                            $validationResult['validAddressHtml']; ?>
+                                        </div>
+                                    </label>
+                                </div>
                             <?php if ($validationResult['hasChoice']): ?>
                                 <div class="form validate noError">
                                     <div class="validContainer addressOption selected">
