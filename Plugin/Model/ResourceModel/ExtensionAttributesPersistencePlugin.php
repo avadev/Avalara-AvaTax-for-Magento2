@@ -272,3 +272,4 @@ class ExtensionAttributesPersistencePlugin
         return $subject;
     }
 }
+
