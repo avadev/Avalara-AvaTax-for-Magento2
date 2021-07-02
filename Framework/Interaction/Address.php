@@ -32,7 +32,7 @@ use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFacto
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class Address
-{
+{convertAvaTaxValidAddressToQuoteAddress
     /**
      * @var MetaDataObject
      */
@@ -106,7 +106,8 @@ class Address
         QuoteAddressInterfaceFactory $quoteAddressFactory,
         DataObjectHelper $dataObjectHelper,
         \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
-    ) {
+    )
+    {
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->dataObjectFactory = $dataObjectFactory;
         $this->regionCollection = $regionCollectionFactory->create();
@@ -146,7 +147,7 @@ class Address
             default:
                 throw new LocalizedException(__(
                     'Input parameter "$data" was not of a recognized/valid type: "%1".', [
-                        gettype($data),
+                    gettype($data),
                 ]));
         }
 
@@ -238,7 +239,8 @@ class Address
     public function copyQuoteAddressToCustomerAddress(
         QuoteAddressInterface $quoteAddress,
         CustomerAddressInterface $customerAddress
-    ) {
+    )
+    {
         $customerAddress->setRegionId($quoteAddress->getRegionId());
         $customerAddress->setCountryId($quoteAddress->getCountryId());
         $customerAddress->setStreet($quoteAddress->getStreet());
@@ -287,7 +289,8 @@ class Address
      * @param CustomerAddressInterface $customerAddress
      * @return array
      */
-    protected function getCustomerAddressData(CustomerAddressInterface $customerAddress){
+    protected function getCustomerAddressData(CustomerAddressInterface $customerAddress)
+    {
         $customerAddressData = [
             CustomerAddressInterface::COUNTRY_ID => $customerAddress->getCountryId(),
             CustomerAddressInterface::STREET => $customerAddress->getStreet(),
@@ -326,7 +329,8 @@ class Address
     public function convertAvaTaxValidAddressToCustomerAddress(
         $address,
         CustomerAddressInterface $originalAddress
-    ) {
+    )
+    {
         $street = [];
         if ($address->hasLine1()) {
             $street[] = $address->getLine1();
@@ -369,16 +373,33 @@ class Address
     public function convertAvaTaxValidAddressToQuoteAddress(
         $address,
         \Magento\Quote\Api\Data\AddressInterface $originalAddress
-    ) {
+    )
+    {
+        $originalStreet = $originalAddress->getStreet();
         $street = [];
         if ($address->hasLine1()) {
-            $street[] = $address->getLine1();
+            $addressLine1 = $address->getLine1();
+            $street[] = $addressLine1;
+            if ($addressLine1 == '') {
+                $originalStreet[0] = array_key_exists(0, $originalStreet) ? $originalStreet[0] : '';
+                $street[] = $originalStreet[0];
+            }
         }
         if ($address->hasLine2()) {
-            $street[] = $address->getLine2();
+            $addressLine2 = $address->getLine2();
+            $street[] = $addressLine2;
+            if ($addressLine2 == '' && $street[0] != $originalStreet[1]) {
+                $originalStreet[1] = array_key_exists(1, $originalStreet) ? $originalStreet[1] : '';
+                $street[] = $originalStreet[1];
+            }
         }
         if ($address->hasLine3()) {
-            $street[] = $address->getLine3();
+            $addressLine3 = $address->getLine3();
+            $street[] = $addressLine3;
+            if ($addressLine3 == ''&& $street[1] != $originalStreet[2]) {
+                $originalStreet[2] = array_key_exists(2, $originalStreet) ? $originalStreet[2] : '';
+                $street[] = $originalStreet[2];
+            }
         }
         // Not using line 4, as it returns a concatenation of city, state, and zip (e.g., BAINBRIDGE IS WA 98110-2450)
 
