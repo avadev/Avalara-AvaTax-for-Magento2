@@ -79,6 +79,9 @@
                 <avatax_table_exemptions>negotiable_quote_item,company_order_entity</avatax_table_exemptions>
                 <result_cache_ttl>15</result_cache_ttl>
             </avatax_advanced>
+            <avatax_certificate_capture>
+                <disable_certcapture_auto_validation>0</disable_certcapture_auto_validation>
+            </avatax_certificate_capture>
         </tax>
     </default>
 </config>
