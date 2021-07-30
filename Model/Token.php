@@ -127,6 +127,9 @@ class Token extends Rest implements TokenInterface
     {
         try {
             $certCaptureConfig = $this->deploymentConfig->get('cert-capture');
+            if (!isset($certCaptureConfig['sdk-url'], $certCaptureConfig['client-id'])) {
+                return "Invalid Deployment Configuration";
+            }
 
             $client = $this->getClient();
             $client->withCatchExceptions(false);
