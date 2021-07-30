@@ -17,8 +17,14 @@ namespace ClassyLlama\AvaTax\Model;
 
 use ClassyLlama\AvaTax\Api\Data\SDKTokenInterfaceFactory;
 use ClassyLlama\AvaTax\Api\TokenInterface;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
-class Token implements TokenInterface
+/**
+ * Class Token
+ *
+ * @package ClassyLlama\AvaTax\Model
+ */
+class Token extends Rest implements TokenInterface
 {
     /**
      * Store manager
@@ -53,12 +59,21 @@ class Token implements TokenInterface
     protected $customerHelper;
 
     /**
+     * @var \ClassyLlama\AvaTax\Model\Factory\CreateECommerceTokenInputModelFactory
+     */
+    protected $createECommerceTokenInputModelFactory;
+
+    /**
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Framework\App\DeploymentConfig    $deploymentConfig
-     * @param SDKTokenInterfaceFactory                   $tokenInterfaceFactory
-     * @param \Magento\Customer\Model\Session            $customerSession
-     * @param \ClassyLlama\AvaTax\Helper\Config          $config
-     * @param \ClassyLlama\AvaTax\Helper\Customer        $customerHelper
+     * @param \Magento\Framework\App\DeploymentConfig $deploymentConfig
+     * @param SDKTokenInterfaceFactory $tokenInterfaceFactory
+     * @param \Magento\Customer\Model\Session $customerSession
+     * @param \ClassyLlama\AvaTax\Helper\Config $config
+     * @param \ClassyLlama\AvaTax\Helper\Customer $customerHelper
+     * @param \Psr\Log\LoggerInterface $logger
+     * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
+     * @param \ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool $clientPool
+     * @param \ClassyLlama\AvaTax\Model\Factory\CreateECommerceTokenInputModelFactory $createECommerceTokenInputModelFactory
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -66,15 +81,41 @@ class Token implements TokenInterface
         SDKTokenInterfaceFactory $tokenInterfaceFactory,
         \Magento\Customer\Model\Session $customerSession,
         \ClassyLlama\AvaTax\Helper\Config $config,
-        \ClassyLlama\AvaTax\Helper\Customer $customerHelper
+        \ClassyLlama\AvaTax\Helper\Customer $customerHelper,
+        \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\DataObjectFactory $dataObjectFactory,
+        \ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool $clientPool,
+        \ClassyLlama\AvaTax\Model\Factory\CreateECommerceTokenInputModelFactory $createECommerceTokenInputModelFactory
     )
     {
+        parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->storeManager = $storeManager;
         $this->deploymentConfig = $deploymentConfig;
         $this->tokenInterfaceFactory = $tokenInterfaceFactory;
         $this->customerSession = $customerSession;
         $this->config = $config;
         $this->customerHelper = $customerHelper;
+        $this->createECommerceTokenInputModelFactory = $createECommerceTokenInputModelFactory;
+    }
+
+    /**
+     * Function buildECommerceTokenInputModel
+     *
+     * @param $customerCode
+     * @param null $scopeId
+     * @param string $scopeType
+     * @return \Avalara\CreateECommerceTokenInputModel
+     */
+    protected function buildECommerceTokenInputModel(
+        $customerCode,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    ) {
+        /** @var \Avalara\CreateECommerceTokenInputModel $ECommerceTokenInputModel */
+        $ECommerceTokenInputModel = $this->createECommerceTokenInputModelFactory->create();
+        $ECommerceTokenInputModel->customerNumber = $customerCode;
+
+        return $ECommerceTokenInputModel;
     }
 
     /**
@@ -87,32 +128,27 @@ class Token implements TokenInterface
         try {
             $certCaptureConfig = $this->deploymentConfig->get('cert-capture');
 
-            if (!isset(
-                $certCaptureConfig['auth']['username'], $certCaptureConfig['auth']['password'], $certCaptureConfig['sdk-url'], $certCaptureConfig['client-id']
-            )) {
-                return "Invalid Deployment Configuration";
-            }
-
-            $auth = base64_encode("{$certCaptureConfig['auth']['username']}:{$certCaptureConfig['auth']['password']}");
+            $client = $this->getClient();
+            $client->withCatchExceptions(false);
             $customerCode = $this->customerHelper->getCustomerCodeByCustomerId($customerId);
+            // Instantiates an Avalara class.
+            $ECommerceTokenInputModel = $this->buildECommerceTokenInputModel($customerCode);
 
-            // use key 'http' even if you send the request to https://...
-            $options = [
-                'http' => [
-                    'header' => [
-                        'Content-type: application/json',
-                        "x-client-id: {$certCaptureConfig['client-id']}",
-                        "x-customer-number: {$customerCode}",
-                        "Authorization: Basic $auth"
-                    ],
-                    'method' => 'POST',
-                    'content' => http_build_query([])
-                ]
-            ];
+            $response = null;
 
-            $context = stream_context_create($options);
-
-            $result = json_decode(file_get_contents($certCaptureConfig['url'], false, $context), true);
+            try {
+                $response = $client->createECommerceToken(
+                    $this->config->getCompanyId(),
+                    $ECommerceTokenInputModel
+                );
+            } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+                // Validate the response; pass the customer id for context in case of an error.
+                $this->handleException(
+                    $clientException,
+                    $this->dataObjectFactory->create(['customer_id' => $customerId])
+                );
+            }
+            $result = $this->formatResult($response);
 
             if ($result === false) {
                 return "Error parsing response from AvaTax: " . json_last_error_msg();
@@ -121,8 +157,8 @@ class Token implements TokenInterface
             return $this->tokenInterfaceFactory->create(
                 [
                     'data' => [
-                        'token' => $result['response']['token'],
-                        'expires' => (new \DateTime($result['response']['expires_at']))->getTimestamp(),
+                        'token' => $result['token'],
+                        'expires' => (new \DateTime($result['expiration_date']))->getTimestamp(),
                         'customer' => $customerCode,
                         'customer_id' => $customerId,
                         'client_id' => $certCaptureConfig['client-id'],
