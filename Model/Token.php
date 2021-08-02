@@ -26,6 +26,13 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest;
  */
 class Token extends Rest implements TokenInterface
 {
+    /**#@+
+     * SDK Urls
+     */
+    const SDK_URL_DEV = 'https://sbx.certcapture.com/gencert2/js';
+    const SDK_URL_PROD = 'https://app.certcapture.com/gencert2/js';
+    /**#@-*/
+
     /**
      * Store manager
      *
@@ -126,16 +133,12 @@ class Token extends Rest implements TokenInterface
     public function getTokenForCustomerId($customerId)
     {
         try {
-            $certCaptureConfig = $this->deploymentConfig->get('cert-capture');
-            if (!isset($certCaptureConfig['sdk-url'], $certCaptureConfig['client-id'])) {
-                return "Invalid Deployment Configuration";
-            }
-
             $client = $this->getClient();
             $client->withCatchExceptions(false);
             $customerCode = $this->customerHelper->getCustomerCodeByCustomerId($customerId);
             // Instantiates an Avalara class.
             $ECommerceTokenInputModel = $this->buildECommerceTokenInputModel($customerCode);
+            $isProduction = $this->config->isProductionMode();
 
             $response = null;
 
@@ -164,8 +167,7 @@ class Token extends Rest implements TokenInterface
                         'expires' => (new \DateTime($result['expiration_date']))->getTimestamp(),
                         'customer' => $customerCode,
                         'customer_id' => $customerId,
-                        'client_id' => $certCaptureConfig['client-id'],
-                        'sdk_url' => $certCaptureConfig['sdk-url']
+                        'sdk_url' => $isProduction ? self::SDK_URL_PROD : self::SDK_URL_DEV
                     ]
                 ]
             );

@@ -62,79 +62,8 @@ II.  Connect to your CertCapture Account
 
 Modify the env.php file to Connect to the appropriate CertCapture instance using the eCommerce, API credentials and CertCapture Client ID.
 
-**CertCapture for eCommerce Plug-in Credentials**
 
-In order to use this feature set in Magento you will need to connect directly to CertCapture with your CertCapture for eCommerce plug-in credentials
-- CertCapture for eCommerce Username (CertCapture > Settings > Company Settings > Company Details > eCommerce Settings > Manage
-  eCommerce Account)
-- CertCapture for eCommerce Password (CertCapture > Settings > Company Settings > Company Details > eCommerce Settings > Manage
-  eCommerce Account)
-- CertCapture Client ID (CertCapture > Settings > Company Settings > Company Details >Company Information > Company ID)
-
-You will input these credentials into Magento installation's app/etc/env.php file. Here is an [example env.php](files/env.php) file, showing the cert-capture array
-added to the file.
-
-You will retrieve the 3 credentials (username, password, and client-id) using these steps:
-1. Log into your CertCapture account
-1. Set the username and password for the e-commerce Account
-    a. Go to Settings > Company Settings > Company Details > eCommerce Settings and add eCommerce Account. 
-    b. The Username and Password you configure will be the ones you enter in the env.php file.
-1. To retrieve the client-id, go to "Settings > Company Settings > Company Details" and use the "Company ID" value that is listed on that page
-   as your client-id.
-1. Note: If you have multiple CertCapture Companies in your Account you will need to decide which one will be the destination for the certificates
-   created in Magento. The certificates created and loaded through Magento will receive the legal business name of the CertCapture Company
-   chosen in this configuration.
-   
-## Magento's ENV.PHP Configuration Update
-The primary difference in the configuration files is the URL pointing to the Sandbox or Production CertCapture environment.
-- "sbx-api.certcapture" and "sbx.certcapture" 
-- "api.certcapture" and "app.certcapture"
-
-**Magento Development Configuration (env.php)**
-
-```php
-<?php
-return [
- // ...
- 'cert-capture' => [
- 'url' => 'https://sbx-api.certcapture.com/v2/auth/get-token',
- 'sdk-url' => 'https://sbx.certcapture.com/gencert2/js',
- 'auth' => [
- 'username' => '', // Certcapture username
- 'password' => '' // Certcapture password
- ],
- 'client-id' => '' // The certcapture client id you will use
- ],
- // ...
-];
-```
-
-**Magento Production Configuration (env.php)**
-
-```php
-<?php
-return [
- // ...
- 'cert-capture' => [
- 'url' => 'https://api.certcapture.com/v2/auth/get-token',
- 'sdk-url' => 'https://app.certcapture.com/gencert2/js',
- 'auth' => [
- 'username' => '', // Certcapture username
- 'password' => '' // Certcapture password
- ],
- 'client-id' => '' // The certcapture client id you will use
- ],
- // ...
-];
-```
-
-> In the Magento admin (Stores > Settings > Configuration > Sales > Tax > AvaTax - General), there is a setting
-  called Mode that allows an admin to toggle between Development and Production mode. That setting is not respected for
-  CertCapture—you'll need to configure the env.php file differently for each environment if you are using a CertCapture Sandbox
-  environment along with a CertCapture Production environment. Long-term, the Avalara API will be upgraded to support generating
-  tokens for Document Management, and at that point this env.php configuration will no longer be necessary.
-
-III.  Review Configuration Settings
+II.  Review Configuration Settings
 
 **Default Magento Configuration**
 - Checkout Link Text
@@ -147,7 +76,7 @@ III.  Review Configuration Settings
         - You can set the "Approved" status to another way of letting your customer know the certificate is ready for use
         - You can set the "Denied" status to another message like "Pending", "Pending Approval", "Please Contact Us at"
 
-IV. Test Customer Workflow
+III. Test Customer Workflow
 
 **Default CertCapture Workflow**
 - Customer Record Creation - 2 methods

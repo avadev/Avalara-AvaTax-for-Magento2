@@ -4,11 +4,6 @@ return array (
   array (
     'frontName' => 'backend',
   ),
-  'cert-capture' =>
-  array (
-    'sdk-url' => 'https://sbx.certcapture.com/gencert2/js',
-    'client-id' => '40306',
-  ),
   'db' =>
   array (
     'connection' =>

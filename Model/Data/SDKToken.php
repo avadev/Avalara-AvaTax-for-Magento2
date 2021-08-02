@@ -56,14 +56,6 @@ class SDKToken extends DataObject implements SDKTokenInterface
     /**
      * @return string
      */
-    public function getClientId()
-    {
-        return $this->getData('client_id');
-    }
-
-    /**
-     * @return string
-     */
     public function getSdkUrl()
     {
         return $this->getData('sdk_url');
