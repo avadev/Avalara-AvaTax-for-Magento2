@@ -58,10 +58,6 @@ I.  Enable Document Management in Magento
 In the Magento admin, go to Stores > Settings > Configuration > Sales > Tax. Click on the **AvaTax - Document Management** section -
 Enable Document Management set to Yes
 
-II.  Connect to your CertCapture Account 
-
-Modify the env.php file to Connect to the appropriate CertCapture instance using the eCommerce, API credentials and CertCapture Client ID.
-
 
 II.  Review Configuration Settings
 
