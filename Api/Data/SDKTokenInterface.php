@@ -40,10 +40,5 @@ interface SDKTokenInterface
     /**
      * @return string
      */
-    public function getClientId();
-
-    /**
-     * @return string
-     */
     public function getSdkUrl();
 }
