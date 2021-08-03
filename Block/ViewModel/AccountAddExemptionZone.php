@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace ClassyLlama\AvaTax\Block\ViewModel;
 
 use Magento\Store\Model\ScopeInterface;
-use Magento\Tests\NamingConvention\true\string;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Company as CompanyRest;
