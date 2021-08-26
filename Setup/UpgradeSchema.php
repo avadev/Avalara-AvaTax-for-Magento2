@@ -417,8 +417,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
 
             $setup->getConnection()->createTable($table_classyllama_avatax_crossbordertype);
-
-            $setup->endSetup();
         }
 
         // TODO: Add foreign key on avatax_cross_border_class.cross_border_type
