@@ -657,6 +657,20 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->createQueueBatchTransactionsTable($setup);
         }
 
+        if (version_compare($context->getVersion(), '2.2.4.1', '<')) {
+            $setup->getConnection(self::$connectionName)
+                ->addIndex(
+                    $setup->getTable('avatax_sales_order'),
+                    $setup->getIdxName(
+                        'avatax_sales_order',
+                        ['order_id'],
+                        \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                    ),
+                    ['order_id'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                );
+        }
+
         $setup->endSetup();
     }
 
