@@ -151,7 +151,9 @@ class ExtensionAttributesPersistencePlugin
             // The "if" have been added for excluding conflict with extension Magento_NegotiableQuote(Magento Commerce 2.3.*)
             // It will be removed after implementing the compatibility between ClassyLlama_AvaTax and Magento_B2b
             $tableNameExemptions = $this->config->getTableExemptions();
-            if(in_array($tableName, $tableNameExemptions)) { continue; }
+            if (in_array($tableName, $tableNameExemptions) || 0 !== strpos($tableName, 'avatax')) {
+                continue;
+            }
 
             $data = array_merge(...$tableData[$tableName]);
             $joinReferenceField = $tablesToUpdate[$tableName]['join_reference_field'];
