@@ -58,7 +58,7 @@
                 <!-- ko template: getTemplate() --><!-- /ko -->
             </div>
             <div class="customer-tax-exemption-action"
-                 data-bind='scope: "account-add-exemptions", mageInit: {"Magento_Ui/js/core/app": {"components": {"account-add-exemptions": {"component": "ClassyLlama_AvaTax/js/action/account-add-exemption", "config": {"availableExemptionZones": available_exemption_zones, customerId: customer_id, tokenUrl: token_url}}}}}'>
+                 data-bind='scope: "account-add-exemptions", mageInit: {"Magento_Ui/js/core/app": {"components": {"account-add-exemptions": {"component": "ClassyLlama_AvaTax/js/action/account-add-exemption", "config": {"availableExemptionZones": available_exemption_zones, customerId: customer_id, tokenUrl: token_url, certificatesAutoValidationDisabled: certificates_auto_validation_disabled}}}}}'>
                 <button data-bind="click: addExemption, i18n: 'Add Exemption'"></button>
                 <!-- ko template: getTemplate() --><!-- /ko -->
             </div>

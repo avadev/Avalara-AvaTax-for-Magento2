@@ -70,7 +70,6 @@
         <attribute code="taxable" type="float" />
         <attribute code="tax" type="float" />
     </extension_attributes>
-
     <extension_attributes for="Magento\Quote\Api\Data\CartItemInterface">
         <attribute code="hs_code" type="string">
             <join reference_table="avatax_quote_item" reference_field="quote_item_id" join_on_field="item_id">

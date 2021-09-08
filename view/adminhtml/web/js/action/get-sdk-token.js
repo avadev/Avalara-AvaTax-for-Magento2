@@ -20,13 +20,12 @@ define(['jquery'], function (jQuery) {
     var requiredInfo = [
         'token',
         'customer',
-        'client_id',
         'expires',
         'sdk_url'
     ];
 
     function generateTokenResolve(tokenInfo) {
-        return jQuery.Deferred().resolve(tokenInfo.sdk_url, tokenInfo.token, tokenInfo.client_id);
+        return jQuery.Deferred().resolve(tokenInfo.sdk_url, tokenInfo.token);
     }
 
     return function getSdkToken(tokenUrl, customerId) {

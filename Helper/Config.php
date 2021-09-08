@@ -1282,6 +1282,20 @@ class Config extends AbstractHelper
     }
 
     /**
+     * @param string $configPath
+     * @return false|string[]
+     */
+    public function getConfigDataArray(string $configPath)
+    {
+        return explode(
+            ',',
+            $this->scopeConfig->getValue(
+                $configPath
+            )
+        );
+    }
+
+    /**
      * Get Config Data
      *
      * @param $configPath

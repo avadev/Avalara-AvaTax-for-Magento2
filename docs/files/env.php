@@ -1,25 +1,14 @@
 <?php
 return array (
-  'backend' => 
+  'backend' =>
   array (
     'frontName' => 'backend',
   ),
-  'cert-capture' => 
+  'db' =>
   array (
-    'url' => 'https://sbx-api.certcapture.com/v2/auth/get-token',
-    'sdk-url' => 'https://sbx.certcapture.com/gencert2/js',
-    'auth' => 
+    'connection' =>
     array (
-      'username' => 'example@example.com',
-      'password' => 'Xd9Tm0yxd0GHirbm',
-    ),
-    'client-id' => '40306',
-  ),
-  'db' => 
-  array (
-    'connection' => 
-    array (
-      'indexer' => 
+      'indexer' =>
       array (
         'host' => '127.0.0.1',
         'dbname' => 'magento',
@@ -31,7 +20,7 @@ return array (
         'active' => '1',
         'persistent' => NULL,
       ),
-      'default' => 
+      'default' =>
       array (
         'host' => '127.0.0.1',
         'dbname' => 'magento',
@@ -45,31 +34,31 @@ return array (
     ),
     'table_prefix' => '',
   ),
-  'crypt' => 
+  'crypt' =>
   array (
     'key' => 'ecc7b7bdf458531890dd688f00es233c',
   ),
-  'resource' => 
+  'resource' =>
   array (
-    'default_setup' => 
+    'default_setup' =>
     array (
       'connection' => 'default',
     ),
   ),
   'x-frame-options' => 'SAMEORIGIN',
   'MAGE_MODE' => 'developer',
-  'session' => 
+  'session' =>
   array (
     'save' => 'files',
   ),
-  'cache' => 
+  'cache' =>
   array (
-    'frontend' => 
+    'frontend' =>
     array (
-      'default' => 
+      'default' =>
       array (
         'backend' => 'Cm_Cache_Backend_Redis',
-        'backend_options' => 
+        'backend_options' =>
         array (
           'server' => 'localhost',
           'database' => '0',
@@ -78,7 +67,7 @@ return array (
       ),
     ),
   ),
-  'cache_types' => 
+  'cache_types' =>
   array (
     'config' => 1,
     'layout' => 1,
@@ -96,7 +85,7 @@ return array (
     'config_webservice' => 1,
     'compiled_config' => 1,
   ),
-  'install' => 
+  'install' =>
   array (
     'date' => 'Wed, 23 May 2018 21:09:30 +0000',
   ),

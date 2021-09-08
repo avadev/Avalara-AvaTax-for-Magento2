@@ -739,6 +739,69 @@
                         <field id="queue_submission_enabled">1</field>
                     </depends>
                 </field>
+                <group id="attribute_codes" sortOrder="6060" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed Attributes</label>
+                    <field id="paymentdetails" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment details attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="shippinginformation" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Shipping information attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="quotedetailsitem" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Quote details item attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="cart" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Cart attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="order" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="invoice" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Invoice attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="creditmemo" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Credit memo attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="appliedtaxrate" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Applied tax rate attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="cartitem" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Cart item attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="orderitem" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order item attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="invoiceitem" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Invoice item attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="creditmemoitem" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Credit memo item attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                    <field id="totals" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Totals attribute codes</label>
+                        <comment>Comma-separated list</comment>
+                    </field>
+                </group>
+            </group>
+            <group id="avatax_certificate_capture" translate="label" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>AvaTax - Certificate Capture Management</label>
+                <field id="disable_certcapture_auto_validation" type="select" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Disable certificates auto validation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[By default, new certificates are automatically validated in CertCapture, unless this behavior is altered.]]></comment>
+                </field>
             </group>
             <group id="classes">
                 <field id="shipping_tax_class">
