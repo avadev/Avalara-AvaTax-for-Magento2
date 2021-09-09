@@ -20,7 +20,6 @@ define(['jquery', 'mage/storage', 'Magento_Customer/js/model/customer'], functio
     var requiredInfo = [
         'token',
         'customer',
-        'client_id',
         'expires',
         'sdk_url'
     ];
@@ -37,7 +36,7 @@ define(['jquery', 'mage/storage', 'Magento_Customer/js/model/customer'], functio
             }
 
             if (tokenInfo !== false && tokenInfo.expires * 1000 > Date.now() + expirationBuffer) {
-                return jQuery.Deferred().resolve(tokenInfo.sdk_url, tokenInfo.token, tokenInfo.client_id);
+                return jQuery.Deferred().resolve(tokenInfo.sdk_url, tokenInfo.token);
             }
 
             window.localStorage.removeItem(avaTaxTokenStorageKey)
@@ -53,7 +52,7 @@ define(['jquery', 'mage/storage', 'Magento_Customer/js/model/customer'], functio
                 // Cache the token in local storage
                 window.localStorage.setItem(avaTaxTokenStorageKey, JSON.stringify(response));
 
-                return jQuery.Deferred().resolve(response.sdk_url, response.token, response.customer, response.client_id);
+                return jQuery.Deferred().resolve(response.sdk_url, response.token, response.customer);
             }
         );
     }

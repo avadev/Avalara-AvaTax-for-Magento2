@@ -87,7 +87,21 @@ class ExtensionAttributesPersistencePlugin
             }
         }
 
-        return $joinDirectives;
+        $extensibleInterfaceName = $this->extensionAttributesFactory->getExtensibleInterfaceName($extensibleEntityClass);
+        $stringArray = explode('\\', $extensibleInterfaceName);
+        $extensibleEntityName = strtolower(str_replace('Interface', '', end($stringArray)));
+
+        return array_filter(
+            $joinDirectives,
+            function ($extensionAttributeCode) use ($extensibleEntityName) {
+                return in_array(
+                    $extensionAttributeCode,
+                    $this->config->getConfigDataArray(
+                        "tax/avatax_advanced/attribute_codes/$extensibleEntityName")
+                );
+            },
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
     /**

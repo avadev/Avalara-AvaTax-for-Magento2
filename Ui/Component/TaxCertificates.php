@@ -18,6 +18,8 @@ namespace ClassyLlama\AvaTax\Ui\Component;
 use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use ClassyLlama\AvaTax\Block\ViewModel\AccountAddExemptionZone;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Ui\Component\AbstractComponent;
 use Magento\Ui\Component\Layout\Tabs\TabInterface;
@@ -102,6 +104,15 @@ class TaxCertificates extends AbstractComponent implements TabInterface
     private $logger;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+    /**
+     * @var AccountAddExemptionZone
+     */
+    private $accountAddExemptionZone;
+
+    /**
      * TaxCertificates constructor.
      * @param LoggerInterface $logger
      * @param AuthSession $authSession
@@ -114,6 +125,7 @@ class TaxCertificates extends AbstractComponent implements TabInterface
      * @param Registry $registry
      * @param CustomerRepositoryInterface $customerRepository
      * @param DocumentManagementConfig $documentManagementConfig
+     * @param ScopeConfigInterface $scopeConfig
      * @param array $components
      * @param array $data
      */
@@ -129,6 +141,8 @@ class TaxCertificates extends AbstractComponent implements TabInterface
         Registry $registry,
         CustomerRepositoryInterface $customerRepository,
         DocumentManagementConfig $documentManagementConfig,
+        ScopeConfigInterface $scopeConfig,
+        AccountAddExemptionZone $accountAddExemptionZone,
         array $components = [],
         array $data = []
     ) {
@@ -143,6 +157,8 @@ class TaxCertificates extends AbstractComponent implements TabInterface
         $this->certificatesList = $certificatesList;
         $this->authSession = $authSession;
         $this->logger = $logger;
+        $this->scopeConfig = $scopeConfig;
+        $this->accountAddExemptionZone = $accountAddExemptionZone;
     }
 
     /**
@@ -259,6 +275,7 @@ class TaxCertificates extends AbstractComponent implements TabInterface
             ['form_key' => $this->sessionContext->getFormKey(), 'customer_id' => $config['customer_id']]
         );
         $config['available_exemption_zones'] = $this->getAvailableExemptionZones();
+        $config['certificates_auto_validation_disabled'] = $this->accountAddExemptionZone->isCertificatesAutoValidationDisabled();
         $this->setData('config', $config);
 
         parent::prepare();

@@ -16,6 +16,7 @@
 namespace ClassyLlama\AvaTax\Setup;
 
 use Magento\Framework\DB\Ddl\Table;
+use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
@@ -653,8 +654,23 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ]
                 );
         }
+
         if (version_compare($context->getVersion(), '2.1.6', '<')) {
             $this->createQueueBatchTransactionsTable($setup);
+        }
+
+        if (version_compare($context->getVersion(), '2.2.4.1', '<')) {
+            $setup->getConnection(self::$connectionName)
+                ->addIndex(
+                    $setup->getTable('avatax_sales_order'),
+                    $setup->getIdxName(
+                        $setup->getTable('avatax_sales_order'),
+                        ['order_id'],
+                        AdapterInterface::INDEX_TYPE_UNIQUE
+                    ),
+                    ['order_id'],
+                    AdapterInterface::INDEX_TYPE_UNIQUE
+                );
         }
 
         $setup->endSetup();
