@@ -6,8 +6,7 @@
     "description": "Magento module for Avalara's AvaTax suite of business tax calculation and processing services. Uses the AvaTax REST v2 API.",
     "require": {
         "magento/framework": "^100.1.0|101.0.*|>=102.0.0",
-        "avalara/avataxclient": "^20.12.1",
-        "laminas/laminas-serializer": "^2.8"
+        "avalara/avataxclient": "^20.12.1"
     },
     "autoload": {
         "files": [ "registration.php" ],
