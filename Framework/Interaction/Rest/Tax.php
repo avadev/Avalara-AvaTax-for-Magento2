@@ -229,7 +229,22 @@ class Tax extends Rest
             foreach ($request->getLines() as $line) {
                 $amount = ($line->hasAmount()) ? $line->getAmount() : 0;
                 $transactionBuilder->withLine($amount, $line->getQuantity(), $line->getItemCode(), $line->getTaxCode());
-
+                
+                if ($line->hasAddresses()) {
+                    foreach($line->getAddresses() as $addressType => $lineAddress) {
+                        $transactionBuilder->withLineAddress(
+                            $addressType,
+                            $lineAddress->getLine1(),
+                            $lineAddress->getLine2(),
+                            $lineAddress->getLine3(),
+                            $lineAddress->getCity(),
+                            $lineAddress->getRegion(),
+                            $lineAddress->getPostalCode(),
+                            $lineAddress->getCountry()
+                        );
+                    }
+                }
+                
                 if ($line->getTaxIncluded()) {
                     $transactionBuilder->withLineTaxIncluded();
                 }
