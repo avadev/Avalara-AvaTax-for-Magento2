@@ -154,22 +154,28 @@ class CertificateHelper
     {
         $certificateStatusNames = [
             'approved' => 'Approved',
-            'denied'   => 'Denied'
+            'denied'   => 'Denied',
+            'pending'  => 'Pending'
         ];
 
-        if(!$this->avataxConfig->getConfigData(Config::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_CUSTOM_STATUS_NAME)) {
+        if (!$this->avataxConfig->getConfigData(Config::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_CUSTOM_STATUS_NAME)) {
             return $certificateStatusNames;
         }
 
         $approved = $this->avataxConfig->getConfigData(Config::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_APPROVED);
         $denied = $this->avataxConfig->getConfigData(Config::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_DENIED);
+        $pending = $this->avataxConfig->getConfigData(Config::XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_PENDING);
 
-        if($approved) {
+        if ($approved) {
             $certificateStatusNames['approved'] = $approved;
         };
 
-        if($denied) {
+        if ($denied) {
             $certificateStatusNames['denied'] = $denied;
+        };
+
+        if ($pending) {
+            $certificateStatusNames['pending'] = $pending;
         };
 
         return $certificateStatusNames;
