@@ -156,6 +156,8 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_DENIED = 'tax/avatax_document_management/denied_status_name';
 
+    const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CERTIFICATE_NAME_STATUS_PENDING = 'tax/avatax_document_management/pending_status_name';
+
     const XML_PATH_AVATAX_ADVANCED_AVATAX_TABLE_EXEMPTIONS = 'tax/avatax_advanced/avatax_table_exemptions';
 
     /**#@-*/
