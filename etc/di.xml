@@ -246,15 +246,9 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="classyLlamaExtensionAttributesSave" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin">
-        <arguments>
-            <argument name="shouldLoad" xsi:type="boolean">false</argument>
-        </arguments>
-    </virtualType>
-
     <!--region Extension Attribute Persistence -->
     <type name="Magento\Sales\Model\ResourceModel\Order">
-        <plugin sortOrder="1" name="classyllama_avatax_order_extension_attribute_persistence" type="classyLlamaExtensionAttributesSave"/>
+        <plugin sortOrder="1" name="classyllama_avatax_order_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
     </type>
 
     <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item">
