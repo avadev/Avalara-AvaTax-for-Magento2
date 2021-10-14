@@ -109,18 +109,18 @@
     <type name="ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger">
         <arguments>
             <argument name="name" xsi:type="string">avatax</argument>
-            <argument name="handlers"  xsi:type="array">
+            <argument name="handlers" xsi:type="array">
                 <item name="1" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
                 <item name="2" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
             </argument>
-            <argument name="processors"  xsi:type="array">
+            <argument name="processors" xsi:type="array">
                 <item name="1" xsi:type="object">ClassyLlama\AvaTax\Model\Logger\AvaTaxProcessor</item>
             </argument>
         </arguments>
     </type>
     <type name="Monolog\Processor\IntrospectionProcessor">
         <arguments>
-            <argument name="skipClassesPartials"  xsi:type="array">
+            <argument name="skipClassesPartials" xsi:type="array">
                 <item name="1" xsi:type="string">ClassyLlama\AvaTax\Model\Logger\DbHandler</item>
                 <item name="2" xsi:type="string">ClassyLlama\AvaTax\Model\Logger\FileHandler</item>
             </argument>
@@ -129,7 +129,9 @@
     <type name="Magento\Config\Model\Config\TypePool">
         <arguments>
             <argument name="sensitive" xsi:type="array">
+                <item name="tax/avatax/production_account_number" xsi:type="string">1</item>
                 <item name="tax/avatax/production_license_key" xsi:type="string">1</item>
+                <item name="tax/avatax/development_account_number" xsi:type="string">1</item>
                 <item name="tax/avatax/development_license_key" xsi:type="string">1</item>
             </argument>
             <argument name="environment" xsi:type="array">
