@@ -970,7 +970,7 @@ class Config extends AbstractHelper
      *
      * @return string
      */
-    protected function getErrorActionDisableCheckoutMessageFrontend($store)
+    public function getErrorActionDisableCheckoutMessageFrontend($store)
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ERROR_ACTION_DISABLE_CHECKOUT_MESSAGE_FRONTEND,

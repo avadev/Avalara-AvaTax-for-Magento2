@@ -2,6 +2,9 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Multishipping\Checkout;
 
+use Magento\Quote\Model\Quote\Address as QuoteAddress;
+use Magento\Store\Model\StoreManagerInterface;
+
 /**
  * Class Results
  *
@@ -22,17 +25,33 @@ class Results
     protected $session;
 
     /**
+     * @var \ClassyLlama\AvaTax\Helper\Config
+     */
+    protected $config;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * Results constructor.
      *
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Framework\Session\Generic $session
+     * @param \ClassyLlama\AvaTax\Helper\Config $config
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
-        \Magento\Framework\Session\Generic $session
+        \Magento\Framework\Session\Generic $session,
+        \ClassyLlama\AvaTax\Helper\Config $config,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->coreRegistry = $coreRegistry;
         $this->session = $session;
+        $this->config = $config;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -54,5 +73,21 @@ class Results
         }
 
         return $addresses;
+    }
+
+    /**
+     * Returns address error.
+     *
+     * @param QuoteAddress $address
+     * @return string
+     * @since 100.2.1
+     */
+    public function afterGetAddressError(\Magento\Multishipping\Block\Checkout\Results $subject, $result, QuoteAddress $address): string
+    {
+        if (empty($result) && $address->getAddressType() === QuoteAddress::ADDRESS_TYPE_SHIPPING) {
+            return $this->config->getErrorActionDisableCheckoutMessageFrontend($this->storeManager->getStore());
+        }
+
+        return $result;
     }
 }

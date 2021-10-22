@@ -228,7 +228,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                 case Config::ERROR_ACTION_DISABLE_CHECKOUT:
                     $this->coreRegistry->register(self::AVATAX_GET_TAX_REQUEST_ERROR, true, true);
                     $ids = (!empty($this->session->getAvataxGetTaxRequestErrorIds())) ? $this->session->getAvataxGetTaxRequestErrorIds() : [];
-                    array_push($ids, $address->getId());
+                    if (!is_null($address->getId()) && !in_array($address->getId(), $ids)) {
+                        array_push($ids, $address->getId());
+                    }
                     $this->session->setAvataxGetTaxRequestErrorIds($ids);
                     return parent::collect($quote, $shippingAssignment, $total);
                     break;
