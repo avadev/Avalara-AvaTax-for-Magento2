@@ -50,8 +50,10 @@ $statuses =  $viewModel->getCertificateStatusName();
                     <td data-th="<?php echo __('Expiration Date') ?>"><?php echo $certificate->getData(
                             'expiration_date'
                         ); ?></td>
-                    <td data-th="<?php echo __('Status') ?>"><?php echo $certificate->getData('valid') ? $block->escapeHtml($statuses['approved'])
-                            : $block->escapeHtml($statuses['denied']); ?></td>
+                    <td data-th="<?php echo __('Status') ?>"><?php echo ($certificate->getData('valid') &&
+                            $viewModel->isReadyForValidation($certificate->getData('status'))) ? $block->escapeHtml($statuses['pending']) :
+                            ($certificate->getData('valid') ? $block->escapeHtml($statuses['approved'])
+                            : $block->escapeHtml($statuses['denied'])); ?></td>
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
                             <a target="_blank"

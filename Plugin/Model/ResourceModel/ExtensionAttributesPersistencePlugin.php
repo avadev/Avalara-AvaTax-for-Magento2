@@ -222,7 +222,7 @@ class ExtensionAttributesPersistencePlugin
         /** @var DataObject $object */
         $proceed($object, $value, $field);
 
-        if (!$this->shouldLoad) {
+        if (!$this->shouldLoad || $object instanceof \Magento\Sales\Api\Data\OrderInterface) {
             return $subject;
         }
 

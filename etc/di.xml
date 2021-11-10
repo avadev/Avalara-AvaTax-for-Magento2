@@ -246,15 +246,9 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="classyLlamaExtensionAttributesSave" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin">
-        <arguments>
-            <argument name="shouldLoad" xsi:type="boolean">false</argument>
-        </arguments>
-    </virtualType>
-
     <!--region Extension Attribute Persistence -->
     <type name="Magento\Sales\Model\ResourceModel\Order">
-        <plugin sortOrder="1" name="classyllama_avatax_order_extension_attribute_persistence" type="classyLlamaExtensionAttributesSave"/>
+        <plugin sortOrder="1" name="classyllama_avatax_order_extension_attribute_persistence" type="ClassyLlama\AvaTax\Plugin\Model\ResourceModel\ExtensionAttributesPersistencePlugin"/>
     </type>
 
     <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Item">
@@ -328,5 +322,12 @@
                 <item name="batch" xsi:type="string">ClassyLlama\AvaTax\Model\Queue\Processing\BatchProcessing</item>
             </argument>
         </arguments>
+    </type>
+
+    <type name="Magento\Multishipping\Block\Checkout\Results">
+        <plugin name="classyLlamaAvaTaxFilterFailedAddresses" type="ClassyLlama\AvaTax\Plugin\Multishipping\Checkout\Results"/>
+    </type>
+    <type name="Magento\Multishipping\Block\DataProviders\Overview">
+        <plugin name="classyLlamaAvaTaxDataProvidersOverview" type="ClassyLlama\AvaTax\Plugin\DataProviders\Overview"/>
     </type>
 </config>

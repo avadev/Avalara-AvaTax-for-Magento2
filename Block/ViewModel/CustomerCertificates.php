@@ -24,6 +24,9 @@ use Magento\Framework\Exception\LocalizedException;
 
 class CustomerCertificates implements \Magento\Framework\View\Element\Block\ArgumentInterface
 {
+    /** @var string  */
+    const VALID_PENDING_STATUS = 'PENDING';
+
     /**
      * @var \Magento\Framework\Registry
      */
@@ -164,5 +167,16 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
     public function getCertificateStatusName()
     {
         return $this->certificateHelper->getCertificateStatusNames();
+    }
+
+    /**
+     * Is Ready For Validation
+     *
+     * @param $status
+     * @return bool
+     */
+    public function isReadyForValidation($status)
+    {
+        return $status === self::VALID_PENDING_STATUS;
     }
 }

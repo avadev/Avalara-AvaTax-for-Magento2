@@ -88,9 +88,16 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $customsTax;
 
     /**
+     * @var \Magento\Framework\Session\Generic
+     */
+    protected $session;
+
+    /**
      * Registry key to track whether AvaTax GetTaxRequest was successful
      */
     const AVATAX_GET_TAX_REQUEST_ERROR = 'avatax_get_tax_request_error';
+
+    const AVATAX_GET_TAX_REQUEST_ERROR_IDS = 'avatax_get_tax_request_error_ids';
 
     const MINIMUM_POST_CODE_LENGTH = 3;
 
@@ -113,7 +120,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper
-     * @param CustomsTax
+     * @param CustomsTax $customsTax
+     * @param \Magento\Framework\Session\Generic $session
      */
     public function __construct(
         \Magento\Tax\Model\Config $taxConfig,
@@ -132,7 +140,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Registry $coreRegistry,
         \ClassyLlama\AvaTax\Helper\TaxClass $taxClassHelper,
-        CustomsTax $customsTax
+        CustomsTax $customsTax,
+        \Magento\Framework\Session\Generic $session
     ) {
         $this->interactionGetTax = $interactionGetTax;
         $this->taxCalculation = $taxCalculation;
@@ -143,6 +152,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $this->coreRegistry = $coreRegistry;
         $this->taxClassHelper = $taxClassHelper;
         $this->customsTax = $customsTax;
+        $this->session = $session;
         parent::__construct(
             $taxConfig,
             $taxCalculationService,
@@ -217,6 +227,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             switch ($this->config->getErrorAction($quote->getStoreId())) {
                 case Config::ERROR_ACTION_DISABLE_CHECKOUT:
                     $this->coreRegistry->register(self::AVATAX_GET_TAX_REQUEST_ERROR, true, true);
+                    $ids = (!empty($this->session->getAvataxGetTaxRequestErrorIds())) ? $this->session->getAvataxGetTaxRequestErrorIds() : [];
+                    if (!is_null($address->getId()) && !in_array($address->getId(), $ids)) {
+                        array_push($ids, $address->getId());
+                    }
+                    $this->session->setAvataxGetTaxRequestErrorIds($ids);
                     return parent::collect($quote, $shippingAssignment, $total);
                     break;
                 case Config::ERROR_ACTION_ALLOW_CHECKOUT_NATIVE_TAX:
