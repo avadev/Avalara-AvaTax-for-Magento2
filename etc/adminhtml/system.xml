@@ -505,6 +505,14 @@
                         <field id="custom_status_name_certificate">1</field>
                     </depends>
                 </field>
+                <field id="pending_status_name" translate="label" type="text" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>'Pending' Status Name(Default name)</label>
+                    <comment>This text will be shown instead of the default certificate status name('Pending') in the 'Tax Certificates' grid of the My Account.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="custom_status_name_certificate">1</field>
+                    </depends>
+                </field>
             </group>
             <group id="avatax_advanced" translate="label" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>AvaTax - Advanced</label>
