@@ -117,7 +117,7 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         $warnings = [];
         if (isset($result->messages) && is_array($result->messages)) {
             foreach ($result->messages as $message) {
-                if (in_array($message->severity, $this->restConfig->getErrorSeverityLevels())) {
+                if (in_array($message->severity, ['Error', 'Exception'])) {
                     $errors[] = $message->summary;
                 } elseif (in_array($message->severity, $this->restConfig->getWarningSeverityLevels())) {
                     $warnings[] = $message->summary;
