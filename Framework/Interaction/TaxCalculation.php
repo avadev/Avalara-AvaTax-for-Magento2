@@ -390,7 +390,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                                 [
                                     'data' => [
                                         'percent' => $rate,
-                                        'code' => "AVATAX-{$jurisdictionCode}-{$taxType}",
+                                        'code' => "AVATAX-{$jurisdictionCode}-{$taxType}-{$rate}",
                                         'title' => $taxTitle
                                     ]
                                 ]
