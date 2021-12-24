@@ -30,7 +30,7 @@ define(
             var addressChanges = {};
             for(var index in propertiesToUpdate ) {
                 var property = propertiesToUpdate[index];
-                if(address.hasOwnProperty(property)) {
+                if(address && address.hasOwnProperty(property)) {
                     addressChanges[property] = address[property];
                 }
             }
