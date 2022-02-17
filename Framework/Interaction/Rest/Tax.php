@@ -123,6 +123,7 @@ class Tax extends Rest
             'companyCode' => $request->getCompanyCode(),
             'type' => $request->getType(),
             'customerCode' => $request->getCustomerCode(),
+            'dateTime' => $request->getDate(),
         ]);
 
         $this->setTransactionDetails($transactionBuilder, $request);
@@ -315,6 +316,7 @@ class Tax extends Rest
                 'companyCode'  => $request->getCompanyCode(),
                 'type'         => $request->getType(),
                 'customerCode' => $request->getCustomerCode(),
+                'dateTime'     => $request->getDate(),
             ]);
             $this->setTransactionDetails($transactionBuilder, $request);
             try {
