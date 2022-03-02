@@ -30,7 +30,7 @@ define(
             var addressChanges = {};
             for(var index in propertiesToUpdate ) {
                 var property = propertiesToUpdate[index];
-                if(address.hasOwnProperty(property)) {
+                if(address && address.hasOwnProperty(property)) {
                     addressChanges[property] = address[property];
                 }
             }
@@ -42,7 +42,7 @@ define(
             // line is executed. This is only the case on the initial loading of the Review & Payments step so the
             // dontCheckForBillingAddress property is set to true on the initial loading of that step and false when
             // switching between the suggested and original address.
-            if ($('input[name=billing-address-same-as-shipping]').filter(':checked').length || dontCheckForBillingAddress) {
+            if (($('input[name=billing-address-same-as-shipping]').filter(':checked').length || dontCheckForBillingAddress) && quote.shippingAddress().canUseForBilling()) {
                 quote.billingAddress(newAddress);
             }
         };

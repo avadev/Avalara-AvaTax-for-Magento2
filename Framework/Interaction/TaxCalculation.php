@@ -377,7 +377,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
             // Normalize the AvaTax rate to a Magento rate
             $rate *= Tax::RATE_MULTIPLIER;
             // Generate an array key to represent this tax item to be summed across line items
-            $arrayKey = "{$jurisdictionCode}_{$jurisdictionName}_{$taxType}_{$taxSubTypeId}_{$jurisdictionType}";
+            $arrayKey = "{$jurisdictionCode}_{$jurisdictionName}_{$taxType}_{$taxSubTypeId}_{$rate}_{$jurisdictionType}";
             $appliedTaxDataObjects[$arrayKey] = $this->appliedTaxDataObjectFactory->create(
                 [
                     'data' => [
@@ -390,7 +390,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                                 [
                                     'data' => [
                                         'percent' => $rate,
-                                        'code' => "AVATAX-{$jurisdictionCode}-{$taxType}",
+                                        'code' => "AVATAX-{$jurisdictionCode}-{$taxType}-{$rate}",
                                         'title' => $taxTitle
                                     ]
                                 ]
