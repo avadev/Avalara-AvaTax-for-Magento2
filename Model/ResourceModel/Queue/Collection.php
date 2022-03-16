@@ -28,7 +28,7 @@ use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Framework\Stdlib\DateTime;
 use ClassyLlama\AvaTax\Model\Queue as QueueModel;
 use Zend_Db_Expr;
-use Zend_Db_Select;
+use Magento\Framework\DB\Select;
 
 class Collection extends AbstractCollection
 {
@@ -141,7 +141,7 @@ class Collection extends AbstractCollection
 
         $countExpr = new Zend_Db_Expr("COUNT(*)");
 
-        $select->reset(Zend_Db_Select::COLUMNS);
+        $select->reset(Select::COLUMNS);
         $select->columns([
             self::SUMMARY_COUNT_FIELD_NAME => $countExpr
         ]);
@@ -162,7 +162,7 @@ class Collection extends AbstractCollection
 
         $updatedAtExpr = new Zend_Db_Expr('MAX(' . Queue::UPDATED_AT_FIELD_NAME . ')');
 
-        $select->reset(Zend_Db_Select::COLUMNS);
+        $select->reset(Select::COLUMNS);
         $select->columns([
             self::SUMMARY_LAST_UPDATED_AT_FIELD_NAME => $updatedAtExpr
         ]);
@@ -184,7 +184,7 @@ class Collection extends AbstractCollection
         $createdAtExpr = new Zend_Db_Expr('MAX(' . Queue::CREATED_AT_FIELD_NAME . ')');
         $updatedAtExpr = new Zend_Db_Expr('MAX(' . Queue::UPDATED_AT_FIELD_NAME . ')');
 
-        $select->reset(Zend_Db_Select::COLUMNS);
+        $select->reset(Select::COLUMNS);
         $select->columns([
             self::SUMMARY_COUNT_FIELD_NAME           => $countExpr,
             self::SUMMARY_LAST_CREATED_AT_FIELD_NAME => $createdAtExpr,
@@ -217,7 +217,7 @@ class Collection extends AbstractCollection
         $yearWeekExpr = new Zend_Db_Expr('YEARWEEK(' . Queue::CREATED_AT_FIELD_NAME . ')');
         $countExpr = new Zend_Db_Expr("COUNT(*)");
 
-        $select->reset(Zend_Db_Select::COLUMNS);
+        $select->reset(Select::COLUMNS);
         $select->columns([
             self::SUMMARY_YEAR_WEEK        => $yearWeekExpr,
             self::SUMMARY_COUNT_FIELD_NAME => $countExpr
