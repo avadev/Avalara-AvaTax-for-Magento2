@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-  <table name="avatax_log" resource="default" engine="innodb" comment="AvaTax Log Table">
+  <table name="avatax_log" resource="sales" engine="innodb" comment="AvaTax Log Table">
     <column xsi:type="int" name="log_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Log ID"/>
     <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Log Time"/>
     <column xsi:type="int" name="store_id" padding="11" unsigned="false" nullable="false" identity="false" comment="Store ID"/>
@@ -21,7 +21,7 @@
       <column name="created_at"/>
     </index>
   </table>
-  <table name="avatax_queue" resource="default" engine="innodb" comment="AvaTax Queue Table">
+  <table name="avatax_queue" resource="sales" engine="innodb" comment="AvaTax Queue Table">
     <column xsi:type="int" name="queue_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Queue ID"/>
     <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Queue Time"/>
     <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Updated Time"/>
@@ -49,7 +49,7 @@
       <column name="updated_at"/>
     </index>
   </table>
-  <table name="avatax_sales_invoice" resource="default" engine="innodb" comment="AvaTax Sales Invoice Table">
+  <table name="avatax_sales_invoice" resource="sales" engine="innodb" comment="AvaTax Sales Invoice Table">
     <column xsi:type="int" name="entity_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Entity ID"/>
     <column xsi:type="int" name="parent_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Sales Invoice ID"/>
     <column xsi:type="smallint" name="is_unbalanced" padding="5" unsigned="true" nullable="true" identity="false" comment="Is Unbalanced In Relation To AvaTax Calculated Tax Amount"/>
@@ -64,7 +64,7 @@
       <column name="parent_id"/>
     </index>
   </table>
-  <table name="avatax_sales_creditmemo" resource="default" engine="innodb" comment="AvaTax Sales Credit Memo Table">
+  <table name="avatax_sales_creditmemo" resource="sales" engine="innodb" comment="AvaTax Sales Credit Memo Table">
     <column xsi:type="int" name="entity_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Entity ID"/>
     <column xsi:type="int" name="parent_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Sales Credit Memo ID"/>
     <column xsi:type="smallint" name="is_unbalanced" padding="5" unsigned="true" nullable="true" identity="false" comment="Is Unbalanced In Relation To AvaTax Calculated Tax Amount"/>
@@ -114,7 +114,7 @@
       <column name="entity_id"/>
     </constraint>
   </table>
-  <table name="avatax_quote_item" resource="default" engine="innodb" comment="AvaTax Quote Item Extension">
+  <table name="avatax_quote_item" resource="checkout" engine="innodb" comment="AvaTax Quote Item Extension">
     <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
     <column xsi:type="int" name="quote_item_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Quote Item ID"/>
     <column xsi:type="varchar" name="hs_code" nullable="true" length="255" comment="HS Code"/>
@@ -129,7 +129,7 @@
       <column name="quote_item_id"/>
     </constraint>
   </table>
-  <table name="avatax_sales_order_item" resource="default" engine="innodb" comment="AvaTax Order Item Extension">
+  <table name="avatax_sales_order_item" resource="sales" engine="innodb" comment="AvaTax Order Item Extension">
     <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
     <column xsi:type="int" name="order_item_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order Item ID"/>
     <column xsi:type="varchar" name="hs_code" nullable="true" length="255" comment="HS Code"/>
@@ -144,7 +144,7 @@
       <column name="order_item_id"/>
     </constraint>
   </table>
-  <table name="avatax_sales_invoice_item" resource="default" engine="innodb" comment="AvaTax Invoice Item Extension">
+  <table name="avatax_sales_invoice_item" resource="sales" engine="innodb" comment="AvaTax Invoice Item Extension">
     <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
     <column xsi:type="int" name="invoice_item_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Invoice Item ID"/>
     <column xsi:type="varchar" name="hs_code" nullable="true" length="255" comment="HS Code"/>
@@ -159,7 +159,7 @@
       <column name="invoice_item_id"/>
     </constraint>
   </table>
-  <table name="avatax_sales_creditmemo_item" resource="default" engine="innodb" comment="AvaTax Credit Memo Item Extension">
+  <table name="avatax_sales_creditmemo_item" resource="sales" engine="innodb" comment="AvaTax Credit Memo Item Extension">
     <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
     <column xsi:type="int" name="creditmemo_item_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Credit Memo Item ID"/>
     <column xsi:type="varchar" name="hs_code" nullable="true" length="255" comment="HS Code"/>
@@ -174,7 +174,7 @@
       <column name="creditmemo_item_id"/>
     </constraint>
   </table>
-  <table name="avatax_sales_order" resource="default" engine="innodb" comment="AvaTax Sales Order">
+  <table name="avatax_sales_order" resource="sales" engine="innodb" comment="AvaTax Sales Order">
     <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
     <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order id"/>
     <column xsi:type="text" name="avatax_response" nullable="true" comment="HS Code"/>
