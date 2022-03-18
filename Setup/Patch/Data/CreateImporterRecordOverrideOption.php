@@ -119,7 +119,7 @@ class CreateImporterRecordOverrideOption implements DataPatchInterface, PatchVer
      */
     public static function getVersion()
     {
-        return '12.0.5';
+        return '2.0.5';
     }
 
     /**
