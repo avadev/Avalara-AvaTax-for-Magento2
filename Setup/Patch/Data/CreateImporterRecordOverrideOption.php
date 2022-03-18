@@ -86,18 +86,21 @@ class CreateImporterRecordOverrideOption implements DataPatchInterface, PatchVer
                     'position'     => 999,
                     'system'       => 0,
                     'backend'      => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
-                    'source'       => \ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Customer\ImporterOfRecord::class
+                    'source'       => \ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Customer\ImporterOfRecord::class,
+                    'attribute_set_id' => $attributeSetId,
+                    'attribute_group_id' => $attributeGroupId
                 ]
             );
-            $attr = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY,
-                CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE
-            )->addData([
-                'attribute_set_id'   => $attributeSetId,
-                'attribute_group_id' => $attributeGroupId,
-                'used_in_forms'      => ['adminhtml_customer'],
-            ]);
 
-            $attr->save();
+            $data = [];
+            $newAttribute = $customerSetup->getAttribute(Customer::ENTITY, CustomsConfig::CUSTOMER_IMPORTER_OF_RECORD_ATTRIBUTE);
+            if (isset($newAttribute['attribute_id']) && $newAttribute['attribute_id']) {
+                $data[] = ['form_code' => 'adminhtml_customer', 'attribute_id' => $newAttribute['attribute_id']];
+                if ($data) {
+                    $this->moduleDataSetup->getConnection()
+                        ->insertMultiple($this->moduleDataSetup->getTable('customer_form_attribute'), $data);
+                }
+            }
         }
 
         $this->moduleDataSetup->getConnection()->endSetup();
@@ -116,7 +119,7 @@ class CreateImporterRecordOverrideOption implements DataPatchInterface, PatchVer
      */
     public static function getVersion()
     {
-        return '2.0.5';
+        return '12.0.5';
     }
 
     /**
