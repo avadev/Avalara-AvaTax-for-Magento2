@@ -16,7 +16,7 @@ use Magento\Framework\Setup\Patch\PatchVersionInterface;
  * Class CreateImporterRecordOverrideOption
  * @package ClassyLlama\AvaTax\Setup\Patch\Data
  */
-class CreateImporterRecordOverrideOption implements DataPatchInterface, PatchVersionInterface
+class CreateImporterRecordOverrideOption implements DataPatchInterface
 {
     /**
      * @var ModuleDataSetupInterface
@@ -112,14 +112,6 @@ class CreateImporterRecordOverrideOption implements DataPatchInterface, PatchVer
     public static function getDependencies()
     {
         return [];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getVersion()
-    {
-        return '2.0.5';
     }
 
     /**

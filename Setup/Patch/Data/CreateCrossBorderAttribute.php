@@ -12,7 +12,7 @@ use Magento\Eav\Setup\EavSetupFactory;
  * Class CreateCrossBorderAttribute
  * @package ClassyLlama\AvaTax\Setup\Patch\Data
  */
-class CreateCrossBorderAttribute implements DataPatchInterface, PatchVersionInterface
+class CreateCrossBorderAttribute implements DataPatchInterface
 {
     /**
      * @var ModuleDataSetupInterface
@@ -84,14 +84,6 @@ class CreateCrossBorderAttribute implements DataPatchInterface, PatchVersionInte
     public static function getDependencies()
     {
         return [];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getVersion()
-    {
-        return '2.0.2';
     }
 
     /**
