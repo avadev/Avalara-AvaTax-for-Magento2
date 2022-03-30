@@ -1,0 +1,211 @@
+{
+    "avatax_log": {
+        "column": {
+            "log_id": true,
+            "created_at": true,
+            "store_id": true,
+            "level": true,
+            "message": true,
+            "source": true,
+            "request": true,
+            "result": true,
+            "additional": true
+        },
+        "index": {
+            "AVATAX_LOG_CREATED_AT": true,
+            "AVATAX_LOG_LEVEL_CREATED_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "avatax_queue": {
+        "column": {
+            "queue_id": true,
+            "created_at": true,
+            "updated_at": true,
+            "store_id": true,
+            "entity_type_id": true,
+            "entity_type_code": true,
+            "entity_id": true,
+            "increment_id": true,
+            "queue_status": true,
+            "attempts": true,
+            "message": true
+        },
+        "index": {
+            "AVATAX_QUEUE_QUEUE_STATUS_CREATED_AT_UPDATED_AT": true,
+            "AVATAX_QUEUE_UPDATED_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AVATAX_QUEUE_ENTITY_TYPE_ID_ENTITY_ID": true
+        }
+    },
+    "avatax_sales_invoice": {
+        "column": {
+            "entity_id": true,
+            "parent_id": true,
+            "is_unbalanced": true,
+            "base_avatax_tax_amount": true,
+            "avatax_response": true
+        },
+        "index": {
+            "AVATAX_SALES_INVOICE_ENTITY_ID_PARENT_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AVATAX_SALES_INVOICE_PARENT_ID_SALES_INVOICE_ENTITY_ID": true
+        }
+    },
+    "avatax_sales_creditmemo": {
+        "column": {
+            "entity_id": true,
+            "parent_id": true,
+            "is_unbalanced": true,
+            "base_avatax_tax_amount": true,
+            "avatax_response": true
+        },
+        "index": {
+            "AVATAX_SALES_CREDITMEMO_ENTITY_ID_PARENT_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AVATAX_SALES_CREDITMEMO_PARENT_ID_SALES_CREDITMEMO_ENTITY_ID": true
+        }
+    },
+    "tax_class": {
+        "column": {
+            "avatax_code": true
+        }
+    },
+    "avatax_cross_border_class": {
+        "column": {
+            "class_id": true,
+            "cross_border_type_id": true,
+            "hs_code": true,
+            "unit_name": true,
+            "unit_amount_product_attr": true,
+            "pref_program_indicator": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "avatax_cross_border_class_country": {
+        "column": {
+            "link_id": true,
+            "class_id": true,
+            "country_id": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_1D6F1FE610AC51DC0CDC94CFFED592F3": true,
+            "FK_C7C984860860743849D43B7AFECAC5B0": true,
+            "AVATAX_CROSS_BORDER_CLASS_COUNTRY_CLASS_ID_COUNTRY_ID": true
+        }
+    },
+    "classyllama_avatax_crossbordertype": {
+        "column": {
+            "entity_id": true,
+            "type": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "avatax_quote_item": {
+        "column": {
+            "id": true,
+            "quote_item_id": true,
+            "hs_code": true,
+            "unit_name": true,
+            "unit_amount": true,
+            "pref_program_indicator": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AVATAX_QUOTE_ITEM_QUOTE_ITEM_ID_QUOTE_ITEM_ITEM_ID": true,
+            "AVATAX_QUOTE_ITEM_QUOTE_ITEM_ID": true
+        }
+    },
+    "avatax_sales_order_item": {
+        "column": {
+            "id": true,
+            "order_item_id": true,
+            "hs_code": true,
+            "unit_name": true,
+            "unit_amount": true,
+            "pref_program_indicator": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AVATAX_SALES_ORDER_ITEM_ORDER_ITEM_ID_SALES_ORDER_ITEM_ITEM_ID": true,
+            "AVATAX_SALES_ORDER_ITEM_ORDER_ITEM_ID": true
+        }
+    },
+    "avatax_sales_invoice_item": {
+        "column": {
+            "id": true,
+            "invoice_item_id": true,
+            "hs_code": true,
+            "unit_name": true,
+            "unit_amount": true,
+            "pref_program_indicator": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_609E5A2A1722251A43026431D03DE997": true,
+            "AVATAX_SALES_INVOICE_ITEM_INVOICE_ITEM_ID": true
+        }
+    },
+    "avatax_sales_creditmemo_item": {
+        "column": {
+            "id": true,
+            "creditmemo_item_id": true,
+            "hs_code": true,
+            "unit_name": true,
+            "unit_amount": true,
+            "pref_program_indicator": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_E460B14A1FD7CAEBDE5DBCD1E738BEAC": true,
+            "AVATAX_SALES_CREDITMEMO_ITEM_CREDITMEMO_ITEM_ID": true
+        }
+    },
+    "avatax_sales_order": {
+        "column": {
+            "id": true,
+            "order_id": true,
+            "avatax_response": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "AVATAX_SALES_ORDER_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
+            "AVATAX_SALES_ORDER_ORDER_ID": true
+        }
+    },
+    "quote_address": {
+        "column": {
+            "avatax_messages": true
+        }
+    },
+    "avatax_batch_queue": {
+        "column": {
+            "entity_id": true,
+            "batch_id": true,
+            "name": true,
+            "company_id": true,
+            "status": true,
+            "record_count": true,
+            "input_file_id": true,
+            "result_file_id": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

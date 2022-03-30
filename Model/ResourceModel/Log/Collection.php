@@ -98,7 +98,7 @@ class Collection extends AbstractCollection
 
         $countExpr = new \Zend_Db_Expr("COUNT(*)");
 
-        $select->reset(\Zend_Db_Select::COLUMNS);
+        $select->reset(\Magento\Framework\DB\Select::COLUMNS);
         $select->columns([
             self::SUMMARY_COUNT_FIELD_NAME => $countExpr,
             Log::LEVEL_FIELD_NAME => Log::LEVEL_FIELD_NAME
