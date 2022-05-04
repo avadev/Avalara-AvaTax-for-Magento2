@@ -119,7 +119,7 @@ class FileHandler extends System
      * @param array $record
      * @return Boolean
      */
-    public function isHandling(array $record)
+    public function isHandling(array $record): bool
     {
         return  $this->avaTaxConfig->isModuleEnabled() &&
                 $this->avaTaxConfig->getLogFileEnabled() &&
@@ -132,7 +132,7 @@ class FileHandler extends System
      * @param $record array
      * @return void
      */
-    public function write(array $record)
+    public function write(array $record): void
     {
         // Filter the log details
         if ($this->avaTaxConfig->getLogFileDetail() == LogDetail::MINIMAL && $record['level'] >= Logger::WARNING) {

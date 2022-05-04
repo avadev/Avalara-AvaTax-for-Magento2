@@ -61,7 +61,7 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
         string $appName,
         string $appVersion,
         string $machineName = "",
-        string $environment,
+        string $environment = '',
         array $guzzleParams = []
     ) {
         parent::__construct($appName, $appVersion, $machineName, $environment, $guzzleParams);
@@ -103,7 +103,7 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
     /**
      * {@inheritDoc}
      */
-    protected function restCall($apiUrl, $verb, $guzzleParams)
+    protected function restCall($apiUrl, $verb, $guzzleParams, $apiversion = '')
     {
         if (!\is_array($guzzleParams)) {
             $guzzleParams = [];

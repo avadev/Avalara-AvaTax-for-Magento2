@@ -40,7 +40,7 @@ class FileFormatter extends LineFormatter
     /**
      * {@inheritdoc}
      */
-    public function format(array $record)
+    public function format(array $record): string
     {
         $vars = $this->normalizerFormatter->format($record);
 

@@ -18,6 +18,7 @@ namespace ClassyLlama\AvaTax\Model\Logger;
 use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\AbstractHandler;
+use Monolog\Formatter\FormatterInterface;
 use Monolog\Processor\WebProcessor;
 use Monolog\Processor\IntrospectionProcessor;
 use ClassyLlama\AvaTax\Model\LogFactory;
@@ -40,6 +41,16 @@ class DbHandler extends AbstractHandler
     protected $avaTaxConfig;
 
     /**
+     * @var FormatterInterface
+     */
+    protected $formatter;
+
+    /**
+     * @var array
+     */
+    protected $processors = array();
+
+    /**
      * @param LogFactory $logFactory
      * @param Config $avaTaxConfig
      */
@@ -54,6 +65,28 @@ class DbHandler extends AbstractHandler
         $introspectionProcessor = new IntrospectionProcessor();
         $webProcessor = new WebProcessor();
         $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setFormatter(FormatterInterface $formatter)
+    {
+        $this->formatter = $formatter;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFormatter()
+    {
+        if (!$this->formatter) {
+            $this->formatter = $this->getDefaultFormatter();
+        }
+
+        return $this->formatter;
     }
 
     /**
@@ -76,7 +109,7 @@ class DbHandler extends AbstractHandler
      * @param array $record
      * @return Boolean
      */
-    public function isHandling(array $record)
+    public function isHandling(array $record): bool
     {
         return $this->avaTaxConfig->isModuleEnabled() && $record['level'] >= $this->avaTaxConfig->getLogDbLevel();
     }
@@ -84,7 +117,7 @@ class DbHandler extends AbstractHandler
     /**
      * {@inheritdoc}
      */
-    public function handle(array $record)
+    public function handle(array $record): bool
     {
         if (!$this->isHandling($record)) {
             return false;
@@ -105,7 +138,7 @@ class DbHandler extends AbstractHandler
      * @param $record array
      * @return void
      */
-    public function write(array $record)
+    public function write(array $record): void
     {
         # Log to database
         /** @var \ClassyLlama\AvaTax\Model\Log $log */
