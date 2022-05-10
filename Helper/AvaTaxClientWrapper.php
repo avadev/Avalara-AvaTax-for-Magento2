@@ -103,7 +103,7 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
     /**
      * {@inheritDoc}
      */
-    protected function restCall($apiUrl, $verb, $guzzleParams, $apiversion = '', $headerParams = null)
+    protected function restCall($apiUrl, $verb, $guzzleParams, $apiversion = '')
     {
         if (!\is_array($guzzleParams)) {
             $guzzleParams = [];
