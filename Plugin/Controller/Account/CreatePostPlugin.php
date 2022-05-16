@@ -42,7 +42,7 @@ class CreatePostPlugin
     public function afterExecute(\Magento\Customer\Controller\Account\CreatePost $subject, $result)
     {
         $queryParameters = [];
-        parse_str(parse_url($subject->getRequest()->getServer('HTTP_REFERER') ?? '', PHP_URL_QUERY), $queryParameters);
+        parse_str(parse_url($subject->getRequest()->getServer('HTTP_REFERER'), PHP_URL_QUERY) ?? '', $queryParameters);
 
         // If we don't have our redirect directive, ignore this result
         if (!isset($queryParameters['redirect']) || $queryParameters['redirect'] !== 'checkout') {
