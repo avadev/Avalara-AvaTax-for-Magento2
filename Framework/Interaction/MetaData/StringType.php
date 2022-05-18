@@ -61,7 +61,7 @@ class StringType extends MetaDataAbstract
      */
     public function setFormat($format)
     {
-        if (!is_string($format) || preg_match($format, null) === false) {
+        if (!is_string($format) || preg_match($format, '') === false) {
             throw new LocalizedException(__('Format must be a valid regular expression.  You passed "%1"', [$format]));
         }
         $this->data[self::ATTR_FORMAT] = $format;
