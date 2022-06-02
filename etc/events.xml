@@ -18,9 +18,6 @@
     <event name="sales_order_place_before">
         <observer name="avatax_sales_order_place_before" instance="ClassyLlama\AvaTax\Observer\PreventOrderPlaceObserver" />
     </event>
-    <event name="controller_action_predispatch_checkout_index_index">
-        <observer name="avatax_checkout_index_index" instance="ClassyLlama\AvaTax\Observer\CalculateVirtualOrder" />
-    </event>
     <event name="sales_model_service_quote_submit_before">
         <observer instance="ClassyLlama\AvaTax\Observer\SalesModelServiceQuoteSubmitBefore" name="classyllama_avatax_copy_extension_attributes"/>
     </event>
