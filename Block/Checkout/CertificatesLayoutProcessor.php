@@ -102,7 +102,9 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
     public function process($jsLayout)
     {
         $config = [
-            'documentManagementEnabled' => false
+            'documentManagementEnabled' => false,
+			'certificatesAutoValidationDisabled' => false
+
         ];
 
         if ($this->config->isModuleEnabled() && $this->documentManagementConfig->isEnabled()) {
@@ -127,7 +129,8 @@ class CertificatesLayoutProcessor implements \Magento\Checkout\Block\Checkout\La
                 'newCertText' => $newCertText,
                 'manageCertsText' => __($this->documentManagementConfig->getCheckoutLinkTextManageExistingCert()),
                 'enabledCountries' => $this->documentManagementConfig->getEnabledCountries(),
-                'documentManagementEnabled' => true
+                'documentManagementEnabled' => true,
+				'certificatesAutoValidationDisabled' => $this->documentManagementConfig->isCertificatesAutoValidationDisabled()
             ];
         }
 

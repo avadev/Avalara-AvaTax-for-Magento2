@@ -96,7 +96,7 @@ define([
             sdk(this.dialogElement[0], {
                 // Include if cert is a renewal?
                 upload: true,
-
+				submit_to_stack: Boolean(Number(this.certificatesAutoValidationDisabled)),
                 onCertSuccess: onCertificateComplete,
                 onManualSubmit: onCertificateComplete,
                 onUpload: onCertificateComplete
