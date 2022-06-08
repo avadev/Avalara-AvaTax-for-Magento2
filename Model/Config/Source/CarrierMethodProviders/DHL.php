@@ -47,7 +47,7 @@ class DHL implements \ClassyLlama\AvaTax\Api\CarrierShippingMethodsInterface
     {
         try {
             return array_keys($this->carrier->getAllowedMethods());
-        } catch (LocalizedException $e) {
+        } catch (\Exception $e) {
             return [];
         }
     }
