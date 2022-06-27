@@ -38,7 +38,15 @@
                     </depends>
                     -->
                 </field>
-                <field id="tax_mode" translate="label" type="select" sortOrder="1002" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="tax_included" translate="label" type="select" sortOrder="1002" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <config_path>tax/avatax/tax_included</config_path>
+                    <label>Taxation Policy</label>
+                    <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="tax_mode" translate="label" type="select" sortOrder="1003" showInDefault="1" showInWebsite="1" showInStore="1">
                     <config_path>tax/avatax/tax_mode</config_path>
                     <label>Tax Mode</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxMode</source_model>
