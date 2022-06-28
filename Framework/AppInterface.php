@@ -18,7 +18,11 @@ namespace ClassyLlama\AvaTax\Framework;
 interface AppInterface
 {
     /**
-     * If this is updated it must also be updated in composer.json
+     * Avalara APP String
      */
-    const APP_VERSION = '2.2.7';
+    const APP_VERSION = 'a0o5a000007TuRvAAK';
+	/**
+     * Avalara APP name
+     */
+    const APP_NAME = 'Magento for SalesTax || 2.3.0v2';
 }
