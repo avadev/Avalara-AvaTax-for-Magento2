@@ -587,13 +587,13 @@ class Config extends AbstractHelper
     }
 
     /**
-     * The version of the AvaTax module
+     * Connector String of avatax module
      *
      * @return string
      */
-    public function getApplicationVersion()
+    public function getConnectorString()
     {
-        return AvaTaxAppInterface::APP_VERSION;
+        return AvaTaxAppInterface::CONNECTOR_STRING;
     }
 
     /**
