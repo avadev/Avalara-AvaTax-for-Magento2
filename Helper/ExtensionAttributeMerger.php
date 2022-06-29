@@ -17,6 +17,8 @@ namespace ClassyLlama\AvaTax\Helper;
 
 use Magento\Framework\Api\ExtensibleDataInterface;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorHelper;
+use ReflectionException;
+use ReflectionMethod;
 
 class ExtensionAttributeMerger
 {
@@ -78,8 +80,36 @@ class ExtensionAttributeMerger
     public function setExtensionAttribute($extensionAttributes, $key, $value)
     {
         $methodCall = 'set' . $this->getExtensionAttributeMethodName($key);
+        if ($this->canSetExtensionAttribute($extensionAttributes, $methodCall, $value)) {
+            $extensionAttributes->{$methodCall}($value);
+        }
 
-        return $extensionAttributes->{$methodCall}($value);
+        return $extensionAttributes;
+    }
+
+    /**
+     * @param $extensionAttributes
+     * @param $method
+     * @param $value
+     *
+     * @return bool
+     */
+    private function canSetExtensionAttribute($extensionAttributes, $method, $value)
+    {
+        if ($value !== null) {
+            return true;
+        }
+
+        try {
+            $reflection = new ReflectionMethod($extensionAttributes, $method);
+            $parameter = current($reflection->getParameters());
+
+            $result = $parameter->allowsNull();
+        } catch (ReflectionException $e) {
+            $result = false;
+        }
+
+        return $result;
     }
 
     /**

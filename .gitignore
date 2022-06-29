@@ -1,1 +1,4 @@
 /Tests/Integration/credentials.php
+.DS_Store
+/vendor
+/.idea

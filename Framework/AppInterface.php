@@ -21,12 +21,12 @@ interface AppInterface
      * Connector version
      */
     const APP_VERSION = '2.3.0';
-	/**
+	  /**
      * Avalara APP String
      */
     const CONNECTOR_STRING = 'a0o5a000007TuRvAAK';
 	
-	/**
+	  /**
      * Avalara APP name
      */
     const APP_NAME = 'Magento for SalesTax || '.self::APP_VERSION.'v2';

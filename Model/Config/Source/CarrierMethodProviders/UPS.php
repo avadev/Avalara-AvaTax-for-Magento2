@@ -50,6 +50,15 @@ class UPS implements \ClassyLlama\AvaTax\Api\CarrierShippingMethodsInterface
      */
     public function getConfiguredMethods()
     {
-        return explode(",", $this->carrier->getConfigData('allowed_methods'));
+        try {
+            $allowedMethods = $this->carrier->getConfigData('allowed_methods');
+            if ($allowedMethods) {
+                return explode(",", $allowedMethods);
+            } else {
+                return [];
+            }
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 }

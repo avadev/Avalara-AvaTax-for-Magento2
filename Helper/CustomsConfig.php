@@ -129,7 +129,7 @@ class CustomsConfig extends AbstractHelper
                 self::XML_PATH_AVATAX_CUSTOMS_GROUND_SHIPPING_METHODS,
                 $scopeType,
                 $store
-            )
+            ) ?? ''
         );
     }
 
@@ -147,7 +147,7 @@ class CustomsConfig extends AbstractHelper
                 self::XML_PATH_AVATAX_CUSTOMS_OCEAN_SHIPPING_METHODS,
                 $scopeType,
                 $store
-            )
+            ) ?? ''
         );
     }
 
@@ -165,7 +165,7 @@ class CustomsConfig extends AbstractHelper
                 self::XML_PATH_AVATAX_CUSTOMS_AIR_SHIPPING_METHODS,
                 $scopeType,
                 $store
-            )
+            ) ?? ''
         );
     }
 

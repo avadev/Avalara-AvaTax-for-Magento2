@@ -663,6 +663,7 @@ class Tax
         $data = [
             'store_id' => $store->getId(),
             'commit' => $this->config->getCommitSubmittedTransactions($store),
+            'date' => $currentDate,
             'tax_override' => $taxOverride,
             'currency_code' => $order->getOrderCurrencyCode(),
             'customer_code' => $this->customer->getCustomerCodeByCustomerId(

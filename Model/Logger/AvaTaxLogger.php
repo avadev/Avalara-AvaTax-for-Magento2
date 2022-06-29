@@ -19,4 +19,15 @@ use Monolog\Logger;
 
 class AvaTaxLogger extends Logger
 {
+    /**
+     * Adds a log record at the DEBUG level.
+     *
+     * @param  string $message The log message
+     * @param  array  $context The log context
+     * @return bool   Whether the record has been processed
+     */
+    public function addDebug($message, array $context = array())
+    {
+        return $this->addRecord(static::DEBUG, $message, $context);
+    }
 }

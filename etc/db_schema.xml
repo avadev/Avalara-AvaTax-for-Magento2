@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+  <table name="avatax_log" resource="sales" engine="innodb" comment="AvaTax Log Table">
+    <column xsi:type="int" name="log_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Log ID"/>
+    <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Log Time"/>
+    <column xsi:type="int" name="store_id" padding="11" unsigned="false" nullable="false" identity="false" comment="Store ID"/>
+    <column xsi:type="varchar" name="level" nullable="true" length="20" comment="Log Level"/>
+    <column xsi:type="varchar" name="message" nullable="true" length="255" comment="Message Being Logged"/>
+    <column xsi:type="varchar" name="source" nullable="true" length="255" comment="Code Source Reference"/>
+    <column xsi:type="text" name="request" nullable="true" comment="Request"/>
+    <column xsi:type="text" name="result" nullable="true" comment="Result"/>
+    <column xsi:type="text" name="additional" nullable="true" comment="Additional"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="log_id"/>
+    </constraint>
+    <index referenceId="AVATAX_LOG_CREATED_AT" indexType="btree">
+      <column name="created_at"/>
+    </index>
+    <index referenceId="AVATAX_LOG_LEVEL_CREATED_AT" indexType="btree">
+      <column name="level"/>
+      <column name="created_at"/>
+    </index>
+  </table>
+  <table name="avatax_queue" resource="sales" engine="innodb" comment="AvaTax Queue Table">
+    <column xsi:type="int" name="queue_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Queue ID"/>
+    <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Queue Time"/>
+    <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Updated Time"/>
+    <column xsi:type="int" name="store_id" padding="11" unsigned="false" nullable="false" identity="false" comment="Store ID"/>
+    <column xsi:type="int" name="entity_type_id" padding="11" unsigned="false" nullable="false" identity="false" comment="Entity Type ID"/>
+    <column xsi:type="varchar" name="entity_type_code" nullable="true" length="50" comment="Entity Type Code"/>
+    <column xsi:type="int" name="entity_id" padding="11" unsigned="false" nullable="false" identity="false" comment="Entity ID"/>
+    <column xsi:type="varchar" name="increment_id" nullable="true" length="50" comment="Increment ID"/>
+    <column xsi:type="varchar" name="queue_status" nullable="true" length="50" comment="Queue Status"/>
+    <column xsi:type="int" name="attempts" padding="11" unsigned="false" nullable="false" identity="false" default="0" comment="Processing Attempts"/>
+    <column xsi:type="varchar" name="message" nullable="true" length="255" comment="Message"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="queue_id"/>
+    </constraint>
+    <constraint xsi:type="unique" referenceId="AVATAX_QUEUE_ENTITY_TYPE_ID_ENTITY_ID">
+      <column name="entity_type_id"/>
+      <column name="entity_id"/>
+    </constraint>
+    <index referenceId="AVATAX_QUEUE_QUEUE_STATUS_CREATED_AT_UPDATED_AT" indexType="btree">
+      <column name="queue_status"/>
+      <column name="created_at"/>
+      <column name="updated_at"/>
+    </index>
+    <index referenceId="AVATAX_LOG_UPDATED_AT" indexType="btree">
+      <column name="updated_at"/>
+    </index>
+  </table>
+  <table name="avatax_sales_invoice" resource="sales" engine="innodb" comment="AvaTax Sales Invoice Table">
+    <column xsi:type="int" name="entity_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Entity ID"/>
+    <column xsi:type="int" name="parent_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Sales Invoice ID"/>
+    <column xsi:type="smallint" name="is_unbalanced" padding="5" unsigned="true" nullable="true" identity="false" comment="Is Unbalanced In Relation To AvaTax Calculated Tax Amount"/>
+    <column xsi:type="decimal" name="base_avatax_tax_amount" scale="4" precision="12" unsigned="false" nullable="true" comment="Base AvaTax Calculated Tax Amount"/>
+    <column xsi:type="text" name="avatax_response" nullable="true" comment="AvaTax Response"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="entity_id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="FK_F7B202752CA0A3244E879AF8ABB5C83E" table="avatax_sales_invoice" column="parent_id" referenceTable="sales_invoice" referenceColumn="entity_id" onDelete="CASCADE"/>
+    <index referenceId="AVATAX_SALES_INVOICE_ENTITY_ID_PARENT_ID" indexType="btree">
+      <column name="entity_id"/>
+      <column name="parent_id"/>
+    </index>
+  </table>
+  <table name="avatax_sales_creditmemo" resource="sales" engine="innodb" comment="AvaTax Sales Credit Memo Table">
+    <column xsi:type="int" name="entity_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Entity ID"/>
+    <column xsi:type="int" name="parent_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Sales Credit Memo ID"/>
+    <column xsi:type="smallint" name="is_unbalanced" padding="5" unsigned="true" nullable="true" identity="false" comment="Is Unbalanced In Relation To AvaTax Calculated Tax Amount"/>
+    <column xsi:type="decimal" name="base_avatax_tax_amount" scale="4" precision="12" unsigned="false" nullable="true" comment="Base AvaTax Calculated Tax Amount"/>
+    <column xsi:type="text" name="avatax_response" nullable="true" comment="AvaTax Response"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="entity_id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="FK_8904A17EACFAC462C2910555DD877C5F" table="avatax_sales_creditmemo" column="parent_id" referenceTable="sales_creditmemo" referenceColumn="entity_id" onDelete="CASCADE"/>
+    <index referenceId="AVATAX_SALES_CREDITMEMO_ENTITY_ID_PARENT_ID" indexType="btree">
+      <column name="entity_id"/>
+      <column name="parent_id"/>
+    </index>
+  </table>
+  <table name="tax_class" resource="default">
+    <column xsi:type="varchar" name="avatax_code" nullable="true" length="255" comment="AvaTax Code"/>
+  </table>
+  <table name="avatax_cross_border_class" resource="default" engine="innodb" comment="Cross Border Class">
+    <column xsi:type="int" name="class_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Class ID"/>
+    <column xsi:type="int" name="cross_border_type_id" padding="10" unsigned="true" nullable="true" identity="false" comment="Cross Border Type"/>
+    <column xsi:type="varchar" name="hs_code" nullable="false" length="255" default="" comment="HS Code"/>
+    <column xsi:type="varchar" name="unit_name" nullable="true" length="255" comment="Unit Name"/>
+    <column xsi:type="varchar" name="unit_amount_product_attr" nullable="true" length="255" comment="Unit Amount Product Attribute"/>
+    <column xsi:type="varchar" name="pref_program_indicator" nullable="true" length="255" comment="Pref. Program Indicator"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="class_id"/>
+    </constraint>
+  </table>
+  <table name="avatax_cross_border_class_country" resource="default" engine="innodb" comment="AvaTax Sales Credit Memo Table">
+    <column xsi:type="int" name="link_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Link ID"/>
+    <column xsi:type="int" name="class_id" padding="11" unsigned="false" nullable="false" identity="false" comment="Class ID"/>
+    <column xsi:type="varchar" name="country_id" nullable="false" length="2" comment="Country ID"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="link_id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="FK_1D6F1FE610AC51DC0CDC94CFFED592F3" table="avatax_cross_border_class_country" column="class_id" referenceTable="avatax_cross_border_class" referenceColumn="class_id" onDelete="CASCADE"/>
+    <constraint xsi:type="foreign" referenceId="FK_C7C984860860743849D43B7AFECAC5B0" table="avatax_cross_border_class_country" column="country_id" referenceTable="directory_country" referenceColumn="country_id" onDelete="CASCADE"/>
+    <constraint xsi:type="unique" referenceId="AVATAX_CROSS_BORDER_CLASS_COUNTRY_CLASS_ID_COUNTRY_ID">
+      <column name="class_id"/>
+      <column name="country_id"/>
+    </constraint>
+  </table>
+  <table name="classyllama_avatax_crossbordertype" resource="default" engine="innodb" comment="classyllama_avatax_crossbordertype">
+    <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+    <column xsi:type="text" name="type" nullable="false" comment="type"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="entity_id"/>
+    </constraint>
+  </table>
+  <table name="avatax_quote_item" resource="checkout" engine="innodb" comment="AvaTax Quote Item Extension">
+    <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
+    <column xsi:type="int" name="quote_item_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Quote Item ID"/>
+    <column xsi:type="varchar" name="hs_code" nullable="true" length="255" comment="HS Code"/>
+    <column xsi:type="varchar" name="unit_name" nullable="true" length="255" comment="Unit Name"/>
+    <column xsi:type="decimal" name="unit_amount" scale="4" precision="12" unsigned="false" nullable="true" comment="Unit Amount"/>
+    <column xsi:type="varchar" name="pref_program_indicator" nullable="true" length="255" comment="Pref. Program Indicator"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="AVATAX_QUOTE_ITEM_QUOTE_ITEM_ID_QUOTE_ITEM_ITEM_ID" table="avatax_quote_item" column="quote_item_id" referenceTable="quote_item" referenceColumn="item_id" onDelete="CASCADE"/>
+    <constraint xsi:type="unique" referenceId="AVATAX_QUOTE_ITEM_QUOTE_ITEM_ID">
+      <column name="quote_item_id"/>
+    </constraint>
+  </table>
+  <table name="avatax_sales_order_item" resource="sales" engine="innodb" comment="AvaTax Order Item Extension">
+    <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
+    <column xsi:type="int" name="order_item_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order Item ID"/>
+    <column xsi:type="varchar" name="hs_code" nullable="true" length="255" comment="HS Code"/>
+    <column xsi:type="varchar" name="unit_name" nullable="true" length="255" comment="Unit Name"/>
+    <column xsi:type="decimal" name="unit_amount" scale="4" precision="12" unsigned="false" nullable="true" comment="Unit Amount"/>
+    <column xsi:type="varchar" name="pref_program_indicator" nullable="true" length="255" comment="Pref. Program Indicator"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="AVATAX_SALES_ORDER_ITEM_ORDER_ITEM_ID_SALES_ORDER_ITEM_ITEM_ID" table="avatax_sales_order_item" column="order_item_id" referenceTable="sales_order_item" referenceColumn="item_id" onDelete="CASCADE"/>
+    <constraint xsi:type="unique" referenceId="AVATAX_SALES_ORDER_ITEM_ORDER_ITEM_ID">
+      <column name="order_item_id"/>
+    </constraint>
+  </table>
+  <table name="avatax_sales_invoice_item" resource="sales" engine="innodb" comment="AvaTax Invoice Item Extension">
+    <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
+    <column xsi:type="int" name="invoice_item_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Invoice Item ID"/>
+    <column xsi:type="varchar" name="hs_code" nullable="true" length="255" comment="HS Code"/>
+    <column xsi:type="varchar" name="unit_name" nullable="true" length="255" comment="Unit Name"/>
+    <column xsi:type="decimal" name="unit_amount" scale="4" precision="12" unsigned="false" nullable="true" comment="Unit Amount"/>
+    <column xsi:type="varchar" name="pref_program_indicator" nullable="true" length="255" comment="Pref. Program Indicator"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="FK_609E5A2A1722251A43026431D03DE997" table="avatax_sales_invoice_item" column="invoice_item_id" referenceTable="sales_invoice_item" referenceColumn="entity_id" onDelete="CASCADE"/>
+    <constraint xsi:type="unique" referenceId="AVATAX_SALES_INVOICE_ITEM_INVOICE_ITEM_ID">
+      <column name="invoice_item_id"/>
+    </constraint>
+  </table>
+  <table name="avatax_sales_creditmemo_item" resource="sales" engine="innodb" comment="AvaTax Credit Memo Item Extension">
+    <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
+    <column xsi:type="int" name="creditmemo_item_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Credit Memo Item ID"/>
+    <column xsi:type="varchar" name="hs_code" nullable="true" length="255" comment="HS Code"/>
+    <column xsi:type="varchar" name="unit_name" nullable="true" length="255" comment="Unit Name"/>
+    <column xsi:type="decimal" name="unit_amount" scale="4" precision="12" unsigned="false" nullable="true" comment="Unit Amount"/>
+    <column xsi:type="varchar" name="pref_program_indicator" nullable="true" length="255" comment="Pref. Program Indicator"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="FK_E460B14A1FD7CAEBDE5DBCD1E738BEAC" table="avatax_sales_creditmemo_item" column="creditmemo_item_id" referenceTable="sales_creditmemo_item" referenceColumn="entity_id" onDelete="CASCADE"/>
+    <constraint xsi:type="unique" referenceId="AVATAX_SALES_CREDITMEMO_ITEM_CREDITMEMO_ITEM_ID">
+      <column name="creditmemo_item_id"/>
+    </constraint>
+  </table>
+  <table name="avatax_sales_order" resource="sales" engine="innodb" comment="AvaTax Sales Order">
+    <column xsi:type="int" name="id" padding="11" unsigned="false" nullable="false" identity="true" comment="ID"/>
+    <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order id"/>
+    <column xsi:type="text" name="avatax_response" nullable="true" comment="HS Code"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="AVATAX_SALES_ORDER_ORDER_ID_SALES_ORDER_ENTITY_ID" table="avatax_sales_order" column="order_id" referenceTable="sales_order" referenceColumn="entity_id" onDelete="CASCADE"/>
+    <constraint xsi:type="unique" referenceId="AVATAX_SALES_ORDER_ORDER_ID">
+      <column name="order_id"/>
+    </constraint>
+  </table>
+  <table name="quote_address" resource="default">
+    <column xsi:type="text" name="avatax_messages" nullable="true" comment="AvaTax Messages"/>
+  </table>
+  <table name="avatax_batch_queue" resource="default" engine="innodb" comment="avatax_batch_queue">
+    <column xsi:type="int" name="entity_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Entity Id"/>
+    <column xsi:type="int" name="batch_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Batch Id"/>
+    <column xsi:type="varchar" name="name" nullable="false" length="255" comment="Batch Name"/>
+    <column xsi:type="int" name="company_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Company Id"/>
+    <column xsi:type="varchar" name="status" nullable="false" length="255" comment="Status"/>
+    <column xsi:type="int" name="record_count" padding="10" unsigned="true" nullable="false" identity="false" comment="Status"/>
+    <column xsi:type="int" name="input_file_id" padding="11" unsigned="false" nullable="true" identity="false" comment="Input File Id"/>
+    <column xsi:type="int" name="result_file_id" padding="11" unsigned="false" nullable="true" identity="false" comment="Result File Id"/>
+    <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Queue Time"/>
+    <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Updated Time"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="entity_id"/>
+    </constraint>
+  </table>
+</schema>

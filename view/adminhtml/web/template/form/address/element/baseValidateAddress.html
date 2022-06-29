@@ -1,4 +1,4 @@
-<div class="instructions noError" data-bind="html: instructions, attr: {'data-uid': uid}" />
+<div class="instructions noError" data-bind="html: instructions, attr: {'data-uid': uid}"></div>
 
 <!-- ko if: choice == 1 -->
     <form id="co-validate-form" class="form validate noError" novalidate="novalidate">
@@ -7,7 +7,7 @@
                 <input type="radio" class="validAddress" name="addressToUse" checked data-bind="attr: {id: 'valid-' + uid}"/>
             </div>
             <label data-bind="attr: {for: 'valid-' + uid}" class="addressLabel">
-                <div class="optionTitle" data-bind="i18n: 'Suggested Address'" />
+                <div class="optionTitle" data-bind="i18n: 'Suggested Address'"></div>
                 <div class="optionAddress validAddressText"></div>
             </label>
         </div>
@@ -16,7 +16,7 @@
                 <input type="radio" class="originalAddress" name="addressToUse" data-bind="attr: {id: 'original-' + uid}"/>
             </div>
             <label data-bind="attr: {for: 'original-' + uid}" class="addressLabel">
-                <div class="optionTitle" data-bind="i18n: 'Original Address'" />
+                <div class="optionTitle" data-bind="i18n: 'Original Address'"></div>
                 <div class="optionAddress originalAddressText"></div>
             </label>
         </div>
@@ -24,10 +24,10 @@
 <!-- /ko -->
 
 <!-- ko if: choice == 0 -->
-    <div class="validAddressText validatedAddress noError" />
+    <div class="validAddressText validatedAddress noError"></div>
 <!-- /ko -->
 
 <div class="errorMessageContainer yesError">
-    <div class="instructions" data-bind="html: errorInstructions, attr: {'data-uid': uid}" />
-    <div class="originalAddressText" />
+    <div class="instructions" data-bind="html: errorInstructions, attr: {'data-uid': uid}"></div>
+    <div class="originalAddressText"></div>
 </div>
