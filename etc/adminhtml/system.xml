@@ -42,6 +42,7 @@
                     <config_path>tax/avatax/tax_included</config_path>
                     <label>Taxation Policy</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded</source_model>
+                    <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\TaxIncluded</frontend_model>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

@@ -19,7 +19,7 @@
         <tax>
             <avatax>
                 <enabled>0</enabled>
-                <tax_included>0</tax_included>
+                <tax_included>-1</tax_included>
                 <tax_mode>3</tax_mode>
                 <commit_submitted_transactions>1</commit_submitted_transactions>
                 <tax_calculation_countries_enabled>CA,US</tax_calculation_countries_enabled>

@@ -23,11 +23,24 @@ class TaxIncluded implements \Magento\Framework\Data\OptionSourceInterface
     /**
      * @return array
      */
-    public function toOptionArray()
+    public function toSourceArray()
     {
         return [
-            ['value' => self::NET, 'label' => __('Net')],
-            ['value' => self::GROSS, 'label' => __('Gross')]
+            self::NET => __('Net'),
+            self::GROSS => __('Gross')
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function toOptionArray()
+    {
+        $result = [];
+        $options = $this->toSourceArray();
+        foreach ($options as $value=>$label) {
+            $result[] = ['value' => $value, 'label' => $label];
+        }
+        return $result;
     }
 }
