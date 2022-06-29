@@ -96,7 +96,7 @@ class ClientPool
             $avaTaxClient = $this->avaTaxClientFactory->create(
                 [
                     'appName' => $this->config->getApplicationName(),
-                    'appVersion' => $this->config->getApplicationVersion(),
+                    'appVersion' => $this->config->getConnectorString(),
                     'machineName' => $this->config->getApplicationDomain(),
                     'environment' => $isProduction ? self::API_MODE_PROD : self::API_MODE_DEV,
                 ]
