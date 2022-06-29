@@ -42,6 +42,8 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_TAX_INCLUDED = 'tax/avatax/tax_included';
 
+    const XML_SUFFIX_AVATAX_TAX_INCLUDED = "Included in Subtotal";
+
     const XML_PATH_AVATAX_TAX_MODE = 'tax/avatax/tax_mode';
 
     const XML_PATH_AVATAX_COMMIT_SUBMITTED_TRANSACTIONS = 'tax/avatax/commit_submitted_transactions';
