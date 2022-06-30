@@ -57,7 +57,7 @@ This is the recommended installation method as it allows you to easily update th
 1. Require the desired version of AvaTax. Latest version can be installed by running following command:
 
    ```
-   composer require avalara/avatax-magento:2.2.4
+   composer require avalara/avatax-magento:2.3.0
    ```
 
 2. Setup the AvaTax module in magento
@@ -65,6 +65,8 @@ This is the recommended installation method as it allows you to easily update th
    ```bash
    bin/magento module:enable --clear-static-content ClassyLlama_AvaTax
    bin/magento setup:upgrade
+   bin/magento setup:di:compile
+   bin/magento setup:static-content:deploy
    bin/magento cache:flush
    ```
 

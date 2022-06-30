@@ -30,6 +30,8 @@ class DocumentManagementConfig extends AbstractHelper
 
     const XML_PATH_AVATAX_DOCUMENT_MANAGEMENT_CHECKOUT_LINK_TEXT_MANAGE_EXISTING_CERTS = 'tax/avatax_document_management/checkout_link_text_manage_existing_certs';
 
+	const XML_PATH_CERTCAPTURE_AUTO_VALIDATION = 'tax/avatax_certificate_capture/disable_certcapture_auto_validation';
+	
     /**
      * @param int|null    $store
      * @param string|null $scopeType
@@ -106,5 +108,18 @@ class DocumentManagementConfig extends AbstractHelper
             $store
         );
     }
+	
+	/**
+     * @return bool
+     */
+    public function isCertificatesAutoValidationDisabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XML_PATH_CERTCAPTURE_AUTO_VALIDATION,
+            $scopeType,
+            $store
+        );
+    }
+
 
 }
