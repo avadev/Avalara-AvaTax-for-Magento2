@@ -534,4 +534,40 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 
         return $itemDataObjects;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
+    {
+        $totals = parent::fetch($quote, $total);
+        if (empty($totals)) {
+            return $totals;
+        }
+        $storeId = $quote->getStoreId();
+        if (!$this->config->getTaxationPolicy($storeId)) {
+            return $totals;
+        }
+        foreach ($totals as &$total) {
+            if (isset($total['code']) && $total['code'] == 'tax') {
+                $total['title'] .= " (".__(Config::XML_SUFFIX_AVATAX_TAX_INCLUDED).")";
+            }
+        }
+        return $totals;
+    }
+
+    /**
+     * Get Tax label
+     *
+     * @return \Magento\Framework\Phrase
+     */
+    public function getLabel()
+    {
+        if ($this->config->getTaxationPolicy()) {
+            return  __('Tax')." (".__(Config::XML_SUFFIX_AVATAX_TAX_INCLUDED).")";
+        } else {
+            return __('Tax');
+        }
+        
+    }
 }

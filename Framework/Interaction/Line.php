@@ -176,6 +176,11 @@ class Line
             $itemData['itemCode'] = $item->getSku();
         }
 
+        $taxIncluded = false;
+        if ($product) {
+            $taxIncluded = $this->config->getTaxationPolicy($storeId);
+        }
+
         $data = [
             'store_id' => $storeId,
             'mage_sequence_no' => $this->getLineNumber(),
@@ -184,7 +189,7 @@ class Line
             'description' => $item->getName(),
             'quantity' => $item->getQty(),
             'amount' => $amount,
-            'tax_included' => false,
+            'tax_included' => $taxIncluded,
             'ref_1' => $itemData['productRef1'],
             'ref_2' => $itemData['productRef2']
         ];
@@ -243,6 +248,11 @@ class Line
             $itemData['itemCode'] = $item->getSku();
         }
 
+        $taxIncluded = false;
+        if ($product) {
+            $taxIncluded = $this->config->getTaxationPolicy($storeId);
+        }
+
         $data = [
             'store_id' => $storeId,
             'mage_sequence_no' => $this->getLineNumber(),
@@ -251,7 +261,7 @@ class Line
             'description' => $item->getName(),
             'quantity' => $item->getQty(),
             'amount' => $amount,
-            'tax_included' => false,
+            'tax_included' => $taxIncluded,
             'ref_1' => $itemData['productRef1'],
             'ref_2' => $itemData['productRef2']
         ];
@@ -309,6 +319,12 @@ class Line
         $ref1 = $extensionAttributes ? $extensionAttributes->getAvataxRef1() : null;
         $ref2 = $extensionAttributes ? $extensionAttributes->getAvataxRef2() : null;
 
+        $taxIncluded = false;
+        if ($taxCode != $this->config->getShippingTaxCode($item->getStoreId()))
+        {
+            $taxIncluded = $this->config->getTaxationPolicy($item->getStoreId());
+        }
+
         $data = [
             'mage_sequence_no' => $item->getCode(),
             'item_code' => $itemCode,
@@ -316,7 +332,7 @@ class Line
             'description' => $description,
             'quantity' => $item->getQuantity(),
             'amount' => $amount,
-            'tax_included' => false,
+            'tax_included' => $taxIncluded,
             'ref_1' => $ref1,
             'ref_2' => $ref2,
         ];
