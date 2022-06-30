@@ -43,7 +43,6 @@
                     <label>Taxation Policy</label>
                     <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded</source_model>
                     <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\TaxIncluded</frontend_model>
-                    <comment><![CDATA[<ul><li><strong class="colorRed">Warning:</strong> This is one time editable.</li><li><strong>Net Scenario:</strong> When you sell a product for a price of $100, tax is calculated on the amount and added to the total sale price. The local tax rate in Irvine, California totals 7.75% for our test company, so with tax you’ll pay $107.75; and the store selling you the product will remit $7.750 to the tax authority on their next sales tax filing. The end result is that you get your product, the store gets $100, and the tax authority gets $7.75.</li><li><strong>Gross Scenario:</strong> Now, AvaTax will perform slightly different math. Instead of calculating the tax on top of the purchase amount, the tax is calculated to ensure that the final amount equals $100 directly. The end result is that you still calculate the correct tax rate, but the store knows the revenue amount when the sale is made, with no month-end finagling. The store keeps $92.81, and remits $7.19 of tax - which reflects the correct tax rate of 7.75%.</li></ul>]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>

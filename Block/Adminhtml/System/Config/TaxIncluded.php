@@ -26,6 +26,34 @@ class TaxIncluded extends \Magento\Config\Block\System\Config\Form\Field
         if ($element->getValue() != -1) {
             $element->setReadonly(true);
         }
-        return $element->getElementHtml();
+        $html = $element->getElementHtml();
+        $html .= '<div class="confirmation-modal-taxation-policy" style="display: none;">';
+        $html .= '<p>'.__('Once you save the settings, you won\'t be able to change the Taxation Policy.').'</p></div>';
+        $html .= "<script>
+                        require([
+                            'jquery',
+                            'Magento_Ui/js/modal/confirm'
+                        ], function ($) {
+                            'use strict';
+                            $('#tax_avatax_general_tax_included').on('change', function() {
+                                $('.confirmation-modal-taxation-policy').confirm({
+                                    title: $.mage.__('Warning!'),
+                                    actions: {
+                                        confirm: function() {
+                                            return true;
+                                        }
+                                    },
+                                    buttons: [{
+                                        text: $.mage.__('OK'),
+                                        class: 'action primary action-accept',
+                                        click: function (event) {
+                                            this.closeModal(event, true);
+                                        }
+                                    }]
+                                });
+                            });
+                        });
+                    </script>";
+        return $html;
     }
 }
