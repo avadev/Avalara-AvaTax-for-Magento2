@@ -32,6 +32,7 @@ use Magento\Tax\Model\Calculation\CalculatorFactory;
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
 use Magento\Framework\Api\DataObjectHelper;
+use ClassyLlama\AvaTax\Helper\Config as AvaTaxHelper;
 
 class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 {
@@ -66,6 +67,11 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     const DEFAULT_TAX_RATE = -0.001;
 
     /**
+     * @var AvaTaxHelper
+     */
+    protected $avaTaxHelper;
+
+    /**
      * Constructor
      *
      * @param Calculation                             $calculation
@@ -81,6 +87,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @param AppliedTaxRateInterfaceFactory          $appliedTaxRateDataObjectFactory
      * @param QuoteDetailsItemExtensionFactory        $extensionFactory
      * @param AppliedTaxRateExtensionFactory          $appliedTaxRateExtensionFactory
+     * @param AvaTaxHelper                            $avaTaxHelper
      */
     public function __construct(
         Calculation $calculation,
@@ -95,7 +102,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory,
         QuoteDetailsItemExtensionFactory $extensionFactory,
-        AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory
+        AppliedTaxRateExtensionFactory $appliedTaxRateExtensionFactory,
+        AvaTaxHelper $avaTaxHelper
     )
     {
         $this->priceCurrency = $priceCurrency;
@@ -103,6 +111,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $this->appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
         $this->extensionFactory = $extensionFactory;
         $this->appliedTaxRateExtensionFactory = $appliedTaxRateExtensionFactory;
+        $this->avaTaxHelper = $avaTaxHelper;
 
         return parent::__construct(
             $calculation,
@@ -289,6 +298,10 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          * @see \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxInPrice
          */
         $discountTaxCompensationAmount = 0;
+        $taxIncluded = $this->avaTaxHelper->getTaxationPolicy($scope);
+        if ($taxIncluded && $rowTax > 0) {
+            $discountTaxCompensationAmount = -$rowTax;
+        }
 
         /**
          * The \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxNotInPrice method that this

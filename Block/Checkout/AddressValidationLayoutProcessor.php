@@ -81,6 +81,11 @@ class AddressValidationLayoutProcessor implements \Magento\Checkout\Block\Checko
                 $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']['children']
                     ['payment']['component'] = self::COMPONENT_PATH;
             }
+
+            $taxIncluded = $this->config->getTaxationPolicy($this->storeManager->getStore());
+            if ($taxIncluded)
+                $jsLayout['components']['checkout']['children']['sidebar']['children']['summary']['children']['totals']['children']['tax']['config']['title'] .= " (".__(Config::XML_SUFFIX_AVATAX_TAX_INCLUDED).")";
+            
         }
         return $jsLayout;
     }
