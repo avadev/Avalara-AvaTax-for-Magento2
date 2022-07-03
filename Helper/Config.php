@@ -581,36 +581,23 @@ class Config extends AbstractHelper
     }
 
     /**
-     * Generate AvaTax Application Name from a combination of Magento version number and AvaTax module name
-     * Format: Magento 2.x Community - AvaTax
-     * Limited to 50 characters to comply with API requirements
+     * Generate AvaTax Application Name from a AvaTax module name
      *
      * @return string
      */
     public function getApplicationName()
     {
-        return substr($this->magentoProductMetadata->getName(), 0, 7) . ' ' . // "Magento" - 8 chars
-            substr(
-                $this->magentoProductMetadata->getVersion(),
-                0,
-                14
-            ) . ' ' . // 2.x & " " - 50 - 8 - 13 - 14 = 15 chars
-            substr(
-                $this->magentoProductMetadata->getEdition(),
-                0,
-                10
-            ) . ' - ' . // "Community - "|"Enterprise - " - 13 chars
-            'AvaTax';
+        return AvaTaxAppInterface::APP_NAME;
     }
 
     /**
-     * The version of the AvaTax module
+     * Connector String of avatax module
      *
      * @return string
      */
-    public function getApplicationVersion()
+    public function getConnectorString()
     {
-        return AvaTaxAppInterface::APP_VERSION;
+        return AvaTaxAppInterface::CONNECTOR_STRING;
     }
 
     /**
