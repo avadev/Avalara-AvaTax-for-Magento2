@@ -104,6 +104,37 @@ class ApiLog extends AbstractHelper
     }
 
     /**
+     * Log Connection with AvaTax
+     *
+     * @param string $message
+     * @param $scopeId
+     * @param $scopeType
+     * @return void
+     */
+    public function testConnectionLog(string $message, $scopeId, $scopeType)
+    {
+        try {
+            $source = 'ConfigurationPage';
+            $operation = 'Test Connection';
+            $logType = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_TYPE_CONFIG;
+            $logLevel = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_LEVEL_INFO;
+            $functionName = __METHOD__;
+            $context = [
+                'config' => [
+                    'source' => $source,
+                    'operation' => $operation,
+                    'log_type' => $logType,
+                    'log_level' => $logLevel,
+                    'function_name' => $functionName
+                ]
+            ];
+            $this->apiLog($message, $context, $scopeId, $scopeType);
+        } catch(\Exception $e) {
+            //do nothing as this is internal logging
+        }
+    }
+
+    /**
      * configSaveLog API Logging
      *
      * @param $scopeId
@@ -112,24 +143,28 @@ class ApiLog extends AbstractHelper
      */
     public function configSaveLog($scopeId, $scopeType)
     {
-        $message = "";
-        $source = 'ConfigurationPage';
-        $operation = 'ConfigSave';
-        $logType = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_TYPE_CONFIG;
-        $logLevel = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_LEVEL_INFO;
-        $functionName = __METHOD__;
-        $context = [
-            'config' => [
-                'source' => $source,
-                'operation' => $operation,
-                'log_type' => $logType,
-                'log_level' => $logLevel,
-                'function_name' => $functionName
-            ]
-        ];
-        $data = $this->getConfigData($scopeId, $scopeType);
-        $message = json_encode($data);
-        $this->apiLog($message, $context, $scopeId, $scopeType);
+        try {
+            $message = "";
+            $source = 'ConfigurationPage';
+            $operation = 'ConfigChanges';
+            $logType = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_TYPE_CONFIG;
+            $logLevel = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_LEVEL_INFO;
+            $functionName = __METHOD__;
+            $context = [
+                'config' => [
+                    'source' => $source,
+                    'operation' => $operation,
+                    'log_type' => $logType,
+                    'log_level' => $logLevel,
+                    'function_name' => $functionName
+                ]
+            ];
+            $data = $this->getConfigData($scopeId, $scopeType);
+            $message = json_encode($data);
+            $this->apiLog($message, $context, $scopeId, $scopeType);
+        } catch(\Exception $e) {
+            //do nothing as this is internal logging
+        }
     }
 
     /**

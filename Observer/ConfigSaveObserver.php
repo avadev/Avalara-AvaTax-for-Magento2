@@ -110,7 +110,6 @@ class ConfigSaveObserver implements ObserverInterface
             $this->messageManager->addNotice($notice);
         }
 
-        /* Uncomment for API Logging */
         $this->apiLog->configSaveLog($scopeId, $scopeType);
 
         return $this;

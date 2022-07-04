@@ -17,6 +17,7 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\CompanyCodes;
 
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use Magento\Framework\DataObject;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Get extends \Magento\Backend\App\Action
 {
@@ -36,22 +37,30 @@ class Get extends \Magento\Backend\App\Action
     private $config;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param \Magento\Backend\App\Action\Context                    $context
      * @param \Magento\Framework\Controller\Result\JsonFactory       $resultPageFactory
      * @param \ClassyLlama\AvaTax\Framework\Interaction\Rest\Company $company
      * @param \ClassyLlama\AvaTax\Helper\Config                      $config
+     * @param ApiLog                                                 $apiLog
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $resultPageFactory,
         \ClassyLlama\AvaTax\Framework\Interaction\Rest\Company $company,
-        \ClassyLlama\AvaTax\Helper\Config $config
+        \ClassyLlama\AvaTax\Helper\Config $config,
+        ApiLog $apiLog
     )
     {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->company = $company;
         $this->config = $config;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -77,6 +86,7 @@ class Get extends \Magento\Backend\App\Action
         $scopeType = $postValue['scope_type'] === 'global' ? \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             : $postValue['scope_type'];
         $currentCompanyId = $this->config->getCompanyId($scope, $scopeType, $isProduction);
+        $message = "Avatax API connection successful.";
 
         try {
             if (!isset($postValue['license_key'])) {
@@ -89,9 +99,15 @@ class Get extends \Magento\Backend\App\Action
                 null,
                 $isProduction
             );
+            if (\count($companies) === 0)
+                $message = "Avatax API connection successful but no company created under current avatax account";
         } catch (AvataxConnectionException $e) {
-            // If for any reason we couldn't get any companies, just ignore and no companies will be returned
+            $message = "Avatax API connection un-successful.";
+        } catch (\Exception $e) {
+            $message = "Avatax API connection un-successful.";
         }
+        if (isset($postValue['license_key']))
+            $this->apiLog->testConnectionLog($message, $scope, $scopeType);
 
         if (\count($companies) === 0) {
             return $resultJson->setData(
