@@ -19,6 +19,7 @@ use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Framework\Interaction\Storage\ResultStorage;
 use Psr\Log\LoggerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Request\Request as CreditmemoRequest;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 /**
  * Class TaxComposite
@@ -44,6 +45,7 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
      * @param RestConfig $restConfig
      * @param CustomsConfig $customsConfigHelper
      * @param Config $config
+     * @param ApiLog $apiLog
      */
     public function __construct(
         ResultStorage $resultStorage,
@@ -54,7 +56,8 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
         TaxResultFactory $taxResultFactory,
         RestConfig $restConfig,
         CustomsConfig $customsConfigHelper,
-        Config $config
+        Config $config,
+        ApiLog $apiLog
     ) {
         parent::__construct(
             $logger,
@@ -64,7 +67,8 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
             $taxResultFactory,
             $restConfig,
             $customsConfigHelper,
-            $config
+            $config,
+            $apiLog
         );
         $this->resultStorage = $resultStorage;
     }

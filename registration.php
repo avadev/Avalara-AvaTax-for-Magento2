@@ -25,7 +25,3 @@ if (defined('BP')) {
     'Avalara_BaseProvider',
     __DIR__ . DIRECTORY_SEPARATOR . 'BaseProvider'
 );
-
-
-
-
