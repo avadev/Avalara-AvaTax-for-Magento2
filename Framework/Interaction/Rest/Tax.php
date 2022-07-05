@@ -341,10 +341,18 @@ class Tax extends Rest
         $scopeId = null,
         $scopeType = ScopeInterface::SCOPE_STORE
     ): Result {
+        $exeEndTime = $apiStartTime = $apiEndTime = 0;
+        $exeStartTime = microtime(true);
+        $sendLogs = true;
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
         $transactions = [];
+        $logs = [];
         foreach ($requests as $request) {
+            $log = [];
+            $log['DocType'] = $request->getType();
+            $log['DocCode'] = $request->getPurchaseOrderNo();
+            $sendLog = true;
             $transactionBuilder = $this->transactionBuilderFactory->create([
                 'client'       => $client,
                 'companyCode'  => $request->getCompanyCode(),
@@ -355,7 +363,9 @@ class Tax extends Rest
             $this->setTransactionDetails($transactionBuilder, $request);
             try {
                 $this->setLineDetails($transactionBuilder, $request);
+                $log['LineCount'] = $transactionBuilder->getCurrentLineNumber() - 1;
             } catch (Exception $e) {
+                $sendLog = false;
             }
             $this->setAddressDetails($transactionBuilder, $request);
             $createAdjustmentRequest = $transactionBuilder->createAdjustmentRequest(null, null);
@@ -365,6 +375,8 @@ class Tax extends Rest
             $transaction = new TransactionBatchItemModel();
             $transaction->createTransactionModel = $requestData;
             $transactions[] = $transaction;
+            if ($sendLog)
+                $logs[] = $log;
         }
         $transactionBatchRequestModel = new CreateTransactionBatchRequestModel();
         $transactionBatchRequestModel->name = "Batch" . date("Y-m-d H:i:s");
@@ -372,8 +384,11 @@ class Tax extends Rest
 
         $resultObj = null;
         try {
+            $apiStartTime = microtime(true);
             $resultObj = $client->createTransactionBatch($this->config->getCompanyId(), $transactionBatchRequestModel);
+            $apiEndTime = microtime(true);
         } catch (RequestException $clientException) {
+            $sendLogs = false;
             $this->handleException($clientException);
         }
         $resultGeneric = $this->formatResult($resultObj);
@@ -386,6 +401,40 @@ class Tax extends Rest
          */
         $result->setRequest($transactionBatchRequestModel);
 
+        if ($sendLogs && count($logs) > 0) {
+            $exeEndTime = microtime(true);
+            foreach ($logs as $log) {
+                $prefix = '';
+                $eventBlock = '';
+                $docType = '';
+                switch ($log['DocType']) {
+                    case \Avalara\DocumentType::C_RETURNINVOICE :
+                        $eventBlock = "BatchCreditMemoPostCalculateTax";
+                        $docType = "REFUND";
+                        $prefix = 'CM';
+                        break;
+                    case \Avalara\DocumentType::C_SALESINVOICE : 
+                    default : 
+                        $eventBlock = "BatchInvoicePostCalculateTax";
+                        $docType = "INVOICE";  
+                        $prefix = 'INV';
+
+                }
+                $logContext = [];
+                $logContext['extra']['DocCode'] = $prefix.$log['DocCode'];
+                $logContext['extra']['DocType'] = $docType;
+                if (isset($log['LineCount']))
+                    $logContext['extra']['LineCount'] = $log['LineCount'];
+                $logContext['extra']['EventBlock'] = $eventBlock;
+                $logContext['extra']['ConnectorTime'] = ['start' => $exeStartTime, 'end' => $exeEndTime];
+                $logContext['extra']['ConnectorLatency'] = ['start' => $apiStartTime, 'end' => $apiEndTime];
+                $logContext['source'] = 'tax';
+                $logContext['operation'] = 'calculateTax';
+                $logContext['function_name'] = __METHOD__;
+                $this->apiLog->makeTransactionRequestLog($logContext, $scopeId, $scopeType);
+            }
+        }
+        
         return $result;
     }
 }

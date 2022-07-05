@@ -65,7 +65,6 @@ class ApiLog extends AbstractHelper
     public function apiLog(string $message, array $context = [], $scopeId = null, $scopeType = null)
     {
         if (strlen($message) > 0) {
-
             $isProduction = $this->config->isProductionMode($scopeId, $scopeType);
             $accountNumber = $this->config->getAccountNumber($scopeId, $scopeType, $isProduction);
             $accountSecret = $this->config->getLicenseKey($scopeId, $scopeType, $isProduction);
