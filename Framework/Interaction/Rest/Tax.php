@@ -183,14 +183,38 @@ class Tax extends Rest
 
         if ($sendLog) {
             $exeEndTime = microtime(true);
-            $logContext['extra']['EventBlock'] = 'PostCalculateTax';
-            $logContext['extra']['DocType'] = 'SalesOrder';
-            $logContext['extra']['ConnectorTime'] = ['start' => $exeStartTime, 'end' => $exeEndTime];
-            $logContext['extra']['ConnectorLatency'] = ['start' => $apiStartTime, 'end' => $apiEndTime];
-            $logContext['source'] = 'tax';
-            $logContext['operation'] = 'calculateTax';
-            $logContext['function_name'] = __METHOD__;
-            $this->apiLog->makeTransactionRequestLog($logContext, $scopeId, $scopeType);
+            $prefix = '';
+            $eventBlock = '';
+            $docType = '';
+            switch ($request->getType()) {
+                case \Avalara\DocumentType::C_RETURNINVOICE :
+                    $eventBlock = "CreditMemoPostCalculateTax";
+                    $docType = "REFUND";
+                    $prefix = 'CM';
+                    $logContext['extra']['DocCode'] = $prefix . $request->getPurchaseOrderNo() ;
+                    break;
+                case \Avalara\DocumentType::C_SALESINVOICE :
+                    $eventBlock = "InvoicePostCalculateTax";
+                    $docType = "INVOICE";
+                    $prefix = 'INV';
+                    $logContext['extra']['DocCode'] = $prefix . $request->getPurchaseOrderNo() ;
+                    break;
+                case \Avalara\DocumentType::C_SALESORDER :
+                    $eventBlock = "PostCalculateTax";
+                    $docType = "SalesOrder";
+                    break;
+            }
+            if (!empty($docType)) {
+                $log['DocCode'] = $request->getPurchaseOrderNo();
+                $logContext['extra']['EventBlock'] = $eventBlock;
+                $logContext['extra']['DocType'] = $docType;
+                $logContext['extra']['ConnectorTime'] = ['start' => $exeStartTime, 'end' => $exeEndTime];
+                $logContext['extra']['ConnectorLatency'] = ['start' => $apiStartTime, 'end' => $apiEndTime];
+                $logContext['source'] = 'tax';
+                $logContext['operation'] = 'calculateTax';
+                $logContext['function_name'] = __METHOD__;
+                $this->apiLog->makeTransactionRequestLog($logContext, $scopeId, $scopeType);
+            }
         }
 
         return $result;
@@ -413,13 +437,13 @@ class Tax extends Rest
                         $docType = "REFUND";
                         $prefix = 'CM';
                         break;
-                    case \Avalara\DocumentType::C_SALESINVOICE : 
-                    default : 
+                    case \Avalara\DocumentType::C_SALESINVOICE :
                         $eventBlock = "BatchInvoicePostCalculateTax";
                         $docType = "INVOICE";  
                         $prefix = 'INV';
-
+                        break;
                 }
+                if (empty($docType)) continue;
                 $logContext = [];
                 $logContext['extra']['DocCode'] = $prefix.$log['DocCode'];
                 $logContext['extra']['DocType'] = $docType;
@@ -434,7 +458,7 @@ class Tax extends Rest
                 $this->apiLog->makeTransactionRequestLog($logContext, $scopeId, $scopeType);
             }
         }
-        
+
         return $result;
     }
 }

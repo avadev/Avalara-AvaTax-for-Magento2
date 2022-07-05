@@ -72,7 +72,6 @@ class ApiLog extends AbstractHelper
             $clientString = self::CONNECTOR_STRING;
             $mode = $isProduction ? \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_MODE_PRODUCTION : \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_MODE_SANDBOX;
             $connectorName = self::CONNECTOR_NAME;
-            $connectorVersion = \ClassyLlama\AvaTax\Framework\AppInterface::APP_VERSION;
             $source = isset($context['config']['source']) ? $context['config']['source'] : 'MagentoPage';
             $operation = isset($context['config']['operation']) ? $context['config']['operation'] : 'MagentoOperation';
             $logType = isset($context['config']['log_type']) ? $context['config']['log_type'] : \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_TYPE_DEBUG;
@@ -87,7 +86,7 @@ class ApiLog extends AbstractHelper
                     'client_string' => $clientString,
                     'mode' => $mode,
                     'connector_name' => $connectorName,
-                    'connector_version' => $connectorVersion,
+                    'connector_version' => $clientString,
                     'source' => $source,
                     'operation' => $operation,
                     'log_type' => $logType,
