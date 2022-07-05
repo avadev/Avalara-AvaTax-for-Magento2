@@ -36,6 +36,7 @@ use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Tax extends Rest
     implements RestTaxInterface
@@ -71,6 +72,11 @@ class Tax extends Rest
     private $config;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
@@ -79,6 +85,7 @@ class Tax extends Rest
      * @param RestConfig $restConfig
      * @param CustomsConfig $customsConfigHelper
      * @param Config $config
+     * @param ApiLog $apiLog
      */
     public function __construct(
         LoggerInterface $logger,
@@ -88,7 +95,8 @@ class Tax extends Rest
         TaxResultFactory $taxResultFactory,
         RestConfig $restConfig,
         CustomsConfig $customsConfigHelper,
-        Config $config
+        Config $config,
+        ApiLog $apiLog
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->transactionBuilderFactory = $transactionBuilderFactory;
@@ -96,6 +104,7 @@ class Tax extends Rest
         $this->restConfig = $restConfig;
         $this->customsConfigHelper = $customsConfigHelper;
         $this->config = $config;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -114,6 +123,13 @@ class Tax extends Rest
      */
     public function getTax( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
+        $exeEndTime = $apiStartTime = $apiEndTime = 0;
+        $exeStartTime = microtime(true);
+        $sendLog = true;
+        if ($request->hasCode()) {
+            $logContext = ['extra' => ['DocCode' => $request->getCode()]];
+        }
+       
         $client = $this->getClient( $isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
 
@@ -128,6 +144,7 @@ class Tax extends Rest
 
         $this->setTransactionDetails($transactionBuilder, $request);
         $this->setLineDetails($transactionBuilder, $request);
+        $logContext['extra']['LineCount'] = $transactionBuilder->getCurrentLineNumber() - 1;
         $this->setAddressDetails($transactionBuilder, $request);
 
         $resultObj = null;
@@ -141,11 +158,16 @@ class Tax extends Rest
         }
 
         try {
+            $apiStartTime = microtime(true);
             $resultObj = $transactionBuilder->create();
+            $apiEndTime = microtime(true);
         }
         catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $sendLog = false;
             $this->handleException($clientException, $request);
         }
+
+        
 
         $resultGeneric = $this->formatResult($resultObj);
         /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $result */
@@ -158,6 +180,18 @@ class Tax extends Rest
          * We store the request on the result so we can map request items to response items
          */
         $result->setRequest($request);
+
+        if ($sendLog) {
+            $exeEndTime = microtime(true);
+            $logContext['extra']['EventBlock'] = 'PostCalculateTax';
+            $logContext['extra']['DocType'] = 'SalesOrder';
+            $logContext['extra']['ConnectorTime'] = ['start' => $exeStartTime, 'end' => $exeEndTime];
+            $logContext['extra']['ConnectorLatency'] = ['start' => $apiStartTime, 'end' => $apiEndTime];
+            $logContext['source'] = 'tax';
+            $logContext['operation'] = 'calculateTax';
+            $logContext['function_name'] = __METHOD__;
+            $this->apiLog->makeTransactionRequestLog($logContext, $scopeId, $scopeType);
+        }
 
         return $result;
     }
