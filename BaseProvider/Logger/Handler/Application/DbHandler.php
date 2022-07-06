@@ -52,7 +52,7 @@ class DbHandler extends BaseAbstractHandler
      * @param array $record
      * @return Boolean
      */
-    public function isHandling(array $record)
+    public function isHandling(array $record) : bool
     {
         return $this->loggerConfig->getLogEnabled() && ($this->loggerConfig->getLogMode() == LoggingMode::LOGGING_MODE_DB);
     }
@@ -63,7 +63,7 @@ class DbHandler extends BaseAbstractHandler
      * @param $record array
      * @return void
      */
-    public function write(array $record)
+    public function write(array $record) : void
     {
         parent::write($record);
         # Log to database

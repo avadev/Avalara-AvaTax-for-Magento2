@@ -100,7 +100,7 @@ class FileHandler extends Base
      * @param array $record
      * @return Boolean
      */
-    public function isHandling(array $record)
+    public function isHandling(array $record) : bool
     {
         return $this->loggerConfig->getLogEnabled() && ($this->loggerConfig->getLogMode() == LoggingMode::LOGGING_MODE_FILE);
     }
@@ -111,7 +111,7 @@ class FileHandler extends Base
      * @param $record array
      * @return void
      */
-    public function write(array $record)
+    public function write(array $record) : void
     {
         // Custom parsing can be added here
         parent::write($record);

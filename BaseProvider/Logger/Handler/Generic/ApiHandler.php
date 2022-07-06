@@ -80,7 +80,7 @@ class ApiHandler extends BaseAbstractHandler
      * @param $record array
      * @return void
      */
-    public function write(array $record)
+    public function write(array $record) : void
     {
         $apiConfig = $this->getApiConfig($record);
         $isValid = $this->loggerConfig->validateRecord($apiConfig);
