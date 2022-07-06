@@ -29,7 +29,7 @@ class BaseAbstractHandler extends AbstractHandler
     public function __construct($level = Logger::DEBUG, $bubble = true)
     {
         parent::__construct($level, $bubble);
-        $this->setFormatter(new LineFormatter(null, null, true));
+        #$this->setFormatter(new LineFormatter(null, null, true));
         $introspectionProcessor = new IntrospectionProcessor();
         $webProcessor = new WebProcessor();
         $this->addExtraProcessors([$introspectionProcessor, $webProcessor]);
@@ -48,14 +48,15 @@ class BaseAbstractHandler extends AbstractHandler
     /**
      * {@inheritdoc}
      */
-    public function handle(array $record)
+    public function handle(array $record) : bool
     {
         if (!$this->isHandling($record)) {
             return false;
         }
 
         $record = $this->processRecord($record);
-        $record['formatted'] = $this->getFormatter()->format($record);
+        #$record['formatted'] = $this->getFormatter()->format($record);
+        $record['formatted'] = $record;
         $this->write($record);
 
         return false === $this->bubble;
