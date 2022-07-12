@@ -28,7 +28,7 @@ class TaxIncluded extends \Magento\Config\Block\System\Config\Form\Field
         }
         $html = $element->getElementHtml();
         $html .= '<div class="confirmation-modal-taxation-policy" style="display: none;">';
-        $html .= '<p>'.__('Once you save the settings, you won\'t be able to change the Taxation Policy.').'</p></div>';
+        $html .= '<p>'.__('Warning! For tax compliance reasons, once you save the settings for the first time, you won\'t be able to change the Taxation Policy again.').'</p></div>';
         $html .= "<script>
                         require([
                             'jquery',
