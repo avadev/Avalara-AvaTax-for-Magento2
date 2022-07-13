@@ -130,7 +130,7 @@ TRUNCATE TABLE `avatax_log`;
 
 ## Uninstall Extension
 
-1. Run this command in the root of your Magento installation directory: `bin/magento module:uninstall ClassyLlama_AvaTax`
+1. Run this command in the root of your Magento installation directory: `bin/magento module:uninstall Avalara_BaseProvider` `bin/magento module:uninstall ClassyLlama_AvaTax`
 
 2. If you installed the module using Composer, run these commands in the root of your Magento installation directory:
 
