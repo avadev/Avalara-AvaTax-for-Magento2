@@ -126,6 +126,7 @@ If you have installed the AvaTax extension in a development/testing environment 
 -- Truncate AvaTax tables
 TRUNCATE TABLE `avatax_queue`;
 TRUNCATE TABLE `avatax_log`;
+TRUNCATE TABLE `baseprovider_queue_job`;
 ```
 
 ## Uninstall Extension
@@ -144,6 +145,7 @@ TRUNCATE TABLE `avatax_log`;
    -- Remove AvaTax tables (these tables will be in the sales database in split-database mode)
    DROP TABLE `avatax_queue`;
    DROP TABLE `avatax_log`;
+   DROP TABLE `baseprovider_queue_job`;
    DROP TABLE `avatax_sales_creditmemo`;
    DROP TABLE `avatax_sales_invoice`;
    
