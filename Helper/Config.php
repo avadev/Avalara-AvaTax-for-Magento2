@@ -40,6 +40,10 @@ class Config extends AbstractHelper
      */
     const XML_PATH_AVATAX_MODULE_ENABLED = 'tax/avatax/enabled';
 
+    const XML_PATH_AVATAX_TAX_INCLUDED = 'tax/avatax/tax_included';
+
+    const XML_SUFFIX_AVATAX_TAX_INCLUDED = "Included in Subtotal";
+
     const XML_PATH_AVATAX_TAX_MODE = 'tax/avatax/tax_mode';
 
     const XML_PATH_AVATAX_COMMIT_SUBMITTED_TRANSACTIONS = 'tax/avatax/commit_submitted_transactions';
@@ -1295,6 +1299,21 @@ class Config extends AbstractHelper
     {
         return $this->scopeConfig->getValue(
             $configPath,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Taxation Policy
+     *
+     * @param null $store
+     * @return boolean
+     */
+    public function getTaxationPolicy($store = null)
+    {
+        return (boolean)$this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_TAX_INCLUDED,
             ScopeInterface::SCOPE_STORE,
             $store
         );

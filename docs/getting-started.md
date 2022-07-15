@@ -44,7 +44,7 @@ For support with your AvaTax account, please visit [avalara.com/technical-suppor
 
 ### Supported Magento Versions
 
-Refer to [README](https://github.com/astoundcommerce/avatax#magento-version-support) for supported versions/editions.
+Refer to [README](https://marketplace.magento.com/avalara-avatax-magento.html#release_notes) for supported versions/editions.
 
 ###  Installation
 
@@ -57,20 +57,21 @@ This is the recommended installation method as it allows you to easily update th
 1. Require the desired version of AvaTax. Latest version can be installed by running following command:
 
    ```
-   composer require avalara/avatax-magento:2.3.0
+   composer require avalara/avatax-magento:2.3.1
    ```
 
 2. Setup the AvaTax module in magento
 
    ```bash
    bin/magento module:enable --clear-static-content ClassyLlama_AvaTax
+   bin/magento module:enable --clear-static-content Avalara_BaseProvider
    bin/magento setup:upgrade
    bin/magento setup:di:compile
    bin/magento setup:static-content:deploy
    bin/magento cache:flush
    ```
 
-3. If you are deploying the extension to a production environment, follow the [devdocs.magento.com deployment instructions](http://devdocs.magento.com/guides/v2.0/howdoi/deploy/deploy-to-prod.html#deploy-prod)
+3. If you are deploying the extension to a production environment, follow the [devdocs.magento.com deployment instructions](https://experienceleague.adobe.com/docs/commerce-operations/performance-best-practices/deployment-flow.html)
 
 ### Configuration
 
@@ -114,7 +115,7 @@ Solution: You'll need to install the PHP SoapClient library, per the [prerequisi
 
 ## Release Notes
 
-See this page for release notes: [https://github.com/astoundcommerce/avatax/releases](https://github.com/astoundcommerce/avatax/releases)
+See this page for release notes: [https://marketplace.magento.com/avalara-avatax-magento.html#release_notes](https://marketplace.magento.com/avalara-avatax-magento.html#release_notes)
 
 
 ## Pre-Launch Sales Record Cleanup
@@ -125,11 +126,17 @@ If you have installed the AvaTax extension in a development/testing environment 
 -- Truncate AvaTax tables
 TRUNCATE TABLE `avatax_queue`;
 TRUNCATE TABLE `avatax_log`;
+TRUNCATE TABLE `baseprovider_queue_job`;
 ```
 
 ## Uninstall Extension
 
-1. Run this command in the root of your Magento installation directory: `bin/magento module:uninstall ClassyLlama_AvaTax`
+1. Run this command in the root of your Magento installation directory: 
+
+    ```bash
+    bin/magento module:uninstall Avalara_BaseProvider
+    bin/magento module:uninstall ClassyLlama_AvaTax
+    ```
 
 2. If you installed the module using Composer, run these commands in the root of your Magento installation directory:
 
@@ -143,6 +150,7 @@ TRUNCATE TABLE `avatax_log`;
    -- Remove AvaTax tables (these tables will be in the sales database in split-database mode)
    DROP TABLE `avatax_queue`;
    DROP TABLE `avatax_log`;
+   DROP TABLE `baseprovider_queue_job`;
    DROP TABLE `avatax_sales_creditmemo`;
    DROP TABLE `avatax_sales_invoice`;
    

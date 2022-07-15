@@ -8,6 +8,10 @@ use ClassyLlama\AvaTax\Plugin\Model\Quote\GrandTotalDetailsSorter;
 $taxAmount = $block->getTotal()->getValue();
 $customDuty = false;
 $fullInfo = $block->getTotal()->getFullInfo();
+$taxTitle = __('Tax');
+$taxIncluded = $this->helper('ClassyLlama\AvaTax\Helper\Config')->getTaxationPolicy();
+if ($taxIncluded)
+    $taxTitle .= " (".__(\ClassyLlama\AvaTax\Helper\Config::XML_SUFFIX_AVATAX_TAX_INCLUDED).")";
 ?>
 <?php if (($taxAmount == 0 && $this->helper(\Magento\Tax\Helper\Data::class)->displayZeroTax()) || ($taxAmount > 0)) :
     global $taxIter;
@@ -58,14 +62,14 @@ $fullInfo = $block->getTotal()->getFullInfo();
             colspan="<?= (int)$block->getColspan() ?>">
             <?php if ($this->helper(\Magento\Tax\Helper\Data::class)->displayFullSummary()) : ?>
                 <div class="summary-collapse"><?= /* @escapeNotVerified */
-                    __('Tax') ?></div>
+                    $taxTitle ?></div>
             <?php else : ?>
                 <?php if ($customDuty): ?>
                     <?= /* @escapeNotVerified */
                     __('Import Fees') ?>
                 <?php else: ?>
                     <?= /* @escapeNotVerified */
-                    __('Tax') ?>
+                    $taxTitle ?>
                 <?php endif; ?>
             <?php endif; ?>
         </td>

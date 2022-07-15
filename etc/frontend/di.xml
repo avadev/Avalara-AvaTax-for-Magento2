@@ -31,4 +31,11 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Checkout\Block\Cart\Totals">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="totalsTaxTitleChange" xsi:type="object">\ClassyLlama\AvaTax\Block\Cart\CartTotalsProcessor</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

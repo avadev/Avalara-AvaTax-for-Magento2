@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * Avalara_BaseProvider
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright Copyright (c) 2021 Avalara, Inc
+ * @license    http: //opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+        <table name="baseprovider_queue_job" resource="default" comment="BaseProvider Queue Jobs">
+		<column xsi:type="int" name="job_id" identity="true" unsigned="true" nullable="false" comment="Job Id"/>
+                <column xsi:type="varchar" name="client" nullable="false" length="50" comment="Client Name"/>
+                <column xsi:type="longtext" name="payload" nullable="false" comment="Payload"/>
+                <column xsi:type="longtext" name="response" nullable="true" comment="Response"/>
+                <column xsi:type="int" name="status" nullable="false" default="1" comment="Status"/>
+                <column xsi:type="int" name="attempt" nullable="false" default="0" comment="Attempt"/>
+                <column xsi:type="timestamp" name="creation_time" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                        comment="Creation Time"/>
+                <column xsi:type="timestamp" name="update_time" on_update="true" nullable="false" default="CURRENT_TIMESTAMP"
+                        comment="Modification Time"/>
+                <constraint xsi:type="primary" referenceId="PRIMARY">
+                        <column name="job_id"/>
+                </constraint>
+                <index referenceId="AVATAX_QUEUE_JOB_CLIENT" indexType="btree">
+                        <column name="client"/>
+                </index>
+                <index referenceId="AVATAX_QUEUE_JOB_STATUS" indexType="btree">
+                        <column name="status"/>
+                </index>
+                <index referenceId="AVATAX_QUEUE_JOB_ATTEMPT" indexType="btree">
+                        <column name="attempt"/>
+                </index>
+                <index referenceId="AVATAX_QUEUE_JOB_CLIENT_STATUS" indexType="btree">
+                        <column name="client"/>
+                        <column name="status"/>
+                </index>
+                <index referenceId="AVATAX_QUEUE_JOB_CLIENT_ATTEMPT" indexType="btree">
+                        <column name="client"/>
+                        <column name="attempt"/>
+                </index>
+                <index referenceId="AVATAX_QUEUE_JOB_STATUS_ATTEMPT" indexType="btree">
+                        <column name="status"/>
+                        <column name="attempt"/>
+                </index>
+                <index referenceId="AVATAX_QUEUE_JOB_CLIENT_STATUS_ATTEMPT" indexType="btree">
+                        <column name="client"/>
+                        <column name="status"/>
+                        <column name="attempt"/>
+                </index>
+	</table>
+        <table name="baseprovider_logs" resource="default" comment="AvaTax Logs">
+                <column xsi:type="int" name="log_id" identity="true" unsigned="true" nullable="false" comment="Log Id"/>
+                <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                        comment="Created At"/>
+                <column xsi:type="int" name="store_id" nullable="false" default="null" comment="Store ID"/>
+                <column xsi:type="varchar" name="level" length="20" comment="Log Level"/>
+                <column xsi:type="text" name="message" nullable="true" comment="Log Details"/>
+                <column xsi:type="varchar" name="source" length="255" comment="Code Source Reference"/>
+                <column xsi:type="longtext" name="request" nullable="true" comment="Request"/>
+                <column xsi:type="longtext" name="result" nullable="true" comment="Result"/>
+                <column xsi:type="longtext" name="additional" nullable="true" comment="Additional"/>
+                <constraint xsi:type="primary" referenceId="PRIMARY">
+                        <column name="log_id"/>
+                </constraint>
+                <index referenceId="AVATAX_LOGS_CREATED_AT" indexType="btree">
+                        <column name="created_at"/>
+                </index>
+                <index referenceId="AVATAX_LOGS_LEVEL_CREATED_AT" indexType="btree">
+                        <column name="level"/>
+                        <column name="created_at"/>
+                </index>                
+	</table>
+</schema>

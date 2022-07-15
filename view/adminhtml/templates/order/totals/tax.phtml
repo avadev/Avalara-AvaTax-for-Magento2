@@ -19,6 +19,10 @@ $_source = $block->getSource();
 $_order = $block->getOrder();
 $_fullInfo = $block->getFullTaxInfo();
 $customDuty = false;
+$taxTitle = __('Tax');
+$taxIncluded = $this->helper('ClassyLlama\AvaTax\Helper\Config')->getTaxationPolicy();
+if ($taxIncluded)
+    $taxTitle .= " (".__(\ClassyLlama\AvaTax\Helper\Config::XML_SUFFIX_AVATAX_TAX_INCLUDED).")";
 ?>
 
 <?php if ($_fullInfo): ?>
@@ -75,14 +79,14 @@ $customDuty = false;
         <div class="summary-collapse" tabindex="0">
             <?php if ($this->helper('Magento\Tax\Helper\Data')->displayFullSummary()): ?>
                 <?= /* @escapeNotVerified */
-                __('Tax') ?>
+                $taxTitle ?>
             <?php else: ?>
                 <?php if ($customDuty): ?>
                     <?= /* @escapeNotVerified */
                     __('Import Fees') ?>
                 <?php else: ?>
                     <?= /* @escapeNotVerified */
-                    __('Tax') ?>
+                    $taxTitle ?>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
