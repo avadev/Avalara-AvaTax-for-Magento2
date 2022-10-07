@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="avatax">
+        <job name="avatax_processqueue" instance="ClassyLlama\AvaTax\Model\Queue\Task" method="cronProcessQueue">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+        <job name="avatax_clearqueue" instance="ClassyLlama\AvaTax\Model\Queue\Task" method="cronClearQueue">
+            <schedule>2 0 */1 * *</schedule>
+        </job>
+        <job name="avatax_clearlog" instance="ClassyLlama\AvaTax\Model\Log\Task" method="cronClearLogs">
+            <schedule>2 0 */1 * *</schedule>
+        </job>
+        <job name="avatax_batch_queue_transactions_response_process" instance="ClassyLlama\AvaTax\Model\Queue\BatchResponseProcessing" method="cronProcessResponse">
+            <schedule>*/15 * * * *</schedule>
+        </job>
+    </group>
+</config>

@@ -1,0 +1,87 @@
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+*/
+-->
+<!-- ko if: ifShowValue() && !ifShowDetails() -->
+<tr class="totals-tax">
+    <th data-bind="text: getTotalTaxTitle()" class="mark" scope="row"></th>
+    <td data-bind="attr: {'data-th': getTotalTaxTitle()}" class="amount">
+        <!-- ko if: isCalculated() -->
+            <span class="price"
+                  data-bind="text: getValue()"></span>
+        <!-- /ko -->
+        <!-- ko ifnot: isCalculated() -->
+            <span class="not-calculated"
+                  data-bind="text: getValue()"></span>
+        <!-- /ko -->
+    </td>
+</tr>
+<!-- /ko -->
+<!-- // BEGIN EDIT - Show certificates management link -->
+<!-- ko if: hasUploadedCertificate -->
+<tr class="totals-tax certificate-links">
+    <td class="mark" colspan="2">
+        <div class="message message-success success">
+            <div data-bind="i18n: 'Your tax document has been applied to this cart and taxes have been recalculated.'"></div>
+        </div>
+        <div class="apply_certificate">
+            <a href="javascript:void(0)" data-bind="click: refreshCache, i18n: 'Apply Certificate'" class="action primary checkout"></a>
+        </div>
+    </td>
+</tr>
+<!-- /ko -->
+<tr class="totals-tax certificate-links" data-bind="if: shippingToEnabledCountry && ifShowCertificateLink()">
+    <td class="mark" colspan="2">
+        <a href="javascript:void(0)" data-bind="click: showNewCertificateModal, text: newCertText"></a>
+        <!-- ko if: ifShowManageCertificateLink() -->
+        <a data-bind="attr: {href: certificatesLink}, text: manageCertsText"></a>
+        <!-- /ko -->
+    </td>
+</tr>
+<!-- // END EDIT -->
+<!-- ko if: ifShowValue() && ifShowDetails() -->
+    <tr class="totals-tax-summary"
+        data-bind="mageInit: {'toggleAdvanced':{'selectorsToggleClass': 'shown', 'baseToggleClass': 'expanded', 'toggleContainers': '.totals-tax-details:not(.custom-tax)'}}, css: {'totals-tax-holder': hasCustomsTax()}">
+        <th data-bind="text: title" class="mark" scope="row"></th>
+        <td data-bind="attr: {'data-th': title }" class="amount">
+            <!-- ko if: isCalculated() -->
+            <span class="price"
+                  data-bind="text: getValueDetail()"></span>
+            <!-- /ko -->
+            <!-- ko ifnot: isCalculated() -->
+            <span class="not-calculated"
+                  data-bind="text: getValueDetail()"></span>
+            <!-- /ko -->
+        </td>
+    </tr>
+    <!-- ko foreach: getDetails() -->
+        <!-- ko foreach: rates -->
+        <tr class="totals-tax-details" data-bind="css: { shown: $parents[1].hasCustomsTax(), 'custom-tax': $parents[1].getCustomTaxClass($data) }">
+            <!-- // BEGIN EDIT - Retrieve tax values from extension attributes -->
+            <th class="mark" scope="row" data-bind="text: $parents[1].getTaxTitle($data)"></th>
+            <td class="amount" rowspan="1">
+                <!-- ko if: $parents[1].isCalculated() -->
+                    <span class="price"
+                          data-bind="text: $parents[1].formatPrice($parents[0].amount), attr: {'data-th': title, 'rowspan': $parents[0].rates.length }"></span>
+                    <!-- /ko -->
+                    <!-- ko ifnot: $parents[1].isCalculated() -->
+                    <span class="not-calculated"
+                          data-bind="text: $parents[1].formatPrice($parents[0].amount), attr: {'data-th': title, 'rowspan': $parents[0].rates.length }"></span>
+                    <!-- /ko -->
+            </td>
+            <!-- // END EDIT -->
+        </tr>
+        <!-- /ko -->
+    <!-- /ko -->
+<!-- /ko -->

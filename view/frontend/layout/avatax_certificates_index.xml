@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <head>
+        <title>Tax Certificates</title>
+    </head>
+    <body>
+        <referenceBlock name="page.main.title">
+            <block name="customer.certificates.add" template="ClassyLlama_AvaTax::certificates/add.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">\ClassyLlama\AvaTax\Block\ViewModel\AccountAddExemptionZone</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block name="customer.certificates" class="Magento\Framework\View\Element\Template" template="ClassyLlama_AvaTax::certificates/list.phtml" cacheable="false">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">\ClassyLlama\AvaTax\Block\ViewModel\CustomerCertificates</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

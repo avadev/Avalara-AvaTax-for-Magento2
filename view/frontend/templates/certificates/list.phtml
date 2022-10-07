@@ -1,0 +1,84 @@
+<?php
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+/** @var \ClassyLlama\AvaTax\Block\ViewModel\CustomerCertificates $viewModel */
+/** @var \Magento\Framework\View\Element\Template $block */
+$viewModel = $this->getData('view_model');
+
+$certificates = [];
+
+try {
+    $certificates = $viewModel->getCertificates();
+} catch (\ClassyLlama\AvaTax\Exception\AvataxConnectionException $e) {
+    // We will just show an empty list
+};
+
+$statuses =  $viewModel->getCertificateStatusName();
+?>
+<div class="table-wrapper">
+    <table class="data table">
+        <thead>
+            <tr>
+                <th class="data-grid-th"><?php echo __('State') ?></th>
+                <th class="data-grid-th"><?php echo __('Signed Date') ?></th>
+                <th class="data-grid-th"><?php echo __('Expiration Date') ?></th>
+                <th class="data-grid-th"><?php echo __('Status') ?></th>
+                <th class="data-grid-th" colspan="2">&nbsp;</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <?php foreach ($certificates as $certificate): ?>
+                <tr data-role="row">
+                    <td data-th="<?php echo __('State') ?>"><?php echo $certificate->getData('exposure_zone')->getData(
+                            'name'
+                        ); ?></td>
+                    <td data-th="<?php echo __('Signed Date') ?>"><?php echo $certificate->getData(
+                            'signed_date'
+                        ); ?></td>
+                    <td data-th="<?php echo __('Expiration Date') ?>"><?php echo $certificate->getData(
+                            'expiration_date'
+                        ); ?></td>
+                    <td data-th="<?php echo __('Status') ?>"><?php echo ($certificate->getData('valid') &&
+                            $viewModel->isReadyForValidation($certificate->getData('status'))) ? $block->escapeHtml($statuses['pending']) :
+                            ($certificate->getData('valid') ? $block->escapeHtml($statuses['approved'])
+                            : $block->escapeHtml($statuses['denied'])); ?></td>
+                    <td>
+                        <?php if ($certificate->getData('valid')): ?>
+                            <a target="_blank"
+                               href="<?php echo $viewModel->getCertificateUrl($certificate->getData('id')) ?>">
+                                <?= __('View Certificate') ?>
+                            </a>
+                        <?php endif ?>
+                    </td>
+                    <td>
+                        <?php if ($certificate->getData('valid')): ?>
+                            <a href="javascript:void(0)" data-mage-init='{"deleteCertificate":{
+                               "deleteUrl":"<?= $viewModel->getDeleteCertificateUrl($certificate->getData('id')) ?>"
+                               }}'>
+                                <?= __('Delete Certificate') ?>
+                            </a>
+                        <?php endif ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+
+            <?php if (count($certificates) === 0): ?>
+                <tr class="data-grid-tr-no-data even">
+                    <td class="empty-text" colspan="7"><?= __('No certificates found for this customer') ?></td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>

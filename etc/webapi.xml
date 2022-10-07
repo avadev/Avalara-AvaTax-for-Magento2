@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/carts/mine/validate-address" method="POST">
+        <service class="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" method="saveValidAddress"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
+    <route url="/V1/carts/validate-address" method="POST">
+        <service class="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" method="saveValidAddress"/>
+        <resources>
+            <resource ref="Magento_Cart::manage" />
+        </resources>
+    </route>
+    <route url="/V1/avatax/token" method="GET">
+        <service class="ClassyLlama\AvaTax\Api\TokenInterface" method="getToken"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
+    <route url="/V1/avatax/tax/refresh" method="GET">
+        <service class="ClassyLlama\AvaTax\Api\TaxCacheInterface" method="clearCache"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
+    <route url="/V1/carts/billing-validate-address" method="POST">
+        <service class="ClassyLlama\AvaTax\Api\ValidAddressManagementInterface" method="saveValidAddress"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/multishipping/save-address" method="POST">
+        <service class="ClassyLlama\AvaTax\Api\MultishippingAddressManagementInterface" method="execute"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+</routes>

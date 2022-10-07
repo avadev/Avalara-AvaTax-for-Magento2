@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Checkout\Block\Onepage">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="addressValidationLayoutProcessor" xsi:type="object">\ClassyLlama\AvaTax\Block\Checkout\AddressValidationLayoutProcessor</item>
+                <item name="certificatesLayoutProcessor" xsi:type="object">\ClassyLlama\AvaTax\Block\Checkout\CertificatesLayoutProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="avatax_checkout_billing_address_validation_config" xsi:type="object">ClassyLlama\AvaTax\Model\BillingAddressValidationConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Checkout\Block\Cart\Totals">
+        <arguments>
+            <argument name="layoutProcessors" xsi:type="array">
+                <item name="totalsTaxTitleChange" xsi:type="object">\ClassyLlama\AvaTax\Block\Cart\CartTotalsProcessor</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

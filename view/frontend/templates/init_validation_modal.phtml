@@ -1,0 +1,43 @@
+<?php
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+?>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "addressValidationModal": {
+                "validationEnabled": <?= (int)$this->isValidationEnabled() ?>,
+                "hasChoice": <?= $this->getChoice() ?>,
+                "instructions": <?= $this->getInstructions() ?>,
+                "errorInstructions": <?= $this->getErrorInstructions() ?>,
+                "countriesEnabled": "<?= $this->getCountriesEnabled() ?>"
+            }
+        }
+    }
+</script>
+<script>
+    require([
+        'mage/url'
+    ], function(url) {
+        <?php
+        // Set baseUrl so that the urlBuilder JS module has access to it
+        // Calling getUrl instead of getBaseUrl as the latter has been overridden in
+        // \ClassyLlama\AvaTax\Block\CustomerAddress to return a different url
+        ?>
+        return url.setBaseUrl('<?php /* @escapeNotVerified */ echo $block->getUrl();?>');
+    })
+</script>
+<script type="text/javascript">
+    window.avaTaxStoreCode = "<?= $this->getStoreCode() ?>";
+</script>

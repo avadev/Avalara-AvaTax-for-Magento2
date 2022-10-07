@@ -1,0 +1,45 @@
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<div class="instructions noError" data-bind="html: instructions, attr: {'data-uid': uid}"></div>
+<!-- ko if: choice == 1 -->
+<form id="co-validate-form" class="form validate noError" novalidate="novalidate">
+    <div class="validContainer addressOption selected">
+        <div class="addressRadio">
+            <input type="radio" class="validAddress" name="addressToUse" checked data-bind="attr: {id: 'valid-' + uid}"/>
+        </div>
+        <label data-bind="attr: {for: 'valid-' + uid}" class="addressLabel">
+            <div class="optionTitle" data-bind="i18n: 'Suggested Address'"></div>
+            <div class="optionAddress validAddressText"></div>
+        </label>
+    </div>
+    <div class="originalContainer addressOption">
+        <div class="addressRadio">
+            <input type="radio" class="originalAddress" name="addressToUse" data-bind="attr: {id: 'original-' + uid}"/>
+        </div>
+        <label data-bind="attr: {for: 'original-' + uid}" class="addressLabel">
+            <div class="optionTitle" data-bind="i18n: 'Original Address'"></div>
+            <div class="optionAddress originalAddressText"></div>
+        </label>
+    </div>
+</form>
+<!-- /ko -->
+<!-- ko if: choice == 0 -->
+<div class="validAddressText validatedAddress noError"></div>
+<!-- /ko -->
+<div class="errorMessageContainer yesError">
+    <div class="instructions" data-bind="html: errorInstructions, attr: {'data-uid': uid}"></div>
+    <div class="originalAddressText"></div>
+</div>

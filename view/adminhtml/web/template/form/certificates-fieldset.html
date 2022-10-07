@@ -1,0 +1,81 @@
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2018 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<div class="fieldset-wrapper certificates-fieldset-wrapper"
+     css="$data.additionalClasses"
+     attr="'data-level': $data.level, 'data-index': index"
+     data-bind="visible: $data.visible === undefined ? true: $data.visible">
+    <div class="fieldset-wrapper-title"
+         attr="tabindex: !collapsible ? -1 : 0,
+               'data-state-collapsible': collapsible ? opened() ? 'open' : 'closed' : null"
+         click="toggleOpened"
+         keyboard="13: toggleOpened"
+         if="label">
+
+        <strong css="'admin__collapsible-title': collapsible,
+                      title: !collapsible,
+                      '_changed': changed,
+                      '_loading': loading,
+                      '_error': error">
+            <span translate="label"></span>
+            <span class="admin__page-nav-item-messages" if="collapsible">
+                <span class="admin__page-nav-item-message _changed">
+                    <span class="admin__page-nav-item-message-icon"></span>
+                    <span class="admin__page-nav-item-message-tooltip"
+                          data-bind="i18n: 'Changes have been made to this section that have not been saved.'">
+                    </span>
+                </span>
+                <span class="admin__page-nav-item-message _error">
+                    <span class="admin__page-nav-item-message-icon"></span>
+                    <span class="admin__page-nav-item-message-tooltip"
+                          data-bind="i18n: 'This tab contains invalid data. Please resolve this before saving.'">
+                    </span>
+                </span>
+                <span class="admin__page-nav-item-message-loader">
+                    <span class="spinner">
+                       <span repeat="8"></span>
+                    </span>
+               </span>
+            </span>
+        </strong>
+        <!-- BEGIN EDIT -->
+        <div class="customer-tax-exemption-actions">
+            <div class="customer-tax-exemption-action"
+                 data-bind='scope: "avatax-invite-account", mageInit: {"Magento_Ui/js/core/app": {"components": {"avatax-invite-account": {"component": "ClassyLlama_AvaTax/js/action/avatax-invite-account", "config": {hasDefaultBillingAddress: has_default_billing_address, inviteUrl: invite_url}}}}}'>
+                <button data-bind="click: inviteCustomer, i18n: 'Invite Customer to Add Certificate'"></button>
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </div>
+            <div class="customer-tax-exemption-action"
+                 data-bind='scope: "account-add-exemptions", mageInit: {"Magento_Ui/js/core/app": {"components": {"account-add-exemptions": {"component": "ClassyLlama_AvaTax/js/action/account-add-exemption", "config": {"availableExemptionZones": available_exemption_zones, customerId: customer_id, tokenUrl: token_url, certificatesAutoValidationDisabled: certificates_auto_validation_disabled}}}}}'>
+                <button data-bind="click: addExemption, i18n: 'Add Exemption'"></button>
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </div>
+            <div class="customer-tax-exemption-action"
+                 data-bind='scope: "avalara-customer-information-update", mageInit: {"Magento_Ui/js/core/app": {"components": {"avalara-customer-information-update": {"component": "ClassyLlama_AvaTax/js/action/avalara-customer-information-update", "config": {customerUpdateUrl: customer_avalara_update_url}}}}}'>
+                <button data-bind="click: updateCustomerInformationAvalara, i18n: 'Update Customer Information at Avalara'"></button>
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            </div>
+        </div>
+        <!-- END EDIT -->
+    </div>
+
+    <div class="admin__fieldset-wrapper-content"
+         css="'admin__collapsible-content': collapsible, '_show': opened, '_hide': !opened()">
+        <fieldset
+                if="opened() || _wasOpened || initializeFieldsetDataByDefault"
+                class="admin__fieldset"
+                each="data: elems, as: 'element'" render=""/>
+    </div>
+</div>

@@ -1,0 +1,103 @@
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+@import '_address-validation.less';
+
+
+.certificates-fieldset-wrapper {
+    .fieldset-wrapper-title {
+        &:before, &:after {
+            display: none;
+        }
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .customer-tax-exemption-actions {
+        display: flex;
+
+        .customer-tax-exemption-action {
+            margin-left: 20px;
+        }
+    }
+}
+
+.avatax-invite-account-modal {
+    .modal-header {
+        min-height: 65px;
+
+        .action-close:focus {
+            padding: 2.1rem 2.6rem;
+        }
+    }
+
+    .modal-content .action {
+        margin-top: 30px;
+    }
+}
+
+.admin__avatax-log-summary {
+    span {
+        float: left;
+    }
+    .avatax-summary-list {
+        float: left;
+    }
+    .avatax-log-summary-level {
+        float: left;
+        margin: 0 0 0 2em;
+        padding: 0;
+    }
+    .avatax-log-summary-level-label {
+        margin: 0;
+        padding-right: 0.5em;
+        text-align: right;
+        border-right-color: @color-black;
+        border-right-style: solid;
+        border-right-width: thin;
+    }
+    .avatax-log-summary-count {
+        padding-left: 0.5em;
+        margin: 0;
+    }
+}
+
+pre.admin__avatax-log-text {
+    white-space: pre-wrap;
+}
+
+// Fix some styling of the tooltip on admin when inside the totals table
+.order-subtotal-table {
+    .admin__field-tooltip {
+        display: inline;
+        text-align: left;
+        vertical-align: 2px;
+
+        .admin__field-tooltip-action {
+            margin-left: 0.5rem;
+            color: @color-gray19;
+        }
+    }
+}
+
+.avataxValidateAddressButton, .avataxValidateAddressForm {
+    margin-left: 31em;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.avataxValidateAddressForm {
+    max-width: 40%;
+}

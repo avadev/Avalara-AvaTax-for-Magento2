@@ -1,0 +1,6 @@
+<div class="account-add-certifications-component" data-bind="scope: 'account-add-exemptions'"
+     data-mage-init='{"Magento_Ui/js/core/app": {"components": {"account-add-exemptions": {"component":
+     "ClassyLlama_AvaTax/js/action/account-add-exemption", "config": {"availableExemptionZones": <?= $block->getViewModel()->getCertificateExposureZonesJsConfig() ?>, "certificatesAutoValidationDisabled": <?php echo $block->getViewModel()->isCertificatesAutoValidationDisabled()?>}}}}}'>
+    <button class="action primary" data-bind="click: addExemption, i18n: 'Add Exemption'"></button>
+    <!-- ko template: getTemplate() --><!-- /ko -->
+</div>

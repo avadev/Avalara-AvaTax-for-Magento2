@@ -1,0 +1,29 @@
+<?php
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+/** @var \ClassyLlama\AvaTax\Block\Adminhtml\Log\Summary $block */
+$summaryData = $block->getSummaryData();
+?>
+<div class="admin__avatax-log-summary">
+    <span class="avatax-log-summary-title">Summary</span>
+    <div class="avatax-summary-list">
+    <?php foreach ($summaryData as $level): ?>
+        <div class="avatax-log-summary-level">
+            <span class="avatax-log-summary-level-label"><?php echo $level['level']; ?></span>
+            <span class="avatax-log-summary-count"><?php echo $level['count']; ?></span>
+        </div>
+    <?php endforeach; ?>
+    </div>
+</div>

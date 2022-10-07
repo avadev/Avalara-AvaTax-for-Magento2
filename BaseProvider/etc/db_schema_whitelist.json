@@ -1,0 +1,46 @@
+{
+    "baseprovider_queue_job": {
+        "column": {
+            "job_id": true,
+            "client": true,
+            "payload": true,
+            "response": true,
+            "status": true,
+            "attempt": true,
+            "creation_time": true,
+            "update_time": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {
+            "AVATAX_QUEUE_JOB_CLIENT": true,
+            "AVATAX_QUEUE_JOB_STATUS": true,
+            "AVATAX_QUEUE_JOB_ATTEMPT": true,
+            "AVATAX_QUEUE_JOB_CLIENT_STATUS": true,
+            "AVATAX_QUEUE_JOB_CLIENT_ATTEMPT": true,
+            "AVATAX_QUEUE_JOB_STATUS_ATTEMPT": true,
+            "AVATAX_QUEUE_JOB_CLIENT_STATUS_ATTEMPT": true
+        }
+    },
+    "baseprovider_logs": {
+        "column": {
+            "log_id": true,
+            "created_at": true,
+            "store_id": true,
+            "level": true,
+            "message": true,
+            "source": true,
+            "request": true,
+            "result": true,
+            "additional": true
+        },
+        "index": {
+            "AVATAX_LOGS_CREATED_AT": true,
+            "AVATAX_LOGS_LEVEL_CREATED_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

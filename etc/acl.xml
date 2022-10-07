@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="ClassyLlama_AvaTax::manage_avatax" title="AvaTax" sortOrder="25">
+                        <resource id="ClassyLlama_AvaTax::manage_crossborder_classes" title="AvaTax Cross Border Classes" sortOrder="10"/>
+                    </resource>
+                </resource>
+                <resource id="Magento_Customer::customer">
+                    <resource id="ClassyLlama_AvaTax::customer_certificates" sortOrder="50" title="AvaTax Certificates" translate="title"/>
+                    <resource id="ClassyLlama_AvaTax::avalara_update_customer_information" sortOrder="60" title="Update Customer Information at Avalara" translate="title"/>
+                </resource>
+                <resource id="ClassyLlama_AvaTax::CrossBorderType" sortOrder="10" title="CrossBorderType">
+                    <resource id="ClassyLlama_AvaTax::CrossBorderType_save" sortOrder="10" title="Save CrossBorderType"/>
+                    <resource id="ClassyLlama_AvaTax::CrossBorderType_delete" sortOrder="20" title="Delete CrossBorderType"/>
+                    <resource id="ClassyLlama_AvaTax::CrossBorderType_update" sortOrder="30" title="Update CrossBorderType"/>
+                    <resource id="ClassyLlama_AvaTax::CrossBorderType_view" sortOrder="40" title="View CrossBorderType"/>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

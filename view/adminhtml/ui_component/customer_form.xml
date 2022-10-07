@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <fieldset name="address">
+        <!--
+            This is a container instead of a field because of the way magento validates fields in the Magento_Ui module.
+            You can see the details on this issue on github: https://github.com/magento/magento2/issues/1724
+        -->
+        <container name="validateButton" class="ClassyLlama\AvaTax\Ui\Component\Form\Element\ValidateAddress">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/form/element/button</item>
+                    <!-- Display beneath any custom attributes added by Magento_CustomerCustomAttributes (EE only) -->
+                    <item name="sortOrder" xsi:type="string">10000</item>
+                </item>
+            </argument>
+        </container>
+        <container name="baseValidateAddress" class="ClassyLlama\AvaTax\Ui\Component\Form\Element\ValidateAddress">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/form/element/validationForm</item>
+                    <!-- Display beneath any custom attributes added by Magento_CustomerCustomAttributes (EE only) -->
+                    <item name="sortOrder" xsi:type="string">10001</item>
+                </item>
+            </argument>
+        </container>
+    </fieldset>
+    <fieldset name="customer_tax_certificates" class="ClassyLlama\AvaTax\Ui\Component\TaxCertificates">
+        <settings>
+            <label translate="true">Tax Certificates</label>
+        </settings>
+        <container name="customer_tax_certificates_grid">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">ClassyLlama_AvaTax/js/view/certificates-grid</item>
+                    <item name="imports" xsi:type="array">
+                        <item name="certificates" xsi:type="string">${ $.provider }:data.certificates</item>
+                    </item>
+                </item>
+            </argument>
+        </container>
+    </fieldset>
+</form>

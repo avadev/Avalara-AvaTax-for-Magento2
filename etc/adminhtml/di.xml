@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\Notification\MessageList">
+        <arguments>
+            <argument name="messages" xsi:type="array">
+                <item name="avatax_queue" xsi:type="string">ClassyLlama\AvaTax\Model\Message\QueueNotification</item>
+                <item name="avatax_queue_failure" xsi:type="string">ClassyLlama\AvaTax\Model\Message\QueueFailureNotification</item>
+                <item name="avatax_queue_disabled" xsi:type="string">ClassyLlama\AvaTax\Model\Message\QueueDisabledNotification</item>
+                <item name="avatax_config" xsi:type="string">ClassyLlama\AvaTax\Model\Message\ConfigNotification</item>
+            </argument>
+        </arguments>
+    </type>
+    <preference for="Magento\Tax\Block\Adminhtml\Rule\Edit\Form" type="ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit\Form"/>
+
+    <virtualType name="developmentCompanyCodeFrontendModel" type="ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CompanyCode">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="account_number_id" xsi:type="string">tax_avatax_general_development_account_number</item>
+                <item name="license_key_id" xsi:type="string">tax_avatax_general_development_license_key</item>
+                <item name="company_code_id" xsi:type="string">tax_avatax_general_development_company_code</item>
+                <item name="company_code_group" xsi:type="string">avatax</item>
+                <item name="company_code_field" xsi:type="string">development_company_code</item>
+                <item name="company_id_id" xsi:type="string">tax_avatax_general_development_company_id</item>
+                <item name="avatax_mode" xsi:type="const">\ClassyLlama\AvaTax\Model\Config\Source\Mode::DEVELOPMENT</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="productionCompanyCodeFrontendModel" type="ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CompanyCode">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="account_number_id" xsi:type="string">tax_avatax_general_production_account_number</item>
+                <item name="license_key_id" xsi:type="string">tax_avatax_general_production_license_key</item>
+                <item name="company_code_id" xsi:type="string">tax_avatax_general_production_company_code</item>
+                <item name="company_code_group" xsi:type="string">avatax</item>
+                <item name="company_code_field" xsi:type="string">production_company_code</item>
+                <item name="company_id_id" xsi:type="string">tax_avatax_general_production_company_id</item>
+                <item name="avatax_mode" xsi:type="const">\ClassyLlama\AvaTax\Model\Config\Source\Mode::PRODUCTION</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Config\Model\Config">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxConfig" type="ClassyLlama\AvaTax\Plugin\Model\ConfigPlugin"/>
+    </type>
+
+    <virtualType name="uspsCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">usps</item>
+                <item name="carrier_label" xsi:type="string">USPS</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\USPS</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="upsCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">ups</item>
+                <item name="carrier_label" xsi:type="string">UPS</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\UPS</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="fedexCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">fedex</item>
+                <item name="carrier_label" xsi:type="string">Fedex</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\Fedex</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="dhlCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">dhl</item>
+                <item name="carrier_label" xsi:type="string">DHL</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\DHL</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="flatRateCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">flatrate</item>
+                <item name="carrier_label" xsi:type="string">FlatRate</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\FlatRate</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="freeShippingCarrierProvider" type="ClassyLlama\AvaTax\Model\Config\Source\CarrierShippingMethodsProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="carrier_code" xsi:type="string">freeshipping</item>
+                <item name="carrier_label" xsi:type="string">Free Shipping</item>
+            </argument>
+            <argument name="carrierShippingMethods" xsi:type="object">ClassyLlama\AvaTax\Model\Config\Source\CarrierMethodProviders\FreeShipping</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="ClassyLlama\AvaTax\Model\Config\Source\AvailableShippingMethods">
+        <arguments>
+            <argument name="carrierMethodsProviders" xsi:type="array">
+                <item name="uspsCarrierProvider" xsi:type="object">uspsCarrierProvider</item>
+                <item name="upsCarrierProvider" xsi:type="object">upsCarrierProvider</item>
+                <item name="fedexCarrierProvider" xsi:type="object">fedexCarrierProvider</item>
+                <item name="dhlCarrierProvider" xsi:type="object">dhlCarrierProvider</item>
+                <item name="flatRateCarrierProvider" xsi:type="object">flatRateCarrierProvider</item>
+                <item name="freeShippingCarrierProvider" xsi:type="object">freeShippingCarrierProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="avatax" xsi:type="array">
+                    <item name="class" xsi:type="string">\ClassyLlama\AvaTax\Ui\DataProvider\Product\Form\Modifier\AvaTax</item>
+                    <item name="sortOrder" xsi:type="number">160</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Customer\Model\Customer\DataProvider">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxDataProvider" type="ClassyLlama\AvaTax\Plugin\Model\Customer\DataProviderPlugin" disabled="true"/>
+    </type>
+    <type name="Magento\Framework\View\Layout\Generic">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxGeneric" type="ClassyLlama\AvaTax\Plugin\View\Layout\GenericPlugin"/>
+    </type>
+    <type name="Magento\Ui\Component\Form">
+        <plugin sortOrder="1" name="classyLlamaAvaTaxForm" type="ClassyLlama\AvaTax\Plugin\Component\FormPlugin"/>
+    </type>
+
+    <preference for="Magento\Ui\Component\Layout\Tabs" type="ClassyLlama\AvaTax\Component\Layout\Tabs"/>
+
+    <type name="Magento\Sales\Model\AdminOrder\Create">
+        <plugin name="avatax_sales_model_admin_order_create" type="ClassyLlama\AvaTax\Plugin\Sales\Model\AdminOrder\Create" />
+    </type>
+
+    <type name="Magento\Sales\Block\Adminhtml\Order\Create\Form\Account">
+        <plugin name="classyllama_avatax_sales_order_create_form_account_admin_block" type="ClassyLlama\AvaTax\Plugin\Sales\Admin\Order\Create\Form\Account" />
+    </type>
+</config>

@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <tax>
+            <avatax>
+                <enabled>0</enabled>
+                <tax_included>-1</tax_included>
+                <tax_mode>3</tax_mode>
+                <commit_submitted_transactions>1</commit_submitted_transactions>
+                <tax_calculation_countries_enabled>CA,US</tax_calculation_countries_enabled>
+                <use_business_identification_number>1</use_business_identification_number>
+                <shipping_tax_code>FR020100</shipping_tax_code>
+                <sku_shipping>Shipping</sku_shipping>
+                <sku_gift_wrap_order>GwOrder</sku_gift_wrap_order>
+                <sku_gift_wrap_item>GwItems</sku_gift_wrap_item>
+                <sku_gift_wrap_card>GwPrintedCard</sku_gift_wrap_card>
+                <sku_adjustment_positive>Adjustment</sku_adjustment_positive>
+                <sku_adjustment_negative>Adjustment</sku_adjustment_negative>
+                <error_action>2</error_action>
+                <error_action_disable_checkout_message_frontend>Unfortunately, we could not calculate tax for your order. Please try again with a different address or contact us to complete your order.</error_action_disable_checkout_message_frontend>
+                <error_action_disable_checkout_message_backend><![CDATA[There was an error getting tax rates from Avalara and since the "Error Action" is configured to "Disable checkout & show error message", we have blocked the checkout. Change <a href="%1">this setting here</a>. Please see the <a href="%2">error log</a> for details.]]></error_action_disable_checkout_message_backend>
+                <address_validation_enabled>1</address_validation_enabled>
+                <address_validation_user_has_choice>1</address_validation_user_has_choice>
+                <address_validation_instructions_with_choice><![CDATA[To ensure accurate delivery, we suggest the changes highlighted below. Please choose which address you would like to use. If neither option is correct, <a href="#" class="edit-address">edit your address</a>.]]></address_validation_instructions_with_choice>
+                <address_validation_instructions_without_choice><![CDATA[To ensure accurate delivery, we've made the changes highlighted below. If this address is not correct, <a href="#" class="edit-address">edit your address</a>.]]></address_validation_instructions_without_choice>
+                <address_validation_error_instructions><![CDATA[We were unable to validate your address. <p class="error-message"></p> If the address below is correct then you don’t need to do anything. To change your address, <a href="#" class="edit-address">click here</a>.]]></address_validation_error_instructions>
+                <address_validation_countries_enabled>CA,US</address_validation_countries_enabled>
+                <logging_db_level>300</logging_db_level>
+                <logging_db_lifetime>180</logging_db_lifetime>
+                <logging_db_detail>1</logging_db_detail>
+                <logging_file_enabled>1</logging_file_enabled>
+                <logging_file_mode>2</logging_file_mode>
+                <logging_file_builtin_rotation_enabled>0</logging_file_builtin_rotation_enabled>
+                <logging_file_builtin_rotation_max_files>60</logging_file_builtin_rotation_max_files>
+                <logging_file_level>300</logging_file_level>
+                <logging_file_detail>2</logging_file_detail>
+                <queue_processing_type>normal</queue_processing_type>
+                <queue_max_retry_attempts>15</queue_max_retry_attempts>
+                <queue_submission_enabled>1</queue_submission_enabled>
+                <queue_complete_lifetime>60</queue_complete_lifetime>
+                <queue_failed_lifetime>180</queue_failed_lifetime>
+                <queue_admin_notification_enabled>1</queue_admin_notification_enabled>
+                <queue_failure_notification_enabled>1</queue_failure_notification_enabled>
+                <customer_code_format>id</customer_code_format>
+                <production_account_number backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <production_license_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <development_account_number backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <development_license_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <calculate_tax_before_discounts>0</calculate_tax_before_discounts>
+            </avatax>
+            <avatax_customs>
+                <enabled>0</enabled>
+                <default_shipping_mode>ground</default_shipping_mode>
+            </avatax_customs>
+            <avatax_document_management>
+                <enabled>0</enabled>
+                <checkout_link_text_new_cert_no_certs_exist>Is this purchase tax-exempt?</checkout_link_text_new_cert_no_certs_exist>
+                <checkout_link_text_new_cert_certs_exist>Add a new certificate</checkout_link_text_new_cert_certs_exist>
+                <checkout_link_text_manage_existing_certs>Manage existing certificates</checkout_link_text_manage_existing_certs>
+            </avatax_document_management>
+            <avatax_advanced>
+                <response_logging_enabled>1</response_logging_enabled>
+                <avatax_timeout>15</avatax_timeout>
+                <avatax_adjustment_taxes>0</avatax_adjustment_taxes>
+                <avatax_table_exemptions>negotiable_quote_item,company_order_entity</avatax_table_exemptions>
+                <result_cache_ttl>15</result_cache_ttl>
+                <attribute_codes>
+                    <paymentdetails>valid_address,original_address,error_message</paymentdetails>
+                    <shippinginformation>should_validate_address</shippinginformation>
+                    <quotedetailsitem>total_quantity,avatax_item_code,avatax_tax_code,avatax_description,avatax_ref1,avatax_ref2,hs_code,unit_name,unit_amount,pref_program_indicator</quotedetailsitem>
+                    <cart>avatax_response</cart>
+                    <order>avatax_response</order>
+                    <invoice>avatax_is_unbalanced,base_avatax_tax_amount,avatax_response</invoice>
+                    <creditmemo>avatax_is_unbalanced,base_avatax_tax_amount,avatax_response</creditmemo>
+                    <appliedtaxrate>rate_percent,tax_name,juris_code,taxable,tax</appliedtaxrate>
+                    <cartitem>hs_code,unit_name,unit_amount,pref_program_indicator</cartitem>
+                    <orderitem>hs_code,unit_name,unit_amount,pref_program_indicator</orderitem>
+                    <invoiceitem>hs_code,unit_name,unit_amount,pref_program_indicator</invoiceitem>
+                    <creditmemoitem>hs_code,unit_name,unit_amount,pref_program_indicator</creditmemoitem>
+                    <totals>avatax_messages</totals>
+                </attribute_codes>
+            </avatax_advanced>
+            <avatax_certificate_capture>
+                <disable_certcapture_auto_validation>0</disable_certcapture_auto_validation>
+            </avatax_certificate_capture>
+        </tax>
+    </default>
+</config>

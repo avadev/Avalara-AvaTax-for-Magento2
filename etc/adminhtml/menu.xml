@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="ClassyLlama_AvaTax::avatax_tax" title="AvaTax" translate="title" module="ClassyLlama_AvaTax" sortOrder="15" parent="Magento_Backend::stores" resource="Magento_Backend::stores_other_settings"/>
+        <add id="ClassyLlama_AvaTax::avatax_tax_classes_customer" title="Customer Tax Classes" module="ClassyLlama_AvaTax" sortOrder="28" parent="ClassyLlama_AvaTax::avatax_tax" action="avatax/tax_classes_customer" resource="ClassyLlama_AvaTax::manage_avatax"/>
+        <add id="ClassyLlama_AvaTax::avatax_tax_classes_product" title="Product Tax Classes" module="ClassyLlama_AvaTax" sortOrder="29" parent="ClassyLlama_AvaTax::avatax_tax" action="avatax/tax_classes_product" resource="ClassyLlama_AvaTax::manage_avatax"/>
+        <add action="avatax/crossbordertype/index" id="ClassyLlama_AvaTax::classyllama_avatax_crossbordertype" module="ClassyLlama_AvaTax" parent="ClassyLlama_AvaTax::avatax_tax" resource="Magento_Backend::content" sortOrder="30" title="Cross Border Types"/>
+        <add id="ClassyLlama_AvaTax::avatax_cross_border_classes" title="Cross Border Classes" module="ClassyLlama_AvaTax" sortOrder="31" parent="ClassyLlama_AvaTax::avatax_tax" action="avatax/crossborder_classes" resource="ClassyLlama_AvaTax::manage_crossborder_classes" />
+        <add id="ClassyLlama_AvaTax::avatax_log" title="Logs" module="ClassyLlama_AvaTax" sortOrder="32" parent="ClassyLlama_AvaTax::avatax_tax" action="avatax/log" resource="ClassyLlama_AvaTax::manage_avatax"/>
+        <add id="ClassyLlama_AvaTax::avatax_queue" title="Queue" module="ClassyLlama_AvaTax" sortOrder="33" parent="ClassyLlama_AvaTax::avatax_tax" action="avatax/queue" resource="ClassyLlama_AvaTax::manage_avatax"/>
+    </menu>
+</config>

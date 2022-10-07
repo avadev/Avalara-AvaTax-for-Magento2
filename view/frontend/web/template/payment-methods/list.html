@@ -1,0 +1,42 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+ -->
+<div if="isPaymentMethodsAvailable()"
+     class="items payment-methods">
+    <div repeat="foreach: paymentGroupsList, item: '$group'"
+         class="payment-group">
+        <div if="getRegion($group().displayArea)().length"
+             translate="getGroupTitle($group)"
+             class="step-title"
+             data-role="title">
+        </div>
+        <each args="data: getRegion($group().displayArea), as: 'method'" render=""></each>
+    </div>
+    <!-- // BEGIN EDIT - Show certificates management link -->
+    <!-- ko if: hasUploadedCertificate -->
+    <tr class="totals-tax certificate-links">
+        <td class="mark" colspan="2">
+            <div class="message message-success success">
+                <div data-bind="i18n: 'Your tax document has been applied to this cart and taxes have been recalculated.'"></div>
+            </div>
+            <div class="apply_certificate">
+                <a href="javascript:void(0)" data-bind="click: refreshCache, i18n: 'Apply Certificate'" class="action primary checkout"></a>
+            </div>
+        </td>
+    </tr>
+    <!-- /ko -->
+    <div class="totals-tax certificate-links certificates" data-bind="if: ifShowCertificateLink()">
+        <a href="javascript:void(0)" data-bind="click: showNewCertificateModal, text: newCertText"></a>
+        <!-- ko if: ifShowManageCertificateLink() -->
+        <a data-bind="attr: {href: certificatesLink}, i18n: manageCertsText"></a>
+        <!-- /ko -->
+    </div>
+    <!-- // END EDIT -->
+</div>
+<div ifnot="isPaymentMethodsAvailable()"
+     class="no-payments-block"
+     translate="'No Payment Methods'">
+</div>

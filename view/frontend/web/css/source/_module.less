@@ -1,0 +1,83 @@
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+@import '_address-validation.less';
+
+& when (@media-common = true) {
+    .items.payment-methods .certificates {
+        text-align: center;
+        padding-bottom: 10px;
+    }
+
+    .totals-tax.certificate-links {
+        display: flex;
+        flex-direction: column;
+
+        a {
+            display: inline-block;
+        }
+    }
+
+    .cart-totals tbody .totals-tax-details:not(.custom-tax) th,
+    .table-totals tbody .totals-tax-details:not(.custom-tax) th.mark {
+        padding-left: 10px;
+    }
+
+    .customs-explanation {
+        clear: both;
+        padding-top: 20px;
+    }
+
+    .avatax-certificate-dialog {
+        background-image: url('@{baseDir}ClassyLlama_AvaTax/images/loader.gif');
+        background-repeat: no-repeat;
+        background-position: center top;
+        min-height: 200px;
+
+        #gencert_loading {
+            // We need to hide the built in loader otherwise we get a weird overlap effect
+            display: none !important;
+        }
+    }
+
+    .account.avatax-certificates-index {
+        .page-title-wrapper {
+            display: flex;
+            margin-bottom: 25px;
+            align-items: center;
+            justify-content: space-between;
+
+            &:before, &:after {
+                display: none;
+            }
+
+            .page-title {
+                margin: 0;
+            }
+        }
+    }
+}
+
+.totals-tax-summary.totals-tax-holder {
+    transform: translateY(100%);
+}
+
+.totals-tax-details.custom-tax {
+    transform: translateY(-100%);
+}
+
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+    .items.payment-methods .certificates {
+        text-align: right;
+    }
+}
