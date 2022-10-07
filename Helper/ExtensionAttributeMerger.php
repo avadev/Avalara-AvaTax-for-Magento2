@@ -102,9 +102,11 @@ class ExtensionAttributeMerger
 
         try {
             $reflection = new ReflectionMethod($extensionAttributes, $method);
+            // @codeCoverageIgnoreStart
             $parameter = current($reflection->getParameters());
 
             $result = $parameter->allowsNull();
+            // @codeCoverageIgnoreEnd
         } catch (ReflectionException $e) {
             $result = false;
         }
@@ -128,8 +130,9 @@ class ExtensionAttributeMerger
         if (!isset($config[$extensibleInterfaceName])) {
             return [];
         }
-
+        // @codeCoverageIgnoreStart
         return $config[$extensibleInterfaceName];
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -149,12 +152,12 @@ class ExtensionAttributeMerger
     /**
      * @param \Magento\Framework\Model\AbstractExtensibleModel $from
      * @param \Magento\Framework\Model\AbstractExtensibleModel $to
-     * @param array                                            $whitelist
+     * @param array                                            $allowedlist
      */
     public function copyAttributes(
         \Magento\Framework\Model\AbstractExtensibleModel $from,
         \Magento\Framework\Model\AbstractExtensibleModel $to,
-        $whitelist = []
+        $allowedlist = []
     )
     {
         $fromExtensionAttributes = $from->getData(ExtensibleDataInterface::EXTENSION_ATTRIBUTES_KEY);
@@ -162,17 +165,20 @@ class ExtensionAttributeMerger
 
         // If there are no extension attributes, just skip this
         if ($fromExtensionAttributes === null) {
+            // @codeCoverageIgnoreStart
             return;
+            // @codeCoverageIgnoreEnd
         }
 
         if ($toExtensionAttributes === null) {
             $toExtensionAttributes = $this->extensionAttributesFactory->create(get_class($to));
         }
 
-        $hasWhitelist = \count($whitelist) > 0;
+        $hasAllowedList = \count($allowedlist) > 0;
 
         foreach ($this->getIntersectingExtensionAttributes(get_class($from), get_class($to)) as $extensionAttribute) {
-            if ($hasWhitelist && !\in_array($extensionAttribute, $whitelist)) {
+            // @codeCoverageIgnoreStart
+            if ($hasAllowedList && !\in_array($extensionAttribute, $allowedlist)) {
                 continue;
             }
 
@@ -181,6 +187,7 @@ class ExtensionAttributeMerger
                 $extensionAttribute,
                 $this->getExtensionAttribute($fromExtensionAttributes, $extensionAttribute)
             );
+            // @codeCoverageIgnoreEnd
         }
 
         $to->setData(ExtensibleDataInterface::EXTENSION_ATTRIBUTES_KEY, $toExtensionAttributes);

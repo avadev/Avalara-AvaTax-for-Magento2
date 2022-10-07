@@ -21,6 +21,9 @@ use Magento\Backend\Block\Widget\Context;
 /**
  * Class SaveAndContinueButton
  */
+/**
+ * @codeCoverageIgnore
+ */
 class DeleteButton implements ButtonProviderInterface
 {
     /**

@@ -15,6 +15,9 @@
  */
 namespace ClassyLlama\AvaTax\Block\Adminhtml\System\Config;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TaxIncluded extends \Magento\Config\Block\System\Config\Form\Field
 {
     /**

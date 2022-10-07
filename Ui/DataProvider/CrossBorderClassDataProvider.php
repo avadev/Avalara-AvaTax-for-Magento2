@@ -21,6 +21,9 @@ use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CollectionFactory as
 use Magento\Framework\App\Request\DataPersistorInterface;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CrossBorderClassDataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
 {
     /**

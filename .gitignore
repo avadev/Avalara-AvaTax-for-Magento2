@@ -1,4 +1,5 @@
-/Tests/Integration/credentials.php
+/Test/Mftf
+/Test/Integration/credentials.php
 .DS_Store
 /vendor
 /.idea

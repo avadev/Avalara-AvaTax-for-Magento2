@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Base;
 /**
  * Class Edit
  */
+/**
+ * @codeCoverageIgnore
+ */
 abstract class Edit extends NewClass
 {
     /**

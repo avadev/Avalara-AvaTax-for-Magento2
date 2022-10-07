@@ -21,6 +21,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Delete extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesAbstract
 {
     /**

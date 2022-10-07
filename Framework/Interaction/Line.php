@@ -87,7 +87,7 @@ class Line
      * A list of valid fields for the data array and meta data about their types to use in validation
      * based on the API documentation.
      * Validation based on API documentation found here:
-     * http://developer.avalara.com/wp-content/apireference/master/?php#line30
+     * http://developer.avalara.com
      *
      * @var array
      */

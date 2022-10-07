@@ -39,6 +39,9 @@ use Psr\Log\LoggerInterface;
  * Class TaxCertificates
  * @package ClassyLlama\AvaTax\Ui\Component
  */
+/**
+ * @codeCoverageIgnore
+ */
 class TaxCertificates extends AbstractComponent implements TabInterface
 {
     /**

@@ -22,6 +22,7 @@ use Magento\Checkout\Block\Total\DefaultTotal;
  * Class Tax
  *
  * @package ClassyLlama\AvaTax\Block\Checkout
+ * @codeCoverageIgnore
  */
 class Tax extends DefaultTotal
 {

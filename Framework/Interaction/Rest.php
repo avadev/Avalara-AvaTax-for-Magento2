@@ -114,6 +114,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      * @param DataObject|null                                  $request
      *
      * @throws AvataxConnectionException
+     * @codeCoverageIgnore
      */
     protected function handleException($exception, $request = null, $logLevel = LOG_ERR)
     {
@@ -158,7 +159,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
                         'AvaTax connection error: %1',
                         trim(
                             array_reduce(
-                                $response['error']['details'],
+                                (array)$response['error']['details'],
                                 function ($error, $detail) {
                                     if (isset($detail['severity']) && $detail['severity'] !== 'Exception' && $detail['severity'] !== 'Error') {
                                         return $error;
@@ -210,6 +211,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      * @param mixed $value
      *
      * @return mixed
+     * @codeCoverageIgnore
      */
     protected function formatResult($value)
     {

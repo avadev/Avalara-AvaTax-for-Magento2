@@ -4,6 +4,9 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\Form\Field;
 
 use Magento\Framework\View\Element\Context;
 
+/**
+ * @codeCoverageIgnore
+ */
 class ShippingModes extends \Magento\Framework\View\Element\Html\Select
 {
     /**

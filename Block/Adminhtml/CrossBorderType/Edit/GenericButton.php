@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderType\Edit;
 
 use Magento\Backend\Block\Widget\Context;
 
+/**
+ * @codeCoverageIgnore
+ */
 abstract class GenericButton
 {
     /**

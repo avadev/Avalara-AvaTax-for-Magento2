@@ -11,6 +11,9 @@ use ClassyLlama\AvaTax\Api\CustomerUpdateInterface;
  * Class Update
  * @package ClassyLlama\AvaTax\Controller\Adminhtml\Customer
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Update extends Action
 {
     /**

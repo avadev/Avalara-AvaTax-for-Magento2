@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Base\NewClass;
 /**
  * Create form
  */
+/**
+ * @codeCoverageIgnore
+ */
 abstract class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
     /**

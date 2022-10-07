@@ -9,6 +9,9 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Backend\Model\UrlInterface as BackendUrl;
 use ClassyLlama\AvaTax\Helper\Config as ConfigHelper;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Region extends \Magento\Framework\View\Element\Template
 {
     /**

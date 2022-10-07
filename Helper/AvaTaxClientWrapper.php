@@ -70,8 +70,13 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
         $this->dataObjectFactory = $dataObjectFactory;
     }
 
+    // Code to set Base client
+    public function setAvaClient($client){
+        $this->client = $client;
+    }
     /**
      * {@inheritDoc}
+     * @codeCoverageIgnore
      */
     protected function executeRequest($verb, $apiUrl, $guzzleParams)
     {
@@ -102,6 +107,7 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
 
     /**
      * {@inheritDoc}
+     * @codeCoverageIgnore
      */
     protected function restCall($apiUrl, $verb, $guzzleParams, $apiversion = '', $headerParams = null)
     {
@@ -195,8 +201,8 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
                 );
                 return null;
             } catch (\Throwable $exception) {
-                if (false === (bool)$this->catchExceptions) {
-                    throw $exception;
+                if (false === (bool)$this->catchExceptions) { 
+                    throw $exception; // @codeCoverageIgnore
                 }
                 $this->logRequests(
                     $exception->getMessage(),

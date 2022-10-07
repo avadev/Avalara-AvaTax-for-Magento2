@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\Form\Field;
 
 use Magento\Config\Block\System\Config\Form\Field;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CompanyCode extends Field
 {
     /**

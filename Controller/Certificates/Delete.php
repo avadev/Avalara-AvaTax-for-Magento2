@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Controller\Certificates;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Delete extends \Magento\Framework\App\Action\Action
 {
     /**

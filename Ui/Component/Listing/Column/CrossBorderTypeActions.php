@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Ui\Component\Listing\Column;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CrossBorderTypeActions extends \Magento\Ui\Component\Listing\Columns\Column
 {
     const URL_PATH_DELETE = 'avatax/crossbordertype/delete';

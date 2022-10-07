@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\Tax\Classes\Base;
 /**
  * Class Delete
  */
+/**
+ * @codeCoverageIgnore
+ */
 abstract class Delete extends \Magento\Tax\Controller\Adminhtml\Tax
 {
     /**

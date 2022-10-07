@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\Classes;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\ForwardFactory;
 
+/**
+ * @codeCoverageIgnore
+ */
 class NewAction extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesAbstract
 {
     /**

@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\Classes;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Index extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesAbstract
 {
 

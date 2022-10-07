@@ -70,7 +70,7 @@ class Address
 
     /**
      * Validation based on API documentation found here:
-     * http://developer.avalara.com/wp-content/apireference/master/?php#validate-request58
+     * https://developer.avalara.com/
      *
      * @var array
      */

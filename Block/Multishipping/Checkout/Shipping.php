@@ -69,7 +69,7 @@ class Shipping extends \Magento\Multishipping\Block\Checkout\Shipping
      * @throws AvataxConnectionException
      * @throws LocalizedException
      */
-    public function validateAddress($address): array
+    public function validateAddress($address)
     {
         return $this->addressValidation->validateAddress($address);
     }

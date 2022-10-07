@@ -26,6 +26,9 @@ use Magento\Framework\Exception\LocalizedException;
 /**
  * View log
  */
+/**
+ * @codeCoverageIgnore
+ */
 class View extends Log
 {
     /**

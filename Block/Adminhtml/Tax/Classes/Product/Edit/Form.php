@@ -20,6 +20,9 @@ use ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Product\NewClass;
 /**
  * Create form
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Form extends NewClass\Form
 {
     use \ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Base\Edit\Form;

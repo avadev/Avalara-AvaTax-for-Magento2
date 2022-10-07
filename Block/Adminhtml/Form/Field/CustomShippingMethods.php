@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Block\Adminhtml\Form\Field;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CustomShippingMethods extends \Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray
 {
     /**

@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 use ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterfaceFactory;
 
+/**
+ * @codeCoverageIgnore
+ */
 class InlineEdit extends \Magento\Backend\App\Action
 {
     /**

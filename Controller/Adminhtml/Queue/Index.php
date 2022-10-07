@@ -19,6 +19,9 @@ use ClassyLlama\AvaTax\Controller\Adminhtml\Queue;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\Controller\ResultFactory;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Index extends Queue
 {
     /**

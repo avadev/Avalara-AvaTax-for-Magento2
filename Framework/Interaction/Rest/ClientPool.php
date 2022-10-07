@@ -101,7 +101,7 @@ class ClientPool
                     'environment' => $isProduction ? self::API_MODE_PROD : self::API_MODE_DEV,
                 ]
             );
-
+			
             $accountNumber = $this->config->getAccountNumber($scopeId, $scopeType, $isProduction);
             $licenseKey = $this->config->getLicenseKey($scopeId, $scopeType, $isProduction);
 

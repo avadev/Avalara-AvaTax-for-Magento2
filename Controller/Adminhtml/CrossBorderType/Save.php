@@ -19,6 +19,9 @@ use ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterfaceFactory;
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Save extends \Magento\Backend\App\Action
 {
     /**

@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 use ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
 {
     /**
