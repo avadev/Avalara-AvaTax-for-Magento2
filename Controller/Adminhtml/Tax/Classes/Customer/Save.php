@@ -20,6 +20,9 @@ use ClassyLlama\AvaTax\Controller\Adminhtml\Tax\Classes\Base;
 /**
  * Class Save
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Save extends Base\Save
 {
     /**

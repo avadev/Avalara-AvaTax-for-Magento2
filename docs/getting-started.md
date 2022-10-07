@@ -57,7 +57,7 @@ This is the recommended installation method as it allows you to easily update th
 1. Require the desired version of AvaTax. Latest version can be installed by running following command:
 
    ```
-   composer require avalara/avatax-magento:2.3.1
+   composer require avalara/avatax-magento:2.4.0
    ```
 
 2. Setup the AvaTax module in magento
@@ -68,6 +68,9 @@ This is the recommended installation method as it allows you to easily update th
    bin/magento setup:upgrade
    bin/magento setup:di:compile
    bin/magento setup:static-content:deploy
+   bin/magento cron:install
+   bin/magento cron:run --group avatax_queue
+   bin/magento cron:run --group baseprovider
    bin/magento cache:flush
    ```
 
@@ -131,12 +134,7 @@ TRUNCATE TABLE `baseprovider_queue_job`;
 
 ## Uninstall Extension
 
-1. Run this command in the root of your Magento installation directory: 
-
-    ```bash
-    bin/magento module:uninstall Avalara_BaseProvider
-    bin/magento module:uninstall ClassyLlama_AvaTax
-    ```
+1. Run this command in the root of your Magento installation directory: `bin/magento module:uninstall Avalara_BaseProvider` `bin/magento module:uninstall ClassyLlama_AvaTax`
 
 2. If you installed the module using Composer, run these commands in the root of your Magento installation directory:
 

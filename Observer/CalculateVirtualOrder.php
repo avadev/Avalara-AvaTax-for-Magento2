@@ -92,11 +92,11 @@ class CalculateVirtualOrder implements ObserverInterface
                     $quote->setDataChanges(true);
                     $this->quoteRepository->save($quote);
                 }
-            } catch (\Exception $e) {
-                return $this;
             } catch (LocalizedException $e) {
                 return $this;
-            }
+            } catch (\Exception $e) {
+                return $this;
+            } 
         }
         return $this;
     }

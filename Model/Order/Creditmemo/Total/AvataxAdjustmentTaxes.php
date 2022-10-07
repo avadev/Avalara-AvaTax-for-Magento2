@@ -187,10 +187,10 @@ class AvataxAdjustmentTaxes extends AbstractTotal
     /**
      * Get estimated Credit Memo Adjustment Refund and Adjustment Fee taxes, which were calculated by Avalara
      *
-     * @param RestTaxResult $response
+     * @param RestTaxResult|null $response
      * @return array
      */
-    private function getCreditmemoTaxesForAdjustments(RestTaxResult $response): array
+    private function getCreditmemoTaxesForAdjustments(RestTaxResult $response = null): array
     {
         if (null !== $response) {
             $adjustmentsTaxes = [];

@@ -25,6 +25,9 @@ use ClassyLlama\AvaTax\Api\UiComponentV1Interface;
  * Class ValidateAddress
  * @package ClassyLlama\AvaTax\Ui\Component\Form\Element
  */
+/**
+ * @codeCoverageIgnore
+ */
 class ValidateAddress extends AbstractComponent implements UiComponentV1Interface
 {
     /**

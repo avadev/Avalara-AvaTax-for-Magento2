@@ -22,7 +22,7 @@ use ClassyLlama\AvaTax\Framework\AppInterface;
 
 class ApiLog extends AbstractHelper
 {
-    const CONNECTOR_ID = 'a0o5a000007TuRvAAK';
+    const CONNECTOR_ID = 'a0o5a000007TuRvAAK'; //Do not change this value as this is whitlisted for logging
 
     const CONNECTOR_STRING = AppInterface::CONNECTOR_STRING;
 
@@ -176,6 +176,12 @@ class ApiLog extends AbstractHelper
     {
         try {
             $message = "Transaction Request Log";
+            if (isset($logContext['extra']['amount'])) {
+                $message .= " Total: ".$logContext['extra']['amount'];
+            }
+            if (isset($logContext['extra']['tax'])) {
+                $message .= " Tax: ".$logContext['extra']['tax'];
+            }
             $source = isset($logContext['source']) ? $logContext['source'] : 'TransactionPage';
             $operation = isset($logContext['operation']) ? $logContext['operation'] : 'TransactionOperation';
             $logType = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_TYPE_PERFORMANCE;
@@ -186,9 +192,9 @@ class ApiLog extends AbstractHelper
                 unset($logContext['extra']['ConnectorTime']);
                 unset($logContext['extra']['ConnectorLatency']);
                 if (!is_null($connectorTime))
-                    $logContext['extra']['ConnectorTime'] = number_format($connectorTime, 2, '.', ',');
+                    $logContext['extra']['ConnectorTime'] = intval($connectorTime * 1000);
                 if (!is_null($latencyTime))
-                    $logContext['extra']['ConnectorLatency'] = number_format($latencyTime, 2, '.', ',');
+                    $logContext['extra']['ConnectorLatency'] = intval($latencyTime * 1000);
             }
             $context = [
                 'config' => [
@@ -272,11 +278,11 @@ class ApiLog extends AbstractHelper
      */
     public function getLatencyTimeAndConnectorTime(array $logContext)
     {
-        $latencyTime = null;
         $connectorTime = null;
+        $latencyTime = null;
         $isSufficientData = 0;
         if (empty($logContext)) {
-            return [$latencyTime, $connectorTime];
+            return [$connectorTime, $latencyTime];
         }
         if (isset($logContext['ConnectorTime']['start'])) {
             $isSufficientData++;
@@ -284,21 +290,21 @@ class ApiLog extends AbstractHelper
         if (isset($logContext['ConnectorTime']['end'])) {
             $isSufficientData++;
         }
-        if (isset($logContext['ConnectorLatency']['end'])) {
+        if (isset($logContext['ConnectorLatency']['start'])) {
             $isSufficientData++;
         }
         if (isset($logContext['ConnectorLatency']['end'])) {
             $isSufficientData++;
         }
         if ($isSufficientData < 4) {
-            return [$latencyTime, $connectorTime];
+            return [$connectorTime, $latencyTime];
         }
-        $connectorTime = $logContext['ConnectorTime']['end'] - $logContext['ConnectorTime']['start'];
+        $executionTime = $logContext['ConnectorTime']['end'] - $logContext['ConnectorTime']['start'];
         $latencyTime = $logContext['ConnectorLatency']['end'] - $logContext['ConnectorLatency']['start'];
         if ($latencyTime < 0) {
             $latencyTime = 0;
         }
-        $connectorTime = $connectorTime - $latencyTime;
-        return [$latencyTime, $connectorTime];
+        $connectorTime = $executionTime - $latencyTime;
+        return [$connectorTime, $latencyTime];
     }
 }

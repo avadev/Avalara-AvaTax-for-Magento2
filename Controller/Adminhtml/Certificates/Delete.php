@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\Certificates;
 
 use Magento\Framework\App\ResponseInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Delete extends \Magento\Backend\App\Action
 {
     const CERTIFICATES_RESOURCE = 'ClassyLlama_AvaTax::customer_certificates';

@@ -179,7 +179,9 @@ class Get
             $array,
             function (&$property) {
                 if ($property instanceof DataObject) {
+                    // @codeCoverageIgnoreStart
                     $property = $this->convertTaxResultToArray($property);
+                    // @codeCoverageIgnoreEnd
                 }
             }
         );
@@ -263,8 +265,29 @@ class Get
                 $taxDetails = $baseTaxDetails;
             }
 
+            if(!empty($quote->getAllVisibleItems()))
+            {
+                foreach($quote->getAllVisibleItems() as $itemq)
+                {
+                    if(!empty($taxDetails->getItems()) && count($taxDetails->getItems()) > 0)
+                    {
+                        foreach($taxDetails->getItems() as $avaItem)
+                        {
+                            if ($itemq->getSku() == $avaItem->getSku()) 
+                            {
+                                $itemq->setData('ava_vatcode', $avaItem->getAvaVatCode());
+                                $itemq->save();
+                                break;
+                            }
+                        }
+                    }                    	
+                }
+            }
+            
+            
             $avaTaxMessages = [];
-
+            $crossBorderMessages = [];
+            $invoiceMessages = [];
             if($getTaxResult->getMessages() !== null) {
                 $landedCostMessages = array_filter(
                     $getTaxResult->getMessages(),
@@ -273,14 +296,32 @@ class Get
                     }
                 );
 
-                $avaTaxMessages = array_map(
+                $crossBorderMessages = array_map(
                     function ($message) {
+                        // @codeCoverageIgnoreStart
                         return $message->getSummary();
+                        // @codeCoverageIgnoreEnd
                     },
                     $landedCostMessages
                 );
             }
+            if($getTaxResult->getInvoiceMessages() !== null) {
+                $nonEmptyInvoiceMessages = array_filter(
+                    $getTaxResult->getInvoiceMessages(),
+                    function ($message) {
+                        return !empty($message->getContent()) && !in_array($message->getContent(), CustomsConfig::VAT_DO_NOT_DISPLAY_MESSAGES);
+                    }
+                );
 
+                $invoiceMessages = array_map(
+                    function ($message) {
+                        return $message->getContent();
+                    },
+                    $nonEmptyInvoiceMessages
+                );
+                
+            }
+            $avaTaxMessages = array_merge($crossBorderMessages, $invoiceMessages);
 
             return [
                 $taxDetails,

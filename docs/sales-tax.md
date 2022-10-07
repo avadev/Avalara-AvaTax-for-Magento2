@@ -119,7 +119,7 @@ These are the most common reasons an invoice or credit memo could become unbalan
 - Multiple invoices/credit memos are created for an order and there are slight differences in how Magento copies tax from the order vs how AvaTax calculates tax for the invoice/credit memo.
 - Since tax rates and configurations can change, the tax amount of orders can also change from the time the customer checks out and when orders are invoiced.
 
-If an invoice or credit memo is unbalanced, a comment will be added to the order with the same unbalanced information that is present on the **AvaTax Queue** grid **Message** column (this is important since queue records are eventually deleted). This extension adds two tables to the Magento database (specifically the _sales_ database when using [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html)): `avatax_sales_creditmemo` and `avatax_sales_invoice` 
+If an invoice or credit memo is unbalanced, a comment will be added to the order with the same unbalanced information that is present on the **AvaTax Queue** grid **Message** column (this is important since queue records are eventually deleted). This extension adds two tables to the Magento database (specifically the _sales_ database when using [Magento Enterprise's split database mode](http://devdocs.magento.com)): `avatax_sales_creditmemo` and `avatax_sales_invoice` 
 
 For reference, here is a screenshot of the `avatax_sales_invoice` table with some example entries:  
 

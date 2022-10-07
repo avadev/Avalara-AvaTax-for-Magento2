@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit;
 
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class SaveButton implements ButtonProviderInterface
 {
     /**

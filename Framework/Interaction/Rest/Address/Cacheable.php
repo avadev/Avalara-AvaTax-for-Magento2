@@ -24,7 +24,7 @@ use Magento\Framework\Exception\LocalizedException;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use ClassyLlama\AvaTax\Exception\AddressValidateException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\Result as AddressResult;
-use Zend\Serializer\Adapter\PhpSerialize;
+use Magento\Framework\Serialize\Serializer\Json;
 
 /**
  * Class Cacheable
@@ -53,20 +53,20 @@ class Cacheable implements RestAddressInterface
     protected $metaDataObject;
 
     /**
-     * @var PhpSerialize
+     * @var Json
      */
     private $phpSerialize;
 
     /**
      * Cacheable constructor.
-     * @param PhpSerialize $phpSerialize
+     * @param Json $phpSerialize
      * @param CacheInterface $cache
      * @param AvaTaxLogger $avaTaxLogger
      * @param RestAddressInterface $interactionAddress
      * @param MetaDataObjectFactory $metaDataObjectFactory
      */
     public function __construct(
-        PhpSerialize $phpSerialize,
+        Json $phpSerialize,
         CacheInterface $cache,
         AvaTaxLogger $avaTaxLogger,
         RestAddressInterface $interactionAddress,

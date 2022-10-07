@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Index extends \Magento\Backend\App\Action
 {
     /**

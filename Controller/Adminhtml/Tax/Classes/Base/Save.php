@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\Tax\Classes\Base;
 /**
  * Class Save
  */
+/**
+ * @codeCoverageIgnore
+ */
 abstract class Save extends \Magento\Tax\Controller\Adminhtml\Tax
 {
     /**

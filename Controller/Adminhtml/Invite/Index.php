@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\Invite;
 
 use Magento\Backend\App\Action;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Index extends \Magento\Backend\App\Action
 {
     /**

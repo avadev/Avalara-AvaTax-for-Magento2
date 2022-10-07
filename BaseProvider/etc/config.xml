@@ -19,7 +19,7 @@
         <tax>
             <baseprovider>
                 <queue_enabled>0</queue_enabled>
-                <queue_batch_size>10</queue_batch_size>
+                <queue_batch_size>100</queue_batch_size>
                 <queue_limit>0</queue_limit>
                 <logging_enabled>0</logging_enabled>
                 <logging_mode>1</logging_mode>

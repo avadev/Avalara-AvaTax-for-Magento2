@@ -16,6 +16,10 @@ use Magento\Framework\Setup\Patch\PatchVersionInterface;
  * Class CreateImporterRecordOverrideOption
  * @package ClassyLlama\AvaTax\Setup\Patch\Data
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class CreateImporterRecordOverrideOption implements DataPatchInterface
 {
     /**

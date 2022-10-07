@@ -25,6 +25,9 @@ use ClassyLlama\AvaTax\Model\Queue;
 /**
  * Class ProductActions
  */
+/**
+ * @codeCoverageIgnore
+ */
 class QueueActions extends Column
 {
     /**#@+

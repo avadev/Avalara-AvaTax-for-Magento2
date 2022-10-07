@@ -19,6 +19,7 @@
     <preference for="ClassyLlama\AvaTax\Api\RestInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest" />
     <preference for="ClassyLlama\AvaTax\Api\RestTaxInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax" />
     <preference for="ClassyLlama\AvaTax\Api\RestAddressInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Address" />
+    <preference for="ClassyLlama\AvaTax\Api\RestDefinitionsInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface" type="\ClassyLlama\AvaTax\Model\CrossBorderClass" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface" type="ClassyLlama\AvaTax\Model\CrossBorderClassRepository" />
     <preference for="ClassyLlama\AvaTax\Api\Data\CrossBorderClassSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
@@ -36,7 +37,8 @@
     <preference for="ClassyLlama\AvaTax\Api\Data\BatchQueueTransactionSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="ClassyLlama\AvaTax\Api\QueueRepositoryInterface" type="ClassyLlama\AvaTax\Model\QueueRepository" />
     <preference for="ClassyLlama\AvaTax\Api\Data\QueueSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
-
+    <preference for="Magento\Sales\Block\Adminhtml\Order\View\Items\Renderer\DefaultRenderer" type="ClassyLlama\AvaTax\Block\Adminhtml\Order\View\Items\Renderer\DefaultRenderer" />
+	
     <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="avatax_get_orig_and_valid_address" type="ClassyLlama\AvaTax\Plugin\Checkout\Model\ShippingInformationManagement" />
     </type>
@@ -329,5 +331,8 @@
     </type>
     <type name="Magento\Multishipping\Block\DataProviders\Overview">
         <plugin name="classyLlamaAvaTaxDataProvidersOverview" type="ClassyLlama\AvaTax\Plugin\DataProviders\Overview"/>
+    </type>
+    <type name="Magento\Quote\Model\Quote\Item\ToOrderItem">
+        <plugin name="ava_vatcode_quote_to_order_item" type="ClassyLlama\AvaTax\Plugin\AvaVatcodeQuoteToOrderItem"/>
     </type>
 </config>

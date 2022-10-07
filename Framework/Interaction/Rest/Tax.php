@@ -202,8 +202,12 @@ class Tax extends Rest
                 case \Avalara\DocumentType::C_SALESORDER :
                     $eventBlock = "PostCalculateTax";
                     $docType = "SalesOrder";
+                    if (isset($resultObj->totalAmount))
+                        $logContext['extra']['amount'] = $resultObj->totalAmount;
+                    if (isset($resultObj->totalTax))
+                        $logContext['extra']['tax'] = $resultObj->totalTax;
                     break;
-            }
+            }        
             if (!empty($docType)) {
                 $log['DocCode'] = $request->getPurchaseOrderNo();
                 $logContext['extra']['EventBlock'] = $eventBlock;
@@ -270,9 +274,9 @@ class Tax extends Rest
                     $override->getTaxAmount(), $override->getTaxDate());
             }
         }
-//        if($request->hasShippingMode()) {
-//            $transactionBuilder->withParameter(self::TRANSACTION_PARAM_NAME_SHIPPING_MODE, $request->getShippingMode());
-//        }
+        if ($request->hasTransportParameters()) {
+            $transactionBuilder->withParameter($this->customsConfigHelper->getNextIncrementForWithParameter(), ['name'=>$request->getShippingMethod(), 'value'=>$request->getTransportParametersValue()] );
+        }
     }
 
     /**

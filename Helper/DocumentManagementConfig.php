@@ -61,7 +61,7 @@ class DocumentManagementConfig extends AbstractHelper
             $store
         );
 
-        return array_filter(explode(',', $enabledCountries));
+        return array_filter(explode(',', (string)$enabledCountries));
     }
 
     /**

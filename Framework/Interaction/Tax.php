@@ -33,9 +33,12 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 use Magento\Customer\Api\AddressRepositoryInterface;
-
+use Magento\Framework\App\Config\ScopeConfigInterface;
 /**
  * Class Tax
+ */
+/**
+ * @codeCoverageIgnore
  */
 class Tax
 {
@@ -167,7 +170,10 @@ class Tax
         'reference_code' => ['type' => 'string', 'length' => 50],
         'tax_override' => ['type' => 'dataObject', 'class' => '\Magento\Framework\DataObject'],
         'is_seller_importer_of_record' => ['type' => 'boolean'],
-        'shipping_mode' => ['type' => 'string']
+        'shipping_mode' => ['type' => 'string'],
+        'transport_parameters'=> ['type' => 'boolean'],
+        'shipping_method' => ['type' => 'string'],
+        'transport_parameters_value'=> ['type' => 'string']
     ];
 
     public static $validTaxOverrideFields = [
@@ -226,6 +232,11 @@ class Tax
      * @var AddressRepositoryInterface
      */
     protected $customerAddressRepository;
+    
+    /**
+     * @var ScopeConfigInterface
+     */    
+    protected $scopeConfig;
 
     /**
      * @param Address                                       $address
@@ -246,6 +257,8 @@ class Tax
      * @param Customer                                      $customer
      * @param \ClassyLlama\AvaTax\Helper\CustomsConfig      $customsConfig
      * @param AddressRepositoryInterface                    $customerAddressRepository
+     * @param ScopeConfigInterface                          $scopeConfig
+     * @param Json                                          $serialize
      */
     public function __construct(
         Address $address,
@@ -265,7 +278,9 @@ class Tax
         RestConfig $restConfig,
         \ClassyLlama\AvaTax\Helper\CustomsConfig $customsConfig,
         Customer $customer,
-        AddressRepositoryInterface $customerAddressRepository
+        AddressRepositoryInterface $customerAddressRepository,
+        ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\Serialize\Serializer\Json $serialize
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -286,6 +301,8 @@ class Tax
         $this->customer = $customer;
         $this->customsConfig = $customsConfig;
         $this->customerAddressRepository = $customerAddressRepository;
+        $this->scopeConfig = $scopeConfig;
+        $this->serialize = $serialize;
     }
 
     /**
@@ -337,6 +354,7 @@ class Tax
      * @throws ValidationException
      * @throws LocalizedException
      */
+    
     protected function convertTaxQuoteDetailsToRequest(
         \Magento\Tax\Api\Data\QuoteDetailsInterface $taxQuoteDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
@@ -402,14 +420,30 @@ class Tax
         //
         // If quote is virtual, getShipping will return billing address, so no need to check if quote is virtual
         $shippingAddress = $shippingAssignment->getShipping();
-        $address = $this->address->getAddress($shippingAddress->getAddress());
-
+        $shipToAddress = $this->address->getAddress($shippingAddress->getAddress());
+        $billToAddress = $this->address->getAddress($quote->getBillingAddress());
         $store = $this->storeRepository->getById($quote->getStoreId());
         $currentDate = $this->getFormattedDate($store);
 
         $customerUsageType = $quote->getCustomer()
             ? $this->taxClassHelper->getAvataxTaxCodeForCustomer($quote->getCustomer())
             : null;
+        $storeId = $quote->getStoreId();
+        $serialized_transport = $this->config->getVATTransport($storeId);
+        $shipping_method = $quote->getShippingAddress()->getShippingMethod();
+        $config_transports = $this->serialize->unserialize($serialized_transport);
+        $transport_parameters_value = $this->config::AVATAX_PARAMETERS_TRANSPORT_DEFAULT_VALUE;
+        if($config_transports && !empty($config_transports))
+        {
+            foreach($config_transports as $config_transport)
+            {
+                if($shipping_method == $config_transport['transport_shipping'])
+                {
+                    $transport_parameters_value = $config_transport['transport'];
+                    break;
+                }                    
+            }
+        }
         $data = [
             'store_id' => $store->getId(),
             'commit' => false, // quotes should never be committed
@@ -421,7 +455,7 @@ class Tax
             ),
             'entity_use_code' => $customerUsageType,
             'addresses' => [
-                $this->restConfig->getAddrTypeTo() => $address,
+                $this->restConfig->getAddrTypeTo() => $shipToAddress
             ],
             'code' => self::AVATAX_DOC_CODE_PREFIX . $quote->getId(),
             'type' => $this->restConfig->getDocTypeQuote(),
@@ -433,8 +467,15 @@ class Tax
             'shipping_mode' => $this->customsConfig->getShippingTypeForMethod(
                 $shippingAddress->getMethod(),
                 $quote->getStoreId()
-            )
+            ),
+            'transport_parameters'=> true,
+            'shipping_method' => $this->config::AVATAX_PARAMETERS_TRANSPORT_KEY,
+            'transport_parameters_value' => $transport_parameters_value
         ];
+        
+        if (!empty($billToAddress) && !empty($billToAddress->getPostalCode()) && !empty($billToAddress->getCountry())) {
+            $data['addresses'][$this->restConfig->getAddrTypeBillTo()] = $billToAddress;
+        }
 
         /** @var \Magento\Framework\DataObject $request */
         $request = $this->dataObjectFactory->create(['data' => $data]);
@@ -607,7 +648,8 @@ class Tax
         } else {
             $address = $order->getBillingAddress();
         }
-        $avaTaxAddress = $this->address->getAddress($address);
+        $shipToAddress = $this->address->getAddress($address);
+        $billToAddress = $this->address->getAddress($order->getBillingAddress());
 
         $store = $this->storeRepository->getById($object->getStoreId());
 
@@ -659,6 +701,22 @@ class Tax
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             // Do nothing
         }
+        $storeId = $order->getStoreId();
+        $serialized_transport = $this->config->getVATTransport($storeId);
+        $shipping_method = $order->getShippingMethod();
+        $config_transports = $this->serialize->unserialize($serialized_transport);
+        $transport_parameters_value = $this->config::AVATAX_PARAMETERS_TRANSPORT_DEFAULT_VALUE;
+        if($config_transports && !empty($config_transports))
+        {
+            foreach($config_transports as $config_transport)
+            {
+                if($shipping_method == $config_transport['transport_shipping'])
+                {
+                    $transport_parameters_value = $config_transport['transport'];
+                    break;
+                }                    
+            }
+        }
 
         $data = [
             'store_id' => $store->getId(),
@@ -673,9 +731,9 @@ class Tax
             ),
             'entity_use_code' => $customerUsageType,
             'addresses' => [
-                $this->restConfig->getAddrTypeTo() => $avaTaxAddress,
+                $this->restConfig->getAddrTypeTo() => $shipToAddress
             ],
-            'code' => $object->getIncrementId() . '123-' . rand(10000000,90000000000),
+            'code' => $object->getIncrementId() . '123-' . random_int(10000000,90000000000),
             'type' => $docType,
             'exchange_rate' => $this->getExchangeRate($store,
                 $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode()),
@@ -683,8 +741,15 @@ class Tax
             'lines' => $lines,
             'purchase_order_no' => $object->getIncrementId(),
             'reference_code' => $orderIncrementId,
+            'transport_parameters'=> true,
+            'shipping_method' => $this->config::AVATAX_PARAMETERS_TRANSPORT_KEY,
+            'transport_parameters_value' => $transport_parameters_value
         ];
-
+        
+        if(!empty($billToAddress) && !empty($billToAddress->getPostalCode()) && !empty($billToAddress->getCountry()))
+        {
+            $data['addresses'][$this->restConfig->getAddrTypeBillTo()] = $billToAddress;
+        }
         $request = $this->dataObjectFactory->create(['data' => $data]);
 
         $this->addGetTaxRequestFields($request, $store, $address, $object->getOrder()->getCustomerId());

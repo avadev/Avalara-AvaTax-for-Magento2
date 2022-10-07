@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 
 use ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Delete extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
 {
     /**

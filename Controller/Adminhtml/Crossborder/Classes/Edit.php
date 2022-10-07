@@ -22,6 +22,9 @@ use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
 use Magento\Framework\Registry;
 use Magento\Framework\Exception\NoSuchEntityException;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesAbstract
 {
     /**

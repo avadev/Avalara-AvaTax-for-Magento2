@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Base;
 /**
  * Class NewClass
  */
+/**
+ * @codeCoverageIgnore
+ */
 abstract class NewClass extends \Magento\Backend\Block\Widget\Form\Container
 {
     /**

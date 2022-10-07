@@ -45,6 +45,7 @@ class CustomsConfig extends AbstractHelper
     const XML_PATH_AVATAX_CUSTOMS_DEFAULT_SHIPPING_MODE = 'tax/avatax_customs/default_shipping_mode';
 
     const XML_PATH_AVATAX_DEFAULT_BORDER_TYPE = 'tax/avatax_customs/default_border_type';
+    
     /**#@-*/
 
     /**#@+
@@ -68,6 +69,13 @@ class CustomsConfig extends AbstractHelper
     const CUSTOMS_NAMES = ['Customs', 'LandedCost'];
 
     /**
+     * Defines the message that do not needs to display on checkout screen
+     *
+     * @var array
+     */
+    const VAT_DO_NOT_DISPLAY_MESSAGES = ['No applicable messaging for this line.'];    
+
+    /**
      * @var Config
      */
     protected $mainConfig;
@@ -81,6 +89,11 @@ class CustomsConfig extends AbstractHelper
      * @var array
      */
     protected $shippingMappings;
+
+    /**
+     * @var int
+     */
+    protected $withParameterIncrementId = 0;
 
     /**
      * @param Context    $context
@@ -248,5 +261,9 @@ class CustomsConfig extends AbstractHelper
 
         // Return default method
         return $this->getDefaultShippingType($scopeId, $scopeType);
+    }
+    public function getNextIncrementForWithParameter()
+    {
+        return $this->withParameterIncrementId++;
     }
 }

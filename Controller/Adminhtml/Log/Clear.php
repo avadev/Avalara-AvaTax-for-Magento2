@@ -22,6 +22,9 @@ use Magento\Backend\App\Action\Context;
 use ClassyLlama\AvaTax\Model\Log\Task;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Clear extends Log
 {
     /**

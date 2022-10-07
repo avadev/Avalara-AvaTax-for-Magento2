@@ -164,6 +164,15 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_ADVANCED_AVATAX_TABLE_EXEMPTIONS = 'tax/avatax_advanced/avatax_table_exemptions';
 
+    const XML_PATH_AVATAX_VAT_TRANSPORT = 'tax/avatax_general/vat_transport';
+    /**
+     * Tax Calculation API parameters tag default value
+     */
+    const AVATAX_PARAMETERS_TRANSPORT_KEY = 'Transport';
+    /**
+     * Tax Calculation API parameters tag default value
+     */
+    const AVATAX_PARAMETERS_TRANSPORT_DEFAULT_VALUE = 'Seller';
     /**#@-*/
 
     /**
@@ -244,7 +253,7 @@ class Config extends AbstractHelper
      * Cache tag code
      */
     const AVATAX_CACHE_TAG = 'AVATAX';
-
+    
     /**
      * @var ProductMetadataInterface
      */
@@ -317,6 +326,7 @@ class Config extends AbstractHelper
      *
      * @param $storeId
      * @param $scopeType
+     * @codeCoverageIgnore
      */
     public function createAvaTaxProfile($storeId, $scopeType = ScopeInterface::SCOPE_STORE)
     {
@@ -1317,5 +1327,19 @@ class Config extends AbstractHelper
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+    /**
+     * Get VAT Transport
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getVATTransport($store = null)
+    {
+        return stripslashes( $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_VAT_TRANSPORT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        ) );
     }
 }

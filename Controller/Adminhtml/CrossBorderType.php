@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml;
 
+/**
+ * @codeCoverageIgnore
+ */
 abstract class CrossBorderType extends \Magento\Backend\App\Action
 {
     const ADMIN_RESOURCE = 'ClassyLlama_AvaTax::top_level';

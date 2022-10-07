@@ -251,6 +251,11 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <field id="vat_transport" translate="label" sortOrder="3055" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Submit VAT Transport</label>
+                    <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\Transport</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                </field>
                 <field id="location_code" translate="label" type="text" sortOrder="3060" showInDefault="1" showInWebsite="1" showInStore="1">
                     <config_path>tax/avatax/location_code</config_path>
                     <label>Location Code</label>

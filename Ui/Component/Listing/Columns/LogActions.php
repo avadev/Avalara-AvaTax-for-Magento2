@@ -23,6 +23,9 @@ use Magento\Framework\UrlInterface;
 /**
  * Class LogActions
  */
+/**
+ * @codeCoverageIgnore
+ */
 class LogActions extends Column
 {
     /** Url path */

@@ -23,6 +23,9 @@ use Magento\Framework\Controller\ResultFactory;
 /**
  * Adminhtml controller
  */
+/**
+ * @codeCoverageIgnore
+ */
 abstract class Edit extends Classes
 {
     /**

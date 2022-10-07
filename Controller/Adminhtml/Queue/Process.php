@@ -22,6 +22,9 @@ use Magento\Backend\App\Action\Context;
 use ClassyLlama\AvaTax\Model\Queue\Task;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Process extends Queue
 {
     const BATCH_QUEUE_PROCESSING_LIMIT = 2000;

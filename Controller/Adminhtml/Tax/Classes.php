@@ -20,6 +20,9 @@ use Magento\Backend\App\Action;
 /**
  * Adminhtml controller
  */
+/**
+ * @codeCoverageIgnore
+ */
 abstract class Classes extends Action
 {
     /**

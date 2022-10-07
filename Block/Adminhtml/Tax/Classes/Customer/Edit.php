@@ -20,6 +20,9 @@ use ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Base;
 /**
  * Class Edit
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Edit extends Base\Edit
 {
     /**

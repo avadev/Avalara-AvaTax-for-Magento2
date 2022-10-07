@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Block\Adminhtml\CrossBorderClass\Edit;
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 use Magento\Backend\Block\Widget\Context;
 
+/**
+ * @codeCoverageIgnore
+ */
 class BackButton implements ButtonProviderInterface
 {
     /**

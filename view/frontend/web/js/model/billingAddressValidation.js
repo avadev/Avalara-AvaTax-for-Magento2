@@ -21,7 +21,7 @@ define(
         'Magento_Checkout/js/model/quote',
         'ClassyLlama_AvaTax/js/view/checkout-billing-address-validation-modal',
     ],
-    function ($, addressValidationForm, addressModel, addressConverter, setBillingAddress, quote, addressValidationModal) {
+    function ($, addressValidationForm, addressModel, addressConverter, setBillingAddress, quote, checkoutBillingAddressValidationModal) {
         'use strict';
         return {
             modal: false,
@@ -51,7 +51,7 @@ define(
 
                 if (inCountry) {
                     if (!self.modal) {
-                        self.modal = addressValidationModal(self.options);
+                        self.modal = checkoutBillingAddressValidationModal(self.options);
                     }
                     $('.validateAddressForm').show();
                     addressObject = self.cleanUnAddressObject(addressObject);

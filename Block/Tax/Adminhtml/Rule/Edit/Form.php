@@ -17,6 +17,7 @@ namespace ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit;
 
 /**
  * Class Form
+ * @codeCoverageIgnore
  */
 class Form extends \Magento\Tax\Block\Adminhtml\Rule\Edit\Form
 {
