@@ -84,7 +84,7 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
 
         // The body is already encoded as JSON, we need to decode it first so we don't double-encode it
         if (is_string($guzzleParams['body'])) {
-            $guzzleParams['body'] = json_decode($guzzleParams['body']);
+            $guzzleParams['body'] = json_decode((string)$guzzleParams['body']);
         }
 
         $this->logger->debug(

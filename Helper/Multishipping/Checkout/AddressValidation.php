@@ -89,7 +89,7 @@ class AddressValidation
         $address
     ) {
         $result = [];
-        if (in_array($address->getCountryId(), explode(',', $this->customerAddressBlock->getCountriesEnabled()))) {
+        if (in_array($address->getCountryId(), explode(',', (string)$this->customerAddressBlock->getCountriesEnabled()))) {
             /** @var AddressInterface $result */
             try {
                 $validAddress = $this->validation->validateAddress($address,
@@ -110,7 +110,7 @@ class AddressValidation
                     'validAddressHtml'    => $this->prepareAddressString($validAddress, $changedFields),
                     'originalAddressHtml' => $this->prepareAddressString($address),
                     'hasChoice'           => $this->customerAddressBlock->getChoice(),
-                    'instructions'        => json_decode($this->customerAddressBlock->getInstructions()),
+                    'instructions'        => json_decode((string)$this->customerAddressBlock->getInstructions()),
                 ];
             }
         }

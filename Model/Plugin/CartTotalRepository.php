@@ -67,7 +67,7 @@ class CartTotalRepository
                 continue;
             }
 
-            $message = json_decode($address->getAvataxMessages());
+            $message = json_decode((string)$address->getAvataxMessages());
 
             if(is_array($message)) {
                 $messages[] = $message;

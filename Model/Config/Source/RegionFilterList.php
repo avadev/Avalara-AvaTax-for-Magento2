@@ -130,6 +130,6 @@ class RegionFilterList extends \Magento\Directory\Model\Config\Source\Allregion
             $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
         }
 
-        return explode(',', $this->config->getTaxCalculationCountriesEnabled($scopeId, $scopeType));
+        return explode(',', (string)$this->config->getTaxCalculationCountriesEnabled($scopeId, $scopeType));
     }
 }

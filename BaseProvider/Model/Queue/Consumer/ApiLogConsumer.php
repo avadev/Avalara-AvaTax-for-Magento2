@@ -86,7 +86,7 @@ class ApiLogConsumer extends DefaultConsumer
         $success = true;
         $response = [];
         $payload = $queueJob->getPayload();
-        $payload = json_decode($payload, true);
+        $payload = json_decode((string)$payload, true);
         $client = $this->restClient;
         if (count($payload) > 0) {
             foreach($payload as $method=>$arguments) {

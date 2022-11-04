@@ -138,7 +138,7 @@ class CustomsConfig extends AbstractHelper
     {
         return explode(
             ',',
-            $this->scopeConfig->getValue(
+            (string)$this->scopeConfig->getValue(
                 self::XML_PATH_AVATAX_CUSTOMS_GROUND_SHIPPING_METHODS,
                 $scopeType,
                 $store
@@ -156,7 +156,7 @@ class CustomsConfig extends AbstractHelper
     {
         return explode(
             ',',
-            $this->scopeConfig->getValue(
+            (string)$this->scopeConfig->getValue(
                 self::XML_PATH_AVATAX_CUSTOMS_OCEAN_SHIPPING_METHODS,
                 $scopeType,
                 $store
@@ -174,7 +174,7 @@ class CustomsConfig extends AbstractHelper
     {
         return explode(
             ',',
-            $this->scopeConfig->getValue(
+            (string)$this->scopeConfig->getValue(
                 self::XML_PATH_AVATAX_CUSTOMS_AIR_SHIPPING_METHODS,
                 $scopeType,
                 $store
@@ -262,6 +262,23 @@ class CustomsConfig extends AbstractHelper
         // Return default method
         return $this->getDefaultShippingType($scopeId, $scopeType);
     }
+	
+    /**
+     * Init parameters next increment for each new transaction 
+     *
+     * @return CustomsConfig
+     */ 
+    public function initNextIncrementForWithParameter()
+    {
+        $this->withParameterIncrementId = 0;
+        return $this;
+    }
+
+    /**
+     * Next place for parameters in a transaction 
+     *
+     * @return int
+     */
     public function getNextIncrementForWithParameter()
     {
         return $this->withParameterIncrementId++;
