@@ -25,7 +25,7 @@ use Psr\Log\LoggerInterface;
 class Definitions extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestDefinitionsInterface
 {
-    const PARAMETERS_FILTER = 'id=621';
+    const PARAMETERS_FILTER = 'name=Transport';
     /**
      * @var RestConfig
      */
