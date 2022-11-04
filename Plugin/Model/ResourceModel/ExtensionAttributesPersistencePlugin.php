@@ -88,7 +88,7 @@ class ExtensionAttributesPersistencePlugin
         }
 
         $extensibleInterfaceName = $this->extensionAttributesFactory->getExtensibleInterfaceName($extensibleEntityClass);
-        $stringArray = explode('\\', $extensibleInterfaceName);
+        $stringArray = explode('\\', (string)$extensibleInterfaceName);
         $extensibleEntityName = strtolower(str_replace('Interface', '', end($stringArray)));
 
         return array_filter(

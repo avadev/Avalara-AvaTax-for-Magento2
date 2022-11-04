@@ -431,19 +431,22 @@ class Tax
         $storeId = $quote->getStoreId();
         $serialized_transport = $this->config->getVATTransport($storeId);
         $shipping_method = $quote->getShippingAddress()->getShippingMethod();
-        $config_transports = $this->serialize->unserialize($serialized_transport);
         $transport_parameters_value = $this->config::AVATAX_PARAMETERS_TRANSPORT_DEFAULT_VALUE;
-        if($config_transports && !empty($config_transports))
-        {
-            foreach($config_transports as $config_transport)
-            {
-                if($shipping_method == $config_transport['transport_shipping'])
-                {
-                    $transport_parameters_value = $config_transport['transport'];
-                    break;
-                }                    
-            }
-        }
+		if($serialized_transport && !empty($serialized_transport))
+		{
+			$config_transports = $this->serialize->unserialize($serialized_transport);
+			if($config_transports && !empty($config_transports))
+			{
+				foreach($config_transports as $config_transport)
+				{
+					if($shipping_method == $config_transport['transport_shipping'])
+					{
+						$transport_parameters_value = $config_transport['transport'];
+						break;
+					}                    
+				}
+			}
+		}
         $data = [
             'store_id' => $store->getId(),
             'commit' => false, // quotes should never be committed

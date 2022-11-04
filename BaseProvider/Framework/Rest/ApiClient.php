@@ -152,7 +152,7 @@ class ApiClient
                 $params
             );
             $body = (string) $response->getBody();
-            $JsonBody = json_decode($body, $getArray);
+            $JsonBody = json_decode((string)$body, $getArray);
             if (($this->responseType == 'array') && (!is_null($JsonBody))) {
                 return $JsonBody;
             } else {

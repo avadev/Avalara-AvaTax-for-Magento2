@@ -141,7 +141,8 @@ class Tax extends Rest
             'customerCode' => $request->getCustomerCode(),
             'dateTime' => $request->getDate(),
         ]);
-
+		$this->customsConfigHelper->initNextIncrementForWithParameter();
+		
         $this->setTransactionDetails($transactionBuilder, $request);
         $this->setLineDetails($transactionBuilder, $request);
         $logContext['extra']['LineCount'] = $transactionBuilder->getCurrentLineNumber() - 1;
@@ -388,6 +389,7 @@ class Tax extends Rest
                 'customerCode' => $request->getCustomerCode(),
                 'dateTime'     => $request->getDate(),
             ]);
+			$this->customsConfigHelper->initNextIncrementForWithParameter();
             $this->setTransactionDetails($transactionBuilder, $request);
             try {
                 $this->setLineDetails($transactionBuilder, $request);

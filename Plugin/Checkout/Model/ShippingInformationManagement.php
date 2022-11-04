@@ -186,7 +186,7 @@ class ShippingInformationManagement
 
         $enabledAddressValidationCountries = explode(
             ',',
-            $this->config->getAddressValidationCountriesEnabled($storeId)
+            (string)$this->config->getAddressValidationCountriesEnabled($storeId)
         );
         if (!in_array($shippingAddress->getCountryId(), $enabledAddressValidationCountries)) {
             $shouldValidateAddress = false;
