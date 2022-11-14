@@ -116,7 +116,7 @@ class AfterSaveObserver implements ObserverInterface
             $this->restCustomerInterface->updateCustomer($customer, null, $customer->getStoreId());
             $this->cache->clean([Config::AVATAX_CACHE_TAG,
              Config::AVATAX_CACHE_TAG . '-' .
-             $this->customerHelper->getCustomerCode($customer, null, ScopeInterface::SCOPE_STORE)]);
+             $this->customerHelper->getCustomerCode($customer, null, $customer->getStoreId())]);
         } catch (AvaTaxCustomerDoesNotExistException $avaTaxCustomerDoesNotExistException) {
             // Ignore errors where the customer doesn't exist
         } catch (Exception $exception) {
