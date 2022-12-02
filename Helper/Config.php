@@ -1318,16 +1318,23 @@ class Config extends AbstractHelper
      * Get Taxation Policy
      *
      * @param null $store
+     * @param string $scope
      * @return boolean
      */
-    public function getTaxationPolicy($store = null)
+    public function getTaxationPolicy($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return (boolean)$this->scopeConfig->getValue(
+        $configuredValue = $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_TAX_INCLUDED,
-            ScopeInterface::SCOPE_STORE,
+            $scope,
             $store
         );
+        $allowedOptions = \ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded::allowedOptions();
+        if (!in_array($configuredValue, $allowedOptions)) {
+            $configuredValue = \ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded::DEFAULT_POLICY;
+        }
+        return (boolean)$configuredValue;
     }
+
     /**
      * Get VAT Transport
      *

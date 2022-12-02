@@ -26,6 +26,10 @@ class TransportColumn extends Select
      */
     protected $dataObjectFactory;
     /**
+     * @var \Magento\Framework\Message\ManagerInterface
+     */
+    protected $messageManager;
+    /**
      * @var RestDefinitionsInterface
      */
     protected $definitionsService;
@@ -34,6 +38,7 @@ class TransportColumn extends Select
      * @param StoreManagerInterface $storeManager
      * @param DataObjectFactory $dataObjectFactory
      * @param RestDefinitionsInterface $definitionsService
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param Config              $config
      */
     public function __construct(
@@ -41,6 +46,7 @@ class TransportColumn extends Select
         StoreManagerInterface $storeManager,
         DataObjectFactory $dataObjectFactory,
         RestDefinitionsInterface $definitionsService,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         Config $config,
         array $data = []
     )
@@ -49,6 +55,7 @@ class TransportColumn extends Select
         $this->storeManager = $storeManager;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->definitionsService = $definitionsService;
+        $this->messageManager = $messageManager;
         $this->config = $config;
     }
     
@@ -101,7 +108,12 @@ class TransportColumn extends Select
         $licenseKey = $this->config->getLicenseKey($storeId, $scopeType, $isProduction);
         if(!empty($accountNumber) && !empty($licenseKey))
         {
-            $validateResult = $this->definitionsService->parameters($isProduction, $storeId);
+            try {
+                $validateResult = $this->definitionsService->parameters($isProduction, $storeId);
+            } catch (\Exception $e) {
+                $this->messageManager->addError($e->getMessage());
+                return [];
+            }
         }
         $transport = [];
         if(!empty($validateResult) && $validateResult->hasValue())

@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="extension_mode" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="10">
+        <label>Extension Mode</label>
+        <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\ExpandedFieldSet</frontend_model>
+        <field id="avatax_extension_version" translate="label" type="label" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>AvaTax Extension Version:</label>
+            <comment model="ClassyLlama\AvaTax\Model\Config\Comment" />
+        </field>
+        <field id="enabled" translate="label" type="select" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/enabled</config_path>
+            <label>Enable AvaTax</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+        </field>
+        <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/live_mode</config_path>
+            <label>Mode</label>
+            <comment><![CDATA[The mode you select will determine whether the <strong>Production</strong> or <strong>Development</strong> credentials will be used. You will get your Account Number, License Key, and Company Code from your AvaTax representative. If <strong>Production</strong> is selected, then https://avatax.avalara.net will be used as the API url. If <strong>Development</strong> is selected, then https://development.avalara.net will be used as the API url.<br><br>When you save this page, if you have entered credentials below for the selected mode, the AvaTax API will be pinged to ensure the credentials are working.]]></comment>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\Mode</source_model>
+            <depends>
+                <field id="enabled">1</field>
+            </depends>
+        </field>
+        <field id="production_account_number" translate="label" type="text" sortOrder="1030" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/production_account_number</config_path>
+            <label>Account Number</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="live_mode">1</field>
+            </depends>
+        </field>
+        <field id="production_license_key" translate="label" type="obscure" sortOrder="1040" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/production_license_key</config_path>
+            <label>License Key</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="live_mode">1</field>
+            </depends>
+        </field>
+        <field id="production_company_id" translate="label" type="select" sortOrder="1050" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/production_company_id</config_path>
+            <label>Company</label>
+            <frontend_model>productionCompanyCodeFrontendModel</frontend_model>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\CompanyCode</source_model>
+            <comment><![CDATA[Choose the company to use. If you don't see values in this dropdown, then enter values into the <strong>Account Number</strong> and <strong>License Key</strong> fields above.]]></comment>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="live_mode">1</field>
+            </depends>
+        </field>
+        <field id="development_account_number" translate="label" type="text" sortOrder="1060" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/development_account_number</config_path>
+            <label>Account Number (Development)</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="live_mode">0</field>
+            </depends>
+        </field>
+        <field id="development_license_key" translate="label" type="obscure" sortOrder="1070" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/development_license_key</config_path>
+            <label>License Key (Development)</label>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="live_mode">0</field>
+            </depends>
+        </field>
+        <field id="development_company_id" translate="label" type="select" sortOrder="1080" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/development_company_id</config_path>
+            <label>Company (Development)</label>
+            <frontend_model>developmentCompanyCodeFrontendModel</frontend_model>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\CompanyCode</source_model>
+            <comment><![CDATA[Choose the company to use. If you don't see values in this dropdown, then enter values into the <strong>Account Number</strong> and <strong>License Key</strong> fields above.]]></comment>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="live_mode">0</field>
+            </depends>
+        </field>
+        <!-- This code scope needed for Magento 2.3.2 and later. Magento team added extra private method (filterNodes($configData)) to Magento\Config\Controller\Adminhtml\System\Config\Save for validation the file system.xml before save configuration data to the database.
+                For the successful pass of the validation, there was added the declarative code. -->
+
+        <!-- Start -->
+        <field id="production_company_code" type="hidden">
+            <config_path>tax/avatax/production_company_code</config_path>
+            <label>Company Code</label>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="live_mode">1</field>
+            </depends>
+        </field>
+        <field id="development_company_code" type="hidden" >
+            <config_path>tax/avatax/development_company_code</config_path>
+            <label>Company Code</label>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="live_mode">0</field>
+            </depends>
+        </field>
+        <!-- End -->
+    </group>
+</include>

@@ -69,7 +69,7 @@
             </avatax_customs>
             <avatax_document_management>
                 <enabled>0</enabled>
-                <checkout_link_text_new_cert_no_certs_exist>Is this purchase tax-exempt?</checkout_link_text_new_cert_no_certs_exist>
+                <checkout_link_text_new_cert_no_certs_exist>Upload your first certificate</checkout_link_text_new_cert_no_certs_exist>
                 <checkout_link_text_new_cert_certs_exist>Add a new certificate</checkout_link_text_new_cert_certs_exist>
                 <checkout_link_text_manage_existing_certs>Manage existing certificates</checkout_link_text_manage_existing_certs>
             </avatax_document_management>
@@ -79,22 +79,22 @@
                 <avatax_adjustment_taxes>0</avatax_adjustment_taxes>
                 <avatax_table_exemptions>negotiable_quote_item,company_order_entity</avatax_table_exemptions>
                 <result_cache_ttl>15</result_cache_ttl>
-                <attribute_codes>
-                    <paymentdetails>valid_address,original_address,error_message</paymentdetails>
-                    <shippinginformation>should_validate_address</shippinginformation>
-                    <quotedetailsitem>total_quantity,avatax_item_code,avatax_tax_code,avatax_description,avatax_ref1,avatax_ref2,hs_code,unit_name,unit_amount,pref_program_indicator</quotedetailsitem>
-                    <cart>avatax_response</cart>
-                    <order>avatax_response</order>
-                    <invoice>avatax_is_unbalanced,base_avatax_tax_amount,avatax_response</invoice>
-                    <creditmemo>avatax_is_unbalanced,base_avatax_tax_amount,avatax_response</creditmemo>
-                    <appliedtaxrate>rate_percent,tax_name,juris_code,taxable,tax</appliedtaxrate>
-                    <cartitem>hs_code,unit_name,unit_amount,pref_program_indicator</cartitem>
-                    <orderitem>hs_code,unit_name,unit_amount,pref_program_indicator</orderitem>
-                    <invoiceitem>hs_code,unit_name,unit_amount,pref_program_indicator</invoiceitem>
-                    <creditmemoitem>hs_code,unit_name,unit_amount,pref_program_indicator</creditmemoitem>
-                    <totals>avatax_messages</totals>
-                </attribute_codes>
             </avatax_advanced>
+            <avatax_advanced_attribute_codes>
+                <paymentdetails>valid_address,original_address,error_message</paymentdetails>
+                <shippinginformation>should_validate_address</shippinginformation>
+                <quotedetailsitem>total_quantity,avatax_item_code,avatax_tax_code,avatax_description,avatax_ref1,avatax_ref2,hs_code,unit_name,unit_amount,pref_program_indicator</quotedetailsitem>
+                <cart>avatax_response</cart>
+                <order>avatax_response</order>
+                <invoice>avatax_is_unbalanced,base_avatax_tax_amount,avatax_response</invoice>
+                <creditmemo>avatax_is_unbalanced,base_avatax_tax_amount,avatax_response</creditmemo>
+                <appliedtaxrate>rate_percent,tax_name,juris_code,taxable,tax</appliedtaxrate>
+                <cartitem>hs_code,unit_name,unit_amount,pref_program_indicator</cartitem>
+                <orderitem>hs_code,unit_name,unit_amount,pref_program_indicator</orderitem>
+                <invoiceitem>hs_code,unit_name,unit_amount,pref_program_indicator</invoiceitem>
+                <creditmemoitem>hs_code,unit_name,unit_amount,pref_program_indicator</creditmemoitem>
+                <totals>avatax_messages</totals>
+            </avatax_advanced_attribute_codes>
             <avatax_certificate_capture>
                 <disable_certcapture_auto_validation>0</disable_certcapture_auto_validation>
             </avatax_certificate_capture>

@@ -97,7 +97,7 @@ class ExtensionAttributesPersistencePlugin
                 return in_array(
                     $extensionAttributeCode,
                     $this->config->getConfigDataArray(
-                        "tax/avatax_advanced/attribute_codes/$extensibleEntityName")
+                        "tax/avatax_advanced_attribute_codes/$extensibleEntityName")
                 );
             },
             ARRAY_FILTER_USE_KEY
