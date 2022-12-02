@@ -237,7 +237,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
      * Creditmemo request builder
      *
      * @param CreditmemoInterface $creditmemo
-     * @return RequestInterface
+     * @return RequestInterface|null
      * @throws \Throwable
      */
     public function build(CreditmemoInterface $creditmemo): RequestInterface
@@ -348,7 +348,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
      */
     private function getDocTypeCreditmemoEstimation(): string
     {
-        return DocumentType::C_RETURNORDER;
+        return (string) DocumentType::C_RETURNORDER;
     }
 
     /**

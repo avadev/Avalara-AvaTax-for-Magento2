@@ -262,7 +262,7 @@ class CustomsConfig extends AbstractHelper
         // Return default method
         return $this->getDefaultShippingType($scopeId, $scopeType);
     }
-	
+
     /**
      * Init parameters next increment for each new transaction 
      *

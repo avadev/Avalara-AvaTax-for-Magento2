@@ -214,7 +214,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $scope
     )
     {
-        $price = $item->getUnitPrice();
+        $price = $this->calculationTool->round($item->getUnitPrice());
 
         /* @var $taxLine \Magento\Framework\DataObject */
         $taxLine = $getTaxResult->getTaxLine($item->getCode());
@@ -269,8 +269,8 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                     $taxableAmountPercentage = $taxLine->getTaxableAmount() / $totalAmount;
                 }
             }
-
-            $effectiveDiscountAmount = $taxableAmountPercentage * $item->getDiscountAmount();
+            $discountAmount = $this->calculationTool->round($item->getDiscountAmount());
+            $effectiveDiscountAmount = $taxableAmountPercentage * $discountAmount;
             $taxOnDiscountAmount = $effectiveDiscountAmount * $rate;
             $taxOnDiscountAmount = $this->calculationTool->round($taxOnDiscountAmount);
             $rowTaxBeforeDiscount = $rowTax + $taxOnDiscountAmount;
@@ -296,7 +296,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
          * @see \Magento\Tax\Model\Calculation\AbstractAggregateCalculator::calculateWithTaxInPrice
          */
         $discountTaxCompensationAmount = 0;
-        $taxIncluded = $this->avaTaxHelper->getTaxationPolicy($scope);
+        $taxIncluded = (boolean) $taxLine->getTaxIncluded();
         if ($taxIncluded && $rowTax > 0) {
             $discountTaxCompensationAmount = -$rowTax;
         }

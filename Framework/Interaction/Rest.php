@@ -195,6 +195,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      *
      * @param array $response
      * @return \Magento\Framework\Phrase
+     * @codeCoverageIgnore
      */
     protected function prepareErrorForHandleException(array $response)
     {

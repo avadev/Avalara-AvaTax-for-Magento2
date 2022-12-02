@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="vat" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="40">
+        <label>VAT</label>
+        <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\ExpandedFieldSet</frontend_model>
+        <field id="use_business_identification_number" translate="label comment" type="select" sortOrder="3050" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/use_business_identification_number</config_path>
+            <label>Submit VAT Number to AvaTax</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment><![CDATA[Set this to <strong>Yes</strong> if you want to send VAT tax numbers to AvaTax to affect tax calculation. If a guest or customer has a <strong>VAT number</strong> set on their Magento shipping address, it will be used. Otherwise the <strong>Tax/VAT Number</strong> attribute value from the customer record will be used. If a VAT number is not found, nothing will be sent. The VAT number will be sent to the <strong>BusinessIdentificationNo</strong> field in AvaTax.]]></comment>
+        </field>
+        <field id="vat_transport" translate="label" sortOrder="3055" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_general/vat_transport</config_path>
+            <label>Submit VAT Transport</label>
+            <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\Transport</frontend_model>
+            <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+        </field>
+        <depends>
+            <field id="tax/avatax_configuration/extension_mode/enabled">1</field>
+        </depends>
+    </group>
+</include>
