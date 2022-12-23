@@ -22,6 +22,7 @@
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="baseprovider_queue_listing_data_source" xsi:type="string">BaseProviderQueueGridDataProvider</item>
+                <item name="baseprovider_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
             </argument>
         </arguments>
     </type>
@@ -39,7 +40,7 @@
     <type name="ClassyLlama\AvaTax\BaseProvider\Logger\GenericLogger">
         <arguments>
             <argument name="name" xsi:type="string">generic_logger</argument>
-            <argument name="handlers"  xsi:type="array">
+            <argument name="handlers" xsi:type="array">
                 <item name="1" xsi:type="object">ClassyLlama\AvaTax\BaseProvider\Logger\Handler\Generic\ApiHandler</item>
             </argument>
             <argument name="processors" xsi:type="array">
@@ -50,19 +51,12 @@
     <type name="ClassyLlama\AvaTax\BaseProvider\Logger\ApplicationLogger">
         <arguments>
             <argument name="name" xsi:type="string">logger</argument>
-            <argument name="handlers"  xsi:type="array">
+            <argument name="handlers" xsi:type="array">
                 <item name="1" xsi:type="object">ClassyLlama\AvaTax\BaseProvider\Logger\Handler\Application\FileHandler</item>
                 <item name="2" xsi:type="object">ClassyLlama\AvaTax\BaseProvider\Logger\Handler\Application\DbHandler</item>
             </argument>
             <argument name="processors" xsi:type="array">
                 <item name="1" xsi:type="object">ClassyLlama\AvaTax\BaseProvider\Logger\Processor</item>
-            </argument>
-        </arguments>
-    </type>
-	<type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-        <arguments>
-            <argument name="collections" xsi:type="array">
-                <item name="baseprovider_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
             </argument>
         </arguments>
     </type>
