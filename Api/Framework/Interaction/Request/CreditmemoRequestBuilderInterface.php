@@ -15,8 +15,8 @@ interface CreditmemoRequestBuilderInterface
      * Creditmemo request builder
      *
      * @param CreditmemoInterface $creditmemo
-     * @return RequestInterface
+     * @return RequestInterface|null
      * @throws \Throwable
      */
-    public function build(CreditmemoInterface $creditmemo): RequestInterface;
+    public function build(CreditmemoInterface $creditmemo): ?RequestInterface;
 }
