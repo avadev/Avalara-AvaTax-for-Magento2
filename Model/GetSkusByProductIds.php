@@ -45,7 +45,7 @@ class GetSkusByProductIds
 
         if (!empty($notFoundedIds)) {
             throw new NoSuchEntityException(
-                __('Following products with requested ids were not found: %1', implode($notFoundedIds, ', '))
+                __('Following products with requested ids were not found: %1', implode(', ', $notFoundedIds))
             );
         }
 
