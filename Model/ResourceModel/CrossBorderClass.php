@@ -22,6 +22,9 @@ use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink as Count
 use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLinkFactory as CountryLinkResourceFactory;
 use ClassyLlama\AvaTax\Model\CrossBorderClass\CountryLinkFactory;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CrossBorderClass extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

@@ -11,6 +11,9 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
  *
  * @package ClassyLlama\AvaTax\Model\ResourceModel
  */
+/**
+ * @codeCoverageIgnore
+ */
 class BatchQueueTransaction extends AbstractDb
 {
     /**

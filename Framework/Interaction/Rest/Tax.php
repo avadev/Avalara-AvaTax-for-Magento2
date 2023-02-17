@@ -165,7 +165,21 @@ class Tax extends Rest
         }
         catch (\GuzzleHttp\Exception\RequestException $clientException) {
             $sendLog = false;
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Tax';
+            $debugLogContext['function_name'] = 'getTax';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException, $request);
+        } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'getTax';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
+            throw $exception;
         }
 
         
@@ -203,10 +217,6 @@ class Tax extends Rest
                 case \Avalara\DocumentType::C_SALESORDER :
                     $eventBlock = "PostCalculateTax";
                     $docType = "SalesOrder";
-                    if (isset($resultObj->totalAmount))
-                        $logContext['extra']['amount'] = $resultObj->totalAmount;
-                    if (isset($resultObj->totalTax))
-                        $logContext['extra']['tax'] = $resultObj->totalTax;
                     break;
             }        
             if (!empty($docType)) {
@@ -277,6 +287,9 @@ class Tax extends Rest
         }
         if ($request->hasTransportParameters()) {
             $transactionBuilder->withParameter($this->customsConfigHelper->getNextIncrementForWithParameter(), ['name'=>$request->getShippingMethod(), 'value'=>$request->getTransportParametersValue()] );
+        }
+        if ($request->hasShippingParameters()) {
+            $transactionBuilder->withParameter($this->customsConfigHelper->getNextIncrementForWithParameter(), ['name'=>$request->getShippingParametersName(), 'value'=>$request->getShippingParametersValue()]);
         }
     }
 
@@ -419,6 +432,12 @@ class Tax extends Rest
             $apiEndTime = microtime(true);
         } catch (RequestException $clientException) {
             $sendLogs = false;
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Tax';
+            $debugLogContext['function_name'] = 'getTaxBatch';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException);
         }
         $resultGeneric = $this->formatResult($resultObj);

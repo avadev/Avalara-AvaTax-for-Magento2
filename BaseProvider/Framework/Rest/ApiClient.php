@@ -21,6 +21,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\ClientFactory;
 use GuzzleHttp\Psr7\ResponseFactory;
 use Magento\Framework\Webapi\Rest\Request;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 /**
  * Class ApiClient
@@ -58,20 +59,28 @@ class ApiClient
     protected $appVersion;
     protected $machineName;
     protected $authType;
+    
+    /**
+     * @var ApiLog
+     */
+    protected $apiLog;
 
     /**
      * GitApiService constructor
      *
      * @param ClientFactory $clientFactory
      * @param ResponseFactory $responseFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         ClientFactory $clientFactory,
-        ResponseFactory $responseFactory
+        ResponseFactory $responseFactory,
+        ApiLog $apiLog
     ) {
         $this->clientFactory = $clientFactory;
         $this->responseFactory = $responseFactory;
         $this->catchExceptions = true;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -159,6 +168,14 @@ class ApiClient
                 return $body;
             }
         } catch (\Exception $e) {
+            
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'restCall';
+            $debugLogContext['operation'] = 'BaseProvider_Framework_Rest_ApiClient';
+            $debugLogContext['function_name'] = 'restCall';
+            $this->apiLog->debugLog($debugLogContext);
+
             if (!$this->catchExceptions) {
                 throw $e;
             }

@@ -29,6 +29,9 @@ use Magento\Framework\Model\AbstractModel;
  * @method string getResult() getResult()
  * @method string getAdditional() getAdditional()
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Log extends AbstractModel
 {
     /**

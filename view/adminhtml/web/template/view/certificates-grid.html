@@ -10,7 +10,8 @@
                 <th class="data-grid-th" data-bind="i18n: 'Signed Date'"></th>
                 <th class="data-grid-th" data-bind="i18n: 'Expiration Date'"></th>
                 <th class="data-grid-th" data-bind="i18n: 'Status'"></th>
-                <th class="data-grid-th" colspan="2">&nbsp;</th>
+                <th class="data-grid-th" data-bind="i18n: 'View'"></th>
+                <th class="data-grid-th" data-bind="i18n: 'Invalidate'"></th>
             </tr>
         </thead>
 
@@ -21,7 +22,7 @@
                 <td data-bind="text: exposure_zone.name"></td>
                 <td data-bind="text: signed_date"></td>
                 <td data-bind="text: expiration_date"></td>
-                <td data-bind="i18n: valid ? 'Yes' : 'No'"></td>
+                <td data-bind="i18n: valid"></td>
                 <td>
                     <!-- ko if: valid -->
                     <a target="_blank" data-bind="attr: {href: certificate_url}, i18n: 'View Certificate'"></a>
@@ -29,9 +30,10 @@
                 </td>
                 <td>
                     <!-- ko if: valid -->
+                    <!-- code for invalidate url update -->
                     <a href="javascript:void(0)" data-bind="
-                        click: $parent.handleDelete.bind($parent, certificate_delete_url),
-                        i18n: 'Delete Certificate'">
+                        click: $parent.handleDelete.bind($parent, certificate_invalidate_url),
+                        i18n: 'Invalidate Certificate'">
                     </a>
                     <!-- /ko -->
                 </td>

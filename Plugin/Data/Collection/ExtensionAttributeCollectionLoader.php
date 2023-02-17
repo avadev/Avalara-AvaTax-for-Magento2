@@ -7,6 +7,9 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Data\Collection;
 
+/**
+ * @codeCoverageIgnore
+ */
 class ExtensionAttributeCollectionLoader
 {
     /**

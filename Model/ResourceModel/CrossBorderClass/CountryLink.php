@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CountryLink extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

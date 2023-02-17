@@ -26,6 +26,7 @@
             <config_path>tax/avatax/enabled</config_path>
             <label>Enable AvaTax</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <backend_model>ClassyLlama\AvaTax\Model\Config\Backend\ConnectorStatus</backend_model>
         </field>
         <field id="live_mode" translate="label" type="select" sortOrder="1020" showInDefault="1" showInWebsite="1" showInStore="1">
             <config_path>tax/avatax/live_mode</config_path>

@@ -72,17 +72,19 @@ class Consumer
      */
     public function process()
     {
-        $this->logger->debug(__('Initiating queue processing from cron job'));
         $size = $this->consumeJobs();
-        $this->logger->debug(
-            __('Completed queue processing from cron job.'),
-            [
-                'total_count' => $size,
-                'extra' => [
-                    'class' => __METHOD__
+        if($size > 0)
+        {
+            $this->logger->debug(
+                __('Completed queue processing from cron job.'),
+                [
+                    'total_count' => $size,
+                    'extra' => [
+                        'class' => __METHOD__
+                    ]
                 ]
-            ]
-        );
+            );
+        }        
     }
 
     /**

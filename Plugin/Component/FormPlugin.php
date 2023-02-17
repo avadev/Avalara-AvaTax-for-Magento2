@@ -7,6 +7,9 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Component;
 
+/**
+ * @codeCoverageIgnore
+ */
 class FormPlugin
 {
     /**

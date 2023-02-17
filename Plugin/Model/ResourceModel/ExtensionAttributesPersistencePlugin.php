@@ -15,6 +15,9 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
+/**
+ * @codeCoverageIgnore
+ */
 class ExtensionAttributesPersistencePlugin
 {
     /**

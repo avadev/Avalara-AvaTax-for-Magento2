@@ -107,6 +107,10 @@ class Index extends \Magento\Backend\App\Action
             'Avalara has emailed the customer so they can add an exemption certificate.'
         );
 
-        return $resultRedirect->setPath('customer/index/edit', ['id' => $parameters['customer_id']]);
+        if(isset($parameters['redirect'])){
+           return $resultRedirect->setPath('customer/index/index'); 
+        }else{
+            return $resultRedirect->setPath('customer/index/edit', ['id' => $parameters['customer_id']]);
+        }
     }
 }

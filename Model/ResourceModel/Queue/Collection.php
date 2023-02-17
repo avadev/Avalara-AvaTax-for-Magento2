@@ -30,6 +30,9 @@ use ClassyLlama\AvaTax\Model\Queue as QueueModel;
 use Zend_Db_Expr;
 use Magento\Framework\DB\Select;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Collection extends AbstractCollection
 {
     /**#@+

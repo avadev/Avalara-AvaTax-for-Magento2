@@ -19,7 +19,7 @@
         <section id="tax">
             <group id="avatax_configuration" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="0">
                 <label>AvaTax Configuration</label>
-                <comment><![CDATA[For complete and up-to-date documentation, please visit <a href="https://help.avalara.com/FYHP/Avalara_for_Magento/Connector_for_Magento_2_for_Sales_Tax" target="_blank">Connector for Magento 2 for Sales Tax</a>.</p>
+                <comment><![CDATA[For complete and up-to-date documentation, please visit <a href="https://knowledge.avalara.com/bundle/usd1665121460439_usd1665121460439/page/dbj1665121622352.html" target="_blank">Connector for Magento 2 for Sales Tax</a>.</p>
                             ]]></comment>
                 <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\AvaTax</frontend_model>
                 <include path="ClassyLlama_AvaTax::system/extension_mode.xml"/>

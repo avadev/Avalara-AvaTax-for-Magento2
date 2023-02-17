@@ -15,6 +15,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Request\Request as CreditmemoReques
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as RestTaxResult;
 use ClassyLlama\AvaTax\Framework\Interaction\Line as FrameworkInteractionLine;
+use ClassyLlama\AvaTax\Helper\Config;
 
 /**
  * Class AvataxAdjustmentTaxes
@@ -60,7 +61,10 @@ class AvataxAdjustmentTaxes extends AbstractTotal
      * @var AvaTaxLogger
      */
     private $avataxLogger;
-
+    /**
+     * @var Config
+     */
+    protected $config = null;
     /**
      * AvataxAdjustmentTaxes constructor.
      * @param AvaTaxLogger $avataxLogger
@@ -68,6 +72,7 @@ class AvataxAdjustmentTaxes extends AbstractTotal
      * @param CreditmemoRequestBuilder $creditmemoRequestBuilder
      * @param StoreManagerInterface $storeManager
      * @param ScopeConfigInterface $scopeConfig
+     * @param Config $config
      * @param array $data
      */
     public function __construct(
@@ -76,6 +81,7 @@ class AvataxAdjustmentTaxes extends AbstractTotal
         CreditmemoRequestBuilder $creditmemoRequestBuilder,
         StoreManagerInterface $storeManager,
         ScopeConfigInterface $scopeConfig,
+        Config $config,
         array $data = []
     ) {
         parent::__construct($data);
@@ -84,6 +90,7 @@ class AvataxAdjustmentTaxes extends AbstractTotal
         $this->creditmemoRequestBuilder = $creditmemoRequestBuilder;
         $this->taxCompositeService = $taxCompositeService;
         $this->avataxLogger = $avataxLogger;
+        $this->config = $config;
     }
 
     /**
@@ -94,15 +101,22 @@ class AvataxAdjustmentTaxes extends AbstractTotal
      */
     public function collect(Creditmemo $creditmemo): self
     {
-        if ($this->isTaxCalculationEnabledForAdjustments() && $this->adjustmentsAreNotEmpty($creditmemo)) {
+        /** @var int $storeId */
+        $storeId = (int)$creditmemo->getStoreId();
+        if ( ( $this->isTaxCalculationEnabledForAdjustments() && $this->adjustmentsAreNotEmpty($creditmemo) ) ||    
+             ( !$this->isTaxCalculationEnabledForAdjustments() && $this->config->getTaxationPolicy($storeId) && $this->adjustmentsAreNotEmpty($creditmemo) )
+        )
+        {
+            // If isTaxCalculationEnabledForAdjustments : Yes, adjustmentsAreNotEmpty : true
+            // OR
+            //  isTaxCalculationEnabledForAdjustments : No, getTaxationPolicy : Gross, adjustmentsAreNotEmpty : true
             try {
 
                 /** @var CreditmemoRequest|null $creditmemoRequest */
                 $creditmemoRequest = $this->creditmemoRequestBuilder->build($creditmemo);
 
                 if (null !== $creditmemoRequest) {
-                    /** @var int $storeId */
-                    $storeId = (int)$creditmemo->getStoreId();
+                    
                     /** @var RestTaxResult $response */
                     $response = $this->taxCompositeService->calculateTax(
                         $creditmemoRequest,
@@ -111,11 +125,15 @@ class AvataxAdjustmentTaxes extends AbstractTotal
                         [RestTaxInterface::FLAG_FORCE_NEW_RATES => true],
                         null
                     );
-                    $this->avataxLogger->debug(
-                        'response',
-                        [
-                            'lines' => print_r($response->getLines() ?? [], true)]
-                    );
+
+                    $getTaxResultData = $response->getData('raw_result');
+                    $getTaxRequestData = $response->getData('raw_request');
+                    $this->avataxLogger->addDebug('Credit Memo API log | Date : '.$response->getDate().' | Tax Total : '.$response->getTotalTax(), [
+                        'request' => json_encode($getTaxRequestData, JSON_PRETTY_PRINT),
+                        'result' => json_encode($getTaxResultData, JSON_PRETTY_PRINT)
+                    ]);
+                    
+                    
                     /** @var float|null $adjustmentRefundTax */
                     $adjustmentRefundTax = $baseAdjustmentRefundTax = (float)$this->getAdjustmentRefundTaxes($this->getCreditmemoTaxesForAdjustments($response));
                     /** @var float|null $adjustmentFeeTax */
@@ -128,6 +146,19 @@ class AvataxAdjustmentTaxes extends AbstractTotal
                      */
                     $creditmemo->setTaxAmount($creditmemo->getTaxAmount() + $adjustmentRefundTax - $adjustmentFeeTax);
                     $creditmemo->setBaseTaxAmount($creditmemo->getBaseTaxAmount() + $baseAdjustmentRefundTax - $baseAdjustmentFeeTax);
+                    $existingTax = $creditmemo->getTaxAmount();
+                    $existingBaseTax = $creditmemo->getBaseTaxAmount();
+                    $existingDiscountTaxCompensationAmount = $creditmemo->getDiscountTaxCompensationAmount();
+                    $existingBaseDiscountTaxCompensationAmount = $creditmemo->getBaseDiscountTaxCompensationAmount();
+                    if ($this->config->getTaxationPolicy($storeId))
+                    {   // if taxation policy is set to : Gross and adjustments are NOT EMPTY
+                        $creditmemo->setGrandTotal($creditmemo->getGrandTotal() - $existingDiscountTaxCompensationAmount - $existingTax + $adjustmentRefundTax - $adjustmentFeeTax);
+                        $creditmemo->setBaseGrandTotal($creditmemo->getBaseGrandTotal() - $existingBaseDiscountTaxCompensationAmount - $existingBaseTax + $adjustmentRefundTax - $adjustmentFeeTax);
+                    }else
+                    {    // if taxation policy is set to : Net and adjustments are NOT EMPTY
+                        $creditmemo->setGrandTotal($creditmemo->getGrandTotal() + $adjustmentRefundTax - $adjustmentFeeTax);
+                        $creditmemo->setBaseGrandTotal($creditmemo->getBaseGrandTotal() + $adjustmentRefundTax - $adjustmentFeeTax);
+                    }
                 }
             } catch (\Throwable $exception) {
                 $this->avataxLogger->error($exception->getMessage(), [
@@ -135,8 +166,16 @@ class AvataxAdjustmentTaxes extends AbstractTotal
                     'trace' => $exception->getTraceAsString()
                 ]);
             }
+        } else if ( $this->config->getTaxationPolicy($storeId) && !$this->adjustmentsAreNotEmpty($creditmemo) )
+        { // if isTaxCalculationEnabledForAdjustments is Yes, Taxation Policy is set to : Gross and adjustments are EMPTY
+            $existingTax = $creditmemo->getTaxAmount();
+            $existingBaseTax = $creditmemo->getBaseTaxAmount();
+            $existingDiscountTaxCompensationAmount = $creditmemo->getDiscountTaxCompensationAmount();
+            $existingBaseDiscountTaxCompensationAmount = $creditmemo->getBaseDiscountTaxCompensationAmount();
+            $creditmemo->setGrandTotal($creditmemo->getGrandTotal() - $existingDiscountTaxCompensationAmount - $existingTax);
+            $creditmemo->setBaseGrandTotal($creditmemo->getBaseGrandTotal() - $existingBaseDiscountTaxCompensationAmount - $existingBaseTax);  
         }
-
+        
         return $this;
     }
 

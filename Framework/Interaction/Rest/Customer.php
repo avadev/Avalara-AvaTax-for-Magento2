@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
 use GuzzleHttp\Exception\ClientException as GuzzleHttpClientException;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\DataObject;
-
+use ClassyLlama\AvaTax\Helper\ApiLog;
 /**
  * Class Customer
  * @package ClassyLlama\AvaTax\Framework\Interaction\Rest
@@ -58,7 +58,10 @@ class Customer extends Rest implements RestCustomerInterface
      * @var \Magento\Customer\Api\AddressRepositoryInterface
      */
     protected $addressRepository;
-
+    /**
+     * @var ApiLog
+     */
+    protected $apiLog;
     /**
      * @param CustomerHelper                                         $customerHelper
      * @param Config                                                 $config
@@ -68,6 +71,7 @@ class Customer extends Rest implements RestCustomerInterface
      * @param \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory $customerModelFactory
      * @param \Magento\Customer\Api\AddressRepositoryInterface       $addressRepository
      * @param LinkCustomersModelFactory                              $customersModelFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         CustomerHelper $customerHelper,
@@ -77,7 +81,8 @@ class Customer extends Rest implements RestCustomerInterface
         ClientPool $clientPool,
         \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory $customerModelFactory,
         \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
-        LinkCustomersModelFactory $customersModelFactory
+        LinkCustomersModelFactory $customersModelFactory,
+        ApiLog $apiLog
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->customerHelper = $customerHelper;
@@ -85,6 +90,7 @@ class Customer extends Rest implements RestCustomerInterface
         $this->customerModelFactory = $customerModelFactory;
         $this->addressRepository = $addressRepository;
         $this->customersModelFactory = $customersModelFactory;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -116,6 +122,12 @@ class Customer extends Rest implements RestCustomerInterface
                 $request->getData('order_by')
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'getCertificatesList';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             // TODO: Possibly specifically handle no entity exception as an empty array of certificates?
             $this->handleException($clientException, $request);
         }
@@ -147,10 +159,71 @@ class Customer extends Rest implements RestCustomerInterface
             );
             return $result;
         } catch (GuzzleHttpClientException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'downloadCertificate';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             throw $clientException;
         } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'downloadCertificate';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             throw $exception;
         }
+    }
+
+    /**
+     * {@inheritdoc} 
+     * @codeCoverageIgnore
+     */
+    public function unlinkCertificate(
+        $request,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    ) {
+        /** @var \Avalara\AvaTaxClient $client */
+        $client = $this->getClient($isProduction, $scopeId, $scopeType);
+        $client->withCatchExceptions(false);
+
+        try {
+            $customerId = $this->customerHelper->getCustomerCodeByCustomerId(
+                $request->getData('customer_id'),
+                null,
+                $scopeId
+            );
+
+            //unlink request requires a LinkCustomersModel which contains a string[] of all customer ids.
+            /** @var \Avalara\LinkCustomersModel $customerModel */
+            $certificateId = $request->getData('certificate_id');
+            $customerModel = $this->customersModelFactory->create();
+            $customerModel->certificates = [$certificateId];
+
+            //Customer(s) must be unlinked from cert before it can be deleted.
+            $client->unlinkCertificatesFromCustomer(
+                $this->config->getCompanyId($scopeId, $scopeType),
+                $customerId,
+                $customerModel
+            );
+        } catch (\Exception $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'unlinkCertificate';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
+            //Swallow this error. Continue to try and delete the cert.
+            //If the deletion errors, then we'll notify the user that something has gone wrong.
+        }
+
+        $result = null;
+
+        return $this->formatResult($result);
     }
 
     /**
@@ -185,6 +258,12 @@ class Customer extends Rest implements RestCustomerInterface
                 $customerModel
             );
         } catch (\Exception $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'deleteCertificate';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             //Swallow this error. Continue to try and delete the cert.
             //If the deletion errors, then we'll notify the user that something has gone wrong.
         }
@@ -198,6 +277,12 @@ class Customer extends Rest implements RestCustomerInterface
                 $request->getData('id')
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'deleteCertificate';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException, $request, LOG_ERR, true);
         }
 
@@ -227,6 +312,12 @@ class Customer extends Rest implements RestCustomerInterface
                 $customerModel
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'updateCustomer';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             // Validate the response; pass the customer id for context in case of an error.
             $this->handleException(
                 $clientException,
@@ -261,6 +352,12 @@ class Customer extends Rest implements RestCustomerInterface
                 [$customerModel]
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'createCustomer';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             // Validate the response; pass the customer id for context in case of an error.
             $this->handleException(
                 $clientException,
@@ -297,6 +394,12 @@ class Customer extends Rest implements RestCustomerInterface
                 ]
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'sendCertExpressInvite';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             // Validate the response; pass the customer id for context in case of an error.
             $this->handleException(
                 $clientException,

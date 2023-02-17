@@ -86,10 +86,11 @@ class Certificates implements CertificatesInterface
             foreach ($certificates as $certificate) {
                 /** @var string $viewUrl */
                 $viewUrl = (string)$this->certificateHelper->getCertificateUrl($certificate->getData('id'), $userId);
-                /** @var string $deleteUrl */
-                $deleteUrl = (string)$this->certificateHelper->getCertificateDeleteUrl($certificate->getData('id'), $userId);
+                /** @var string $invalidateUrl */
+                //code for invalidate url update
+                $invalidateUrl = (string)$this->certificateHelper->getCertificateUnlinkUrl($certificate->getData('id'), $userId);
                 $certificate->setData('certificate_url', $viewUrl);
-                $certificate->setData('certificate_delete_url', $deleteUrl);
+                $certificate->setData('certificate_invalidate_url', $invalidateUrl);
             }
         }
         return $certificates;

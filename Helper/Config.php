@@ -165,6 +165,7 @@ class Config extends AbstractHelper
     const XML_PATH_AVATAX_ADVANCED_AVATAX_TABLE_EXEMPTIONS = 'tax/avatax_advanced/avatax_table_exemptions';
 
     const XML_PATH_AVATAX_VAT_TRANSPORT = 'tax/avatax_general/vat_transport';
+
     /**
      * Tax Calculation API parameters tag default value
      */
@@ -174,6 +175,11 @@ class Config extends AbstractHelper
      */
     const AVATAX_PARAMETERS_TRANSPORT_DEFAULT_VALUE = 'Seller';
     /**#@-*/
+
+    /**
+     * Tax Calculation API shipping parameters name
+     */
+    const AVATAX_SHIPPING_PARAMETERS_NAME = 'Shipping';
 
     /**
      * List of countries that are enabled by default

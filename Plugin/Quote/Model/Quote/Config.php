@@ -21,6 +21,9 @@ use ClassyLlama\AvaTax\Helper\CustomsConfig;
 /**
  * Class Config
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Config
 {
     /**

@@ -16,11 +16,11 @@
 -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <group id="exemption_certcapture_management" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="60">
-        <label>Exemption CertCapture Management</label>
+        <label>Exemption Certificate Management</label>
         <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\ExpandedFieldSet</frontend_model>
         <field id="enabled" type="select" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
             <config_path>tax/avatax_document_management/enabled</config_path>
-            <label>Enable Exemption CertCapture Management</label>
+            <label>Enable Exemption Certificate Management</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <comment>AvaTax Document Management allows users to upload documents that verify that they’re tax exempt and if they do, they won’t be charged tax in the checkout. This feature must be enabled in your Avalara account.</comment>
         </field>

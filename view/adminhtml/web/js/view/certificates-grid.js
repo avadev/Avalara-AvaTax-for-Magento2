@@ -30,14 +30,14 @@ define([
             shouldShowWarning: false
         },
 
-        handleDelete: function(deleteUrl) {
+        handleDelete: function(unlinkUrl) {
             confirm({
-                title: $t('Delete Certificate'),
-                content: $t('Are you sure you’d like to delete this certificate?'),
+                title: $t('Invalidate Certificate'),
+                content: $t('Are you sure you’d like to invalidate this certificate?'),
                 actions: {
                     confirm: function() {
                         //make delete request.
-                        window.location = deleteUrl;
+                        window.location = unlinkUrl;
                     }
                 }
             });

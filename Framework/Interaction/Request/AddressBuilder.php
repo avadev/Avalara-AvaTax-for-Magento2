@@ -11,6 +11,7 @@ use ClassyLlama\AvaTax\Helper\Config as AvaTaxHelperConfig;
 use Magento\Sales\Api\Data\OrderAddressInterface as OrderAddress;
 use ClassyLlama\AvaTax\Helper\Rest\Config as AvaTaxHelperRestConfig;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 /**
  * Class AddressBuilder
@@ -44,25 +45,33 @@ class AddressBuilder implements AddressBuilderInterface
     private $avaTaxLogger;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * AddressBuilder constructor.
      * @param AvaTaxLogger $avaTaxLogger
      * @param AvaTaxHelperRestConfig $avaTaxHelperRestConfig
      * @param FrameworkInteractionAddress $interactionAddress
      * @param FrameworkInteractionAddress $frameworkInteractionAddress
      * @param AvaTaxHelperConfig $avataxHelperConfig
+     * @param ApiLog $apiLog
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
         AvaTaxHelperRestConfig $avaTaxHelperRestConfig,
         InteractionAddress $interactionAddress,
         FrameworkInteractionAddress $frameworkInteractionAddress,
-        AvaTaxHelperConfig $avataxHelperConfig
+        AvaTaxHelperConfig $avataxHelperConfig,
+        ApiLog $apiLog
     ) {
         $this->interactionAddress = $interactionAddress;
         $this->frameworkInteractionAddress = $frameworkInteractionAddress;
         $this->avataxHelperConfig = $avataxHelperConfig;
         $this->avaTaxHelperRestConfig = $avaTaxHelperRestConfig;
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -88,6 +97,13 @@ class AddressBuilder implements AddressBuilderInterface
             ];
 
         } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'AddressBuilder';
+            $debugLogContext['operation'] = 'Framework_Interaction_Request_AddressBuilder';
+            $debugLogContext['function_name'] = 'build';
+            $this->apiLog->debugLog($debugLogContext);
+
             $this->avaTaxLogger->error($exception->getMessage(), [
                 'class' => self::class,
                 'trace' => $exception->getTraceAsString()

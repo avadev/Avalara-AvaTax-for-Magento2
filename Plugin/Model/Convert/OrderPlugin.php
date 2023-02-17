@@ -7,6 +7,9 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Model\Convert;
 
+/**
+ * @codeCoverageIgnore
+ */
 class OrderPlugin
 {
     /**

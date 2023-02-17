@@ -7,6 +7,9 @@ namespace ClassyLlama\AvaTax\Plugin\DataProviders;
  *
  * @package ClassyLlama\AvaTax\Plugin\DataProviders
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Overview
 {
     /**
