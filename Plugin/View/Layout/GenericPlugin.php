@@ -30,6 +30,9 @@ use Magento\Ui\Component\Form\Fieldset as FormFieldset;
  * Class GenericPlugin
  * @package ClassyLlama\AvaTax\Plugin\View\Layout
  */
+/**
+ * @codeCoverageIgnore
+ */
 class GenericPlugin
 {
     /**

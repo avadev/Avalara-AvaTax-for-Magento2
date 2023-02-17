@@ -88,6 +88,10 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
      */
     public function calculateTax(RequestInterface $request, int $storeId, string $scopeType, array $params = [], $isProduction = null): RestTaxResult
     {
+        $forceNew = false;
+        if (isset($params[\ClassyLlama\AvaTax\Api\RestTaxInterface::FLAG_FORCE_NEW_RATES])) {
+            $forceNew = $params[\ClassyLlama\AvaTax\Api\RestTaxInterface::FLAG_FORCE_NEW_RATES];
+        }
         /**
          * @var CreditmemoRequest $request
          * @var RequestInterface $cacheKey
@@ -105,7 +109,7 @@ class TaxComposite extends InteractionRestTax implements TaxCompositeInterface
         /** @var RestTaxResult|null $taxes */
         $taxes = $this->resultStorage->find($cacheKey);
 
-        if (null !== $taxes) {
+        if (null !== $taxes && !$forceNew) {
             return $taxes;
         }
 

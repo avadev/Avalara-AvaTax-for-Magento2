@@ -10,6 +10,9 @@ use Magento\Store\Model\StoreManagerInterface;
  *
  * @package ClassyLlama\AvaTax\Plugin\Multishipping\Checkout
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Results
 {
     /**

@@ -68,5 +68,8 @@
                 <field id="address_validation_enabled">1</field>
             </depends>
         </field>
+        <depends>
+            <field id="tax/avatax_configuration/extension_mode/enabled">1</field>
+        </depends>
     </group>
 </include>

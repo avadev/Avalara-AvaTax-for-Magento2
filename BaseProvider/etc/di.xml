@@ -62,11 +62,11 @@
 	<type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
-                <item name="baseprovider_log_listing_data_source" xsi:type="string">AvaTaxLogGridDataProvider</item>
+                <item name="baseprovider_log_listing_data_source" xsi:type="string">AvaTaxBaseProviderLogGridDataProvider</item>
             </argument>
         </arguments>
     </type>
-    <virtualType name="AvaTaxLogGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+    <virtualType name="AvaTaxBaseProviderLogGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">baseprovider_logs</argument>
             <argument name="resourceModel" xsi:type="string">ClassyLlama\AvaTax\BaseProvider\Model\ResourceModel\Log</argument>

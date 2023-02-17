@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel\Quote;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Item extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

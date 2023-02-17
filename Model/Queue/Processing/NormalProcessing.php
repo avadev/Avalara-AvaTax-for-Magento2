@@ -81,7 +81,6 @@ class NormalProcessing extends AbstractProcessing implements ProcessingStrategyI
 
     public function execute()
     {
-        $this->avaTaxLogger->debug(__('Starting Normal Queue processing'));
         // Initialize the queue collection
         $queueCollection = $this->queueCollectionFactory->create();
         $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PENDING)

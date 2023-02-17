@@ -18,7 +18,7 @@ namespace ClassyLlama\AvaTax\Model;
 use ClassyLlama\AvaTax\Api\Data\SDKTokenInterfaceFactory;
 use ClassyLlama\AvaTax\Api\TokenInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
-
+use ClassyLlama\AvaTax\Helper\ApiLog;
 /**
  * Class Token
  *
@@ -69,7 +69,10 @@ class Token extends Rest implements TokenInterface
      * @var \ClassyLlama\AvaTax\Model\Factory\CreateECommerceTokenInputModelFactory
      */
     protected $createECommerceTokenInputModelFactory;
-
+    /**
+     * @var ApiLog
+     */
+    protected $apiLog;
     /**
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Framework\App\DeploymentConfig $deploymentConfig
@@ -81,6 +84,7 @@ class Token extends Rest implements TokenInterface
      * @param \Magento\Framework\DataObjectFactory $dataObjectFactory
      * @param \ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool $clientPool
      * @param \ClassyLlama\AvaTax\Model\Factory\CreateECommerceTokenInputModelFactory $createECommerceTokenInputModelFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -92,7 +96,8 @@ class Token extends Rest implements TokenInterface
         \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\DataObjectFactory $dataObjectFactory,
         \ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool $clientPool,
-        \ClassyLlama\AvaTax\Model\Factory\CreateECommerceTokenInputModelFactory $createECommerceTokenInputModelFactory
+        \ClassyLlama\AvaTax\Model\Factory\CreateECommerceTokenInputModelFactory $createECommerceTokenInputModelFactory,
+        ApiLog $apiLog
     )
     {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
@@ -103,6 +108,7 @@ class Token extends Rest implements TokenInterface
         $this->config = $config;
         $this->customerHelper = $customerHelper;
         $this->createECommerceTokenInputModelFactory = $createECommerceTokenInputModelFactory;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -148,6 +154,12 @@ class Token extends Rest implements TokenInterface
                     $ECommerceTokenInputModel
                 );
             } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $clientException->getMessage();
+                $debugLogContext['source'] = 'token';
+                $debugLogContext['operation'] = 'Model_Token';
+                $debugLogContext['function_name'] = 'getTokenForCustomerId';
+                $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
                 // Validate the response; pass the customer id for context in case of an error.
                 $this->handleException(
                     $clientException,

@@ -33,6 +33,7 @@ class DocumentManagementConfig extends AbstractHelper
 	const XML_PATH_CERTCAPTURE_AUTO_VALIDATION = 'tax/avatax_certificate_capture/disable_certcapture_auto_validation';
 	
     /**
+     * code for check certcapture enable
      * @param int|null    $store
      * @param string|null $scopeType
      *

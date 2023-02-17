@@ -21,7 +21,7 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\App\Action\Context;
 use ClassyLlama\AvaTax\Model\Log\Task;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
-
+use ClassyLlama\AvaTax\Helper\ApiLog;
 /**
  * @codeCoverageIgnore
  */
@@ -38,19 +38,27 @@ class Clear extends Log
     protected $avaTaxLogger;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * Process constructor
      *
      * @param Context $context
      * @param Task $logTask
      * @param AvaTaxLogger $avaTaxLogger
+     * @param ApiLog $apiLog
      */
     public function __construct(
         Context $context,
         Task $logTask,
-        AvaTaxLogger $avaTaxLogger
+        AvaTaxLogger $avaTaxLogger,
+        ApiLog $apiLog
     ) {
         $this->logTask = $logTask;
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->apiLog = $apiLog;
         parent::__construct($context);
     }
 
@@ -77,7 +85,12 @@ class Clear extends Log
                 $this->messageManager->addSuccess(__('No logs needed to be cleared.'));
             }
         } catch (\Exception $e) {
-
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'ClearLog';
+            $debugLogContext['operation'] = 'Controller_Adminhtml_Log_Clear';
+            $debugLogContext['function_name'] = 'execute';
+            $this->apiLog->debugLog($debugLogContext);
             // Build error message
             $message = __('An error occurred while clearing the log.');
 

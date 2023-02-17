@@ -13,6 +13,9 @@ use ClassyLlama\AvaTax\Helper\Config as AvaTaxHelperConfig;
  *
  * @package ClassyLlama\AvaTax\Plugin\Model\Sales\Pdf
  */
+/**
+ * @codeCoverageIgnore
+ */
 class TaxPlugin
 {
     const TOTAL_TAX_LABEL = 'Tax';

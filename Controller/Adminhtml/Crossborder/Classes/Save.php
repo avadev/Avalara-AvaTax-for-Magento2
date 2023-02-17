@@ -20,6 +20,7 @@ use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Framework\Exception\LocalizedException;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 /**
  * @codeCoverageIgnore
@@ -34,18 +35,26 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
     protected $dataPersistor;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param Context $context
      * @param CrossBorderClassRepositoryInterface $crossBorderClassRepository
      * @param DataPersistorInterface $dataPersistor
+     * @param ApiLog $apiLog
      */
     public function __construct(
         Context $context,
         CrossBorderClassRepositoryInterface $crossBorderClassRepository,
-        DataPersistorInterface $dataPersistor
+        DataPersistorInterface $dataPersistor,
+        ApiLog $apiLog
     ) {
         parent::__construct($context);
         $this->crossBorderClassRepository = $crossBorderClassRepository;
         $this->dataPersistor = $dataPersistor;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -69,9 +78,21 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
             try {
                 $class = ($id) ? $this->crossBorderClassRepository->getById($id) : $this->crossBorderClassRepository->create();
             } catch (NoSuchEntityException $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'SaveCrossBorderClass';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Save';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addErrorMessage(__('Cross Border Class does not exist'));
                 return $resultRedirect->setPath('*/*');
             } catch (\Exception $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'SaveCrossBorderClass';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Save';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addErrorMessage(__('A problem occurred while trying to initialize Cross Border Class'));
                 return $resultRedirect->setPath('*/*');
             }
@@ -112,8 +133,20 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
                 }
                 return $resultRedirect->setPath('*/*');
             } catch (LocalizedException $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'SaveCrossBorderClass';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Save';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addErrorMessage($e->getMessage());
             } catch (\Exception $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'SaveCrossBorderClass';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Save';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addExceptionMessage($e, __('Something went wrong while saving the Cross Border Class'));
             }
 

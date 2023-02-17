@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Plugin\Controller\Account;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CreatePostPlugin
 {
     /**

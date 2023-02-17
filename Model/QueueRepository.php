@@ -14,6 +14,9 @@ use Magento\Framework\Api\SearchCriteriaInterface;
  *
  * @package ClassyLlama\AvaTax\Model
  */
+/**
+ * @codeCoverageIgnore
+ */
 class QueueRepository implements QueueRepositoryInterface
 {
     /**

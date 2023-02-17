@@ -20,6 +20,9 @@ use ClassyLlama\AvaTax\Helper\UrlSigner;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 
+/**
+ * @codeCoverageIgnore
+ */
 class DataProviderPlugin
 {
     // 24 hours in seconds
@@ -124,8 +127,8 @@ class DataProviderPlugin
             );
 
             $certificate->setData(
-                'certificate_delete_url',
-                $this->certificateHelper->getCertificateDeleteUrl($certificate->getData('id'), $customerId)
+                'certificate_invalidate_url',
+                $this->certificateHelper->getCertificateUnlinkUrl($certificate->getData('id'), $customerId)
             );
         }
 

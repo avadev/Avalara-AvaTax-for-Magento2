@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**

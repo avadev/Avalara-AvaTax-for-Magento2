@@ -17,6 +17,7 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 
 use ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 /**
  * @codeCoverageIgnore
@@ -34,22 +35,30 @@ class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
     protected $crossBorderTypeRepository;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param \Magento\Backend\App\Action\Context        $context
      * @param CrossBorderTypeRepositoryInterface         $crossBorderTypeRepository
      * @param \Magento\Framework\Registry                $coreRegistry
      * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         CrossBorderTypeRepositoryInterface $crossBorderTypeRepository,
         \Magento\Framework\Registry $coreRegistry,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory
+        \Magento\Framework\View\Result\PageFactory $resultPageFactory,
+        ApiLog $apiLog
     )
     {
         parent::__construct($context, $coreRegistry);
 
         $this->resultPageFactory = $resultPageFactory;
         $this->crossBorderTypeRepository = $crossBorderTypeRepository;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -69,6 +78,12 @@ class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
 
                 $this->coreRegistry->register('classyllama_avatax_crossbordertype', $model);
             } catch (LocalizedException $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'EditCrossBorderType';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_CrossborderType_Edit';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addErrorMessage(__('This Cross Border Type no longer exists.'));
                 /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
                 $resultRedirect = $this->resultRedirectFactory->create();

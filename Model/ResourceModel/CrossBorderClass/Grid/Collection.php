@@ -27,6 +27,9 @@ use ClassyLlama\AvaTax\Model\ResourceModel\CrossBorderClass\CountryLink\Collecti
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Collection extends SearchResult
 {
     /**

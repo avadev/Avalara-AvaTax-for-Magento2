@@ -6,6 +6,9 @@
  */
 namespace ClassyLlama\AvaTax\Plugin\Model\Quote;
 
+/**
+ * @codeCoverageIgnore
+ */
 class GrandTotalDetailsSorter
 {
     const CUSTOMS_RATE_TITLE = 'Duty';

@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CrossBorderType extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

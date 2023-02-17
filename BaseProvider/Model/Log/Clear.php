@@ -18,6 +18,7 @@ use Psr\Log\LoggerInterface;
 use ClassyLlama\AvaTax\BaseProvider\Helper\Application\Config as ApplicationLoggerConfig;
 use ClassyLlama\AvaTax\BaseProvider\Model\ResourceModel\Log\CollectionFactory as LogCollFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Clear
 {
@@ -40,23 +41,31 @@ class Clear
      * @var DateTime
      */
     protected $dateTime;
+    
+    /**
+     * @var ApiLog
+     */
+    protected $apiLog;
 
     /**
      * @param LoggerInterface $applicationLogger
      * @param ApplicationLoggerConfig $applicationLoggerConfig
      * @param LogCollFactory $logCollFactory
      * @param DateTime $dateTime
+     * @param ApiLog $apiLog
      */
     public function __construct(
         LoggerInterface $applicationLogger,
         ApplicationLoggerConfig $applicationLoggerConfig,
         LogCollFactory $logCollFactory,
-        DateTime $dateTime
+        DateTime $dateTime,
+        ApiLog $apiLog
     ) {
         $this->applicationLogger = $applicationLogger;
         $this->applicationLoggerConfig = $applicationLoggerConfig;
         $this->logCollFactory = $logCollFactory;
         $this->dateTime = $dateTime;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -100,6 +109,12 @@ class Clear
                 $log->delete();
                 $size++;
             } catch(\Exception $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'clearlog';
+                $debugLogContext['operation'] = 'BaseProvider_Model_Log_Clear';
+                $debugLogContext['function_name'] = 'clearDbLogs';
+                $this->apiLog->debugLog($debugLogContext);
                 $e->getMessage();
             }
         }

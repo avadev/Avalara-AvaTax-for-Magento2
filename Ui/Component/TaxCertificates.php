@@ -56,6 +56,9 @@ class TaxCertificates extends AbstractComponent implements TabInterface
      */
     const COMPONENT = 'ClassyLlama_AvaTax/js/form/certificates-fieldset';
 
+    /** @var string  */
+    const VALID_PENDING_STATUS = 'PENDING';
+
     /**
      * @var ResourceModelConfig
      */
@@ -198,13 +201,14 @@ class TaxCertificates extends AbstractComponent implements TabInterface
     protected function getAvailableExemptionZones()
     {
         $zones = $this->companyRest->getCertificateExposureZones();
-
-        return array_map(
-            function ($zone) {
-                return $zone->name;
-            },
-            $zones->value
-        );
+        if($zones){
+            return array_map(
+                function ($zone) {
+                    return $zone->name;
+                },
+                $zones->value
+            );
+        }
     }
 
     /**
@@ -238,7 +242,6 @@ class TaxCertificates extends AbstractComponent implements TabInterface
                 if ($certificate instanceof DataObject) {
                     /** @var array $item */
                     $item = $certificate->getData();
-
                     // case, when a certificate does not have signed_date/expiration_date at the Avalara side
                     !$certificate->hasData('signed_date') ? $item['signed_date'] = [] : false;
                     !$certificate->hasData('expiration_date') ? $item['expiration_date'] = [] : false;
@@ -246,7 +249,17 @@ class TaxCertificates extends AbstractComponent implements TabInterface
                     $item['exemption_reason'] = $this->configureAdditionalInformation($certificate, 'exemption_reason');
                     $item['exposure_zone'] = $this->configureAdditionalInformation($certificate, 'exposure_zone');
                     $item['validated_exemption_reason'] = $this->configureAdditionalInformation($certificate, 'validated_exemption_reason');
-
+                    // code to get certificate status
+                    $status = $item['status'];
+                    $valid  = $item['valid'];
+                    if($valid && ($status == self::VALID_PENDING_STATUS)){
+                       $item['valid'] = "Pending";
+                    }elseif($valid){
+                        $item['valid'] = "Approved";
+                    }else{
+                        $item['valid'] = "Denied";
+                    }
+                    
                     $data[] = $item;
                 }
             }

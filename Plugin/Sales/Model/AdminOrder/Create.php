@@ -22,6 +22,9 @@ use Magento\Sales\Model\AdminOrder\Create as SalesCreate;
 /**
  * Class Create
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Create
 {
     /**

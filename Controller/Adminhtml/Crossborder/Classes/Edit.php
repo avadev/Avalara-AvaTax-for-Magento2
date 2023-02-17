@@ -21,6 +21,7 @@ use Magento\Backend\App\Action\Context;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
 use Magento\Framework\Registry;
 use Magento\Framework\Exception\NoSuchEntityException;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 /**
  * @codeCoverageIgnore
@@ -38,18 +39,26 @@ class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
     protected $coreRegistry;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param Context $context
      * @param CrossBorderClassRepositoryInterface $crossBorderClassRepository
      * @param Registry $coreRegistry
+     * @param ApiLog $apiLog
      */
     public function __construct(
         Context $context,
         CrossBorderClassRepositoryInterface $crossBorderClassRepository,
-        Registry $coreRegistry
+        Registry $coreRegistry,
+        ApiLog $apiLog
     ) {
         parent::__construct($context);
         $this->crossBorderClassRepository = $crossBorderClassRepository;
         $this->coreRegistry = $coreRegistry;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -66,11 +75,23 @@ class Edit extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
             try {
                 $crossBorderClass = $this->crossBorderClassRepository->getById($classId);
             } catch (NoSuchEntityException $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'EditCrossBorderClass';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Edit';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addExceptionMessage($e, __('Cross Border Class does not exist'));
                 $resultRedirect = $this->resultRedirectFactory->create();
                 $resultRedirect->setPath('*/*/index');
                 return $resultRedirect;
             } catch (\Exception $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'EditCrossBorderClass';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Edit';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addExceptionMessage($e, __('An error occurred while loading the class'));
                 $resultRedirect = $this->resultRedirectFactory->create();
                 $resultRedirect->setPath('*/*/index');

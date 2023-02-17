@@ -47,14 +47,14 @@ class FileFormatter extends LineFormatter
         $output = $this->format;
 
         foreach ($vars['extra'] as $var => $val) {
-            if (false !== strpos($output, '%extra.'.$var.'%')) {
+            if (false !== strpos((string)$output, (string)'%extra.'.$var.'%')) {
                 $output = str_replace('%extra.' . $var . '%', var_export($val, true), $output);
                 unset($vars['extra'][$var]);
             }
         }
 
         foreach ($vars as $var => $val) {
-            if (false !== strpos($output, '%'.$var.'%')) {
+            if (false !== strpos((string)$output, (string)'%'.$var.'%')) {
                 $val_output = '';
                 if ((is_array($val) && count($val) > 0) || is_array($val) === false) {
                     $val_output = var_export($val, true);

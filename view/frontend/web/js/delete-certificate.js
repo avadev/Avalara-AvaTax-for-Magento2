@@ -16,12 +16,12 @@ define(['jquery', 'mage/translate', 'Magento_Ui/js/modal/confirm'], function ($,
     return function (options, element) {
         $(element).click(function() {
             confirm({
-                title: $t('Delete Certificate'),
-                content: $t('Are you sure you’d like to delete this certificate?'),
+                title: $t('Invalidate Certificate'),
+                content: $t('Are you sure you’d like to invalidate this certificate?'),
                 actions: {
                     confirm: function() {
-                        //make delete request.
-                        window.location = options.deleteUrl;
+                        //make unlink request.
+                        window.location = options.unlinkUrl;
                     }
                 }
             });

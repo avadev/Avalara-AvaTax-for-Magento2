@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel\Order;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Item extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

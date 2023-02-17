@@ -30,7 +30,9 @@ define(['jquery', 'uiComponent', 'Magento_Ui/js/modal/modal', 'mage/translate'],
         },
 
         sendInvite: function sendInvite() {
-            window.location.href = this.inviteUrl;
+            if (confirm('This customer will be synced to AvaTax (using the customer\'s email and default billing address) and AvaTax will send an email to the customer, asking them to add an exemption certificate in the AvaTax interface. Would you like to proceed?')) {
+                window.location.href = this.inviteUrl;
+            }
         }
     });
 });

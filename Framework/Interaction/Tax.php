@@ -34,6 +34,8 @@ use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use ClassyLlama\AvaTax\Helper\ApiLog;
+
 /**
  * Class Tax
  */
@@ -124,6 +126,11 @@ class Tax
     protected $restConfig;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * A list of valid fields for the data array and meta data about their types to use in validation
      * based on the API documentation.  If any fields are added or removed, the same should be done in getTaxRequest.
      *
@@ -173,7 +180,10 @@ class Tax
         'shipping_mode' => ['type' => 'string'],
         'transport_parameters'=> ['type' => 'boolean'],
         'shipping_method' => ['type' => 'string'],
-        'transport_parameters_value'=> ['type' => 'string']
+        'transport_parameters_value'=> ['type' => 'string'],
+        'shipping_parameters'=> ['type' => 'boolean'],
+        'shipping_parameters_name' => ['type' => 'string'],
+        'shipping_parameters_value'=> ['type' => 'string']
     ];
 
     public static $validTaxOverrideFields = [
@@ -259,6 +269,7 @@ class Tax
      * @param AddressRepositoryInterface                    $customerAddressRepository
      * @param ScopeConfigInterface                          $scopeConfig
      * @param Json                                          $serialize
+     * @param ApiLog $apiLog
      */
     public function __construct(
         Address $address,
@@ -280,7 +291,8 @@ class Tax
         Customer $customer,
         AddressRepositoryInterface $customerAddressRepository,
         ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Serialize\Serializer\Json $serialize
+        \Magento\Framework\Serialize\Serializer\Json $serialize,
+        ApiLog $apiLog
     ) {
         $this->address = $address;
         $this->config = $config;
@@ -303,6 +315,7 @@ class Tax
         $this->customerAddressRepository = $customerAddressRepository;
         $this->scopeConfig = $scopeConfig;
         $this->serialize = $serialize;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -319,6 +332,12 @@ class Tax
         try {
             return $this->customerRepository->getById($customerId);
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'Tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Tax';
+            $debugLogContext['function_name'] = 'getCustomerById';
+            $this->apiLog->debugLog($debugLogContext);
             return null;
         }
     }
@@ -435,7 +454,7 @@ class Tax
 		if($serialized_transport && !empty($serialized_transport))
 		{
 			$config_transports = $this->serialize->unserialize($serialized_transport);
-			if($config_transports && !empty($config_transports))
+			if($config_transports && !empty($config_transports) && count($config_transports) > 0 )
 			{
 				foreach($config_transports as $config_transport)
 				{
@@ -447,6 +466,9 @@ class Tax
 				}
 			}
 		}
+        $currencyCode = $quote->getCurrency()->getQuoteCurrencyCode();
+        $shippingAmount = number_format($shippingAddress->getAddress()->getShippingAmount(), '2', '.', ',');
+        $shippingParametersValue = $shipToAddress->getCountry().":".$shipToAddress->getRegion().":".$shippingAddress->getMethod().":".$shippingAmount." ".$currencyCode;
         $data = [
             'store_id' => $store->getId(),
             'commit' => false, // quotes should never be committed
@@ -473,7 +495,10 @@ class Tax
             ),
             'transport_parameters'=> true,
             'shipping_method' => $this->config::AVATAX_PARAMETERS_TRANSPORT_KEY,
-            'transport_parameters_value' => $transport_parameters_value
+            'transport_parameters_value' => $transport_parameters_value,
+            'shipping_parameters'=> true,
+            'shipping_parameters_name' => $this->config::AVATAX_SHIPPING_PARAMETERS_NAME,
+            'shipping_parameters_value' => $shippingParametersValue
         ];
         
         if (!empty($billToAddress) && !empty($billToAddress->getPostalCode()) && !empty($billToAddress->getCountry())) {
@@ -571,6 +596,13 @@ class Tax
             $validatedData = $this->metaDataObject->validateData($request->getData());
             $request->setData($validatedData);
         } catch (ValidationException $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'Tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Tax';
+            $debugLogContext['function_name'] = 'getTaxRequestForQuote';
+            $this->apiLog->debugLog($debugLogContext);
+
             $this->avaTaxLogger->error('Error validating data: ' . $e->getMessage(), [
                 'data' => var_export($request->getData(), true)
             ]);
@@ -703,24 +735,35 @@ class Tax
             $orderIncrementId = $order->getIncrementId();
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             // Do nothing
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'Tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Tax';
+            $debugLogContext['function_name'] = 'getTaxRequestForSalesObject';
+            $this->apiLog->debugLog($debugLogContext);
         }
         $storeId = $order->getStoreId();
         $serialized_transport = $this->config->getVATTransport($storeId);
         $shipping_method = $order->getShippingMethod();
-        $config_transports = $this->serialize->unserialize($serialized_transport);
         $transport_parameters_value = $this->config::AVATAX_PARAMETERS_TRANSPORT_DEFAULT_VALUE;
-        if($config_transports && !empty($config_transports))
+        if($serialized_transport && !empty($serialized_transport))
         {
-            foreach($config_transports as $config_transport)
+            $config_transports = $this->serialize->unserialize($serialized_transport);
+            if( $config_transports && !empty($config_transports) && count($config_transports) > 0 )
             {
-                if($shipping_method == $config_transport['transport_shipping'])
+                foreach($config_transports as $config_transport)
                 {
-                    $transport_parameters_value = $config_transport['transport'];
-                    break;
-                }                    
+                    if($shipping_method == $config_transport['transport_shipping'])
+                    {
+                        $transport_parameters_value = $config_transport['transport'];
+                        break;
+                    }                    
+                }
             }
         }
-
+        $currencyCode = $order->getOrderCurrencyCode();
+        $shippingAmount = number_format($order->getShippingAmount(), '2', '.', ',');
+        $shippingParametersValue = $shipToAddress->getCountry().":".$shipToAddress->getRegion().":".$order->getShippingMethod().":".$shippingAmount." ".$currencyCode;
         $data = [
             'store_id' => $store->getId(),
             'commit' => $this->config->getCommitSubmittedTransactions($store),
@@ -746,7 +789,10 @@ class Tax
             'reference_code' => $orderIncrementId,
             'transport_parameters'=> true,
             'shipping_method' => $this->config::AVATAX_PARAMETERS_TRANSPORT_KEY,
-            'transport_parameters_value' => $transport_parameters_value
+            'transport_parameters_value' => $transport_parameters_value,
+            'shipping_parameters'=> true,
+            'shipping_parameters_name' => $this->config::AVATAX_SHIPPING_PARAMETERS_NAME,
+            'shipping_parameters_value' => $shippingParametersValue
         ];
         
         if(!empty($billToAddress) && !empty($billToAddress->getPostalCode()) && !empty($billToAddress->getCountry()))
@@ -765,6 +811,12 @@ class Tax
             $validatedData = $this->metaDataObject->validateData($request->getData());
             $request->setData($validatedData);
         } catch (ValidationException $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'Tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Tax';
+            $debugLogContext['function_name'] = 'getTaxRequestForSalesObject';
+            $this->apiLog->debugLog($debugLogContext);
             $this->avaTaxLogger->error('Error validating data: ' . $e->getMessage(), [
                 'data' => var_export($request->getData(), true)
             ]);
@@ -787,6 +839,12 @@ class Tax
         try {
             return $this->invoiceRepository->get($invoiceId);
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'Tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Tax';
+            $debugLogContext['function_name'] = 'getInvoice';
+            $this->apiLog->debugLog($debugLogContext);
             return null;
         }
     }
@@ -851,6 +909,12 @@ class Tax
                 }
             } catch (\Magento\Framework\Exception\LocalizedException $exception) {
                 // No actions needed
+                $debugLogContext = [];
+                $debugLogContext['message'] = $exception->getMessage();
+                $debugLogContext['source'] = 'Tax';
+                $debugLogContext['operation'] = 'Framework_Interaction_Tax';
+                $debugLogContext['function_name'] = 'getBusinessIdentificationNumber';
+                $this->apiLog->debugLog($debugLogContext);
             }
         }
         if ($customer && $customer->getTaxvat()) {

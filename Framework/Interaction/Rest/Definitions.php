@@ -21,6 +21,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions\ResultFactory as D
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Framework\DataObjectFactory;
 use Psr\Log\LoggerInterface;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Definitions extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestDefinitionsInterface
@@ -39,17 +40,20 @@ class Definitions extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
      * @param ClientPool $clientPool
      * @param RestConfig $restConfig
      * @param DefinitionsResultFactory $definitionsResultFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         LoggerInterface $logger,
         DataObjectFactory $dataObjectFactory,
         ClientPool $clientPool,
         RestConfig $restConfig,
-        DefinitionsResultFactory $definitionsResultFactory
+        DefinitionsResultFactory $definitionsResultFactory,
+        ApiLog $apiLog
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->restConfig = $restConfig;
         $this->definitionsResultFactory = $definitionsResultFactory;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -75,6 +79,12 @@ class Definitions extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         try {
             $resultObj = $client->listParameters( $filter );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'definitions';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Definitions';
+            $debugLogContext['function_name'] = 'parameters';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException);
         }
 
