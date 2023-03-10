@@ -18,7 +18,8 @@ define([
     'ClassyLlama_AvaTax/js/view/address-validation-form',
     'Magento_Checkout/js/model/checkout-data-resolver',
     'Magento_Checkout/js/action/select-billing-address',
-    'Magento_Checkout/js/action/create-billing-address'
+    'Magento_Checkout/js/action/create-billing-address',
+    'jquery-ui-modules/widget'
 ], function (
     $,
     ko,
