@@ -19,6 +19,7 @@ define([
     'Magento_Checkout/js/model/checkout-data-resolver',
     'Magento_Checkout/js/action/select-billing-address',
     'Magento_Checkout/js/action/create-billing-address',
+    'Magento_Ui/js/modal/modal',
     'jquery-ui-modules/widget'
 ], function (
     $,
