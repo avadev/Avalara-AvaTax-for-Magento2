@@ -264,17 +264,12 @@ class ExtensionAttributesPersistencePlugin
 
 
         foreach (array_unique(array_keys($tablesToUpdate)) as $tableName) {
-            \Magento\Framework\App\ObjectManager::getInstance()
-                ->get('Psr\Log\LoggerInterface')->debug("field:". $tablesToUpdate[$tableName]['join_reference_field']. " value:".$tablesToUpdate[$tableName]['join_reference_field_value']);
-
+            
             $fields = array_merge(...$tableFields[$tableName]);
             $select = $subject->getConnection()->select()->from($subject->getTable($tableName))->columns($fields)->where(
                 $tablesToUpdate[$tableName]['join_reference_field']. " = ?",
                 $tablesToUpdate[$tableName]['join_reference_field_value']
             );
-
-            \Magento\Framework\App\ObjectManager::getInstance()
-            ->get('Psr\Log\LoggerInterface')->debug($select);
 
             $data = $subject->getConnection()->fetchRow($select);
             if ($data) {

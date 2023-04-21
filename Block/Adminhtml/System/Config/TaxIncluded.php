@@ -38,7 +38,10 @@ class TaxIncluded extends \Magento\Config\Block\System\Config\Form\Field
         $html .= "<script>
                         require([
                             'jquery',
-                            'Magento_Ui/js/modal/confirm'
+                            'Magento_Ui/js/modal/confirm',
+                            'domReady!',
+                            'jquery/ui',
+                            'uiRegistry'
                         ], function(jQuery, confirmation) {
                             setTimeout(function(){ ".$jsHtml." }, 300);
                             jQuery('#tax_avatax_configuration_sales_tax_tax_included0,#tax_avatax_configuration_sales_tax_tax_included1').on('click', function(event){
