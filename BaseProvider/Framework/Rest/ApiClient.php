@@ -28,6 +28,8 @@ use ClassyLlama\AvaTax\Helper\ApiLog;
  */
 class ApiClient
 {
+    public $auth;
+
     /**
      * @var ResponseFactory
      */
@@ -41,7 +43,7 @@ class ApiClient
     /**
      * @var bool The setting for whether the client should catch exceptions
      */
-    protected $catchExceptions;
+    protected $catchExceptions = true;
 
     /**
      * @var Array  Additional headers
@@ -79,7 +81,6 @@ class ApiClient
     ) {
         $this->clientFactory = $clientFactory;
         $this->responseFactory = $responseFactory;
-        $this->catchExceptions = true;
         $this->apiLog = $apiLog;
     }
 

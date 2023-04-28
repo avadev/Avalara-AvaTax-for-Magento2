@@ -260,6 +260,8 @@ class Config extends AbstractHelper
      */
     const AVATAX_CACHE_TAG = 'AVATAX';
     
+    public $avaTaxConfigFactory;
+    
     /**
      * @var ProductMetadataInterface
      */

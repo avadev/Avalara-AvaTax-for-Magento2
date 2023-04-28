@@ -118,10 +118,16 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
         if (!isset($guzzleParams['timeout'])) {
             $guzzleParams['timeout'] = $this->config->getAvaTaxApiTimeout();
         }
+        if (!isset($guzzleParams['connect_timeout'])) {
+            $guzzleParams['connect_timeout'] = $this->config->getAvaTaxApiTimeout();
+        }        
 
         // Warning: This causes the value to revert to the default "forever" timeout in guzzle
         if (\is_nan($guzzleParams['timeout'])) {
             $guzzleParams['timeout'] = 0;
+        }
+        if (\is_nan($guzzleParams['connect_timeout'])) {
+            $guzzleParams['connect_timeout'] = 0;
         }
 
         return parent::restCall($apiUrl, $verb, $guzzleParams);

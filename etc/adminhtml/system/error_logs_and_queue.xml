@@ -51,6 +51,7 @@
                 </depends>
             </field>
             <field id="avatax_timeout" translate="label comment" type="text" sortOrder="2050" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <config_path>tax/avatax_advanced/avatax_timeout</config_path>
                 <label>AvaTax API Timeout</label>
                 <comment><![CDATA[This field defines how long Magento should wait to hear from AvaTax's servers before assuming no response will be given.]]></comment>
             </field>

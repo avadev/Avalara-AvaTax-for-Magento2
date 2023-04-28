@@ -54,6 +54,11 @@ class FileHandler extends Base
     protected $loggerConfig;
 
     /**
+     * @var array
+     */
+    protected $processors = [];
+
+    /**
      * @param Config $config
      * @param DriverInterface $filesystem
      */

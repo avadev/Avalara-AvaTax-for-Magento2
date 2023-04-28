@@ -249,6 +249,11 @@ class Tax
     protected $scopeConfig;
 
     /**
+     * @var \Magento\Framework\Serialize\Serializer\Json
+     */
+    protected $serialize;
+
+    /**
      * @param Address                                       $address
      * @param Config                                        $config
      * @param \ClassyLlama\AvaTax\Helper\TaxClass           $taxClassHelper
