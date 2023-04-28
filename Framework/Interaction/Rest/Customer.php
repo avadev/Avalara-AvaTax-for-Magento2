@@ -21,6 +21,7 @@ use ClassyLlama\AvaTax\Exception\AvaTaxCustomerDoesNotExistException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\Customer as CustomerHelper;
+use ClassyLlama\AvaTax\Model\Factory\LinkCertificatesModelFactory;
 use ClassyLlama\AvaTax\Model\Factory\LinkCustomersModelFactory;
 use Magento\Framework\DataObjectFactory;
 use Psr\Log\LoggerInterface;
@@ -45,6 +46,11 @@ class Customer extends Rest implements RestCustomerInterface
     protected $config;
 
     /**
+     * @var LinkCertificatesModelFactory
+     */
+    protected $certificatesModelFactory;
+
+    /**
      * @var LinkCustomersModelFactory
      */
     protected $customersModelFactory;
@@ -62,6 +68,7 @@ class Customer extends Rest implements RestCustomerInterface
      * @var ApiLog
      */
     protected $apiLog;
+
     /**
      * @param CustomerHelper                                         $customerHelper
      * @param Config                                                 $config
@@ -70,6 +77,7 @@ class Customer extends Rest implements RestCustomerInterface
      * @param ClientPool                                             $clientPool
      * @param \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory $customerModelFactory
      * @param \Magento\Customer\Api\AddressRepositoryInterface       $addressRepository
+     * @param LinkCertificatesModelFactory                           $certificatesModelFactory
      * @param LinkCustomersModelFactory                              $customersModelFactory
      * @param ApiLog $apiLog
      */
@@ -81,6 +89,7 @@ class Customer extends Rest implements RestCustomerInterface
         ClientPool $clientPool,
         \ClassyLlama\AvaTax\Model\Factory\CustomerModelFactory $customerModelFactory,
         \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
+        LinkCertificatesModelFactory $certificatesModelFactory,
         LinkCustomersModelFactory $customersModelFactory,
         ApiLog $apiLog
     ) {
@@ -89,6 +98,7 @@ class Customer extends Rest implements RestCustomerInterface
         $this->config = $config;
         $this->customerModelFactory = $customerModelFactory;
         $this->addressRepository = $addressRepository;
+        $this->certificatesModelFactory = $certificatesModelFactory;
         $this->customersModelFactory = $customersModelFactory;
         $this->apiLog = $apiLog;
     }
@@ -198,17 +208,16 @@ class Customer extends Rest implements RestCustomerInterface
                 $scopeId
             );
 
-            //unlink request requires a LinkCustomersModel which contains a string[] of all customer ids.
-            /** @var \Avalara\LinkCustomersModel $customerModel */
+            //unlink request requires a LinkCertificatesModel which contains a string[] of all certificates ids.
+            /** @var \Avalara\LinkCertificatesModel $certificatesModel */
             $certificateId = $request->getData('certificate_id');
-            $customerModel = $this->customersModelFactory->create();
-            $customerModel->certificates = [$certificateId];
-
+            $certificatesModel = $this->certificatesModelFactory->create();
+            $certificatesModel->certificates = [$certificateId];
             //Customer(s) must be unlinked from cert before it can be deleted.
             $client->unlinkCertificatesFromCustomer(
                 $this->config->getCompanyId($scopeId, $scopeType),
                 $customerId,
-                $customerModel
+                $certificatesModel
             );
         } catch (\Exception $e) {
             $debugLogContext = [];

@@ -26,6 +26,11 @@ use ClassyLlama\AvaTax\BaseProvider\Exception\AvalaraLoggerException;
  */
 class BaseAbstractHandler extends AbstractHandler
 {
+    /**
+     * @var array
+     */
+    protected $processors = [];
+
     public function __construct($level = Logger::DEBUG, $bubble = true)
     {
         parent::__construct($level, $bubble);

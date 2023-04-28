@@ -75,7 +75,7 @@
             </avatax_document_management>
             <avatax_advanced>
                 <response_logging_enabled>1</response_logging_enabled>
-                <avatax_timeout>15</avatax_timeout>
+                <avatax_timeout>60</avatax_timeout>
                 <avatax_adjustment_taxes>0</avatax_adjustment_taxes>
                 <avatax_table_exemptions>negotiable_quote_item,company_order_entity</avatax_table_exemptions>
                 <result_cache_ttl>15</result_cache_ttl>

@@ -35,6 +35,11 @@ class Definitions extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     protected $definitionsResultFactory;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool

@@ -26,7 +26,7 @@ class Unlink extends \Magento\Framework\App\Action\Action
     /**
      * @var \ClassyLlama\AvaTax\Helper\CertificateUnlinkHelper
      */
-    protected $CertificateUnlinkHelper;
+    protected $certificateUnlinkHelper;
 
     /**
      * Delete constructor.

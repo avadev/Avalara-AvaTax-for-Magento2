@@ -24,7 +24,7 @@ interface AppInterface
 	/**
      * Avalara APP String
      */
-    const CONNECTOR_STRING = 'a0o5a000007hWJMAA2';
+    const CONNECTOR_STRING = 'a0o5a000007m3XbAAI';
 	/**
      * Avalara Connector name
      */
