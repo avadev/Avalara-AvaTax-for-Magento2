@@ -23,7 +23,8 @@ define([
     'ClassyLlama_AvaTax/js/lib/serialize-form',
     'ClassyLlama_AvaTax/js/lib/event.simulate',
     'Magento_Ui/js/modal/modal',
-    'prototype'
+    'prototype',
+    'jquery-ui-modules/widget'
 ], function(
     jQuery,
     alert,

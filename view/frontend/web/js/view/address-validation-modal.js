@@ -18,7 +18,8 @@ define([
     'ClassyLlama_AvaTax/js/action/set-customer-address',
     'ClassyLlama_AvaTax/js/model/address-converter',
     'ClassyLlama_AvaTax/js/view/address-validation-form',
-    'Magento_Ui/js/modal/modal'
+    'Magento_Ui/js/modal/modal',
+    'jquery-ui-modules/widget'
 ], function(
     $,
     ko,

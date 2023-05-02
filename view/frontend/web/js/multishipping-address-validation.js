@@ -5,7 +5,7 @@
 define([
     'jquery',
     'ClassyLlama_AvaTax/js/action/multishipping-save-address',
-    'jquery/ui',
+    'jquery-ui-modules/widget',
     'validation'
 ], function ($, multishippingSaveAddressAction) {
     'use strict';
