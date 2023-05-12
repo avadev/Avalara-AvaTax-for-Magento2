@@ -22,11 +22,11 @@ use ClassyLlama\AvaTax\Framework\AppInterface;
 
 class ApiLog extends AbstractHelper
 {
-    const CONNECTOR_ID = 'a0o5a000007TuRvAAK';
+    const CONNECTOR_ID = 'a0o5a000007TuRvAAK'; //Do not change this value as this is whitlisted for logging
 
-    const CONNECTOR_STRING = AppInterface::CONNECTOR_STRING;
-
-    const CONNECTOR_NAME = AppInterface::APP_NAME;
+    const APP_VERSION = AppInterface::APP_VERSION;
+    const APP_NAME = AppInterface::APP_NAME;
+    const CONNECTOR_NAME = AppInterface::CONNECTOR_NAME;
 
     const HTML_ESCAPE_PATTERN = '/<(.*) ?.*>(.*)<\/(.*)>/';                         
 
@@ -69,7 +69,9 @@ class ApiLog extends AbstractHelper
             $accountNumber = $this->config->getAccountNumber($scopeId, $scopeType, $isProduction);
             $accountSecret = $this->config->getLicenseKey($scopeId, $scopeType, $isProduction);
             $connectorId = self::CONNECTOR_ID;
-            $clientString = self::CONNECTOR_STRING;
+            $clientString = self::APP_NAME;
+            $connectorVersion = self::APP_VERSION;
+            
             $mode = $isProduction ? \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_MODE_PRODUCTION : \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_MODE_SANDBOX;
             $connectorName = self::CONNECTOR_NAME;
             $source = isset($context['config']['source']) ? $context['config']['source'] : 'MagentoPage';
@@ -86,7 +88,7 @@ class ApiLog extends AbstractHelper
                     'client_string' => $clientString,
                     'mode' => $mode,
                     'connector_name' => $connectorName,
-                    'connector_version' => $clientString,
+                    'connector_version' => $connectorVersion,
                     'source' => $source,
                     'operation' => $operation,
                     'log_type' => $logType,
@@ -130,7 +132,41 @@ class ApiLog extends AbstractHelper
             //do nothing as this is internal logging
         }
     }
-
+    /**
+     * Debug Log with AvaTax
+     *
+     * @param array $logContext
+     * @param $scopeId
+     * @param $scopeType
+     * @return void
+     */
+    public function debugLog(
+            array $logContext, 
+            $scopeId = null, 
+            $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        )
+    {
+        try {
+            $message = isset($logContext['message']) ? $logContext['message'] : 'Debug Log : Exception Occured.';
+            $method = isset($logContext['method']) ? $logContext['method'] : __METHOD__;
+            $source = isset($logContext['source']) ? $logContext['source'] : 'TransactionPage';
+            $operation = isset($logContext['operation']) ? $logContext['operation'] : 'TransactionOperation';
+            $logType = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_TYPE_CONFIG;
+            $logLevel = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_LEVEL_EXCEPTION;
+            $context = [
+                'config' => [
+                    'source' => $source,
+                    'operation' => $operation,
+                    'log_type' => $logType,
+                    'log_level' => $logLevel,
+                    'function_name' => $method
+                ]
+            ];
+            $this->apiLog($message, $context, $scopeId, $scopeType);
+        } catch(\Exception $e) {
+            //do nothing as this is internal logging
+        }
+    }
     /**
      * configSaveLog API Logging
      *
@@ -175,7 +211,6 @@ class ApiLog extends AbstractHelper
     public function makeTransactionRequestLog(array $logContext, $scopeId, $scopeType)
     {
         try {
-            $message = "Transaction Request Log";
             $source = isset($logContext['source']) ? $logContext['source'] : 'TransactionPage';
             $operation = isset($logContext['operation']) ? $logContext['operation'] : 'TransactionOperation';
             $logType = \ClassyLlama\AvaTax\BaseProvider\Helper\Generic\Config::API_LOG_TYPE_PERFORMANCE;
@@ -186,9 +221,9 @@ class ApiLog extends AbstractHelper
                 unset($logContext['extra']['ConnectorTime']);
                 unset($logContext['extra']['ConnectorLatency']);
                 if (!is_null($connectorTime))
-                    $logContext['extra']['ConnectorTime'] = number_format($connectorTime, 2, '.', ',');
+                    $logContext['extra']['ConnectorTime'] = intval($connectorTime * 1000);
                 if (!is_null($latencyTime))
-                    $logContext['extra']['ConnectorLatency'] = number_format($latencyTime, 2, '.', ',');
+                    $logContext['extra']['ConnectorLatency'] = intval($latencyTime * 1000);
             }
             $context = [
                 'config' => [
@@ -200,6 +235,20 @@ class ApiLog extends AbstractHelper
                     'extra_params' => isset($logContext['extra']) ? $logContext['extra'] : []
                 ]
             ];
+            $message = "CONNECTORMETRICS";
+                $message .= ", TYPE - getTax";
+            if (isset($logContext['extra']['DocCode'])) {
+                $message .= ", DocCode - ".$logContext['extra']['DocCode'];
+            }
+            if (isset($logContext['extra']['LineCount'])) {
+                $message .= ", LineCount - ".$logContext['extra']['LineCount'];
+            }
+            if (isset($logContext['extra']['ConnectorTime'])) {
+                $message .= ", ConnectorTime - ".$logContext['extra']['ConnectorTime'];
+            }
+            if (isset($logContext['extra']['ConnectorLatency'])) {
+                $message .= ", ConnectorLatency - ".$logContext['extra']['ConnectorLatency'];
+            }
             $this->apiLog($message, $context, $scopeId, $scopeType);
         } catch(\Exception $e) {
             //do nothing as this is internal logging
@@ -272,11 +321,11 @@ class ApiLog extends AbstractHelper
      */
     public function getLatencyTimeAndConnectorTime(array $logContext)
     {
-        $latencyTime = null;
         $connectorTime = null;
+        $latencyTime = null;
         $isSufficientData = 0;
         if (empty($logContext)) {
-            return [$latencyTime, $connectorTime];
+            return [$connectorTime, $latencyTime];
         }
         if (isset($logContext['ConnectorTime']['start'])) {
             $isSufficientData++;
@@ -284,21 +333,21 @@ class ApiLog extends AbstractHelper
         if (isset($logContext['ConnectorTime']['end'])) {
             $isSufficientData++;
         }
-        if (isset($logContext['ConnectorLatency']['end'])) {
+        if (isset($logContext['ConnectorLatency']['start'])) {
             $isSufficientData++;
         }
         if (isset($logContext['ConnectorLatency']['end'])) {
             $isSufficientData++;
         }
         if ($isSufficientData < 4) {
-            return [$latencyTime, $connectorTime];
+            return [$connectorTime, $latencyTime];
         }
-        $connectorTime = $logContext['ConnectorTime']['end'] - $logContext['ConnectorTime']['start'];
+        $executionTime = $logContext['ConnectorTime']['end'] - $logContext['ConnectorTime']['start'];
         $latencyTime = $logContext['ConnectorLatency']['end'] - $logContext['ConnectorLatency']['start'];
         if ($latencyTime < 0) {
             $latencyTime = 0;
         }
-        $connectorTime = $connectorTime - $latencyTime;
-        return [$latencyTime, $connectorTime];
+        $connectorTime = $executionTime - $latencyTime;
+        return [$connectorTime, $latencyTime];
     }
 }

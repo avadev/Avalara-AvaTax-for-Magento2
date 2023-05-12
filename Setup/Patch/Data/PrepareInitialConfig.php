@@ -10,6 +10,10 @@ use Magento\Framework\Setup\Patch\PatchVersionInterface;
  * Class PrepareInitialConfig
  * @package ClassyLlama\AvaTax\Setup\Patch\Data
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class PrepareInitialConfig implements DataPatchInterface, PatchVersionInterface
 {
     /**

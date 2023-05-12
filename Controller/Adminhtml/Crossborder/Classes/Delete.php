@@ -20,7 +20,11 @@ use ClassyLlama\AvaTax\Api\Data\CrossBorderClassRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Framework\Exception\LocalizedException;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Delete extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesAbstract
 {
     /**
@@ -31,18 +35,26 @@ class Delete extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\Classe
     protected $dataPersistor;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param Context $context
      * @param CrossBorderClassRepositoryInterface $crossBorderClassRepository
      * @param DataPersistorInterface $dataPersistor
+     * @param ApiLog $apiLog
      */
     public function __construct(
         Context $context,
         CrossBorderClassRepositoryInterface $crossBorderClassRepository,
-        DataPersistorInterface $dataPersistor
+        DataPersistorInterface $dataPersistor,
+        ApiLog $apiLog
     ) {
         parent::__construct($context);
         $this->crossBorderClassRepository = $crossBorderClassRepository;
         $this->dataPersistor = $dataPersistor;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -64,10 +76,28 @@ class Delete extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\Classe
             $this->crossBorderClassRepository->deleteById($id);
             $this->messageManager->addSuccessMessage(__('You deleted the Cross Border Class'));
         } catch (NoSuchEntityException $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'DeleteCrossBorderClass';
+            $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Delete';
+            $debugLogContext['function_name'] = 'execute';
+            $this->apiLog->debugLog($debugLogContext);
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (LocalizedException $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'DeleteCrossBorderClass';
+            $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Delete';
+            $debugLogContext['function_name'] = 'execute';
+            $this->apiLog->debugLog($debugLogContext);
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'DeleteCrossBorderClass';
+            $debugLogContext['operation'] = 'Controller_Adminhtml_Crossborder_Classes_Delete';
+            $debugLogContext['function_name'] = 'execute';
+            $this->apiLog->debugLog($debugLogContext);
             $this->messageManager->addExceptionMessage($e, __('Something went wrong while saving the Cross Border Class'));
         }
 

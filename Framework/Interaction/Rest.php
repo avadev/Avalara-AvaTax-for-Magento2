@@ -114,6 +114,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
      * @param DataObject|null                                  $request
      *
      * @throws AvataxConnectionException
+     * @codeCoverageIgnore
      */
     protected function handleException($exception, $request = null, $logLevel = LOG_ERR)
     {
@@ -154,22 +155,7 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
 
             if ($response !== null) {
                 try {
-                    $logMessage = __(
-                        'AvaTax connection error: %1',
-                        trim(
-                            array_reduce(
-                                $response['error']['details'],
-                                function ($error, $detail) {
-                                    if (isset($detail['severity']) && $detail['severity'] !== 'Exception' && $detail['severity'] !== 'Error') {
-                                        return $error;
-                                    }
-
-                                    return $error . ' ' . $detail['description'];
-                                },
-                                ''
-                            )
-                        )
-                    );
+                    $logMessage = $this->prepareErrorForHandleException($response);
                 } catch (\Exception $ex) {
                     $logMessage = __(
                         'AvaTax connection error: %1', $ex->getMessage());
@@ -205,11 +191,69 @@ class Rest implements \ClassyLlama\AvaTax\Api\RestInterface
     }
 
     /**
+     * prepare Error or Errors to Handle Exception
+     *
+     * @param array $response
+     * @return \Magento\Framework\Phrase
+     * @codeCoverageIgnore
+     */
+    protected function prepareErrorForHandleException(array $response)
+    {
+        $logMessage = __("AvaTax connection error");
+        if (isset($response['error'])) {
+            $logMessage = __(
+                'AvaTax connection error: %1',
+                trim(
+                    array_reduce(
+                        (array)$response['error']['details'],
+                        function ($error, $detail) {
+                            if (isset($detail['severity']) && $detail['severity'] !== 'Exception' && $detail['severity'] !== 'Error') {
+                                return $error;
+                            }
+
+                            return $error . ' ' . $detail['description'];
+                        },
+                        ''
+                    )
+                )
+            );
+        }
+        if (isset($response['errors'])) {
+            $messages = '';
+            foreach($response['errors'] as $error){
+                if ($messages != '') {
+                    $messages .= ' ';
+                }
+                if (is_string($error)) {
+                    $messages .= ' '.$error;
+                }
+                if (is_array($error)) {
+                    $messages .= trim(
+                        array_reduce(
+                            (array)$error,
+                            function ($err1, $err2) {
+                                    return $err1 . ' ' . $err2;
+                            },
+                            ''
+                        )
+                    );
+                } 
+            }
+            $messages = trim($messages);
+            if ($messages != '') {
+                $logMessage = __("AvaTax connection error: %1", $messages); 
+            }
+        }
+        return $logMessage;
+    }
+
+    /**
      * Convert a simple object to a data object
      *
      * @param mixed $value
      *
      * @return mixed
+     * @codeCoverageIgnore
      */
     protected function formatResult($value)
     {

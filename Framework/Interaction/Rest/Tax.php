@@ -141,6 +141,7 @@ class Tax extends Rest
             'customerCode' => $request->getCustomerCode(),
             'dateTime' => $request->getDate(),
         ]);
+        $this->customsConfigHelper->initNextIncrementForWithParameter();
 
         $this->setTransactionDetails($transactionBuilder, $request);
         $this->setLineDetails($transactionBuilder, $request);
@@ -164,7 +165,21 @@ class Tax extends Rest
         }
         catch (\GuzzleHttp\Exception\RequestException $clientException) {
             $sendLog = false;
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Tax';
+            $debugLogContext['function_name'] = 'getTax';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException, $request);
+        } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'getTax';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
+            throw $exception;
         }
 
         
@@ -203,7 +218,7 @@ class Tax extends Rest
                     $eventBlock = "PostCalculateTax";
                     $docType = "SalesOrder";
                     break;
-            }
+            }        
             if (!empty($docType)) {
                 $log['DocCode'] = $request->getPurchaseOrderNo();
                 $logContext['extra']['EventBlock'] = $eventBlock;
@@ -270,9 +285,12 @@ class Tax extends Rest
                     $override->getTaxAmount(), $override->getTaxDate());
             }
         }
-//        if($request->hasShippingMode()) {
-//            $transactionBuilder->withParameter(self::TRANSACTION_PARAM_NAME_SHIPPING_MODE, $request->getShippingMode());
-//        }
+        if ($request->hasTransportParameters()) {
+            $transactionBuilder->withParameter($this->customsConfigHelper->getNextIncrementForWithParameter(), ['name'=>$request->getShippingMethod(), 'value'=>$request->getTransportParametersValue()] );
+        }
+        if ($request->hasShippingParameters()) {
+            $transactionBuilder->withParameter($this->customsConfigHelper->getNextIncrementForWithParameter(), ['name'=>$request->getShippingParametersName(), 'value'=>$request->getShippingParametersValue()]);
+        }
     }
 
     /**
@@ -384,6 +402,7 @@ class Tax extends Rest
                 'customerCode' => $request->getCustomerCode(),
                 'dateTime'     => $request->getDate(),
             ]);
+            $this->customsConfigHelper->initNextIncrementForWithParameter();
             $this->setTransactionDetails($transactionBuilder, $request);
             try {
                 $this->setLineDetails($transactionBuilder, $request);
@@ -413,6 +432,12 @@ class Tax extends Rest
             $apiEndTime = microtime(true);
         } catch (RequestException $clientException) {
             $sendLogs = false;
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Tax';
+            $debugLogContext['function_name'] = 'getTaxBatch';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException);
         }
         $resultGeneric = $this->formatResult($resultObj);

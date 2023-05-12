@@ -23,6 +23,9 @@ use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
  *
  * @package ClassyLlama\AvaTax\Model\ResourceModel\BatchQueue
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Collection extends AbstractCollection
 {
     /**

@@ -34,7 +34,8 @@ $statuses =  $viewModel->getCertificateStatusName();
                 <th class="data-grid-th"><?php echo __('Signed Date') ?></th>
                 <th class="data-grid-th"><?php echo __('Expiration Date') ?></th>
                 <th class="data-grid-th"><?php echo __('Status') ?></th>
-                <th class="data-grid-th" colspan="2">&nbsp;</th>
+                <th class="data-grid-th"><?php echo __('View') ?></th>
+                <th class="data-grid-th"><?php echo __('Invalidate') ?></th>
             </tr>
         </thead>
 
@@ -65,9 +66,9 @@ $statuses =  $viewModel->getCertificateStatusName();
                     <td>
                         <?php if ($certificate->getData('valid')): ?>
                             <a href="javascript:void(0)" data-mage-init='{"deleteCertificate":{
-                               "deleteUrl":"<?= $viewModel->getDeleteCertificateUrl($certificate->getData('id')) ?>"
+                               "unlinkUrl":"<?= $viewModel->getUnlinkCertificateUrl($certificate->getData('id')) ?>"
                                }}'>
-                                <?= __('Delete Certificate') ?>
+                                <?= __('Invalidate Certificate') ?>
                             </a>
                         <?php endif ?>
                     </td>

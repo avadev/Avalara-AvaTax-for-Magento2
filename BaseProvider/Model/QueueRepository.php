@@ -27,6 +27,8 @@ use Magento\Framework\Exception\NoSuchEntityException;
 
 class QueueRepository implements QueueRepositoryInterface
 {
+    public $collectionFactory;
+    
     /**
      * @var QueueFactory
      */
@@ -56,7 +58,7 @@ class QueueRepository implements QueueRepositoryInterface
         $this->QueueFactory = $QueueFactory;
         $this->QueueCollectionFactory = $QueueCollectionFactory;
         $this->searchResultFactory = $QueueSearchResultsInterfaceFactory;
-        $this->collectionProcessor = collectionProcessor;
+        $this->collectionProcessor = $collectionProcessor;
     }
  
     public function getList(SearchCriteriaInterface $searchCriteria)

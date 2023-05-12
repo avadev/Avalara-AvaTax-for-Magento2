@@ -8,7 +8,7 @@ use Magento\Framework\DataObject;
 use ClassyLlama\AvaTax\Api\Framework\Interaction\Storage\ConfigInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Storage\Session as SessionStorage;
 use Zend\Serializer\Exception\RuntimeException;
-use Zend\Serializer\Adapter\PhpSerialize;
+use Magento\Framework\Serialize\Serializer\Json;
 
 /**
  * Class ResultStorage
@@ -37,7 +37,7 @@ class ResultStorage implements ResultStorageInterface
     protected $session;
 
     /**
-     * @var PhpSerialize
+     * @var Json
      */
     private $phpSerialize;
 
@@ -46,13 +46,13 @@ class ResultStorage implements ResultStorageInterface
      * @param string $namespace
      * @param Session $session
      * @param ConfigInterface $config
-     * @param PhpSerialize $phpSerialize
+     * @param Json $phpSerialize
      */
     public function __construct(
         string $namespace,
         SessionStorage $session,
         ConfigInterface $config,
-        PhpSerialize $phpSerialize
+        Json $phpSerialize
     ) {
         $this->namespace = $namespace;
         $this->config = $config;

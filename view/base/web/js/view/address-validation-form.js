@@ -187,7 +187,7 @@ define(
                     }
 
                     if (street.val() !== addressModel.selectedAddress()[field][index]) {
-                        $(street).attr('value', addressModel.selectedAddress()[field][index]).trigger('change');
+                        $(street).val(addressModel.selectedAddress()[field][index]).trigger('change');
                     }
                 });
 
@@ -203,8 +203,8 @@ define(
                 if (['country_id', 'region_id'].indexOf(field) > -1) {
                     fieldElement = $(form).find("select[name*=" + field + "]");
                 }
-                if (fieldElement.val() !== addressModel.selectedAddress()[field]) {
-                    $(fieldElement).attr('value', addressModel.selectedAddress()[field]).trigger('change');
+                if (typeof addressModel.selectedAddress()[field] !== "undefined" && fieldElement.val() !== addressModel.selectedAddress()[field]) {
+                    $(fieldElement).val(addressModel.selectedAddress()[field]).trigger('change');
                 }
             },
 

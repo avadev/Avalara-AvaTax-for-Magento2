@@ -21,6 +21,7 @@ use ClassyLlama\AvaTax\Framework\Interaction\Rest\Address\ResultFactory as Addre
 use ClassyLlama\AvaTax\Helper\Rest\Config as RestConfig;
 use Magento\Framework\DataObjectFactory;
 use Psr\Log\LoggerInterface;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     implements \ClassyLlama\AvaTax\Api\RestAddressInterface
@@ -31,24 +32,30 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     protected $restConfig;
 
     protected $addressResultFactory;
-
+    /**
+     * @var ApiLog
+     */
+    protected $apiLog;
     /**
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
      * @param RestConfig $restConfig
      * @param AddressResultFactory $addressResultFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         LoggerInterface $logger,
         DataObjectFactory $dataObjectFactory,
         ClientPool $clientPool,
         RestConfig $restConfig,
-        AddressResultFactory $addressResultFactory
+        AddressResultFactory $addressResultFactory,
+        ApiLog $apiLog
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->restConfig = $restConfig;
         $this->addressResultFactory = $addressResultFactory;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -90,6 +97,12 @@ class Address extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
                 null
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'validate_address';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Address';
+            $debugLogContext['function_name'] ='validate';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException, $request);
         }
 

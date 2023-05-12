@@ -126,11 +126,12 @@ class Cacheable implements RestTaxInterface
         } catch (\Throwable $exception) {
             $getTaxResult = '';
         }
+
         if ($getTaxResult instanceof TaxResult && !$forceNew) {
             $getTaxResultData = $getTaxResult->getData('raw_result');
             $getTaxRequestData = $getTaxResult->getData('raw_request');
 
-            $this->avaTaxLogger->addDebug('Loaded tax result from cache.', [
+            $this->avaTaxLogger->addDebug('Loaded tax result from cache. | Date : '.$getTaxResultData->date.' | Tax Total : '.$getTaxResultData->totalTax.' | Customer Id : '.$getTaxRequestData['customerCode'].' | Quote Id : '.$getTaxRequestData['code'], [
                 'cache_key' => $cacheKey,
                 'request' => json_encode($getTaxRequestData, JSON_PRETTY_PRINT),
                 'result' => json_encode($getTaxResultData, JSON_PRETTY_PRINT)
@@ -148,6 +149,15 @@ class Cacheable implements RestTaxInterface
         if (!$forceNew) {
             try {
                 $serializedGetTaxResult = $this->phpSerialize->serialize($getTaxResult);
+
+                $getTaxResultData = $getTaxResult->getData('raw_result');
+                $getTaxRequestData = $getTaxResult->getData('raw_request');
+                $this->avaTaxLogger->addDebug('Loaded tax result from API | Date : '.$getTaxResultData->date.' | Tax Total : '.$getTaxResultData->totalTax.' | Customer Id : '.$getTaxRequestData['customerCode'].' | Quote Id : '.$getTaxRequestData['code'], [
+                    'cache_key' => $cacheKey,
+                    'request' => json_encode($getTaxRequestData, JSON_PRETTY_PRINT),
+                    'result' => json_encode($getTaxResultData, JSON_PRETTY_PRINT)
+                ]);
+
             } catch (\Throwable $exception) {
                 $serializedGetTaxResult = '';
             }

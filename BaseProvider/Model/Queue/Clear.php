@@ -18,6 +18,7 @@ use Psr\Log\LoggerInterface;
 use ClassyLlama\AvaTax\BaseProvider\Helper\Config as QueueConfig;
 use ClassyLlama\AvaTax\BaseProvider\Model\ResourceModel\Queue\CollectionFactory as QueueCollFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Clear
 {
@@ -43,21 +44,29 @@ class Clear
     protected $dateTime;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param LoggerInterface 
      * @param QueueConfig $queueConfig
      * @param QueueCollFactory $queueCollFactory
      * @param DateTime $dateTime
+     * @param ApiLog $apiLog
      */
     public function __construct(
         LoggerInterface $logger,
         QueueConfig $queueConfig,
         QueueCollFactory $queueCollFactory,
-        DateTime $dateTime
+        DateTime $dateTime,
+        ApiLog $apiLog
     ) {
         $this->logger = $logger;
         $this->queueConfig = $queueConfig;
         $this->queueCollFactory = $queueCollFactory;
         $this->dateTime = $dateTime;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -95,6 +104,12 @@ class Clear
                 $queue->delete();
                 $size++;
             } catch(\Exception $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'clearqueue';
+                $debugLogContext['operation'] = 'BaseProvider_Model_Queue_Clear';
+                $debugLogContext['function_name'] = 'clearDbQueues';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->logger->debug($e->getMessage());
             }
         }

@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel\Order\Creditmemo\Item;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**

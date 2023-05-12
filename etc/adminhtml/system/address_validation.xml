@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="address_validation" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="30">
+        <label>Address Validation</label>
+        <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\ExpandedFieldSet</frontend_model>
+        <field id="address_validation_enabled" translate="label comment" type="select" sortOrder="4010" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/address_validation_enabled</config_path>
+            <label>Enable Address Validation</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment>Enable validation of shipping address using the AvaTax Address Validation API.</comment>
+        </field>
+        <field id="address_validation_countries_enabled" translate="label comment" type="multiselect" sortOrder="4020" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/address_validation_countries_enabled</config_path>
+            <label>Enabled Countries</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\AddressValidationCountries</source_model>
+            <comment>Select which countries to enable for address validation. AvaTax Address Validation currently only supports United States and Canada.</comment>
+            <depends>
+                <field id="address_validation_enabled">1</field>
+            </depends>
+        </field>
+        <field id="address_validation_user_has_choice" translate="label comment" type="select" sortOrder="4030" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/address_validation_user_has_choice</config_path>
+            <label>Allow User To Choose Original Address</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment><![CDATA[Set this to <strong>Yes</strong> to allow the user to choose between the original and validated addresses (valid address will be selected by default). If set to <strong>No</strong>, user will be required to use the validated address or update their original address. This setting is ignored in the backend and the user will always have a choice.]]></comment>
+            <depends>
+                <field id="address_validation_enabled">1</field>
+            </depends>
+        </field>
+        <field id="address_validation_instructions_with_choice" translate="label comment" type="textarea" sortOrder="4040" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/address_validation_instructions_with_choice</config_path>
+            <label>Address Validation Instructions</label>
+            <comment><![CDATA[When user progresses to the <strong>Review & Payments</strong> step of the checkout, this text will be displayed above the <strong>Suggested Address</strong> and <strong>Original Address</strong> checkboxes.]]></comment>
+            <depends>
+                <field id="address_validation_enabled">1</field>
+                <field id="address_validation_user_has_choice">1</field>
+            </depends>
+        </field>
+        <field id="address_validation_instructions_without_choice" translate="label comment" type="textarea" sortOrder="4050" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/address_validation_instructions_without_choice</config_path>
+            <label>Address Validation Instructions</label>
+            <comment><![CDATA[When user progresses to the <strong>Review & Payments</strong> step of the checkout, this text will be displayed above the suggested address.]]></comment>
+            <depends>
+                <field id="address_validation_enabled">1</field>
+                <field id="address_validation_user_has_choice">0</field>
+            </depends>
+        </field>
+        <field id="address_validation_error_instructions" translate="label comment" type="textarea" sortOrder="4060" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/address_validation_error_instructions</config_path>
+            <label>Address Validation Error Message</label>
+            <comment>This text will be displayed when there is an error in the address validation process. The element assigned the "error-message" class will be filled with the error message summary returned by AvaTax.</comment>
+            <depends>
+                <field id="address_validation_enabled">1</field>
+            </depends>
+        </field>
+        <depends>
+            <field id="tax/avatax_configuration/extension_mode/enabled">1</field>
+        </depends>
+    </group>
+</include>

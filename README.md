@@ -18,7 +18,7 @@ Contact Avalara for any support requests, either via [their support email](suppo
   
 # Automated Tests
 
-This extension contains integration tests to verify the extension's functionality. These tests should only need to be run by developers maintaining this extension. Instructions for running tests can be found [here](https://github.com/astoundcommerce/avatax/blob/master/Tests/README.md).
+This extension contains integration tests to verify the extension's functionality. These tests should only need to be run by developers maintaining this extension. Instructions for running tests can be found [here](https://github.com/avadev/Avalara-AvaTax-for-Magento2).
 
 # Magento Version Support
 
@@ -29,7 +29,7 @@ This extension contains integration tests to verify the extension's functionalit
   - :white_check_mark: Community
   - :white_check_mark: Enterprise
 
-As of version 1.0.0 of this extension, this extension supports [Magento Enterprise's split database mode](http://devdocs.magento.com/guides/v2.1/config-guide/multi-master/multi-master.html).
+As of version 1.0.0 of this extension, this extension supports [Magento Enterprise's split database mode](http://devdocs.magento.com).
 
 Please be aware that due to the complexity and number of third party checkout solutions this extension is only supported when using Magento's native checkout process.
 

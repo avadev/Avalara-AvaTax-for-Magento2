@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <columns name="customer_columns" class="Magento\Customer\Ui\Component\Listing\Columns" >
+        <actionsColumn name="invite" class="ClassyLlama\AvaTax\Ui\Component\Listing\Column\Certinvite">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="type" xsi:type="string">Proceed</item>
+                    <item name="indexField" xsi:type="string">entity_id</item>
+                    <item name="label" xsi:type="string" translate="true">CertExpress</item>
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                    <item name="sortable" xsi:type="boolean">false</item>
+                </item>
+            </argument>
+        </actionsColumn>
+    </columns>
+</listing>

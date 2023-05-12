@@ -12,6 +12,10 @@ use Magento\Eav\Setup\EavSetupFactory;
  * Class CreateCrossBorderAttribute
  * @package ClassyLlama\AvaTax\Setup\Patch\Data
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class CreateCrossBorderAttribute implements DataPatchInterface
 {
     /**

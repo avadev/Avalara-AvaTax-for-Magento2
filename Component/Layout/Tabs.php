@@ -7,6 +7,9 @@ use Magento\Framework\View\Element\UiComponent\DataSourceInterface;
 use Magento\Framework\View\Element\UiComponentInterface;
 use Magento\Ui\Component\Layout\Tabs\TabInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Tabs extends \Magento\Ui\Component\Layout\Tabs
 {
     /**

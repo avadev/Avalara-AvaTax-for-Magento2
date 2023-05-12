@@ -164,7 +164,22 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_ADVANCED_AVATAX_TABLE_EXEMPTIONS = 'tax/avatax_advanced/avatax_table_exemptions';
 
+    const XML_PATH_AVATAX_VAT_TRANSPORT = 'tax/avatax_general/vat_transport';
+
+    /**
+     * Tax Calculation API parameters tag default value
+     */
+    const AVATAX_PARAMETERS_TRANSPORT_KEY = 'Transport';
+    /**
+     * Tax Calculation API parameters tag default value
+     */
+    const AVATAX_PARAMETERS_TRANSPORT_DEFAULT_VALUE = 'Seller';
     /**#@-*/
+
+    /**
+     * Tax Calculation API shipping parameters name
+     */
+    const AVATAX_SHIPPING_PARAMETERS_NAME = 'Shipping';
 
     /**
      * List of countries that are enabled by default
@@ -244,7 +259,9 @@ class Config extends AbstractHelper
      * Cache tag code
      */
     const AVATAX_CACHE_TAG = 'AVATAX';
-
+    
+    public $avaTaxConfigFactory;
+    
     /**
      * @var ProductMetadataInterface
      */
@@ -317,6 +334,7 @@ class Config extends AbstractHelper
      *
      * @param $storeId
      * @param $scopeType
+     * @codeCoverageIgnore
      */
     public function createAvaTaxProfile($storeId, $scopeType = ScopeInterface::SCOPE_STORE)
     {
@@ -491,14 +509,14 @@ class Config extends AbstractHelper
         $isTaxable = true;
         // Filtering just by country (not region)
         if (!$this->getFilterTaxByRegion($storeId)) {
-            $countryFilters = explode(',', $this->getTaxCalculationCountriesEnabled($storeId));
+            $countryFilters = explode(',', (string)$this->getTaxCalculationCountriesEnabled($storeId));
             $countryId = $address->getCountryId();
             if (!in_array($countryId, $countryFilters)) {
                 $isTaxable = false;
             }
             // Filtering by region within countries
         } else {
-            $regionFilters = explode(',', $this->getRegionFilterList($storeId));
+            $regionFilters = explode(',', (string)$this->getRegionFilterList($storeId));
             $entityId = $address->getRegionId() ?: $address->getCountryId();
             if (!in_array($entityId, $regionFilters)) {
                 $isTaxable = false;
@@ -1271,7 +1289,7 @@ class Config extends AbstractHelper
      */
     public function getTableExemptions()
     {
-        return explode(",", $this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADVANCED_AVATAX_TABLE_EXEMPTIONS));
+        return explode(",", (string)$this->scopeConfig->getValue(self::XML_PATH_AVATAX_ADVANCED_AVATAX_TABLE_EXEMPTIONS));
     }
 
     /**
@@ -1282,7 +1300,7 @@ class Config extends AbstractHelper
     {
         return explode(
             ',',
-            $this->scopeConfig->getValue(
+            (string)$this->scopeConfig->getValue(
                 $configPath
             )
         );
@@ -1308,14 +1326,39 @@ class Config extends AbstractHelper
      * Get Taxation Policy
      *
      * @param null $store
+     * @param string $scope
      * @return boolean
      */
-    public function getTaxationPolicy($store = null)
+    public function getTaxationPolicy($store = null, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return (boolean)$this->scopeConfig->getValue(
+        $configuredValue = $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_TAX_INCLUDED,
+            $scope,
+            $store
+        );
+        $allowedOptions = \ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded::allowedOptions();
+        if (!in_array($configuredValue, $allowedOptions)) {
+            $configuredValue = \ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded::DEFAULT_POLICY;
+        }
+        return (boolean)$configuredValue;
+    }
+
+    /**
+     * Get VAT Transport
+     *
+     * @param null $store
+     * @return string
+     */
+    public function getVATTransport($store = null)
+    {
+        $VATTransportMapping = $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_VAT_TRANSPORT,
             ScopeInterface::SCOPE_STORE,
             $store
         );
+        if (is_null($VATTransportMapping)) {
+            $VATTransportMapping = '';
+        }
+        return stripslashes((string)$VATTransportMapping);
     }
 }

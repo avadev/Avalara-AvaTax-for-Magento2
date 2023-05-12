@@ -81,7 +81,6 @@ class NormalProcessing extends AbstractProcessing implements ProcessingStrategyI
 
     public function execute()
     {
-        $this->avaTaxLogger->debug(__('Starting Normal Queue processing'));
         // Initialize the queue collection
         $queueCollection = $this->queueCollectionFactory->create();
         $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PENDING)
@@ -166,6 +165,24 @@ class NormalProcessing extends AbstractProcessing implements ProcessingStrategyI
                 $e->getMessage()
             );
 
+            $this->handleErrorofProcessWithAvaTax($message, $queue, $entity, $e);
+
+            throw new Exception($message, 0, $e);
+        }
+
+        return $processSalesResponse;
+    }
+
+    /**
+     * @param \Magento\Framework\Phrase $message
+     * @param Queue $queue
+     * @param InvoiceInterface|CreditmemoInterface $entity
+     * @param Exception $e
+     * @return void
+     */
+    protected function handleErrorofProcessWithAvaTax(\Magento\Framework\Phrase $message, Queue $queue, $entity, Exception $e): void
+    {
+        try {
             // Log the error
             $this->avaTaxLogger->error(
                 $message,
@@ -185,11 +202,9 @@ class NormalProcessing extends AbstractProcessing implements ProcessingStrategyI
             // Update the queue record
             // and add comment to order
             $this->resetQueueingForProcessing($queue, $message, $entity);
-
-            throw new Exception($message, null, $e);
+        } catch (Exception $e) {
+            // do nothing
         }
-
-        return $processSalesResponse;
     }
 
     /**

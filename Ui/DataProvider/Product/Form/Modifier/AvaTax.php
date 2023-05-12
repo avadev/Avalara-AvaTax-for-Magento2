@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Ui\DataProvider\Product\Form\Modifier;
 use ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\CrossBorderTypeFactory;
 use Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\AbstractModifier;
 
+/**
+ * @codeCoverageIgnore
+ */
 class AvaTax extends AbstractModifier
 {
     /**

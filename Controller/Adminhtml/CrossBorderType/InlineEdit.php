@@ -17,7 +17,11 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 
 use ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterfaceFactory;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
+/**
+ * @codeCoverageIgnore
+ */
 class InlineEdit extends \Magento\Backend\App\Action
 {
     /**
@@ -36,22 +40,30 @@ class InlineEdit extends \Magento\Backend\App\Action
     protected $crossBorderTypeInterfaceFactory;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param \Magento\Backend\App\Action\Context              $context
      * @param \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
      * @param CrossBorderTypeRepositoryInterface               $crossBorderTypeRepository
      * @param CrossBorderTypeInterfaceFactory                  $crossBorderTypeInterfaceFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         CrossBorderTypeRepositoryInterface $crossBorderTypeRepository,
-        CrossBorderTypeInterfaceFactory $crossBorderTypeInterfaceFactory
+        CrossBorderTypeInterfaceFactory $crossBorderTypeInterfaceFactory,
+        ApiLog $apiLog
     )
     {
         parent::__construct($context);
         $this->jsonFactory = $jsonFactory;
         $this->crossBorderTypeRepository = $crossBorderTypeRepository;
         $this->crossBorderTypeInterfaceFactory = $crossBorderTypeInterfaceFactory;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -79,6 +91,12 @@ class InlineEdit extends \Magento\Backend\App\Action
 
                         $this->crossBorderTypeRepository->save($model);
                     } catch (\Exception $e) {
+                        $debugLogContext = [];
+                        $debugLogContext['message'] = $e->getMessage();
+                        $debugLogContext['source'] = 'InlineEditCrossBorderType';
+                        $debugLogContext['operation'] = 'Controller_Adminhtml_CrossborderType_InlineEdit';
+                        $debugLogContext['function_name'] = 'execute';
+                        $this->apiLog->debugLog($debugLogContext);
                         $messages[] = "[Cross Border Type ID: {$modelid}]  {$e->getMessage()}";
                         $error = true;
                     }

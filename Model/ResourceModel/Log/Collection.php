@@ -25,6 +25,9 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Framework\Stdlib\DateTime;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Collection extends AbstractCollection
 {
     /**

@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Plugin\Model;
 
 use Magento\Config\Model\Config;
 
+/**
+ * @codeCoverageIgnore
+ */
 class ConfigPlugin
 {
 

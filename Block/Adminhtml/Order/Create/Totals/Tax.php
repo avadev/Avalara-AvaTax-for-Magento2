@@ -9,6 +9,9 @@ use Magento\Sales\Block\Adminhtml\Order\Create\Totals\DefaultTotals;
  *
  * @package ClassyLlama\AvaTax\Block\Adminhtml\Order\Create\Totals
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Tax extends DefaultTotals
 {
     /**

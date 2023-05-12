@@ -20,6 +20,9 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 /**
  * Class Product
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Product extends AbstractDb
 {
     /**

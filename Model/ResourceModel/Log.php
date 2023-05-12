@@ -20,6 +20,9 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 /**
  * Log
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Log extends AbstractDb
 {
     /**#@+

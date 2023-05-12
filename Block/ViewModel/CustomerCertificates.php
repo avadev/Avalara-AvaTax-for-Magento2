@@ -63,9 +63,9 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
     protected $urlBuilder;
 
     /**
-     * @var \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper
+     * @var \ClassyLlama\AvaTax\Helper\certificateUnlinkHelper
      */
-    protected $certificateDeleteHelper;
+    protected $certificateUnlinkHelper;
 
     /**
      * @var \ClassyLlama\AvaTax\Helper\CertificateHelper
@@ -79,7 +79,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
      * @param UrlSigner                                          $urlSigner
      * @param \ClassyLlama\AvaTax\Model\ResourceModel\Config     $configResourceModel
      * @param \Magento\Framework\UrlInterface                    $urlBuilder
-     * @param \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper
+     * @param \ClassyLlama\AvaTax\Helper\CertificateUnlinkHelper $certificateUnlinkHelper
      * @param \ClassyLlama\AvaTax\Helper\CertificateHelper       $certificateHelper
      */
     public function __construct(
@@ -89,7 +89,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
         UrlSigner $urlSigner,
         \ClassyLlama\AvaTax\Model\ResourceModel\Config $configResourceModel,
         \Magento\Framework\UrlInterface $urlBuilder,
-        \ClassyLlama\AvaTax\Helper\CertificateDeleteHelper $certificateDeleteHelper,
+        \ClassyLlama\AvaTax\Helper\CertificateUnlinkHelper $certificateUnlinkHelper,
         \ClassyLlama\AvaTax\Helper\CertificateHelper $certificateHelper
     )
     {
@@ -99,7 +99,7 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
         $this->urlSigner = $urlSigner;
         $this->configResourceModel = $configResourceModel;
         $this->urlBuilder = $urlBuilder;
-        $this->certificateDeleteHelper = $certificateDeleteHelper;
+        $this->certificateUnlinkHelper = $certificateUnlinkHelper;
         $this->certificateHelper = $certificateHelper;
     }
 
@@ -139,15 +139,15 @@ class CustomerCertificates implements \Magento\Framework\View\Element\Block\Argu
     }
 
     /**
-     * Build delete cert url
+     * Build unlink cert url
      *
      * @param int $certificateId
      *
      * @return string
      */
-    public function getDeleteCertificateUrl(int $certificateId)
+    public function getUnlinkCertificateUrl(int $certificateId)
     {
-        return $this->certificateHelper->getCertificateDeleteUrl($certificateId, $this->getCustomerId());
+        return $this->certificateHelper->getCertificateUnlinkUrl($certificateId, $this->getCustomerId());
     }
 
     /**

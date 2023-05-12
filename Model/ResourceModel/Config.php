@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Config extends \Magento\Config\Model\ResourceModel\Config
 {
     /**

@@ -65,7 +65,7 @@ class Customer extends AbstractHelper
     public function getCustomerAttributeValue($customer, $customerCode)
     {
         // Convert provided customer code to getter name
-        $getCustomerCode = 'get' . str_replace('_', '', ucwords($customerCode, '_'));
+        $getCustomerCode = 'get' . str_replace('_', '', ucwords((string)$customerCode, '_'));
         if (method_exists($customer, $getCustomerCode)) {
             // A method exists with this getter name, call it
             return $customer->{$getCustomerCode}();

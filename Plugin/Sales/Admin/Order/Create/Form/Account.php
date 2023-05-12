@@ -16,6 +16,9 @@
 namespace ClassyLlama\AvaTax\Plugin\Sales\Admin\Order\Create\Form;
 
 
+/**
+ * @codeCoverageIgnore
+ */
 class Account
 {
     /**

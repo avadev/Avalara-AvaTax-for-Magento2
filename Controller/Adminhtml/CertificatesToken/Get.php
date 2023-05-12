@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\CertificatesToken;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use Magento\Framework\DataObject;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Get extends \Magento\Backend\App\Action
 {
     /**

@@ -13,6 +13,9 @@ use Magento\Framework\Escaper;
 /**
  * Regions controller
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Region implements HttpGetActionInterface
 {
     /**

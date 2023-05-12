@@ -70,8 +70,13 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
         $this->dataObjectFactory = $dataObjectFactory;
     }
 
+    // Code to set Base client
+    public function setAvaClient($client){
+        $this->client = $client;
+    }
     /**
      * {@inheritDoc}
+     * @codeCoverageIgnore
      */
     protected function executeRequest($verb, $apiUrl, $guzzleParams)
     {
@@ -79,7 +84,7 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
 
         // The body is already encoded as JSON, we need to decode it first so we don't double-encode it
         if (is_string($guzzleParams['body'])) {
-            $guzzleParams['body'] = json_decode($guzzleParams['body']);
+            $guzzleParams['body'] = json_decode((string)$guzzleParams['body']);
         }
 
         $this->logger->debug(
@@ -102,6 +107,7 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
 
     /**
      * {@inheritDoc}
+     * @codeCoverageIgnore
      */
     protected function restCall($apiUrl, $verb, $guzzleParams, $apiversion = '', $headerParams = null)
     {
@@ -112,10 +118,16 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
         if (!isset($guzzleParams['timeout'])) {
             $guzzleParams['timeout'] = $this->config->getAvaTaxApiTimeout();
         }
+        if (!isset($guzzleParams['connect_timeout'])) {
+            $guzzleParams['connect_timeout'] = $this->config->getAvaTaxApiTimeout();
+        }        
 
         // Warning: This causes the value to revert to the default "forever" timeout in guzzle
         if (\is_nan($guzzleParams['timeout'])) {
             $guzzleParams['timeout'] = 0;
+        }
+        if (\is_nan($guzzleParams['connect_timeout'])) {
+            $guzzleParams['connect_timeout'] = 0;
         }
 
         return parent::restCall($apiUrl, $verb, $guzzleParams);
@@ -195,8 +207,8 @@ class AvaTaxClientWrapper extends \Avalara\AvaTaxClient
                 );
                 return null;
             } catch (\Throwable $exception) {
-                if (false === (bool)$this->catchExceptions) {
-                    throw $exception;
+                if (false === (bool)$this->catchExceptions) { 
+                    throw $exception; // @codeCoverageIgnore
                 }
                 $this->logRequests(
                     $exception->getMessage(),

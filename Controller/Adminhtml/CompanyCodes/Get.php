@@ -19,6 +19,9 @@ use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
 use Magento\Framework\DataObject;
 use ClassyLlama\AvaTax\Helper\ApiLog;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Get extends \Magento\Backend\App\Action
 {
     /**

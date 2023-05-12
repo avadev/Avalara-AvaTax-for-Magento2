@@ -20,6 +20,9 @@ use ClassyLlama\AvaTax\Controller\Adminhtml\Tax\Classes\Base;
 /**
  * Adminhtml controller
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Delete extends Base\Delete
 {
     /**

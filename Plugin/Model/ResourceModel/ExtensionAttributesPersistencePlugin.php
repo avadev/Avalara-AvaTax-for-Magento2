@@ -15,6 +15,9 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
+/**
+ * @codeCoverageIgnore
+ */
 class ExtensionAttributesPersistencePlugin
 {
     /**
@@ -88,7 +91,7 @@ class ExtensionAttributesPersistencePlugin
         }
 
         $extensibleInterfaceName = $this->extensionAttributesFactory->getExtensibleInterfaceName($extensibleEntityClass);
-        $stringArray = explode('\\', $extensibleInterfaceName);
+        $stringArray = explode('\\', (string)$extensibleInterfaceName);
         $extensibleEntityName = strtolower(str_replace('Interface', '', end($stringArray)));
 
         return array_filter(
@@ -97,7 +100,7 @@ class ExtensionAttributesPersistencePlugin
                 return in_array(
                     $extensionAttributeCode,
                     $this->config->getConfigDataArray(
-                        "tax/avatax_advanced/attribute_codes/$extensibleEntityName")
+                        "tax/avatax_advanced_attribute_codes/$extensibleEntityName")
                 );
             },
             ARRAY_FILTER_USE_KEY
@@ -137,7 +140,7 @@ class ExtensionAttributesPersistencePlugin
                     $attributeCode
                 );
             }
-
+            
             $tablesToUpdate[$directive['join_reference_table']] = $directive;
             $dataToSave = [$directive['join_reference_field'] => $object->getId()];
             $fields = [];
@@ -261,9 +264,10 @@ class ExtensionAttributesPersistencePlugin
 
 
         foreach (array_unique(array_keys($tablesToUpdate)) as $tableName) {
+            
             $fields = array_merge(...$tableFields[$tableName]);
             $select = $subject->getConnection()->select()->from($subject->getTable($tableName))->columns($fields)->where(
-                $tablesToUpdate[$tableName]['join_reference_field'],
+                $tablesToUpdate[$tableName]['join_reference_field']. " = ?",
                 $tablesToUpdate[$tableName]['join_reference_field_value']
             );
 

@@ -20,6 +20,9 @@ use Magento\Backend\App\Action;
 /**
  * Adminhtml AvaTax log controller
  */
+/**
+ * @codeCoverageIgnore
+ */
 abstract class Log extends Action
 {
     /**

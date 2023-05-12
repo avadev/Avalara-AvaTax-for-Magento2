@@ -18,6 +18,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\Controller\ResultFactory;
 
+/**
+ * @codeCoverageIgnore
+ */
 abstract class ClassesAbstract extends \Magento\Backend\App\Action
 {
     /**

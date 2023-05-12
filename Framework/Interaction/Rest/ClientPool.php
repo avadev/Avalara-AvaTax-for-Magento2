@@ -90,7 +90,10 @@ class ClientPool
         }
 
         $cacheKey = $this->getClientCacheKey($isProduction, $scopeType, $scopeId);
-
+        $guzzleParams = [];
+        $guzzleParams['timeout'] = $this->config->getAvaTaxApiTimeout(); // Response timeout
+        $guzzleParams['connect_timeout'] = $this->config->getAvaTaxApiTimeout(); // Connection timeout
+        
         if (!isset($this->clients[$cacheKey])) {
             /** @var AvaTaxClientWrapper $avaTaxClient */
             $avaTaxClient = $this->avaTaxClientFactory->create(
@@ -99,9 +102,10 @@ class ClientPool
                     'appVersion' => $this->config->getConnectorString(),
                     'machineName' => $this->config->getApplicationDomain(),
                     'environment' => $isProduction ? self::API_MODE_PROD : self::API_MODE_DEV,
+                    'guzzleParams' => $guzzleParams
                 ]
             );
-
+			
             $accountNumber = $this->config->getAccountNumber($scopeId, $scopeType, $isProduction);
             $licenseKey = $this->config->getLicenseKey($scopeId, $scopeType, $isProduction);
 

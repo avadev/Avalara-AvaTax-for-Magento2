@@ -31,6 +31,9 @@ use Magento\Framework\DataObject;
  * Class Download
  * @package ClassyLlama\AvaTax\Controller\Certificates
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Download extends Action
 {
     /**

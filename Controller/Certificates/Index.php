@@ -19,6 +19,9 @@ use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
 use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\App\RequestInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Index extends \Magento\Framework\App\Action\Action
 {
     /**

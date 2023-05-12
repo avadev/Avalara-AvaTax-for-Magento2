@@ -30,6 +30,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
 use Magento\Quote\Api\Data\AddressInterfaceFactory as QuoteAddressInterfaceFactory;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Address
 {
@@ -67,10 +68,15 @@ class Address
      * @var \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger
      */
     protected $avaTaxLogger;
+    
+    /**
+     * @var ApiLog
+     */
+    protected $apiLog;
 
     /**
      * Validation based on API documentation found here:
-     * http://developer.avalara.com/wp-content/apireference/master/?php#validate-request58
+     * https://developer.avalara.com/
      *
      * @var array
      */
@@ -97,6 +103,7 @@ class Address
      * @param QuoteAddressInterfaceFactory $quoteAddressFactory
      * @param DataObjectHelper $dataObjectHelper
      * @param \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
+     * @param ApiLog $apiLog
      */
     public function __construct(
         MetaDataObjectFactory $metaDataObjectFactory,
@@ -105,7 +112,8 @@ class Address
         CustomerAddressInterfaceFactory $customerAddressFactory,
         QuoteAddressInterfaceFactory $quoteAddressFactory,
         DataObjectHelper $dataObjectHelper,
-        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger
+        \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
+        ApiLog $apiLog
     ) {
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->dataObjectFactory = $dataObjectFactory;
@@ -114,6 +122,7 @@ class Address
         $this->quoteAddressFactory = $quoteAddressFactory;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -159,6 +168,14 @@ class Address
             $validatedData = $this->metaDataObject->validateData($address->getData());
             $address->setData($validatedData);
         } catch (ValidationException $e) {
+            
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'getAddress';
+            $debugLogContext['operation'] = 'Framework_Interaction_Address';
+            $debugLogContext['function_name'] = 'getAddress';
+            $this->apiLog->debugLog($debugLogContext);
+
             $this->avaTaxLogger->error('Error validating address: ' . $e->getMessage(), [
                 'data' => var_export($address->getData(), true)
             ]);

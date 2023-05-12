@@ -19,7 +19,20 @@ class TaxIncluded implements \Magento\Framework\Data\OptionSourceInterface
 {
     const NET = 0;
     const GROSS = 1;
+
+    const DEFAULT_POLICY = self::NET;
     
+    /**
+     * @return array
+     */
+    public static function allowedOptions()
+    {
+        return [
+            self::NET,
+            self::GROSS
+        ];
+    }
+
     /**
      * @return array
      */

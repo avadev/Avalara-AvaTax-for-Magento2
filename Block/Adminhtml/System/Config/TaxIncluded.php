@@ -15,6 +15,9 @@
  */
 namespace ClassyLlama\AvaTax\Block\Adminhtml\System\Config;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TaxIncluded extends \Magento\Config\Block\System\Config\Form\Field
 {
     /**
@@ -23,36 +26,39 @@ class TaxIncluded extends \Magento\Config\Block\System\Config\Form\Field
      */
     protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        if ($element->getValue() != -1) {
-            $element->setReadonly(true);
-        }
+        $allowedOptions = \ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded::allowedOptions();
+        $jsHtml = ''; 
+        if (in_array($element->getValue(), $allowedOptions)) {
+            foreach ($allowedOptions as $key => $value) {
+               $jsHtml .= "jQuery('#tax_avatax_configuration_sales_tax_tax_included".$key."').prop('disabled',true); ";
+            }
+        }        
         $html = $element->getElementHtml();
-        $html .= '<div class="confirmation-modal-taxation-policy" style="display: none;">';
-        $html .= '<p>'.__('Warning! For tax compliance reasons, once you save the settings for the first time, you won\'t be able to change the Taxation Policy again.').'</p></div>';
+        
         $html .= "<script>
                         require([
                             'jquery',
-                            'Magento_Ui/js/modal/confirm'
-                        ], function ($) {
-                            'use strict';
-                            $('#tax_avatax_general_tax_included').on('change', function() {
-                                $('.confirmation-modal-taxation-policy').confirm({
-                                    title: $.mage.__('Warning!'),
-                                    actions: {
-                                        confirm: function() {
-                                            return true;
-                                        }
+                            'Magento_Ui/js/modal/confirm',
+                            'domReady!',
+                            'jquery/ui',
+                            'uiRegistry'
+                        ], function(jQuery, confirmation) {
+                            setTimeout(function(){ ".$jsHtml." }, 300);
+                            jQuery('#tax_avatax_configuration_sales_tax_tax_included0,#tax_avatax_configuration_sales_tax_tax_included1').on('click', function(event){
+                                event.preventDefault;
+                                    confirmation({
+                                title: 'Warning!!!',
+                                content: 'For tax compliance reasons, once you save the settings for the first time, you won\'t be able to change the Taxation Policy again.',
+                                actions: {
+                                    confirm: function(){},
+                                    cancel: function(){
+                                      return false;
                                     },
-                                    buttons: [{
-                                        text: $.mage.__('OK'),
-                                        class: 'action primary action-accept',
-                                        click: function (event) {
-                                            this.closeModal(event, true);
-                                        }
-                                    }]
-                                });
-                            });
-                        });
+                                    always: function(){}
+                                }
+                              });
+                          });
+                         });
                     </script>";
         return $html;
     }

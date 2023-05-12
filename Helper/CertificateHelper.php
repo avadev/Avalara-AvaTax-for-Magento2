@@ -81,21 +81,21 @@ class CertificateHelper
     }
 
     /**
-     * Build url for certificate delete action.
+     * Build url for certificate unlink action.
      *
      * @param $certificateId
      * @param $customerId
      *
      * @return string
      */
-    public function getCertificateDeleteUrl($certificateId, $customerId)
+    public function getCertificateUnlinkUrl($certificateId, $customerId)
     {
         $params = [
             'certificate_id' => $certificateId,
             'customer_id' => $customerId
         ];
 
-        return $this->urlBuilder->getUrl('avatax/certificates/delete', $params);
+        return $this->urlBuilder->getUrl('avatax/certificates/unlink', $params);
     }
 
     /**

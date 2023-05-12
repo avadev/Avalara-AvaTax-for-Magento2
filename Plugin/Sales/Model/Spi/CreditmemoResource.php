@@ -29,6 +29,9 @@ use ClassyLlama\AvaTax\Model\ResourceModel\CreditMemo as CreditMemoResourceModel
 /**
  * Class CreditmemoResource
  */
+/**
+ * @codeCoverageIgnore
+ */
 class CreditmemoResource
 {
     /**
@@ -133,7 +136,7 @@ class CreditmemoResource
                 $queue->save();
 
                 $this->avaTaxLogger->debug(
-                    __('Added entity to the queue'),
+                    __('Added entity to the queue. queue_id: '.$queue->getId().' | entity_id: '.$entity->getEntityId().' | entity_type_code: '.Queue::ENTITY_TYPE_CODE_CREDITMEMO),
                     [ /* context */
                         'queue_id' => $queue->getId(),
                         'entity_type_code' => Queue::ENTITY_TYPE_CODE_CREDITMEMO,

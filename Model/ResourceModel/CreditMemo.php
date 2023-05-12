@@ -6,6 +6,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CreditMemo extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**#@+

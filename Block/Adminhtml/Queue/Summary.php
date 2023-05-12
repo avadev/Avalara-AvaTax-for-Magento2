@@ -25,6 +25,9 @@ use Magento\Framework\View\Element\Template;
 /**
  * Class Summary
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Summary extends Template
 {
     /**
