@@ -23,7 +23,7 @@
                 <tax_mode>3</tax_mode>
                 <commit_submitted_transactions>1</commit_submitted_transactions>
                 <tax_calculation_countries_enabled>CA,US</tax_calculation_countries_enabled>
-                <use_business_identification_number>1</use_business_identification_number>
+                <use_business_identification_number>0</use_business_identification_number>
                 <shipping_tax_code>FR020100</shipping_tax_code>
                 <sku_shipping>Shipping</sku_shipping>
                 <sku_gift_wrap_order>GwOrder</sku_gift_wrap_order>
@@ -34,7 +34,7 @@
                 <error_action>2</error_action>
                 <error_action_disable_checkout_message_frontend>Unfortunately, we could not calculate tax for your order. Please try again with a different address or contact us to complete your order.</error_action_disable_checkout_message_frontend>
                 <error_action_disable_checkout_message_backend><![CDATA[There was an error getting tax rates from Avalara and since the "Error Action" is configured to "Disable checkout & show error message", we have blocked the checkout. Change <a href="%1">this setting here</a>. Please see the <a href="%2">error log</a> for details.]]></error_action_disable_checkout_message_backend>
-                <address_validation_enabled>1</address_validation_enabled>
+                <address_validation_enabled>0</address_validation_enabled>
                 <address_validation_user_has_choice>1</address_validation_user_has_choice>
                 <address_validation_instructions_with_choice><![CDATA[To ensure accurate delivery, we suggest the changes highlighted below. Please choose which address you would like to use. If neither option is correct, <a href="#" class="edit-address">edit your address</a>.]]></address_validation_instructions_with_choice>
                 <address_validation_instructions_without_choice><![CDATA[To ensure accurate delivery, we've made the changes highlighted below. If this address is not correct, <a href="#" class="edit-address">edit your address</a>.]]></address_validation_instructions_without_choice>

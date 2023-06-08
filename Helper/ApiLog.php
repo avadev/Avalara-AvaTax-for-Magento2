@@ -68,6 +68,7 @@ class ApiLog extends AbstractHelper
             $isProduction = $this->config->isProductionMode($scopeId, $scopeType);
             $accountNumber = $this->config->getAccountNumber($scopeId, $scopeType, $isProduction);
             $accountSecret = $this->config->getLicenseKey($scopeId, $scopeType, $isProduction);
+            $ERPDetails = $this->config->getERPDetails();
             $connectorId = self::CONNECTOR_ID;
             $clientString = self::APP_NAME;
             $connectorVersion = self::APP_VERSION;
@@ -94,6 +95,7 @@ class ApiLog extends AbstractHelper
                     'log_type' => $logType,
                     'log_level' => $logLevel,
                     'function_name' => $functionName,
+                    'ERPDetails' => $ERPDetails,
                     'extra_params' => isset($context['config']['extra_params']) ? $context['config']['extra_params'] : []
                 ]
             ];

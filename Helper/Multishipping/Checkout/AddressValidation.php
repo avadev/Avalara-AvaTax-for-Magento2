@@ -75,7 +75,7 @@ class AddressValidation
      */
     public function isValidationEnabled()
     {
-        return $this->config->isAddressValidationEnabled($this->storeManager->getStore());
+        return $this->config->isModuleEnabled($this->storeManager->getStore()) && $this->config->isAddressValidationEnabled($this->storeManager->getStore());
     }
 
     /**
