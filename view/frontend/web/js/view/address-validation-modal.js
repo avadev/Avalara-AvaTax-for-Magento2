@@ -18,6 +18,7 @@ define([
     'ClassyLlama_AvaTax/js/action/set-customer-address',
     'ClassyLlama_AvaTax/js/model/address-converter',
     'ClassyLlama_AvaTax/js/view/address-validation-form',
+    'text!ClassyLlama_AvaTax/template/modal/modal-popup.html',
     'Magento_Ui/js/modal/modal'
 ], function(
     $,
@@ -25,7 +26,8 @@ define([
     addressModel,
     setCustomerAddress,
     addressConverter,
-    addressValidationForm
+    addressValidationForm,
+    popupTpl
 ){
 
     $.widget('ClassyLlama_AvaTax.addressValidationModal', $.mage.modal, {
@@ -35,6 +37,7 @@ define([
             focus: '.validationModal .action-primary',
             responsive: true,
             closeText: $.mage.__('Close'),
+            popupTpl: popupTpl,
             buttons: [
                 {
                     text: $.mage.__('Edit Address'),

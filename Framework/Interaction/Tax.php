@@ -472,12 +472,12 @@ class Tax
 			}
 		}
         $currencyCode = $quote->getCurrency()->getQuoteCurrencyCode();
-        $shippingAmount = number_format($shippingAddress->getAddress()->getShippingAmount(), '2', '.', ',');
+        $shippingAmount = number_format((float)$shippingAddress->getAddress()->getShippingAmount(), '2', '.', ',');
         $shippingParametersValue = $shipToAddress->getCountry().":".$shipToAddress->getRegion().":".$shippingAddress->getMethod().":".$shippingAmount." ".$currencyCode;
         $data = [
             'store_id' => $store->getId(),
             'commit' => false, // quotes should never be committed
-            'currency_code' => $quote->getCurrency()->getQuoteCurrencyCode(),
+            'currency_code' => $quote->getCurrency()->getBaseCurrencyCode(),
             'customer_code' => $this->customer->getCustomerCodeByCustomerId(
                 $quote->getCustomerId(),
                 $quote->getId(),
@@ -767,14 +767,14 @@ class Tax
             }
         }
         $currencyCode = $order->getOrderCurrencyCode();
-        $shippingAmount = number_format($order->getShippingAmount(), '2', '.', ',');
+        $shippingAmount = number_format((float)$order->getShippingAmount(), '2', '.', ',');
         $shippingParametersValue = $shipToAddress->getCountry().":".$shipToAddress->getRegion().":".$order->getShippingMethod().":".$shippingAmount." ".$currencyCode;
         $data = [
             'store_id' => $store->getId(),
             'commit' => $this->config->getCommitSubmittedTransactions($store),
             'date' => $currentDate,
             'tax_override' => $taxOverride,
-            'currency_code' => $order->getOrderCurrencyCode(),
+            'currency_code' => $order->getGlobalCurrencyCode(),
             'customer_code' => $this->customer->getCustomerCodeByCustomerId(
                 $order->getCustomerId(),
                 $order->getId(),

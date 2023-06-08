@@ -50,6 +50,6 @@ class Region extends \Magento\Framework\View\Element\Template
      */
     public function isAddressValidationEnabled()
     {
-        return $this->configHelper->isAddressValidationEnabled($this->_storeManager->getStore());
+        return $this->configHelper->isModuleEnabled($this->_storeManager->getStore()) && $this->configHelper->isAddressValidationEnabled($this->_storeManager->getStore());
     }
 }

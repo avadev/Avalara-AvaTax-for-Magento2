@@ -14,8 +14,12 @@
  */
 -->
 <li id="validate_address" role="presentation" class="checkout-validate-address" data-bind="fadeVisible: isVisible">
-    <div class="step-title" data-bind="i18n: 'Verify Your Address'" data-role="title"></div>
-    <div class="step-content" data-role="content" role="tabpanel" aria-hidden="false">
-        <!-- ko template: getBaseValidateAddressTemplate() --><!-- /ko -->
-    </div>
+    <fieldset class="fieldset">
+        <legend class="legend">
+            <div class="step-title" data-bind="i18n: 'Verify Your Address'" data-role="title"></div>
+        </legend>
+        <div class="step-content" data-role="content" role="tabpanel" aria-hidden="false">
+            <!-- ko template: getBaseValidateAddressTemplate() --><!-- /ko -->
+        </div>
+    </fieldset>
 </li>

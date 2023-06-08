@@ -595,7 +595,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
         $request->setData('store_id', $store->getId());
         $request->setData('commit', self::COMMIT_TRANSACTION);
         $request->setData('tax_override', $taxOverride);
-        $request->setData('currency_code', $order->getOrderCurrencyCode());
+        $request->setData('currency_code', $order->getGlobalCurrencyCode());
         $request->setData('customer_code', $this->customer->getCustomerCodeByCustomerId(
             $order->getCustomerId(),
             $order->getId(),

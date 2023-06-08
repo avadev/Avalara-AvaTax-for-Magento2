@@ -18,7 +18,8 @@ define([
     'ClassyLlama_AvaTax/js/view/address-validation-form',
     'Magento_Checkout/js/model/checkout-data-resolver',
     'Magento_Checkout/js/action/select-billing-address',
-    'Magento_Checkout/js/action/create-billing-address'
+    'Magento_Checkout/js/action/create-billing-address',
+    'text!ClassyLlama_AvaTax/template/modal/modal-popup.html'
 ], function (
     $,
     ko,
@@ -26,7 +27,8 @@ define([
     addressValidationForm,
     checkoutDataResolver,
     selectBillingAddress,
-    createBillingAddress
+    createBillingAddress,
+    popupTpl
 ) {
 
     $.widget('ClassyLlama_AvaTax.checkoutBillingAddressValidationModal', $.mage.modal, {
@@ -38,6 +40,7 @@ define([
             focus: '.billingValidationModal .action-primary',
             responsive: true,
             closeText: $.mage.__('Close'),
+            popupTpl: popupTpl,
             buttons: [
                 {
                     text: $.mage.__('Edit Address'),

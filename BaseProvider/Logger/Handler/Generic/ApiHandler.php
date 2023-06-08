@@ -111,6 +111,7 @@ class ApiHandler extends BaseAbstractHandler
             $headers = isset($apiConfig['config']['extra_headers']) ? $apiConfig['config']['extra_headers'] : [];
             $extraParams = isset($apiConfig['config']['extra_params']) ? $apiConfig['config']['extra_params'] : [];
             $requestMethod = isset($apiConfig['config']['request_method']) ? $apiConfig['config']['request_method'] : Request::HTTP_METHOD_POST;
+            $ERPDetails = isset($apiConfig['config']['ERPDetails']) ? $apiConfig['config']['ERPDetails'] : Config::ERP_DETAILS;
 
             if ($currentMode == Config::API_MODE_SANDBOX) {
                 $endPointBaseUrl = Config::ENV_LOGGER_SANDBOX_BASE_URL;
@@ -130,7 +131,7 @@ class ApiHandler extends BaseAbstractHandler
 
             $params["CallerAccuNum"] = $accountNumber;
             $params["AvaTaxEnvironment"] = ucwords($currentMode);
-            $params["ERPDetails"] = Config::ERP_DETAILS;
+            $params["ERPDetails"] = $ERPDetails;
             $params["ConnectorName"] = $connectorName;
             $params["ConnectorVersion"] = $connectorVersion;
             $params["ClientString"] = $connectorString;

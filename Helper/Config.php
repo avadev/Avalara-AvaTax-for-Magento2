@@ -1013,6 +1013,17 @@ class Config extends AbstractHelper
      */
     public function isAddressValidationEnabled($store)
     {
+        return $this->isModuleEnabled($store) && $this->getAddressValidationConfig($store);
+    }
+    /**
+     * Return address validation config value
+     *
+     * @param null $store
+     *
+     * @return mixed
+     */
+    public function getAddressValidationConfig($store)
+    {
         return $this->scopeConfig->getValue(
             self::XML_PATH_AVATAX_ADDRESS_VALIDATION_ENABLED,
             ScopeInterface::SCOPE_STORE,
@@ -1360,5 +1371,22 @@ class Config extends AbstractHelper
             $VATTransportMapping = '';
         }
         return stripslashes((string)$VATTransportMapping);
+    }
+
+    /**
+     * Get ERP Details with magento edition and version
+     * 
+     * @return string
+     */
+    public function getERPDetails() {
+        $edition = 'CE';
+
+        if ($this->magentoProductMetadata->getEdition() == "Enterprise") {
+            $edition = 'EE';
+        }
+
+        $version = $this->magentoProductMetadata->getVersion();
+
+        return "MAGENTO " . $edition . " " . $version;
     }
 }

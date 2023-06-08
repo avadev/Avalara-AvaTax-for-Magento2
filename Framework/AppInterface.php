@@ -20,7 +20,7 @@ interface AppInterface
     /**
      * Connector version
      */
-    const APP_VERSION = '2.5.2';
+    const APP_VERSION = '2.5.3';
 	/**
      * Avalara APP String
      */
