@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="exemption_certcapture_management" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="60">
+        <label>Exemption Certificate Management</label>
+        <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\ExpandedFieldSet</frontend_model>
+        <field id="enabled" type="select" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/enabled</config_path>
+            <label>Enable Exemption Certificate Management</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment>AvaTax Document Management allows users to upload documents that verify that they’re tax exempt and if they do, they won’t be charged tax in the checkout. This feature must be enabled in your Avalara account.</comment>
+        </field>
+        <field id="enabled_countries" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/enabled_countries</config_path>
+            <label>Enabled Countries</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\DocumentManagementCountries</source_model>
+            <comment>Select which countries to enable for Document Management.</comment>
+            <depends>
+                <field id="enabled">1</field>
+            </depends>
+        </field>
+        <field id="checkout_link_text_new_cert_no_certs_exist" translate="label" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/checkout_link_text_new_cert_no_certs_exist</config_path>
+            <label>Checkout Link Text: New Cert(No certs exist)</label>
+            <comment>The text of the link that appears at checkout allowing the initiation of a new certificate. This text shows if there are no existing certificates for the customer.</comment>
+            <depends>
+                <field id="enabled">1</field>
+            </depends>
+        </field>
+        <field id="checkout_link_text_new_cert_certs_exist" translate="label" type="text" sortOrder="600" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/checkout_link_text_new_cert_certs_exist</config_path>
+            <label>Checkout Link Text: New Cert(Certs exist)</label>
+            <comment>The text of the link that appears at checkout allowing the initiation of a new certificate. This text shows if there are already existing certificates for the customer.</comment>
+            <depends>
+                <field id="enabled">1</field>
+            </depends>
+        </field>
+        <field id="checkout_link_text_manage_existing_certs" translate="label" type="text" sortOrder="700" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/checkout_link_text_manage_existing_certs</config_path>
+            <label>Checkout Link Text: Manage Existing Certs</label>
+            <comment>The text of the link that appears at checkout allowing the user to navigate to certificate management in My Account. This text shows only if there are existing certificates for the customer.</comment>
+            <depends>
+                <field id="enabled">1</field>
+            </depends>
+        </field>
+        <field id="custom_status_name_certificate" translate="label" type="select" sortOrder="800" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/custom_status_name_certificate</config_path>
+            <label>Change Status name of the Certificate</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment>Rename Status of the Certificate</comment>
+            <depends>
+                <field id="enabled">1</field>
+            </depends>
+        </field>
+        <field id="approved_status_name" translate="label" type="text" sortOrder="900" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/approved_status_name</config_path>
+            <label>'Approved' Status Name(Default name)</label>
+            <comment>This text will be shown instead of the default certificate status name('Approved') in the 'Tax Certificates' grid of the My Account.</comment>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="custom_status_name_certificate">1</field>
+            </depends>
+        </field>
+        <field id="denied_status_name" translate="label" type="text" sortOrder="900" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/denied_status_name</config_path>
+            <label>'Denied' Status Name(Default name)</label>
+            <comment>This text will be shown instead of the default certificate status name('Denied') in the 'Tax Certificates' grid of the My Account.</comment>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="custom_status_name_certificate">1</field>
+            </depends>
+        </field>
+        <field id="pending_status_name" translate="label" type="text" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_document_management/pending_status_name</config_path>
+            <label>'Pending' Status Name(Default name)</label>
+            <comment>This text will be shown instead of the default certificate status name('Pending') in the 'Tax Certificates' grid of the My Account.</comment>
+            <depends>
+                <field id="enabled">1</field>
+                <field id="custom_status_name_certificate">1</field>
+            </depends>
+        </field>
+        <field id="disable_certcapture_auto_validation" type="select" translate="label" sortOrder="1001" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax_certificate_capture/disable_certcapture_auto_validation</config_path>
+            <label>Disable Certificates Auto Validation</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment><![CDATA[By default, new certificates are automatically validated in CertCapture, unless this behavior is altered.]]></comment>
+        </field>
+        <depends>
+            <field id="tax/avatax_configuration/extension_mode/enabled">1</field>
+        </depends>
+    </group>
+</include>

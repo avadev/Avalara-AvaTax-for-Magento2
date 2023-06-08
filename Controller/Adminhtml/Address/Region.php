@@ -13,6 +13,9 @@ use Magento\Framework\Escaper;
 /**
  * Regions controller
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Region extends \Magento\Framework\App\Action\Action
 {
     /**

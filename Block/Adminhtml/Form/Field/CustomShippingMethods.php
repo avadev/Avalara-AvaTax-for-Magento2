@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Block\Adminhtml\Form\Field;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CustomShippingMethods extends \Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray
 {
     /**
@@ -39,7 +42,7 @@ class CustomShippingMethods extends \Magento\Config\Block\System\Config\Form\Fie
      */
     public static function parseSerializedValue($config)
     {
-        $parsedValue = (array)json_decode($config ?? '', true);
+        $parsedValue = (array)json_decode((string)$config ?? '', true);
         $shippingCodesById = [];
 
         foreach ($parsedValue as $value) {

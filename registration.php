@@ -1,4 +1,7 @@
 <?php
+/**
+ * @codeCoverageIgnore
+ */
 
 \Magento\Framework\Component\ComponentRegistrar::register(
     \Magento\Framework\Component\ComponentRegistrar::MODULE,
@@ -18,4 +21,10 @@ if (defined('BP')) {
     \Magento\Framework\Component\ComponentRegistrar::LIBRARY,
     'Avalara_AvaTax',
     $vendorPath . DIRECTORY_SEPARATOR . 'avalara' . DIRECTORY_SEPARATOR . 'avataxclient'
+);
+
+\Magento\Framework\Component\ComponentRegistrar::register(
+    \Magento\Framework\Component\ComponentRegistrar::MODULE,
+    'Avalara_BaseProvider',
+    __DIR__ . DIRECTORY_SEPARATOR . 'BaseProvider'
 );

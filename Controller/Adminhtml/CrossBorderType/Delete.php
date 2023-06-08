@@ -16,28 +16,40 @@
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 
 use ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Delete extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
 {
     /**
      * @var CrossBorderTypeRepositoryInterface
      */
     protected $crossBorderTypeRepository;
+    
+    /**
+     * @var ApiLog
+     */
+    protected $apiLog;
 
     /**
      * @param CrossBorderTypeRepositoryInterface  $crossBorderTypeRepository
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Magento\Framework\Registry         $coreRegistry
+     * @param ApiLog $apiLog
      */
     public function __construct(
         CrossBorderTypeRepositoryInterface $crossBorderTypeRepository,
         \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry
+        \Magento\Framework\Registry $coreRegistry,
+        ApiLog $apiLog
     )
     {
         parent::__construct($context, $coreRegistry);
 
         $this->crossBorderTypeRepository = $crossBorderTypeRepository;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -61,6 +73,12 @@ class Delete extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
                 // go to grid
                 return $resultRedirect->setPath('*/*/');
             } catch (\Exception $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'DeleteCrossBorderType';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_CrossborderType_Delete';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 // display error message
                 $this->messageManager->addErrorMessage($e->getMessage());
 

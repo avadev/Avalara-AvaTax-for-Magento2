@@ -36,6 +36,7 @@ use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Tax extends Rest
     implements RestTaxInterface
@@ -71,6 +72,11 @@ class Tax extends Rest
     private $config;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
@@ -79,6 +85,7 @@ class Tax extends Rest
      * @param RestConfig $restConfig
      * @param CustomsConfig $customsConfigHelper
      * @param Config $config
+     * @param ApiLog $apiLog
      */
     public function __construct(
         LoggerInterface $logger,
@@ -88,7 +95,8 @@ class Tax extends Rest
         TaxResultFactory $taxResultFactory,
         RestConfig $restConfig,
         CustomsConfig $customsConfigHelper,
-        Config $config
+        Config $config,
+        ApiLog $apiLog
     ) {
         parent::__construct($logger, $dataObjectFactory, $clientPool);
         $this->transactionBuilderFactory = $transactionBuilderFactory;
@@ -96,6 +104,7 @@ class Tax extends Rest
         $this->restConfig = $restConfig;
         $this->customsConfigHelper = $customsConfigHelper;
         $this->config = $config;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -114,6 +123,13 @@ class Tax extends Rest
      */
     public function getTax( $request, $isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $params = [])
     {
+        $exeEndTime = $apiStartTime = $apiEndTime = 0;
+        $exeStartTime = microtime(true);
+        $sendLog = true;
+        if ($request->hasCode()) {
+            $logContext = ['extra' => ['DocCode' => $request->getCode()]];
+        }
+       
         $client = $this->getClient( $isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
 
@@ -125,9 +141,11 @@ class Tax extends Rest
             'customerCode' => $request->getCustomerCode(),
             'dateTime' => $request->getDate(),
         ]);
+        $this->customsConfigHelper->initNextIncrementForWithParameter();
 
         $this->setTransactionDetails($transactionBuilder, $request);
         $this->setLineDetails($transactionBuilder, $request);
+        $logContext['extra']['LineCount'] = $transactionBuilder->getCurrentLineNumber() - 1;
         $this->setAddressDetails($transactionBuilder, $request);
 
         $resultObj = null;
@@ -141,11 +159,30 @@ class Tax extends Rest
         }
 
         try {
+            $apiStartTime = microtime(true);
             $resultObj = $transactionBuilder->create();
+            $apiEndTime = microtime(true);
         }
         catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $sendLog = false;
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Tax';
+            $debugLogContext['function_name'] = 'getTax';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException, $request);
+        } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'customer';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Customer';
+            $debugLogContext['function_name'] = 'getTax';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
+            throw $exception;
         }
+
+        
 
         $resultGeneric = $this->formatResult($resultObj);
         /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result $result */
@@ -158,6 +195,42 @@ class Tax extends Rest
          * We store the request on the result so we can map request items to response items
          */
         $result->setRequest($request);
+
+        if ($sendLog) {
+            $exeEndTime = microtime(true);
+            $prefix = '';
+            $eventBlock = '';
+            $docType = '';
+            switch ($request->getType()) {
+                case \Avalara\DocumentType::C_RETURNINVOICE :
+                    $eventBlock = "CreditMemoPostCalculateTax";
+                    $docType = "REFUND";
+                    $prefix = 'CM';
+                    $logContext['extra']['DocCode'] = $prefix . $request->getPurchaseOrderNo() ;
+                    break;
+                case \Avalara\DocumentType::C_SALESINVOICE :
+                    $eventBlock = "InvoicePostCalculateTax";
+                    $docType = "INVOICE";
+                    $prefix = 'INV';
+                    $logContext['extra']['DocCode'] = $prefix . $request->getPurchaseOrderNo() ;
+                    break;
+                case \Avalara\DocumentType::C_SALESORDER :
+                    $eventBlock = "PostCalculateTax";
+                    $docType = "SalesOrder";
+                    break;
+            }        
+            if (!empty($docType)) {
+                $log['DocCode'] = $request->getPurchaseOrderNo();
+                $logContext['extra']['EventBlock'] = $eventBlock;
+                $logContext['extra']['DocType'] = $docType;
+                $logContext['extra']['ConnectorTime'] = ['start' => $exeStartTime, 'end' => $exeEndTime];
+                $logContext['extra']['ConnectorLatency'] = ['start' => $apiStartTime, 'end' => $apiEndTime];
+                $logContext['source'] = 'tax';
+                $logContext['operation'] = 'calculateTax';
+                $logContext['function_name'] = __METHOD__;
+                $this->apiLog->makeTransactionRequestLog($logContext, $scopeId, $scopeType);
+            }
+        }
 
         return $result;
     }
@@ -212,9 +285,12 @@ class Tax extends Rest
                     $override->getTaxAmount(), $override->getTaxDate());
             }
         }
-//        if($request->hasShippingMode()) {
-//            $transactionBuilder->withParameter(self::TRANSACTION_PARAM_NAME_SHIPPING_MODE, $request->getShippingMode());
-//        }
+        if ($request->hasTransportParameters()) {
+            $transactionBuilder->withParameter($this->customsConfigHelper->getNextIncrementForWithParameter(), ['name'=>$request->getShippingMethod(), 'value'=>$request->getTransportParametersValue()] );
+        }
+        if ($request->hasShippingParameters()) {
+            $transactionBuilder->withParameter($this->customsConfigHelper->getNextIncrementForWithParameter(), ['name'=>$request->getShippingParametersName(), 'value'=>$request->getShippingParametersValue()]);
+        }
     }
 
     /**
@@ -307,10 +383,18 @@ class Tax extends Rest
         $scopeId = null,
         $scopeType = ScopeInterface::SCOPE_STORE
     ): Result {
+        $exeEndTime = $apiStartTime = $apiEndTime = 0;
+        $exeStartTime = microtime(true);
+        $sendLogs = true;
         $client = $this->getClient($isProduction, $scopeId, $scopeType);
         $client->withCatchExceptions(false);
         $transactions = [];
+        $logs = [];
         foreach ($requests as $request) {
+            $log = [];
+            $log['DocType'] = $request->getType();
+            $log['DocCode'] = $request->getPurchaseOrderNo();
+            $sendLog = true;
             $transactionBuilder = $this->transactionBuilderFactory->create([
                 'client'       => $client,
                 'companyCode'  => $request->getCompanyCode(),
@@ -318,10 +402,13 @@ class Tax extends Rest
                 'customerCode' => $request->getCustomerCode(),
                 'dateTime'     => $request->getDate(),
             ]);
+            $this->customsConfigHelper->initNextIncrementForWithParameter();
             $this->setTransactionDetails($transactionBuilder, $request);
             try {
                 $this->setLineDetails($transactionBuilder, $request);
+                $log['LineCount'] = $transactionBuilder->getCurrentLineNumber() - 1;
             } catch (Exception $e) {
+                $sendLog = false;
             }
             $this->setAddressDetails($transactionBuilder, $request);
             $createAdjustmentRequest = $transactionBuilder->createAdjustmentRequest(null, null);
@@ -331,6 +418,8 @@ class Tax extends Rest
             $transaction = new TransactionBatchItemModel();
             $transaction->createTransactionModel = $requestData;
             $transactions[] = $transaction;
+            if ($sendLog)
+                $logs[] = $log;
         }
         $transactionBatchRequestModel = new CreateTransactionBatchRequestModel();
         $transactionBatchRequestModel->name = "Batch" . date("Y-m-d H:i:s");
@@ -338,8 +427,17 @@ class Tax extends Rest
 
         $resultObj = null;
         try {
+            $apiStartTime = microtime(true);
             $resultObj = $client->createTransactionBatch($this->config->getCompanyId(), $transactionBatchRequestModel);
+            $apiEndTime = microtime(true);
         } catch (RequestException $clientException) {
+            $sendLogs = false;
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'tax';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Tax';
+            $debugLogContext['function_name'] = 'getTaxBatch';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException);
         }
         $resultGeneric = $this->formatResult($resultObj);
@@ -351,6 +449,40 @@ class Tax extends Rest
          * We store the request on the result so we can map request items to response items
          */
         $result->setRequest($transactionBatchRequestModel);
+
+        if ($sendLogs && count($logs) > 0) {
+            $exeEndTime = microtime(true);
+            foreach ($logs as $log) {
+                $prefix = '';
+                $eventBlock = '';
+                $docType = '';
+                switch ($log['DocType']) {
+                    case \Avalara\DocumentType::C_RETURNINVOICE :
+                        $eventBlock = "BatchCreditMemoPostCalculateTax";
+                        $docType = "REFUND";
+                        $prefix = 'CM';
+                        break;
+                    case \Avalara\DocumentType::C_SALESINVOICE :
+                        $eventBlock = "BatchInvoicePostCalculateTax";
+                        $docType = "INVOICE";  
+                        $prefix = 'INV';
+                        break;
+                }
+                if (empty($docType)) continue;
+                $logContext = [];
+                $logContext['extra']['DocCode'] = $prefix.$log['DocCode'];
+                $logContext['extra']['DocType'] = $docType;
+                if (isset($log['LineCount']))
+                    $logContext['extra']['LineCount'] = $log['LineCount'];
+                $logContext['extra']['EventBlock'] = $eventBlock;
+                $logContext['extra']['ConnectorTime'] = ['start' => $exeStartTime, 'end' => $exeEndTime];
+                $logContext['extra']['ConnectorLatency'] = ['start' => $apiStartTime, 'end' => $apiEndTime];
+                $logContext['source'] = 'tax';
+                $logContext['operation'] = 'calculateTax';
+                $logContext['function_name'] = __METHOD__;
+                $this->apiLog->makeTransactionRequestLog($logContext, $scopeId, $scopeType);
+            }
+        }
 
         return $result;
     }

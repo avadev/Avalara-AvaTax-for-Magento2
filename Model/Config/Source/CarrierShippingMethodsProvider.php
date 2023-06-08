@@ -87,7 +87,7 @@ class CarrierShippingMethodsProvider extends DataObject
     {
         list($scopeType, $scopeId) = $this->getScopeInfo();
 
-        return explode(',', $this->scopeConfig->getValue($configPath, $scopeType, $scopeId));
+        return explode(',', (string)$this->scopeConfig->getValue($configPath, $scopeType, $scopeId));
     }
 
     /**

@@ -207,5 +207,15 @@
         "constraint": {
             "PRIMARY": true
         }
+    },
+    "quote_item": {
+        "column": {
+            "ava_vatcode": true
+        }
+    },
+    "order_item": {
+        "column": {
+            "ava_vatcode": true
+        }
     }
 }

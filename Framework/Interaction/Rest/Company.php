@@ -17,18 +17,52 @@ namespace ClassyLlama\AvaTax\Framework\Interaction\Rest;
 
 use ClassyLlama\AvaTax\Api\RestCompanyInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest;
+use Exception;
+use GuzzleHttp\Exception\RequestException;
 use Magento\Framework\DataObject;
+use Magento\Framework\DataObjectFactory;
+use Psr\Log\LoggerInterface;
+use ClassyLlama\AvaTax\Framework\Interaction\Rest\ClientPool;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 class Company extends Rest implements RestCompanyInterface
 {
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
+     * @param LoggerInterface $logger
+     * @param DataObjectFactory $dataObjectFactory
+     * @param ClientPool $clientPool
+     * @param ApiLog $apiLog
+     */
+    public function __construct(
+        LoggerInterface $logger,
+        DataObjectFactory $dataObjectFactory,
+        ClientPool $clientPool,
+        ApiLog $apiLog
+    ) {
+        $this->apiLog = $apiLog;
+        parent::__construct($logger, $dataObjectFactory, $clientPool);
+    }
+
+    /**
+     * REST call to get Companies
+     *
      * @param \ClassyLlama\AvaTax\Helper\AvaTaxClientWrapper $client
      * @param DataObject|null       $request
-     *
+     * 
      * @return DataObject[]
      * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
      */
-    protected function getCompaniesFromClient( $client, $request = null )
+    protected function getCompaniesFromClient( 
+        $client, 
+        $request = null, 
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE 
+    )
     {
         if ($request === null)
         {
@@ -46,7 +80,21 @@ class Company extends Rest implements RestCompanyInterface
                 $request->getData('order_by')
             );
         } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'companies';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Company';
+            $debugLogContext['function_name'] = 'getCompaniesFromClient';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
             $this->handleException($clientException, $request);
+        } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'companies';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Company';
+            $debugLogContext['function_name'] = 'getCompaniesFromClient';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
+            throw $exception;
         }
 
         return $this->formatResult($clientResult)->getData('value');
@@ -64,7 +112,7 @@ class Company extends Rest implements RestCompanyInterface
     {
         $client = $this->getClient( $isProduction, $scopeId, $scopeType );
 
-        return $this->getCompaniesFromClient( $client, $request );
+        return $this->getCompaniesFromClient( $client, $request, $scopeId, $scopeType );
     }
 
     /**
@@ -100,8 +148,14 @@ class Company extends Rest implements RestCompanyInterface
         $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
     )
     {
-        $client = $this->getClient($isProduction, $scopeId, $scopeType);
-
-        return $client->listCertificateExposureZones(null, null, null, null);
+        try {
+            $client = $this->getClient($isProduction, $scopeId, $scopeType);
+            return $client->listCertificateExposureZones(null, null, null, null);
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            // in case if Avatax account info is missing we will return false, no need to add CEP exception logging
+            return false;
+        } catch (\Exception $e){
+            return false;
+        }
     }
 }

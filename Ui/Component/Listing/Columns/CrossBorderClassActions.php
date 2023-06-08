@@ -23,6 +23,9 @@ use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CrossBorderClassActions extends Column
 {
     const URL_PATH_VIEW = 'avatax/crossborder_classes/edit';

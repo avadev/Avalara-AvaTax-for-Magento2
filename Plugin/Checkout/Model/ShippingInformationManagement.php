@@ -34,6 +34,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 /**
  * Class ShippingInformationManagement
  */
+/**
+ * @codeCoverageIgnore
+ */
 class ShippingInformationManagement
 {
     /**
@@ -186,7 +189,7 @@ class ShippingInformationManagement
 
         $enabledAddressValidationCountries = explode(
             ',',
-            $this->config->getAddressValidationCountriesEnabled($storeId)
+            (string)$this->config->getAddressValidationCountriesEnabled($storeId)
         );
         if (!in_array($shippingAddress->getCountryId(), $enabledAddressValidationCountries)) {
             $shouldValidateAddress = false;
@@ -250,8 +253,8 @@ class ShippingInformationManagement
         } catch (NoSuchEntityException $e) {
             if (
             (
-                strpos(strtolower($e->getMessage()), 'carrier') !== false
-                || strpos(strtolower($e->getMessage()), 'shipping') !== false
+                strpos((string)strtolower((string)$e->getMessage()), (string)'carrier') !== false
+                || strpos((string)strtolower((string)$e->getMessage()), (string)'shipping') !== false
             )
                 && strpos(strtolower($e->getMessage()), 'not found') !== false
             ) {

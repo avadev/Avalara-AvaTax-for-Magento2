@@ -204,4 +204,10 @@
       <column name="entity_id"/>
     </constraint>
   </table>
+  <table name="quote_item" resource="checkout" comment="Sales Flat Quote Item">
+      <column xsi:type="varchar" name="ava_vatcode" nullable="true" length="255" comment="Avalara VAT Code"/>
+  </table>
+  <table name="sales_order_item" resource="checkout" comment="Sales Flat Order Item">
+      <column xsi:type="varchar" name="ava_vatcode" nullable="true" length="255" comment="Avalara VAT Code"/>
+  </table>
 </schema>

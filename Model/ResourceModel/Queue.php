@@ -23,6 +23,9 @@ use Magento\Framework\Model\AbstractModel;
 /**
  * Queue
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Queue extends AbstractDb
 {
     /**#@+

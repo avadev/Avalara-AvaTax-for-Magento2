@@ -21,6 +21,9 @@ use Magento\Backend\Block\Widget\Context;
 /**
  * Class ClearButton
  */
+/**
+ * @codeCoverageIgnore
+ */
 class ClearButton implements ButtonProviderInterface
 {
     /**

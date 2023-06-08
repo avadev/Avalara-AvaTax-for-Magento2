@@ -21,7 +21,9 @@ use Magento\Framework\DataObject;
 
 use ClassyLlama\AvaTax\Helper\CertificateDownloadControllerHelper;
 
-
+/**
+ * @codeCoverageIgnore
+ */
 class Download extends \Magento\Backend\App\Action
 {
     protected $_publicActions = ['download'];

@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="sales_tax" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="20">
+        <label>Sales Tax</label>
+        <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\ExpandedFieldSet</frontend_model>
+        <field id="tax_included" translate="label" type="radios" sortOrder="1002" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/tax_included</config_path>
+            <label>Taxation Policy</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxIncluded</source_model>
+            <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\TaxIncluded</frontend_model>
+            <comment><![CDATA[The policy you select determines whether the product catalog price on the storefront is INCLUSIVE or EXCLUSIVE of the taxes. Once set, you cannot change it again.
+                <ul>
+                    <li>
+                        <strong>Gross:</strong> - Included taxes are part of the catalog price and are not added separately to the cart subtotal.
+                    </li>
+                    <li>
+                        <strong>Net:</strong> — Included taxes are NOT part of the catalog price and are added separately to the cart subtotal.
+                    </li>
+                </ul>
+            ]]></comment>
+        </field>
+        <field id="tax_mode" translate="label" type="select" sortOrder="1003" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/tax_mode</config_path>
+            <label>Tax Mode</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxMode</source_model>
+            <comment><![CDATA[
+                <ul>
+                    <li>
+                        <strong>Disabled</strong> — Disables AvaTax tax estimation and uses native Magento tax estimation. Use this option when you want to use address validation only.
+                    </li>
+                    <li>
+                        <strong>Estimate Tax</strong> — Runs AvaTax tax estimation during order checkout but does NOT submit completed orders to AvaTax.
+                    </li>
+                    <li>
+                        <strong>Estimate Tax & Submit Transactions to AvaTax</strong> — Runs AvaTax tax estimation during order checkout and submits invoices and credit memos to AvaTax.
+                    </li>
+                </ul>
+            ]]></comment>
+        </field>
+        <field id="tax_calculation_countries_enabled" translate="label comment" type="multiselect" sortOrder="1005" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/tax_calculation_countries_enabled</config_path>
+            <label>Taxable Countries</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\TaxCalculationCountries</source_model>
+            <comment><![CDATA[Select which countries to enable for tax calculation (address verification countries are <a href="#row_tax_avatax_address_validation_header">configured below</a>).]]></comment>
+            <depends>
+                <field id="tax_mode" negative="1">1</field>
+            </depends>
+        </field>
+        <field id="filter_tax_by_region" translate="label" type="select" sortOrder="1006" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/filter_tax_by_region</config_path>
+            <label>Filter Tax Calculation By Region</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment><![CDATA[Should tax calculation only apply to certain regions? Only change this to <strong>Yes</strong> if you have a specific reason to do so. See the [documentation](https://github.com/avadev/Avalara-AvaTax-for-Magento2/blob/develop/docs/sales-tax.md#filter_by_region) for more details.]]></comment>
+            <depends>
+                <field id="tax_mode" negative="1">1</field>
+            </depends>
+        </field>
+        <field id="region_filter_list" translate="label" type="multiselect" sortOrder="1007" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/region_filter_list</config_path>
+            <label>Enabled Regions</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\RegionFilterList</source_model>
+            <comment><![CDATA[Select regions where you want AvaTax tax calculation to apply. Unselected regions will use native Magento tax calculation. If you change the selection of the <strong>Taxable Countries</strong> field, you must save this page for this region list to update.]]></comment>
+            <depends>
+                <field id="tax_mode" negative="1">1</field>
+                <field id="filter_tax_by_region">1</field>
+            </depends>
+        </field>
+        <field id="calculate_tax_before_discounts" translate="label" type="select" sortOrder="1008" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/calculate_tax_before_discounts</config_path>
+            <label>Calculate Tax Before Discount</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment><![CDATA[Should tax be calculated on each item before discounts are applied ]]></comment>
+            <depends>
+                <field id="tax_mode" negative="1">1</field>
+            </depends>
+        </field>
+        <field id="commit_submitted_transactions" translate="label" type="select" sortOrder="1009" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/commit_submitted_transactions</config_path>
+            <label>Commit Submitted Transactions</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment><![CDATA[Should transactions sent to AvaTax be committed? Only change to <strong>No</strong> if you have specific reason to do so.]]></comment>
+            <depends>
+                <field id="tax_mode">3</field>
+            </depends>
+        </field>
+        <field id="data_mapping_header" translate="label" type="label" sortOrder="3000" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label><![CDATA[<strong>Data Mapping</strong>]]></label>
+        </field>
+        <field id="customer_code_format" translate="label comment" type="select" sortOrder="3010" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/customer_code_format</config_path>
+            <label>Customer Code Format</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\CustomerCode</source_model>
+            <comment><![CDATA[Select a format for identifying customers in AvaTax. Available options include any customer attributes that exist in Magento. If you don’t have a value defined for the selected attribute when the transaction is processed and sent to Avalara, your customer or guest ID is used instead. Don’t change this setting once the integration is live.]]></comment>
+        </field>
+        <field id="upc_attribute" translate="label comment" type="select" sortOrder="3020" showInDefault="1" showInWebsite="0" showInStore="0">
+            <config_path>tax/avatax/upc_attribute</config_path>
+            <label>UPC Attribute To Use As Item Code</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
+            <comment><![CDATA[By default, this extension sends the Magento product SKU to the AvaTax <strong>ItemCode</strong> field. However if you want to use a UPC product attribute as the AvaTax ItemCode, select which attribute above maps to your UPC attribute. If a UPC attribute is present on a product, it will be used as the AvaTax ItemCode and will be prepended with "UPC: ". Otherwise the product's SKU will be sent. Sending the UPC in the ItemCode field will allow you to bypass the Avalara Tax Code selection and mapping in your product record. The UPC, when sent in the ItemCode field, maps directly to the Avalara Product Tax Code so you don’t have to map those codes separately.]]></comment>
+        </field>
+        <field id="ref1_attribute" translate="label comment" type="select" sortOrder="3030" showInDefault="1" showInWebsite="0" showInStore="0">
+            <config_path>tax/avatax/ref1_attribute</config_path>
+            <label>Ref1 Attribute</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
+            <comment><![CDATA[AvaTax allows you to pass arbitrary information into two reference fields for each line item. Select a text type product attribute to be sent to AvaTax in the <strong>Ref1</strong> field. Only the first 250 characters of this attribute will be sent to AvaTax.]]></comment>
+        </field>
+        <field id="ref2_attribute" translate="label comment" type="select" sortOrder="3040" showInDefault="1" showInWebsite="0" showInStore="0">
+            <config_path>tax/avatax/ref2_attribute</config_path>
+            <label>Ref2 Attribute</label>
+            <source_model>ClassyLlama\AvaTax\Model\Config\Source\Product\Attributes</source_model>
+            <comment><![CDATA[AvaTax allows you to pass arbitrary information into two reference fields for each line item. Select a text type product attribute to be sent to AvaTax in the <strong>Ref2</strong> field. Only the first 250 characters of this attribute will be sent to AvaTax.]]></comment>
+        </field>
+        <field id="location_code" translate="label" type="text" sortOrder="3060" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/location_code</config_path>
+            <label>Location Code</label>
+            <frontend_class>validate-length maximum-length-50</frontend_class>
+            <comment><![CDATA[Unless outlet-based reporting is needed. Location code is a value assigned by some State jurisdictions that identifies a particular store location. These States may require tax liabilities to be broken out separately for each store Location. Read more in the <a href="https://help.avalara.com/000_AvaTax_Calc/000AvaTaxCalc_User_Guide/0C0_Add_Locations/Manage_Locations" target="_blank">AvaTax documentation</a>.]]></comment>
+        </field>
+            <field id="shipping_tax_code" translate="label" type="text" sortOrder="3065" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+            <config_path>tax/avatax/shipping_tax_code</config_path>
+            <label>Shipping Tax Code</label>
+            <comment>The Avalara tax code used to classify the shipping service type.</comment>
+        </field>
+        <field id="sku_shipping" translate="label" type="text" sortOrder="3070" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/sku_shipping</config_path>
+            <label>Shipping SKU</label>
+            <comment>The SKU sent to denote shipping costs.</comment>
+            <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+        </field>
+        <field id="sku_adjustment_positive" translate="label" type="text" sortOrder="3080" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/sku_adjustment_positive</config_path>
+            <label>Adjustment Refund SKU</label>
+            <comment>The SKU sent to denote positive adjustments on Credit Memos.</comment>
+            <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+        </field>
+        <field id="sku_adjustment_negative" translate="label" type="text" sortOrder="3090" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/sku_adjustment_negative</config_path>
+            <label>Adjustment Fee SKU</label>
+            <comment>The SKU sent to denote negative adjustments on Credit Memos.</comment>
+            <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+        </field>
+        <field id="sku_gift_wrap_order" translate="label" type="text" sortOrder="3100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/sku_gift_wrap_order</config_path>
+            <label>Gift Wrap Order SKU</label>
+            <comment>The SKU sent AvaTax to denote gift wrap order costs. Only relevant for Magento Enterprise.</comment>
+            <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+        </field>
+        <field id="sku_gift_wrap_item" translate="label" type="text" sortOrder="3110" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/sku_gift_wrap_item</config_path>
+            <label>Gift Wrap Items SKU</label>
+            <comment>The SKU sent AvaTax to denote gift wrap item costs. Only relevant for Magento Enterprise.</comment>
+            <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+        </field>
+        <field id="sku_gift_wrap_card" translate="label" type="text" sortOrder="3120" showInDefault="1" showInWebsite="1" showInStore="1">
+            <config_path>tax/avatax/sku_gift_wrap_card</config_path>
+            <label>Gift Wrap Printed Card SKU</label>
+            <comment>The SKU sent to denote gift wrap printed card costs. Only relevant for Magento Enterprise.</comment>
+            <frontend_class>required-entry validate-length maximum-length-50</frontend_class>
+        </field>
+        <depends>
+            <field id="tax/avatax_configuration/extension_mode/enabled">1</field>
+        </depends>
+    </group>
+</include>

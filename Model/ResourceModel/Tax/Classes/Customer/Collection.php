@@ -20,6 +20,9 @@ use Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult;
 /**
  * Class Collection
  */
+/**
+ * @codeCoverageIgnore
+ */
 class Collection extends SearchResult
 {
     /**

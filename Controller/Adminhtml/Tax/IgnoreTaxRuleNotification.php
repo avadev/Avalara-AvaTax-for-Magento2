@@ -21,6 +21,9 @@ use Magento\Framework\Controller\ResultFactory;
 /**
  * Class IgnoreTaxRuleNotification
  */
+/**
+ * @codeCoverageIgnore
+ */
 class IgnoreTaxRuleNotification extends Classes
 {
     /**

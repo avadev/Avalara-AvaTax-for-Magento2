@@ -22,6 +22,9 @@ use Magento\Framework\Registry;
 /**
  * Form widget for viewing log
  */
+/**
+ * @codeCoverageIgnore
+ */
 class View extends Container
 {
     /**

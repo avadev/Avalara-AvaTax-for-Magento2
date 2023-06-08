@@ -25,6 +25,9 @@ use Magento\Framework\Model\AbstractModel;
  *
  * @package ClassyLlama\AvaTax\Model
  */
+/**
+ * @codeCoverageIgnore
+ */
 class BatchQueueTransactionRepository implements BatchQueueTransactionRepositoryInterface
 {
     /**

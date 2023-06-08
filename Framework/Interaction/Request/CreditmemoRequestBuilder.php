@@ -41,6 +41,7 @@ use Magento\Customer\Model\Data\Customer as CustomerModel;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use Magento\Framework\Api\AttributeInterface;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 /**
  * Class CreditmemoRequestBuilder
@@ -171,6 +172,11 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
     private $avaTaxLogger;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * CreditmemoRequestBuilder constructor.
      * @param AvaTaxLogger $avaTaxLogger
      * @param PriceCurrencyInterface $priceCurrency
@@ -189,6 +195,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
      * @param AvaTaxTaxClassHelper $taxClassHelper
      * @param OrderRepositoryInterface $orderRepository
      * @param RequestFactory $requestFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         AvaTaxLogger $avaTaxLogger,
@@ -207,7 +214,8 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
         LineBuilder $lineBuilder,
         TaxClassHelper $taxClassHelper,
         OrderRepositoryInterface $orderRepository,
-        RequestFactory $requestFactory
+        RequestFactory $requestFactory,
+        ApiLog $apiLog
     ) {
         $this->avaTaxLogger = $avaTaxLogger;
         $this->requestFactory = $requestFactory;
@@ -225,6 +233,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
         $this->avataxHelperConfig = $avataxHelperConfig;
         $this->addressBuilder = $addressBuilder;
         $this->priceCurrency = $priceCurrency;
+        $this->apiLog = $apiLog;
         $this->metaDataObject = $metaDataObjectFactory->create([
             'metaDataProperties' => FrameworkInteractionTax::$validTaxOverrideFields
         ]);
@@ -237,7 +246,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
      * Creditmemo request builder
      *
      * @param CreditmemoInterface $creditmemo
-     * @return RequestInterface
+     * @return RequestInterface|null
      * @throws \Throwable
      */
     public function build(CreditmemoInterface $creditmemo): RequestInterface
@@ -246,6 +255,13 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
             /** @var Order $order */
             $order = $this->orderRepository->get((int)$creditmemo->getOrderId());
         } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'CreditmemoRequestBuilder';
+            $debugLogContext['operation'] = 'Framework_Interaction_Request_CreditmemoRequestBuilder';
+            $debugLogContext['function_name'] = 'build';
+            $this->apiLog->debugLog($debugLogContext);
+
             $this->avaTaxLogger->error($exception->getMessage(), [
                 'class' => self::class,
                 'trace' => $exception->getTraceAsString()
@@ -305,6 +321,13 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
             return $request;
 
         } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'CreditmemoRequestBuilder';
+            $debugLogContext['operation'] = 'Framework_Interaction_Request_CreditmemoRequestBuilder';
+            $debugLogContext['function_name'] = 'build';
+            $this->apiLog->debugLog($debugLogContext);
+
             $this->avaTaxLogger->error($exception->getMessage(), [
                 'class' => self::class,
                 'trace' => $exception->getTraceAsString()
@@ -348,7 +371,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
      */
     private function getDocTypeCreditmemoEstimation(): string
     {
-        return DocumentType::C_RETURNORDER;
+        return (string) DocumentType::C_RETURNORDER;
     }
 
     /**
@@ -606,6 +629,12 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
             $validatedData = $this->validationMetadataObject->validateData($request->getData());
             $request->setData($validatedData);
         } catch (\Throwable $exception) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $exception->getMessage();
+            $debugLogContext['source'] = 'CreditmemoRequestBuilder';
+            $debugLogContext['operation'] = 'Framework_Interaction_Request_CreditmemoRequestBuilder';
+            $debugLogContext['function_name'] = 'createAndValidateRequest';
+            $this->apiLog->debugLog($debugLogContext);
             $this->avaTaxLogger->error('Error validating data: ' . $exception->getMessage(), [
                 'data' => var_export($request->getData(), true)
             ]);

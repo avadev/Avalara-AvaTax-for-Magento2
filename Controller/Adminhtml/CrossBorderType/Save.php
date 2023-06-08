@@ -18,7 +18,11 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 use ClassyLlama\AvaTax\Api\CrossBorderTypeRepositoryInterface;
 use ClassyLlama\AvaTax\Api\Data\CrossBorderTypeInterfaceFactory;
 use Magento\Framework\Exception\LocalizedException;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Save extends \Magento\Backend\App\Action
 {
     /**
@@ -37,22 +41,30 @@ class Save extends \Magento\Backend\App\Action
     protected $crossBorderTypeInterfaceFactory;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Magento\Framework\App\Request\DataPersistorInterface $dataPersistor
      * @param CrossBorderTypeRepositoryInterface $crossBorderTypeRepository
      * @param CrossBorderTypeInterfaceFactory $crossBorderTypeInterfaceFactory
+     * @param ApiLog $apiLog
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\App\Request\DataPersistorInterface $dataPersistor,
         CrossBorderTypeRepositoryInterface $crossBorderTypeRepository,
-        CrossBorderTypeInterfaceFactory $crossBorderTypeInterfaceFactory
+        CrossBorderTypeInterfaceFactory $crossBorderTypeInterfaceFactory,
+        ApiLog $apiLog
     )
     {
         parent::__construct($context);
         $this->dataPersistor = $dataPersistor;
         $this->crossBorderTypeRepository = $crossBorderTypeRepository;
         $this->crossBorderTypeInterfaceFactory = $crossBorderTypeInterfaceFactory;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -90,8 +102,20 @@ class Save extends \Magento\Backend\App\Action
 
                 return $resultRedirect->setPath('*/*/');
             } catch (LocalizedException $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'SaveCrossBorderType';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_CrossborderType_Save';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addErrorMessage($e->getMessage());
             } catch (\Exception $e) {
+                $debugLogContext = [];
+                $debugLogContext['message'] = $e->getMessage();
+                $debugLogContext['source'] = 'SaveCrossBorderType';
+                $debugLogContext['operation'] = 'Controller_Adminhtml_CrossborderType_Save';
+                $debugLogContext['function_name'] = 'execute';
+                $this->apiLog->debugLog($debugLogContext);
                 $this->messageManager->addExceptionMessage(
                     $e,
                     __('Something went wrong while saving the Cross Border Type.')

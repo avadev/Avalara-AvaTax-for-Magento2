@@ -26,7 +26,7 @@ class BatchQueueTransaction extends AbstractModel implements BatchQueueTransacti
      */
     public function getBatchId(): int
     {
-        return (integer)$this->getData(self::BATCH_ID);
+        return (integer) $this->getData(self::BATCH_ID);
     }
 
     /**
@@ -34,7 +34,7 @@ class BatchQueueTransaction extends AbstractModel implements BatchQueueTransacti
      */
     public function getName(): string
     {
-        return $this->getData(self::NAME);
+        return (string) $this->getData(self::NAME);
     }
 
     /**
@@ -50,7 +50,7 @@ class BatchQueueTransaction extends AbstractModel implements BatchQueueTransacti
      */
     public function getStatus(): string
     {
-        return $this->getData(self::STATUS);
+        return (string) $this->getData(self::STATUS);
     }
 
     /**
@@ -58,7 +58,7 @@ class BatchQueueTransaction extends AbstractModel implements BatchQueueTransacti
      */
     public function getRecordCount(): int
     {
-        return $this->getData(self::RECORD_COUNT);
+        return (integer) $this->getData(self::RECORD_COUNT);
     }
 
     /**
@@ -66,7 +66,7 @@ class BatchQueueTransaction extends AbstractModel implements BatchQueueTransacti
      */
     public function getInputFileId(): int
     {
-        return $this->getData(self::INPUT_FILE_ID);
+        return (integer) $this->getData(self::INPUT_FILE_ID);
     }
 
     /**
@@ -74,7 +74,7 @@ class BatchQueueTransaction extends AbstractModel implements BatchQueueTransacti
      */
     public function getResultFileId(): int
     {
-        return $this->getData(self::RESULT_FILE_ID);
+        return (integer) $this->getData(self::RESULT_FILE_ID);
     }
 
     /**
@@ -82,7 +82,7 @@ class BatchQueueTransaction extends AbstractModel implements BatchQueueTransacti
      */
     public function getCreatedAt(): string
     {
-        return $this->getData(self::CREATED_AT);
+        return (string) $this->getData(self::CREATED_AT);
     }
 
     /**
@@ -90,7 +90,7 @@ class BatchQueueTransaction extends AbstractModel implements BatchQueueTransacti
      */
     public function getUpdatedAt(): string
     {
-        return $this->getData(self::UPDATED_AT);
+        return (string) $this->getData(self::UPDATED_AT);
     }
 
     /**

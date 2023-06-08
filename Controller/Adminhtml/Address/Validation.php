@@ -23,6 +23,9 @@ use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressInterfac
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Controller\Result\JsonFactory;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Validation extends Action
 {
     /**

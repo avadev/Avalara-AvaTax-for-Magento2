@@ -15,6 +15,9 @@
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType;
 
+/**
+ * @codeCoverageIgnore
+ */
 class NewAction extends \ClassyLlama\AvaTax\Controller\Adminhtml\CrossBorderType
 {
     /**

@@ -154,7 +154,6 @@ class Task
      */
     public function cronProcessQueue()
     {
-        $this->avaTaxLogger->debug(__('Initiating queue processing from cron job'));
         $this->processPendingQueue();
         $this->resetHungQueuedRecords();
     }
@@ -166,7 +165,6 @@ class Task
      */
     public function processPendingQueue($limit = false)
     {
-        $this->avaTaxLogger->debug(__('Starting queue processing'));
         $this->queueProcessor->setLimit($limit);
         $this->queueProcessor->execute();
         $this->errorMessages = $this->queueProcessor->getErrorMessages();
@@ -181,10 +179,6 @@ class Task
             $context['error_messages'] = implode("\n", $this->getErrorMessages());
         }
 
-        $this->avaTaxLogger->debug(
-            __('Finished queue processing'),
-            $context
-        );
     }
 
     /**
@@ -193,8 +187,6 @@ class Task
      */
     public function resetHungQueuedRecords()
     {
-        $this->avaTaxLogger->debug(__('Resetting hung queue records'));
-
         // Initialize the queue collection
         $queueCollection = $this->queueCollectionFactory->create();
         $queueCollection->addQueueStatusFilter(Queue::QUEUE_STATUS_PROCESSING);
@@ -208,13 +200,15 @@ class Task
         try {
             $this->resetCount = $queueCollection->updateTableRecords($condition,
                 ['queue_status' => Queue::QUEUE_STATUS_PENDING]);
-
-            $this->avaTaxLogger->debug(
-                __('Finished resetting hung queued records'),
-                [ /* context */
-                  'reset_count' => $this->resetCount
-                ]
-            );
+            if($this->resetCount > 0)
+            {
+                $this->avaTaxLogger->debug(
+                    __('Finished resetting hung queued records'),
+                    [ /* context */
+                      'reset_count' => $this->resetCount
+                    ]
+                );
+            }            
         } catch (Zend_Db_Select_Exception $exception) {
             $this->avaTaxLogger->error($exception->getMessage());
         }

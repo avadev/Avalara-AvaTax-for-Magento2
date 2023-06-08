@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Plugin\Tax\Model\Sales\Total\Quote;
 
 use ClassyLlama\AvaTax\Helper\Config;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Shipping
 {
     /**

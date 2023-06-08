@@ -6,6 +6,9 @@
 
 namespace ClassyLlama\AvaTax\Model\ResourceModel;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Invoice extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**#@+

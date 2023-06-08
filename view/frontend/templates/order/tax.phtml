@@ -16,6 +16,10 @@ $_fullInfo = $this->helper('Magento\Tax\Helper\Data')->getCalculatedTaxes($_sour
 global $taxIter;
 $taxIter++;
 $customDuty = false;
+$taxTitle = __('Tax');
+$taxIncluded = $this->helper('ClassyLlama\AvaTax\Helper\Config')->getTaxationPolicy();
+if ($taxIncluded)
+    $taxTitle .= " (".__(\ClassyLlama\AvaTax\Helper\Config::XML_SUFFIX_AVATAX_TAX_INCLUDED).")";
 ?>
 <?php if ($_fullInfo): ?>
     <?php foreach ($_fullInfo as $info): ?>
@@ -56,19 +60,19 @@ $customDuty = false;
     $block->getLabelProperties() ?> scope="row">
         <?php if ($block->displayFullSummary()): ?>
             <div class="detailed"><?= /* @escapeNotVerified */
-                __('Tax') ?></div>
+                $taxTitle ?></div>
         <?php else: ?>
             <?php if ($customDuty): ?>
                 <?= /* @escapeNotVerified */
                 __('Import Fees') ?>
             <?php else: ?>
                 <?= /* @escapeNotVerified */
-                __('Tax') ?>
+                $taxTitle ?>
             <?php endif; ?>
         <?php endif; ?>
     </th>
     <td <?= /* @escapeNotVerified */
-    $block->getValueProperties() ?> data-th="<?= $block->escapeHtml(__('Tax')) ?>">
+    $block->getValueProperties() ?> data-th="<?= $block->escapeHtml($taxTitle) ?>">
         <?php if ($block->displayFullSummary() && $customDuty): ?>
             <?= /* @escapeNotVerified */
             $_order->formatPrice($_source->getTaxAmount() - $customDuty['tax_amount']) ?>

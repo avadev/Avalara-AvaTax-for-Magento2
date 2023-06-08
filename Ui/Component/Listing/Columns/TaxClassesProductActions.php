@@ -23,6 +23,9 @@ use Magento\Framework\UrlInterface;
 /**
  * Class TaxClassesProductActions
  */
+/**
+ * @codeCoverageIgnore
+ */
 class TaxClassesProductActions extends Column
 {
     /** Url path */

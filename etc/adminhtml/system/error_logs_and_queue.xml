@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ClassyLlama_AvaTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright  Copyright (c) 2016 Avalara, Inc.
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="error_logs_queue" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="70">
+        <label>Error, Logs and Queue</label>
+        <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\ExpandedFieldSet</frontend_model>
+        <group id="error_settings" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="10">
+            <label>Error Handling Settings</label>
+            <attribute type="expanded">1</attribute>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+            <field id="response_logging_enabled" translate="label" type="select" sortOrder="2015" showInDefault="1" showInWebsite="1" showInStore="1">
+                <config_path>tax/avatax_advanced/response_logging_enabled</config_path>
+                <label>Enable Logging of AvaTax Response Data</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <comment><![CDATA[By default, AvaTax API response data for Orders, Invoices, and Credit Memo API calls are stored in the avatax_sales_order, avatax_sales_invoice, and avatax_sales_creditmemo tables. This data is stored in case there is ever a need to compare the exact response data from AvaTax with what is saved on the Magento tax fields. Disable this logging if you won't ever need this]]></comment>
+            </field>
+            <field id="error_action" translate="label comment" type="select" sortOrder="2010" showInDefault="1" showInWebsite="1" showInStore="1">
+                <config_path>tax/avatax/error_action</config_path>
+                <label>Error Action</label>
+                <source_model>ClassyLlama\AvaTax\Model\Config\Source\ErrorAction</source_model>
+                <comment><![CDATA[What should happen if Magento is unable to retrieve taxes from the AvaTax API. Regardless of which option is selected, if there is an error in the AvaTax tax estimation, the extension will fall back to using native Magento tax rules. However if <strong>Disable checkout & show error message</strong> is selected, the extension will prevent users and admins from placing orders.]]></comment>
+            </field>
+            <field id="error_action_disable_checkout_message_frontend" translate="label comment" type="textarea" sortOrder="2020" showInDefault="1" showInWebsite="1" showInStore="1">
+                <config_path>tax/avatax/error_action_disable_checkout_message_frontend</config_path>
+                <label>Frontend Error Message</label>
+                <comment><![CDATA[This error message will be displayed to user if there is an error calculating taxes and if <strong>Disable checkout & show error message</strong> is selected above.]]></comment>
+                <depends>
+                    <field id="error_action">1</field>
+                </depends>
+            </field>
+            <field id="error_action_disable_checkout_message_backend" translate="label comment" type="textarea" sortOrder="2030" showInDefault="1" showInWebsite="1" showInStore="1">
+                <config_path>tax/avatax/error_action_disable_checkout_message_backend</config_path>
+                <label>Backend Error Message</label>
+                <comment><![CDATA[This error message will be displayed to admin if there is an error calculating taxes and if <strong>Disable checkout & show error message</strong> is selected above.]]></comment>
+                <depends>
+                    <field id="error_action">1</field>
+                </depends>
+            </field>
+            <field id="avatax_timeout" translate="label comment" type="text" sortOrder="2050" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <config_path>tax/avatax_advanced/avatax_timeout</config_path>
+                <label>AvaTax API Timeout</label>
+                <comment><![CDATA[This field defines how long Magento should wait to hear from AvaTax's servers before assuming no response will be given.]]></comment>
+            </field>
+        </group>
+        <group id="logs_settings" translate="label comment" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="20">
+            <label>Logging Settings</label>
+            <attribute type="expanded">1</attribute>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+            <field id="logging_db_level" translate="label" type="select" sortOrder="5010" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_db_level</config_path>
+                <label>Database Log Level</label>
+                <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
+                <comment><![CDATA[<strong>Warning</strong> is recommended for production use.]]></comment>
+            </field>
+            <field id="logging_db_detail" translate="label" type="select" sortOrder="5020" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_db_detail</config_path>
+                <label>Database Log Detail</label>
+                <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
+                <comment><![CDATA[<strong>Minimal</strong> is recommended for production use.]]></comment>
+            </field>
+            <field id="logging_db_lifetime" translate="label" type="text" sortOrder="5030" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_db_lifetime</config_path>
+                <label>Database Log Record Lifetime</label>
+                <comment>Required. Days before entries are auto-purged.</comment>
+                <frontend_class>validate-number</frontend_class>
+                <validate>required-entry integer validate-greater-than-zero</validate>
+            </field>
+            <field id="logging_file_enabled" translate="label" type="select" sortOrder="5040" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_file_enabled</config_path>
+                <label>Enable Logging To File</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <comment>Archiving of log files is affected by System -> Admin Actions Log Archiving</comment>
+            </field>
+            <field id="logging_file_mode" translate="label" type="select" sortOrder="5050" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_file_mode</config_path>
+                <label>File Log Mode</label>
+                <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogFileMode</source_model>
+                <depends>
+                    <field id="logging_file_enabled">1</field>
+                </depends>
+                <comment>Log files are located in the magento var/log/ directory</comment>
+            </field>
+            <field id="logging_file_builtin_rotation_enabled" translate="label" type="select" sortOrder="5060" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_file_builtin_rotation_enabled</config_path>
+                <label>Enable Built-In Log File Rotation</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <depends>
+                    <field id="logging_file_enabled">1</field>
+                    <field id="logging_file_mode">2</field>
+                </depends>
+                <comment>Automatic log file rotation will allow you to control how much history is maintained in
+                    the AvaTax log files, and separate them by day. For more efficient management of log files you
+                    should disable this option and use something like logrotate to handle the rotation of log files
+                    at the system level.
+                </comment>
+            </field>
+            <field id="logging_file_builtin_rotation_max_files" translate="label" type="text" sortOrder="5070" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_file_builtin_rotation_max_files</config_path>
+                <label>Built-In Log File Rotation Max Files</label>
+                <frontend_class>validate-number</frontend_class>
+                <validate>required-entry integer validate-greater-than-zero</validate>
+                <depends>
+                    <field id="logging_file_enabled">1</field>
+                    <field id="logging_file_mode">2</field>
+                    <field id="logging_file_builtin_rotation_enabled">1</field>
+                </depends>
+                <comment>The number of files/days to maintain in the log directory when rotating. The log file rotator
+                    will create a new file each day.
+                </comment>
+            </field>
+            <field id="logging_file_level" translate="label" type="select" sortOrder="5080" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_file_level</config_path>
+                <label>File Log Level</label>
+                <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogLevel</source_model>
+                <depends>
+                    <field id="logging_file_enabled">1</field>
+                </depends>
+                <comment><![CDATA[<strong>Warning</strong> is recommended for production use.]]></comment>
+            </field>
+            <field id="logging_file_detail" translate="label" type="select" sortOrder="5090" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/logging_file_detail</config_path>
+                <label>File Log Detail</label>
+                <source_model>ClassyLlama\AvaTax\Model\Config\Source\LogDetail</source_model>
+                <depends>
+                    <field id="logging_file_enabled">1</field>
+                </depends>
+                <comment><![CDATA[<strong>Normal</strong> is recommended for production use.]]></comment>
+            </field>
+        </group>
+        <group id="queue_settings" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="30">
+            <label>Queue Processing Settings</label>
+            <comment><![CDATA[If <strong><a href="#tax_avatax_configuration_sales_tax_tax_mode">Tax Mode</a></strong> is set to <strong>Estimate Tax & Submit Transactions to AvaTax</strong>, then queue processing is enabled. Otherwise the queue will not submit invoices and credit memos to AvaTax as transaction submissions are disabled.]]></comment>
+            <attribute type="expanded">1</attribute>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+            <field id="queue_processing_type" translate="label" type="select" sortOrder="6005" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/queue_processing_type</config_path>
+                <label>Queue Processing Type</label>
+                <source_model>ClassyLlama\AvaTax\Model\Config\Source\QueueProcessingType</source_model>
+                <depends>
+                    <field id="queue_submission_enabled">1</field>
+                </depends>
+                <comment>Normal Queue Processing - each item of Queue will be processed separately.
+                            Batch Queue Processing - Queue will be processed by 1000 items batch.
+                </comment>
+            </field>
+            <field id="queue_admin_notification_enabled" translate="label" type="select" sortOrder="6010" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/queue_admin_notification_enabled</config_path>
+                <label>Enable Queue Admin Notification</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <depends>
+                    <field id="queue_submission_enabled">1</field>
+                </depends>
+                <comment>A notification will be displayed at the top of any admin page if there are pending queue records waiting to be submitted to AvaTax but no attempts have been made in the last 24 hours to submit them.</comment>
+            </field>
+            <field id="queue_failure_notification_enabled" translate="label" type="select" sortOrder="6020" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/queue_failure_notification_enabled</config_path>
+                <label>Enable Queue Failure Notification</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <depends>
+                    <field id="queue_submission_enabled">1</field>
+                </depends>
+                <comment>A notification will be displayed at the top of any admin page if there are any failed queue records.</comment>
+            </field>
+            <field id="queue_max_retry_attempts" translate="label comment" type="text" sortOrder="6030" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/queue_max_retry_attempts</config_path>
+                <label>Max Queue Retry Attempts</label>
+                <comment>Please enter a number 1 or greater in this field.</comment>
+                <frontend_class>validate-number</frontend_class>
+                <validate>required-entry integer validate-greater-than-zero</validate>
+            </field>
+            <field id="queue_complete_lifetime" translate="label comment" type="text" sortOrder="6040" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/queue_complete_lifetime</config_path>
+                <label>Complete Queue Lifetime</label>
+                <comment>Required. Days before entries are auto-purged.</comment>
+                <frontend_class>validate-number</frontend_class>
+                <validate>required-entry integer validate-greater-than-zero</validate>
+                <depends>
+                    <field id="queue_submission_enabled">1</field>
+                </depends>
+            </field>
+            <field id="queue_failed_lifetime" translate="label comment" type="text" sortOrder="6050" showInDefault="1" showInWebsite="0" showInStore="0">
+                <config_path>tax/avatax/queue_failed_lifetime</config_path>
+                <label>Failed Queue Lifetime</label>
+                <comment>Required. Days before entries are auto-purged.</comment>
+                <frontend_class>validate-number</frontend_class>
+                <validate>required-entry integer validate-greater-than-zero</validate>
+                <depends>
+                    <field id="queue_submission_enabled">1</field>
+                </depends>
+            </field>
+            <depends>
+                <field id="tax/avatax_configuration/sales_tax/tax_mode">3</field>
+            </depends>
+        </group>
+        <depends>
+            <field id="tax/avatax_configuration/extension_mode/enabled">1</field>
+        </depends>
+    </group>
+</include>

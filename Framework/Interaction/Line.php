@@ -54,6 +54,13 @@ class Line
     protected $metaDataObject = null;
 
     /**
+     * Tax calculation model
+     *
+     * @var \Magento\Tax\Model\Calculation
+     */
+    protected $calculationTool;
+
+    /**
      * Description for shipping line
      */
     const SHIPPING_LINE_DESCRIPTION = 'Shipping costs';
@@ -87,7 +94,7 @@ class Line
      * A list of valid fields for the data array and meta data about their types to use in validation
      * based on the API documentation.
      * Validation based on API documentation found here:
-     * http://developer.avalara.com/wp-content/apireference/master/?php#line30
+     * http://developer.avalara.com
      *
      * @var array
      */
@@ -130,6 +137,7 @@ class Line
      * @param MetaDataObjectFactory $metaDataObjectFactory
      * @param DataObjectFactory $dataObjectFactory
      * @param CustomsConfig $customsConfigHelper
+     * @param \Magento\Tax\Model\Calculation $calculationTool
      */
     public function __construct(
         Config $config,
@@ -137,7 +145,8 @@ class Line
         \ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger $avaTaxLogger,
         MetaDataObjectFactory $metaDataObjectFactory,
         DataObjectFactory $dataObjectFactory,
-        CustomsConfig $customsConfigHelper
+        CustomsConfig $customsConfigHelper,
+        \Magento\Tax\Model\Calculation $calculationTool
     ) {
         $this->config = $config;
         $this->taxClassHelper = $taxClassHelper;
@@ -145,6 +154,7 @@ class Line
         $this->metaDataObject = $metaDataObjectFactory->create(['metaDataProperties' => $this::$validFields]);
         $this->dataObjectFactory = $dataObjectFactory;
         $this->customsConfigHelper = $customsConfigHelper;
+        $this->calculationTool = $calculationTool;
     }
 
     /**
@@ -176,6 +186,11 @@ class Line
             $itemData['itemCode'] = $item->getSku();
         }
 
+        $taxIncluded = false;
+        if ($product) {
+            $taxIncluded = $this->config->getTaxationPolicy($storeId);
+        }
+
         $data = [
             'store_id' => $storeId,
             'mage_sequence_no' => $this->getLineNumber(),
@@ -184,7 +199,7 @@ class Line
             'description' => $item->getName(),
             'quantity' => $item->getQty(),
             'amount' => $amount,
-            'tax_included' => false,
+            'tax_included' => $taxIncluded,
             'ref_1' => $itemData['productRef1'],
             'ref_2' => $itemData['productRef2']
         ];
@@ -243,6 +258,11 @@ class Line
             $itemData['itemCode'] = $item->getSku();
         }
 
+        $taxIncluded = false;
+        if ($product) {
+            $taxIncluded = $this->config->getTaxationPolicy($storeId);
+        }
+
         $data = [
             'store_id' => $storeId,
             'mage_sequence_no' => $this->getLineNumber(),
@@ -251,7 +271,7 @@ class Line
             'description' => $item->getName(),
             'quantity' => $item->getQty(),
             'amount' => $amount,
-            'tax_included' => false,
+            'tax_included' => $taxIncluded,
             'ref_1' => $itemData['productRef1'],
             'ref_2' => $itemData['productRef2']
         ];
@@ -300,15 +320,20 @@ class Line
         $taxCode = $extensionAttributes ? $extensionAttributes->getAvataxTaxCode() : null;
 
         // Calculate tax with or without discount based on config setting
+        $unitPrice = $this->calculationTool->round($item->getUnitPrice());
         if ($this->config->getCalculateTaxBeforeDiscount($item->getStoreId())) {
-            $amount = $item->getUnitPrice() * $quantity;
+            $amount = $unitPrice * $quantity;
         } else {
-            $amount = ($item->getUnitPrice() * $quantity) - $item->getDiscountAmount();
+            $discountAmount = $this->calculationTool->round($item->getDiscountAmount());
+            $amount = ($unitPrice * $quantity) - $discountAmount;
         }
 
         $ref1 = $extensionAttributes ? $extensionAttributes->getAvataxRef1() : null;
         $ref2 = $extensionAttributes ? $extensionAttributes->getAvataxRef2() : null;
 
+        $taxIncluded = false;
+        $taxIncluded = $this->config->getTaxationPolicy($item->getStoreId());
+        
         $data = [
             'mage_sequence_no' => $item->getCode(),
             'item_code' => $itemCode,
@@ -316,7 +341,7 @@ class Line
             'description' => $description,
             'quantity' => $item->getQuantity(),
             'amount' => $amount,
-            'tax_included' => false,
+            'tax_included' => $taxIncluded,
             'ref_1' => $ref1,
             'ref_2' => $ref2,
         ];
@@ -420,14 +445,17 @@ class Line
 
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuShipping($storeId);
+        $taxIncluded = $this->config->getTaxationPolicy($storeId);
         $data = [
             'mage_sequence_no' => $this->getLineNumber(),
             'item_code' => $itemCode,
             'tax_code' => $this->taxClassHelper->getAvataxTaxCodeForShipping(),
             'description' => self::SHIPPING_LINE_DESCRIPTION,
             'quantity' => 1,
+            'tax_included' => $taxIncluded,
             'amount' => $shippingAmount,
         ];
+        
         $line = $this->dataObjectFactory->create(['data' => $data]);
 
         try {
@@ -595,9 +623,10 @@ class Line
 
         // Credit memo amounts need to be sent to AvaTax as negative numbers
         $amount *= -1;
-
+        
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuAdjustmentPositive($storeId);
+        $taxIncluded = $this->config->getTaxationPolicy($storeId);
         $data = [
             'mage_sequence_no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -605,8 +634,7 @@ class Line
             'description' => self::ADJUSTMENT_POSITIVE_LINE_DESCRIPTION,
             'quantity' => 1,
             'amount' => $amount,
-            // Since taxes will already be included in this amount, set this flag to true
-            'tax_included' => true
+            'tax_included' => $taxIncluded
         ];
         $line = $this->dataObjectFactory->create(['data' => $data]);
 
@@ -639,6 +667,7 @@ class Line
 
         $storeId = $data->getStoreId();
         $itemCode = $this->config->getSkuAdjustmentNegative($storeId);
+        $taxIncluded = $this->config->getTaxationPolicy($storeId);
         $data = [
             'mage_sequence_no' => $this->getLineNumber(),
             'item_code' => $itemCode,
@@ -646,8 +675,7 @@ class Line
             'description' => self::ADJUSTMENT_NEGATIVE_LINE_DESCRIPTION,
             'quantity' => 1,
             'amount' => $amount,
-            // Since taxes will already be included in this amount, set this flag to true
-            'tax_included' => true
+            'tax_included' => $taxIncluded
         ];
         $line = $this->dataObjectFactory->create(['data' => $data]);
 

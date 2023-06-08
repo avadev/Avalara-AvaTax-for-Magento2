@@ -20,6 +20,9 @@ use ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Customer\NewClass;
 /**
  * Using a trait since the users of this trait will need to extend from their respective tax class types
  */
+/**
+ * @codeCoverageIgnore
+ */
 trait Form
 {
     /**

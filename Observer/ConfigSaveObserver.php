@@ -19,6 +19,7 @@ use ClassyLlama\AvaTax\Api\RestInterface;
 use ClassyLlama\AvaTax\Helper\Config;
 use ClassyLlama\AvaTax\Helper\CustomsConfig;
 use Magento\Framework\Event\ObserverInterface;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
 /**
  * Class ConfigSaveObserver
@@ -51,6 +52,11 @@ class ConfigSaveObserver implements ObserverInterface
     protected $customsConfig;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * Constructor
      *
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
@@ -58,13 +64,15 @@ class ConfigSaveObserver implements ObserverInterface
      * @param CustomsConfig                               $customsConfig
      * @param \ClassyLlama\AvaTax\Helper\ModuleChecks     $moduleChecks
      * @param RestInterface                               $interactionRest
+     * @param ApiLog                                      $apiLog
      */
     public function __construct(
         \Magento\Framework\Message\ManagerInterface $messageManager,
         Config $config,
         CustomsConfig $customsConfig,
         \ClassyLlama\AvaTax\Helper\ModuleChecks $moduleChecks,
-        RestInterface $interactionRest
+        RestInterface $interactionRest,
+        ApiLog $apiLog
     )
     {
         $this->messageManager = $messageManager;
@@ -72,6 +80,7 @@ class ConfigSaveObserver implements ObserverInterface
         $this->moduleChecks = $moduleChecks;
         $this->interactionRest = $interactionRest;
         $this->customsConfig = $customsConfig;
+        $this->apiLog = $apiLog;
     }
 
     /**
@@ -100,6 +109,8 @@ class ConfigSaveObserver implements ObserverInterface
         foreach ($this->getNotices() as $notice) {
             $this->messageManager->addNotice($notice);
         }
+
+        $this->apiLog->configSaveLog($scopeId, $scopeType);
 
         return $this;
     }

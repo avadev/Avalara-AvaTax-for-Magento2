@@ -92,6 +92,14 @@ class Config extends AbstractHelper
     /**
      * @return string
      */
+    public function getAddrTypeBillTo()
+    {
+        return \Avalara\TransactionAddressType::C_POINTOFORDERORIGIN;
+    }
+
+    /**
+     * @return string
+     */
     public function getOverrideTypeDate()
     {
         return \Avalara\TaxOverrideType::C_TAXDATE;

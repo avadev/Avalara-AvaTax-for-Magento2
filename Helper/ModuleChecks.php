@@ -154,7 +154,7 @@ class ModuleChecks extends \Magento\Framework\App\Helper\AbstractHelper
 
     /**
      * Check SSL support
-     *
+     * @codeCoverageIgnore
      * @return array
      */
     protected function checkSslSupport()

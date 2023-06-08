@@ -21,7 +21,11 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\App\Action\Context;
 use ClassyLlama\AvaTax\Model\Queue\Task;
 use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
+use ClassyLlama\AvaTax\Helper\ApiLog;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Clear extends Queue
 {
     /**
@@ -35,19 +39,27 @@ class Clear extends Queue
     protected $avaTaxLogger;
 
     /**
+     * @var ApiLog
+     */
+    protected $apiLog;
+
+    /**
      * Process constructor
      *
      * @param Context $context
      * @param Task $queueTask
      * @param AvaTaxLogger $avaTaxLogger
+     * @param ApiLog $apiLog
      */
     public function __construct(
         Context $context,
         Task $queueTask,
-        AvaTaxLogger $avaTaxLogger
+        AvaTaxLogger $avaTaxLogger,
+        ApiLog $apiLog
     ) {
         $this->queueTask = $queueTask;
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->apiLog = $apiLog;
         parent::__construct($context);
     }
 
@@ -80,6 +92,13 @@ class Clear extends Queue
                 $this->messageManager->addSuccess($message);
             }
         } catch (\Exception $e) {
+
+            $debugLogContext = [];
+            $debugLogContext['message'] = $e->getMessage();
+            $debugLogContext['source'] = 'ClearQueue';
+            $debugLogContext['operation'] = 'Controller_Adminhtml_Queue_Clear';
+            $debugLogContext['function_name'] = 'execute';
+            $this->apiLog->debugLog($debugLogContext);
 
             // Build error message
             $message = __('An error occurred while clearing the queue.');

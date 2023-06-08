@@ -10,6 +10,10 @@ use Magento\Framework\Setup\Patch\PatchVersionInterface;
  * Class CopyDataIntoNewTables
  * @package ClassyLlama\AvaTax\Setup\Patch\Data
  */
+
+/**
+ * @codeCoverageIgnore
+ */
 class CopyDataIntoNewTables implements DataPatchInterface, PatchVersionInterface
 {
     /**

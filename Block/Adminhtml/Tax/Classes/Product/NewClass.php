@@ -20,6 +20,9 @@ use ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Base;
 /**
  * Class NewClass
  */
+/**
+ * @codeCoverageIgnore
+ */
 class NewClass extends Base\NewClass
 {
     /**

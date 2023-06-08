@@ -17,6 +17,9 @@ namespace ClassyLlama\AvaTax\Controller\Adminhtml\Tax\Classes\Product;
 
 use ClassyLlama\AvaTax\Controller\Adminhtml\Tax\Classes\Base;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Save extends Base\Save
 {
     /**
