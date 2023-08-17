@@ -37,14 +37,19 @@ class Form extends Base\NewClass\Form
      */
     public function addAvaTaxCodeField(\Magento\Framework\Data\Form\Element\Fieldset $fieldset)
     {
+        $fieldset->addType(
+            'tax_code',
+            'ClassyLlama\AvaTax\Block\Adminhtml\Tax\Classes\Product\NewClass\Renderer\TaxCode'
+        );
+
         $fieldset->addField(
             'avatax_code',
-            'text',
+            'tax_code',
             [
                 'name' => 'avatax_code',
                 'label' => __('AvaTax Tax Code'),
-                'note' => __('Optional. AvaTax system Tax Code or custom Tax Code. See <a href="%1" target="_blank">AvaTax documentation</a> for more details.', \ClassyLlama\AvaTax\Helper\Config::AVATAX_DOCUMENTATION_TAX_CODE_LINK),
-                'class' => 'validate-length maximum-length-25',
+                'note' => __('Optional. AvaTax system Tax Code or custom Tax Code. See <a href="%1" target="_blank">AvaTax documentation</a> for more details. Start typing in this field to search and set up the Product Tax Code. Products use a default tax code from AvaTax if you don\'t specify a value.', \ClassyLlama\AvaTax\Helper\Config::AVATAX_DOCUMENTATION_TAX_CODE_LINK),
+                'class' => 'validate-length maximum-length-25 input-text admin__control-text avatax-tax-code'
             ]
         );
     }

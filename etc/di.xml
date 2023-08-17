@@ -325,7 +325,27 @@
             </argument>
         </arguments>
     </type>
-
+    <type name="ClassyLlama\AvaTax\Model\Items\NewItemsProcessorProvider">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="batch" xsi:type="string">ClassyLlama\AvaTax\Model\Items\Processing\BatchProcessing</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\Items\PendingItemsProcessorProvider">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="batch" xsi:type="string">ClassyLlama\AvaTax\Model\Items\Processing\PendingItemsProcessing</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="ClassyLlama\AvaTax\Model\Items\ItemsHsCodeProcessorProvider">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="batch" xsi:type="string">ClassyLlama\AvaTax\Model\Items\Processing\HsCodeBatchProcessing</item>
+            </argument>
+        </arguments>
+    </type>
     <type name="Magento\Multishipping\Block\Checkout\Results">
         <plugin name="classyLlamaAvaTaxFilterFailedAddresses" type="ClassyLlama\AvaTax\Plugin\Multishipping\Checkout\Results"/>
     </type>

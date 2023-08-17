@@ -28,5 +28,14 @@
         <job name="avatax_batch_queue_transactions_response_process" instance="ClassyLlama\AvaTax\Model\Queue\BatchResponseProcessing" method="cronProcessResponse">
             <schedule>*/15 * * * *</schedule>
         </job>
+        <job name="avatax_new_items_sync" instance="ClassyLlama\AvaTax\Model\Items\Task" method="cronSyncNewItemsToAvaTax">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+        <job name="avatax_pending_items_sync" instance="ClassyLlama\AvaTax\Model\Items\Task" method="cronSyncPendingItemsToAvaTax">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+        <job name="avatax_items_hscode_sync" instance="ClassyLlama\AvaTax\Model\Items\Task" method="cronSyncItemsHsCodeToAvaTax">
+            <schedule>*/5 * * * *</schedule>
+        </job>
     </group>
 </config>

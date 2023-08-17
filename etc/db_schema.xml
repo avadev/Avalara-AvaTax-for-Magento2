@@ -210,4 +210,35 @@
   <table name="sales_order_item" resource="checkout" comment="Sales Flat Order Item">
       <column xsi:type="varchar" name="ava_vatcode" nullable="true" length="255" comment="Avalara VAT Code"/>
   </table>
+  <table name="avatax_products_sync" resource="default" engine="innodb" comment="Table to Record Products Sync Statuses">
+      <column xsi:type="int" name="id" padding="7" unsigned="false" nullable="false" identity="true" comment="ID" />
+      <column xsi:type="varchar" name="itemcode" nullable="false" length="255" comment="AvaTax Item Code" />
+      <column xsi:type="varchar" name="companyid" nullable="false" length="255" comment="Company ID" />
+      <column xsi:type="varchar" name="avataxprodid" nullable="true" length="255" comment="AvaTax Product ID" />
+      <column xsi:type="varchar" name="syncstatus" nullable="true" length="255" comment="Sync Status" />
+      <column xsi:type="varchar" name="hscodesyncstatus" nullable="true" length="255" comment="HS Code Sync Status" />
+      <constraint xsi:type="primary" referenceId="PRIMARY">
+         <column name="id" />
+      </constraint>
+      <constraint xsi:type="unique" referenceId="AVATAX_SYNC_STATUS_UNIQUE_BY_COMPANY">
+            <column name="itemcode"/>
+            <column name="companyid"/>
+        </constraint>
+   </table>
+  <table name="avatax_tax_code_sync" resource="default" engine="innodb" comment="Table to Sync Product and Shipping Tax Codes">
+      <column xsi:type="int" name="id" padding="7" unsigned="false" nullable="false" identity="true" comment="ID" />
+      <column xsi:type="int" name="company_id" padding="10" nullable="false" comment="AvaTax Company ID" />
+      <column xsi:type="varchar" name="tax_code" nullable="false" length="50" comment="Tax Code" />
+      <column xsi:type="varchar" name="description" nullable="true" length="255" comment="Tax Code Description" />
+      <column xsi:type="varchar" name="tax_code_type_id" nullable="false" length="2" comment="Tax Code Type ID" />
+      <column xsi:type="boolean" name="is_active" nullable="false" comment="Tax Code Status" />
+
+      <constraint xsi:type="primary" referenceId="PRIMARY">
+         <column name="id" />
+      </constraint>
+      <constraint xsi:type="unique" referenceId="AVATAX_TAX_CODE_SYNC_COMPANY_ID_TAX_CODE">
+            <column name="company_id"/>
+            <column name="tax_code"/>
+        </constraint>
+  </table>
 </schema>

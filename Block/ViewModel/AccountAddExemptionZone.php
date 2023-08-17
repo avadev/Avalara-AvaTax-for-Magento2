@@ -22,6 +22,8 @@ use ClassyLlama\AvaTax\Model\Logger\AvaTaxLogger;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Company as CompanyRest;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
+use ClassyLlama\AvaTax\Helper\DocumentManagementConfig;
+use Magento\Store\Model\StoreManagerInterface;
 
 class AccountAddExemptionZone implements ArgumentInterface
 {
@@ -43,16 +45,30 @@ class AccountAddExemptionZone implements ArgumentInterface
     private $avaTaxLogger;
 
     /**
+     * @var DocumentManagementConfig
+     */
+    protected $documentManagementConfig;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * @param CompanyRest $companyRest
      */
     public function __construct(
         CompanyRest $companyRest,
         ScopeConfigInterface $scopeConfig,
-        AvaTaxLogger $avaTaxLogger
+        AvaTaxLogger $avaTaxLogger,
+        DocumentManagementConfig $documentManagementConfig,
+        StoreManagerInterface $storeManager
     ) {
         $this->companyRest = $companyRest;
         $this->scopeConfig = $scopeConfig;
         $this->avaTaxLogger = $avaTaxLogger;
+        $this->documentManagementConfig = $documentManagementConfig;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -62,9 +78,17 @@ class AccountAddExemptionZone implements ArgumentInterface
     {
         try {
             $zones = $this->companyRest->getCertificateExposureZones();
-            return json_encode(array_map(function ($zone) {
-                return $zone->name;
-            }, $zones->value));
+            // code to get enabled countries
+            $enabledCountries = $this->documentManagementConfig->getEnabledCountries($this->storeManager->getStore()->getId());
+            $zonesRes = array();
+            if (!empty($enabledCountries)) {
+                foreach ($enabledCountries as $val) {
+                    $zonesRes = array_merge($zonesRes, array_values(array_filter(array_map(function ($zone) use ($val){
+                    return $zone->country == $val ? $zone->name : "";
+                    }, $zones->value))));
+                }
+            }
+            return json_encode($zonesRes);
         } catch (\Throwable $exception) {
             $this->avaTaxLogger->error($exception->getMessage(), [
                'class' => self::class,

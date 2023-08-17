@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd"> 
+    <columns name="product_columns"> 
+        <column name="syncstatus" component="Magento_Ui/js/grid/columns/select" sortOrder="76"> 
+            <settings> 
+                <addField>true</addField> 
+                <options class="ClassyLlama\AvaTax\Model\Config\Source\ProductsSyncStatus"/> 
+                <filter>select</filter> 
+                <dataType>select</dataType> 
+                <sortable>false</sortable> 
+                <label translate="true">AvaTax Sync Status</label> 
+            </settings> 
+        </column> 
+    </columns> 
+    <dataSource name="product_listing_data_source" component="Magento_Ui/js/grid/provider"> 
+        <settings> 
+            <storageConfig> 
+                <param name="dataScope" xsi:type="string">filters.store_id</param> 
+            </storageConfig> 
+            <updateUrl path="mui/index/render"/> 
+        </settings> 
+        <aclResource>Magento_Catalog::products</aclResource> 
+        <dataProvider class="Magento\Catalog\Ui\DataProvider\Product\ProductDataProvider" name="product_listing_data_source"> 
+            <settings> 
+                <requestFieldName>id</requestFieldName> 
+                <primaryFieldName>entity_id</primaryFieldName> 
+            </settings> 
+        </dataProvider> 
+    </dataSource>
+</listing>

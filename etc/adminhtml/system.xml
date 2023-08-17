@@ -28,6 +28,7 @@
                 <include path="ClassyLlama_AvaTax::system/vat.xml"/>
                 <include path="ClassyLlama_AvaTax::system/cross_border.xml"/>
                 <include path="ClassyLlama_AvaTax::system/exemption_certcapture_management.xml"/>
+                <include path="ClassyLlama_AvaTax::system/one_way_items_sync.xml"/>
                 <include path="ClassyLlama_AvaTax::system/error_logs_and_queue.xml"/>
                 <include path="ClassyLlama_AvaTax::system/advanced.xml"/>
             </group>

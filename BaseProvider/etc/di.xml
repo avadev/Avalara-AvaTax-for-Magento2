@@ -76,6 +76,8 @@
         <arguments>
             <argument name="processors" xsi:type="array">
                 <item name="api_log" xsi:type="object">ClassyLlama\AvaTax\BaseProvider\Model\Queue\Consumer\ApiLogConsumer</item>
+                <item name="items_sync" xsi:type="object">ClassyLlama\AvaTax\BaseProvider\Model\Items\Consumer\SyncToAvaTax</item>
+                <item name="hscode_sync" xsi:type="object">ClassyLlama\AvaTax\BaseProvider\Model\Items\Consumer\SyncHsCodeToAvaTax</item>
             </argument>
         </arguments>
     </type>

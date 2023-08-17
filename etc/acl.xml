@@ -18,6 +18,7 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::tax_class_search" title="Tax Class Search" translate="title" sortOrder="100" />
                 <resource id="Magento_Backend::stores">
                     <resource id="ClassyLlama_AvaTax::manage_avatax" title="AvaTax" sortOrder="25">
                         <resource id="ClassyLlama_AvaTax::manage_crossborder_classes" title="AvaTax Cross Border Classes" sortOrder="10"/>

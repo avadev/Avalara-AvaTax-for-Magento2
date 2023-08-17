@@ -40,6 +40,8 @@ class Definitions extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
     protected $apiLog;
 
     /**
+     * Constructor
+     *
      * @param LoggerInterface $logger
      * @param DataObjectFactory $dataObjectFactory
      * @param ClientPool $clientPool
@@ -94,6 +96,84 @@ class Definitions extends \ClassyLlama\AvaTax\Framework\Interaction\Rest
         }
 
         $this->validateResult($resultObj);
+
+        $resultGeneric = $this->formatResult($resultObj);
+        /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions\Result $result */
+        $result = $this->definitionsResultFactory->create(['data' => $resultGeneric->getData()]);
+
+        return $result;
+    }
+
+    /**
+     * Perform REST request to get Avalara tax codes
+     *
+     * @param bool|null                     $isProduction
+     * @param string|int|null               $scopeId
+     * @param string|null                   $scopeType
+     *
+     * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions\Result
+     * @throws DefinitionsException
+     * @throws AvataxConnectionException
+     */
+    public function getTaxCodes(
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    { 
+        $client = $this->getClient( $isProduction, $scopeId, $scopeType );
+        $client->withCatchExceptions(false);
+        try {
+            $resultObj = $client->listTaxCodes();
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'definitions';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Definitions';
+            $debugLogContext['function_name'] = 'getTaxCodes';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
+            $this->handleException($clientException);
+        }
+
+        $resultGeneric = $this->formatResult($resultObj);
+        /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions\Result $result */
+        $result = $this->definitionsResultFactory->create(['data' => $resultGeneric->getData()]);
+
+        return $result;
+    }
+
+    /**
+     * Perform REST request to get Company Specific Custom tax codes
+     *
+     * @param int               $companyId
+     * @param bool|null         $isProduction
+     * @param string|int|null   $scopeId
+     * @param string|null       $scopeType
+     *
+     * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions\Result
+     * @throws DefinitionsException
+     * @throws AvataxConnectionException
+     */
+    public function getCustomTaxCodes(
+        $companyId,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    )
+    { 
+        $client = $this->getClient( $isProduction, $scopeId, $scopeType );
+        $client->withCatchExceptions(false);
+        try {
+            $resultObj = $client->listTaxCodesByCompany($companyId);
+        } catch (\GuzzleHttp\Exception\RequestException $clientException) {
+            $debugLogContext = [];
+            $debugLogContext['message'] = $clientException->getMessage();
+            $debugLogContext['source'] = 'definitions';
+            $debugLogContext['operation'] = 'Framework_Interaction_Rest_Definitions';
+            $debugLogContext['function_name'] = 'getCustomTaxCodes';
+            $this->apiLog->debugLog($debugLogContext, $scopeId, $scopeType);
+            $this->handleException($clientException);
+        }
 
         $resultGeneric = $this->formatResult($resultObj);
         /** @var \ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions\Result $result */

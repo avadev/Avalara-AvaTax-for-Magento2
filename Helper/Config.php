@@ -166,6 +166,8 @@ class Config extends AbstractHelper
 
     const XML_PATH_AVATAX_VAT_TRANSPORT = 'tax/avatax_general/vat_transport';
 
+    const XML_PATH_AVATAX_ONE_WAY_ITEMS_SYNC = 'tax/one_way_items_sync/enabled';    
+
     /**
      * Tax Calculation API parameters tag default value
      */
@@ -259,7 +261,41 @@ class Config extends AbstractHelper
      * Cache tag code
      */
     const AVATAX_CACHE_TAG = 'AVATAX';
-    
+
+    /**
+     * AvaTax Products Sync Status Pending
+     */
+    const AVATAX_PRODUCTS_SYNC_PENDING_CODE = '0';
+    const AVATAX_PRODUCTS_SYNC_PENDING_TEXT = 'Pending';
+    /**
+     * AvaTax Products Sync Status Completed
+     */
+    const AVATAX_PRODUCTS_SYNC_COMPLETED_CODE = '1';
+    const AVATAX_PRODUCTS_SYNC_COMPLETED_TEXT = 'Completed';
+    /**
+     * AvaTax Products Sync Status InProgress
+     */
+    const AVATAX_PRODUCTS_SYNC_IN_PROGRESS_CODE = '2';
+    const AVATAX_PRODUCTS_SYNC_IN_PROGRESS_TEXT = 'In Progress';
+
+    /**
+     * AvaTax Products HSCode Sync Status Pending
+     */
+    const AVATAX_PRODUCTS_HSCODE_SYNC_EMPTY_CODE = null;
+    const AVATAX_PRODUCTS_HSCODE_SYNC_PENDING_CODE = '0';
+    /**
+     * AvaTax Products HSCode Sync Status Completed
+     */
+    const AVATAX_PRODUCTS_HSCODE_SYNC_COMPLETED_CODE = '1';
+    /**
+     * AvaTax Products HSCode Sync Status InProgress
+     */
+    const AVATAX_PRODUCTS_HSCODE_SYNC_IN_PROGRESS_CODE = '2';
+    /**
+     * AvaTax Products HSCode Sync Status Failed
+     */
+    const AVATAX_PRODUCTS_HSCODE_SYNC_FAILED_CODE = '3';    
+
     public $avaTaxConfigFactory;
     
     /**
@@ -386,6 +422,23 @@ class Config extends AbstractHelper
             $store
         );
     }
+    
+    /**
+     * Return whether Product Sync feature is enabled
+     *
+     * @param null $store
+     * @param      $scopeType
+     *
+     * @return mixed
+     */
+    public function isProductSyncEnabled($store = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_AVATAX_ONE_WAY_ITEMS_SYNC,
+            $scopeType,
+            $store
+        );
+    }    
 
     /**
      * Return whether response logging is enabled

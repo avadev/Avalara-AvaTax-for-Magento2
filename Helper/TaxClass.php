@@ -203,6 +203,7 @@ class TaxClass
      *
      * @return string
      */
+    
     public function getAvataxTaxCodeForShipping()
     {
         return $this->config->getShippingTaxCode();

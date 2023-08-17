@@ -25,7 +25,7 @@ class ApiLog extends AbstractHelper
     const CONNECTOR_ID = 'a0o5a000007TuRvAAK'; //Do not change this value as this is whitlisted for logging
 
     const APP_VERSION = AppInterface::APP_VERSION;
-    const APP_NAME = AppInterface::APP_NAME;
+    const APP_NAME = AppInterface::CONNECTOR_STRING;
     const CONNECTOR_NAME = AppInterface::CONNECTOR_NAME;
 
     const HTML_ESCAPE_PATTERN = '/<(.*) ?.*>(.*)<\/(.*)>/';                         

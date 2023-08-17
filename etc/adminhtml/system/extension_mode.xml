@@ -26,6 +26,7 @@
             <config_path>tax/avatax/enabled</config_path>
             <label>Enable AvaTax</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\CommonJs</frontend_model>
             <backend_model>ClassyLlama\AvaTax\Model\Config\Backend\ConnectorStatus</backend_model>
             <comment><![CDATA[If disabled, the connector settings are unavailable for all users. AvaTax tax calculation and address validation services are also unavailable even if you've enabled them in the settings.]]></comment>
         </field>

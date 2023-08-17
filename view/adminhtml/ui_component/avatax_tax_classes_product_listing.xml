@@ -28,6 +28,12 @@
                 <item name="class" xsi:type="string">primary</item>
                 <item name="url" xsi:type="string">avatax/tax_classes_product/newclass</item>
             </item>
+            <item name="sync" xsi:type="array">
+                <item name="name" xsi:type="string">sync</item>
+                <item name="label" xsi:type="string" translate="true">Sync Tax Code</item>
+                <item name="class" xsi:type="string">synch_avatax_tax_code</item>
+                <item name="url" xsi:type="string">avatax/tax_classes_product/SyncTaxCode</item>
+            </item>
         </item>
     </argument>
 

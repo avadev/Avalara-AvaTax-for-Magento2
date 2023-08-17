@@ -26,6 +26,7 @@
         </arguments>
     </type>
     <preference for="Magento\Tax\Block\Adminhtml\Rule\Edit\Form" type="ClassyLlama\AvaTax\Block\Tax\Adminhtml\Rule\Edit\Form"/>
+    <preference for="ClassyLlama\AvaTax\Api\TaxCodeRepositoryInterface" type="ClassyLlama\AvaTax\Model\TaxCodeRepository" />
 
     <virtualType name="developmentCompanyCodeFrontendModel" type="ClassyLlama\AvaTax\Block\Adminhtml\Form\Field\CompanyCode">
         <arguments>
@@ -156,4 +157,14 @@
     <type name="Magento\Sales\Block\Adminhtml\Order\Create\Form\Account">
         <plugin name="classyllama_avatax_sales_order_create_form_account_admin_block" type="ClassyLlama\AvaTax\Plugin\Sales\Admin\Order\Create\Form\Account" />
     </type>
+    <type name="Magento\Catalog\Ui\DataProvider\Product\ProductDataProvider"> 
+        <arguments> 
+            <argument name="addFieldStrategies" xsi:type="array"> 
+                <item name="syncstatus" xsi:type="object">ClassyLlama\AvaTax\Ui\DataProvider\Product\AddAvaTaxProductsSyncFieldToCollection</item> 
+            </argument> 
+            <argument name="addFilterStrategies" xsi:type="array"> 
+                <item name="syncstatus" xsi:type="object">ClassyLlama\AvaTax\Ui\DataProvider\Product\AddAvaTaxProductsSyncFilterToCollection</item> 
+            </argument> 
+        </arguments> 
+    </type> 
 </config>

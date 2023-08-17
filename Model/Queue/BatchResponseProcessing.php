@@ -123,7 +123,6 @@ class BatchResponseProcessing
      */
     public function cronProcessResponse()
     {
-        $this->avaTaxLogger->debug(__('Starting Batch Queue Response Processing'));
         $searchCriteria = $this->searchCriteriaBuilder->addFilter(BatchQueueTransactionInterface::STATUS,
             BatchQueueTransactionInterface::WAITING_STATUS)
             ->create();
