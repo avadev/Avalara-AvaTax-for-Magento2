@@ -82,12 +82,20 @@
                     <item name="label" xsi:type="string" translate="true">Destination Countries</item>
                     <item name="default" xsi:type="string">0</item>
                     <item name="dataType" xsi:type="string">int</item>
-                    <item name="formElement" xsi:type="string">multiselect</item>
                     <item name="dataScope" xsi:type="string">destination_countries</item>
                     <item name="sortOrder" xsi:type="number">10</item>
                     <item name="validation" xsi:type="array">
                         <item name="required-entry" xsi:type="boolean">true</item>
                     </item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="filterOptions" xsi:type="string">true</item>
+                    <item name="elementTmpl" xsi:type="string">ui/grid/filters/elements/ui-select</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="visible" xsi:type="string">1</item>
+                    <item name="required" xsi:type="string">1</item>
+                    <item name="multiple" xsi:type="boolean">false</item>
+                    <item name="component" xsi:type="string">Magento_Catalog/js/components/attribute-set-select</item>
                 </item>
             </argument>
         </field>

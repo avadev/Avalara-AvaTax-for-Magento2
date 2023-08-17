@@ -125,7 +125,7 @@ class AfterSaveObserver implements ObserverInterface
                 $this->messageManager->addErrorMessage(__("Error sending updated customer data to Avalara."));
             }
 
-            $this->avaTaxLogger->error(
+            $this->avaTaxLogger->debug(
                 __("Error sending updated customer data to Avalara for customer %1.", $customer->getId()),
                 ['error message' => $exception->getMessage()]
             );

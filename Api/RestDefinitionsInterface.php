@@ -35,4 +35,36 @@ interface RestDefinitionsInterface extends \ClassyLlama\AvaTax\Api\RestInterface
      * @throws AvataxConnectionException
      */
     public function parameters($isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+
+    /**
+     * Perform REST request to get Avalara tax codes
+     *
+     * @param bool|null                     $isProduction
+     * @param string|int|null               $scopeId
+     * @param string                        $scopeType
+     *
+     * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions
+     * @throws DefinitionsException
+     * @throws AvataxConnectionException
+     */
+    public function getTaxCodes($isProduction = null, $scopeId = null, $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+
+    /**
+     * Perform REST request to get Company Specific Custom tax codes
+     *
+     * @param int               $companyId
+     * @param bool|null         $isProduction
+     * @param string|int|null   $scopeId
+     * @param string|null       $scopeType
+     *
+     * @return \ClassyLlama\AvaTax\Framework\Interaction\Rest\Definitions\Result
+     * @throws DefinitionsException
+     * @throws AvataxConnectionException
+     */
+    public function getCustomTaxCodes(
+        $companyId,
+        $isProduction = null,
+        $scopeId = null,
+        $scopeType = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+    );
 }

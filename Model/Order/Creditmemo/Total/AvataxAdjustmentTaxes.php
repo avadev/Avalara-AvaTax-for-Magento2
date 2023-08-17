@@ -161,7 +161,7 @@ class AvataxAdjustmentTaxes extends AbstractTotal
                     }
                 }
             } catch (\Throwable $exception) {
-                $this->avataxLogger->error($exception->getMessage(), [
+                $this->avataxLogger->debug($exception->getMessage(), [
                     'class' => self::class,
                     'trace' => $exception->getTraceAsString()
                 ]);

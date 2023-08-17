@@ -198,19 +198,26 @@ class TaxCertificates extends AbstractComponent implements TabInterface
      * @return array
      * @throws \ClassyLlama\AvaTax\Exception\AvataxConnectionException
      */
-    protected function getAvailableExemptionZones()
-    {
+    protected function getAvailableExemptionZones($customerId)
+    {        
         $zones = $this->companyRest->getCertificateExposureZones();
-        if($zones){
-            return array_map(
-                function ($zone) {
-                    return $zone->name;
-                },
-                $zones->value
-            );
+        // code to get enabled countries
+        $enabledCountries = $this->documentManagementConfig->getEnabledCountries(
+            $this->customerRepository->getById($customerId)->getStoreId());
+        $zonesRes = array();
+        if (!empty($enabledCountries)) {
+            foreach ($enabledCountries as $val) {
+                $zonesRes = array_merge($zonesRes, array_values(array_filter(array_map(
+                    function ($zone) use ($val) {
+                        return $zone->country == $val ? $zone->name : null;
+                    },
+                    $zones->value
+                ))));
+            }            
         }
+        return $zonesRes;
     }
-
+    
     /**
      * @return void
      * @throws LocalizedException
@@ -290,7 +297,7 @@ class TaxCertificates extends AbstractComponent implements TabInterface
             'avatax/customer/update',
             ['form_key' => $this->sessionContext->getFormKey(), 'customer_id' => $config['customer_id']]
         );
-        $config['available_exemption_zones'] = $this->getAvailableExemptionZones();
+        $config['available_exemption_zones'] = $this->getAvailableExemptionZones($config['customer_id']);
         $config['certificates_auto_validation_disabled'] = $this->accountAddExemptionZone->isCertificatesAutoValidationDisabled();
         $this->setData('config', $config);
 

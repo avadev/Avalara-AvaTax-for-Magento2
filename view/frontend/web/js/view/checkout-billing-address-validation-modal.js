@@ -17,6 +17,7 @@ define([
     'ClassyLlama_AvaTax/js/model/address-model',
     'ClassyLlama_AvaTax/js/view/address-validation-form',
     'Magento_Checkout/js/model/checkout-data-resolver',
+    'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/action/select-billing-address',
     'Magento_Checkout/js/action/create-billing-address',
     'text!ClassyLlama_AvaTax/template/modal/modal-popup.html'
@@ -26,6 +27,7 @@ define([
     addressModel,
     addressValidationForm,
     checkoutDataResolver,
+    quote,
     selectBillingAddress,
     createBillingAddress,
     popupTpl
@@ -54,6 +56,7 @@ define([
                     class: 'action-primary action primary',
                     click: function () {
                         if (addressModel.isDifferent()) {
+                            addressModel.selectedAddress()['save_in_address_book'] = quote.billingAddress().saveInAddressBook;
                             selectBillingAddress(createBillingAddress(addressModel.selectedAddress()));
                             checkoutDataResolver.applyBillingAddress();
                             addressValidationForm.updateFormFields(this.formSelector);

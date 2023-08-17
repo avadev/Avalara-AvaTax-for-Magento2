@@ -134,7 +134,9 @@
             <field id="shipping_tax_code" translate="label" type="text" sortOrder="3065" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
             <config_path>tax/avatax/shipping_tax_code</config_path>
             <label>Shipping Tax Code</label>
-            <comment>The Avalara tax code used to classify the shipping service type.</comment>
+            <frontend_model>ClassyLlama\AvaTax\Block\Adminhtml\System\Config\ShippingTaxCode</frontend_model>
+            <frontend_class>avatax-tax-code</frontend_class>
+            <comment>Start typing in this field to search and set up the Shipping Tax Code. Shipping uses a default tax code from AvaTax if you don't specify a value.</comment>
         </field>
         <field id="sku_shipping" translate="label" type="text" sortOrder="3070" showInDefault="1" showInWebsite="1" showInStore="1">
             <config_path>tax/avatax/sku_shipping</config_path>

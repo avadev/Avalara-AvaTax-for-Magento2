@@ -21,7 +21,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Framework\Exception\LocalizedException;
 use ClassyLlama\AvaTax\Helper\ApiLog;
-
+use ClassyLlama\AvaTax\Model\Items\Processing\BatchProcessing as BatchProcessing;
 /**
  * @codeCoverageIgnore
  */
@@ -38,7 +38,10 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
      * @var ApiLog
      */
     protected $apiLog;
-
+    /**
+     * @var BatchProcessing
+     */
+    protected $batchProcessing;
     /**
      * @param Context $context
      * @param CrossBorderClassRepositoryInterface $crossBorderClassRepository
@@ -49,12 +52,14 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
         Context $context,
         CrossBorderClassRepositoryInterface $crossBorderClassRepository,
         DataPersistorInterface $dataPersistor,
-        ApiLog $apiLog
+        ApiLog $apiLog,
+        BatchProcessing $batchProcessing
     ) {
         parent::__construct($context);
         $this->crossBorderClassRepository = $crossBorderClassRepository;
         $this->dataPersistor = $dataPersistor;
         $this->apiLog = $apiLog;
+        $this->batchProcessing = $batchProcessing;
     }
 
     /**
@@ -77,6 +82,13 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
             /** @var \ClassyLlama\AvaTax\Api\Data\CrossBorderClassInterface $class */
             try {
                 $class = ($id) ? $this->crossBorderClassRepository->getById($id) : $this->crossBorderClassRepository->create();
+            
+                if ( !empty($id) )
+                {
+                    $oldHsCode = $class->getHsCode();
+                    $oldDestinationCountries = $class->getDestinationCountries();
+                }
+            
             } catch (NoSuchEntityException $e) {
                 $debugLogContext = [];
                 $debugLogContext['message'] = $e->getMessage();
@@ -113,7 +125,10 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
                 $class->setPrefProgramIndicator($data['pref_program_indicator']);
             }
             if (isset($data['destination_countries'])) {
-                $countries = $data['destination_countries'];
+                if(!is_array($data['destination_countries']))
+                    $countries[] = $data['destination_countries'];
+                else
+                    $countries = $data['destination_countries'];
 
                 // If one of the selected country options is "Any", don't associate any specific countries
                 if (in_array(\ClassyLlama\AvaTax\Model\Config\Source\CrossBorderClass\Countries::OPTION_VAL_ANY, $countries)) {
@@ -125,6 +140,12 @@ class Save extends \ClassyLlama\AvaTax\Controller\Adminhtml\Crossborder\ClassesA
 
             try {
                 $this->crossBorderClassRepository->save($class);
+                if ( !empty($id) && ($oldHsCode != $data['hs_code'] || $oldDestinationCountries !== $countries))
+                {
+                    $resyncResult = $this->batchProcessing->reSyncProductsWithNewHsCode($id);
+                    if($resyncResult)
+                        $this->messageManager->addSuccessMessage(__("Re Sync Initiated for all items with Cross Border Type Id : ".$id));
+                }
                 $this->messageManager->addSuccessMessage(__('You saved the Cross Border Class'));
                 $this->dataPersistor->clear('crossborder_class');
 

@@ -210,7 +210,7 @@ class Task
                 );
             }            
         } catch (Zend_Db_Select_Exception $exception) {
-            $this->avaTaxLogger->error($exception->getMessage());
+            $this->avaTaxLogger->debug($exception->getMessage());
         }
     }
 
@@ -219,7 +219,6 @@ class Task
      */
     public function cronClearQueue()
     {
-        $this->avaTaxLogger->debug(__('Initiating queue clearing from cron job'));
         $this->clearQueue();
     }
 
@@ -228,19 +227,19 @@ class Task
      */
     public function clearQueue()
     {
-        $this->avaTaxLogger->debug(__('Starting queue clearing'));
-
         $this->clearCompleteQueue();
         $this->clearFailedQueue();
         $this->resetHungQueuedRecords();
-
-        $this->avaTaxLogger->debug(
-            __('Finished queue clearing'),
-            [ /* context */
-              'delete_complete_count' => $this->deleteCompleteCount,
-              'delete_failed_count'   => $this->deleteFailedCount,
-            ]
-        );
+        if($this->deleteCompleteCount > 0 || $this->deleteFailedCount > 0)
+        {
+            $this->avaTaxLogger->debug(
+                __('Finished queue clearing'),
+                [ /* context */
+                  'delete_complete_count' => $this->deleteCompleteCount,
+                  'delete_failed_count'   => $this->deleteFailedCount,
+                ]
+            );
+        }        
     }
 
     /**

@@ -33,7 +33,7 @@ class GenericLogger extends Logger
      * @param array $processors
      */
     public function __construct(
-        string $name,
+        string $name = '',
         array $handlers = [],
         array $processors = []
     ) {

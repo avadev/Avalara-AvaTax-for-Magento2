@@ -14,7 +14,7 @@
  */
 
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Tax\Classes\Base;
-
+use ClassyLlama\AvaTax\Model\Items\Processing\BatchProcessing as BatchProcessing;
 /**
  * Class Save
  */
@@ -31,6 +31,21 @@ abstract class Save extends \Magento\Tax\Controller\Adminhtml\Tax
     protected $classType = null;
 
     /**
+     * @var BatchProcessing
+     */
+    protected $batchProcessing;
+
+    public function __construct(
+        \Magento\Backend\App\Action\Context $context,
+        \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassService,
+        \Magento\Tax\Api\Data\TaxClassInterfaceFactory $taxClassDataObjectFactory,
+        BatchProcessing $batchProcessing
+    )
+    {
+        $this->batchProcessing = $batchProcessing;
+        parent::__construct($context, $taxClassService, $taxClassDataObjectFactory); 
+    }
+    /**
      * Save status form processing
      *
      * @return \Magento\Backend\Model\View\Result\Redirect
@@ -42,6 +57,17 @@ abstract class Save extends \Magento\Tax\Controller\Adminhtml\Tax
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
         if ($data) {
+            $oldTaxCode = '';
+            if (!$isNew && !empty($this->getRequest()->getParam('id'))) 
+            {
+                $id = $this->getRequest()->getParam('id');
+                $taxClassCollection = $this->taxClassDataObjectFactory->create()->getCollection()->addFieldToFilter('class_id', $id)->getFirstItem();
+                $recordData = $taxClassCollection->getData();
+                if( count($recordData) > 0 )
+                {
+                    $oldTaxCode = $recordData['avatax_code'];
+                }                
+            }
             $taxClassId = $this->getRequest()->getParam('id');
             $taxClass = $this->taxClassDataObjectFactory->create()
                 ->setClassId($taxClassId)
@@ -51,6 +77,16 @@ abstract class Save extends \Magento\Tax\Controller\Adminhtml\Tax
 
             try {
                 $this->taxClassRepository->save($taxClass);
+                if (!$isNew && !empty($this->getRequest()->getParam('id'))) 
+                {
+                    $avatax_code = $this->getRequest()->getPost('avatax_code');
+                    if( ( $oldTaxCode != $avatax_code ) )
+                    {
+                        $resyncResult = $this->batchProcessing->reSyncProductsWithNewTaxCode($taxClassId);
+                        if($resyncResult)
+                            $this->messageManager->addSuccess(__("Re Sync Initiated for all items with TaxCode : ".$avatax_code));
+                    }
+                }
                 $this->messageManager->addSuccess(__('You saved the tax class.'));
                 return $resultRedirect->setPath('*/*/');
             } catch (\Magento\Framework\Exception\LocalizedException $e) {
