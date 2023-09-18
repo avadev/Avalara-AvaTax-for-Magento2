@@ -25,9 +25,6 @@ This extension contains integration tests to verify the extension's functionalit
 - Magento 2.4.x
   - :white_check_mark: Community
   - :white_check_mark: Enterprise
-- Magento 2.3.x
-  - :white_check_mark: Community
-  - :white_check_mark: Enterprise
 
 As of version 1.0.0 of this extension, this extension supports [Magento Enterprise's split database mode](http://devdocs.magento.com).
 
