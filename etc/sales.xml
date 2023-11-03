@@ -4,7 +4,7 @@
     <section name="order_creditmemo">
         <group name="totals">
             <item name="avatax_adjustment_taxes"
-                  instance="ClassyLlama\AvaTax\Model\Order\Creditmemo\Total\AvataxAdjustmentTaxes" sort_order="900" />
+                  instance="ClassyLlama\AvaTax\Model\Order\Creditmemo\Total\AvataxAdjustmentTaxes" sort_order="430" />
         </group>
     </section>
     <section name="quote">

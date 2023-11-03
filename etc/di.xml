@@ -61,6 +61,10 @@
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax"/>
     <preference for="ClassyLlama\AvaTax\Api\Data\GetTaxResponseInterface" type="ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Response" />
 
+    <type name="Magento\Sales\Model\Order\Creditmemo\Total\Tax">
+        <plugin name="avatax_sales_model_order_creditmemo_total_tax" type="ClassyLlama\AvaTax\Plugin\Sales\Model\Order\Creditmemo\Total\Tax" />
+    </type>
+
     <type name="ClassyLlama\AvaTax\Framework\Interaction\Storage\ResultStorage">
         <arguments>
             <argument name="namespace" xsi:type="string">creditmemo_tax_estimation</argument>

@@ -134,37 +134,16 @@ TRUNCATE TABLE `baseprovider_queue_job`;
 
 ## Uninstall Extension
 
-1. Run this command in the root of your Magento installation directory: `bin/magento module:uninstall Avalara_BaseProvider` `bin/magento module:uninstall ClassyLlama_AvaTax`
-
-2. If you installed the module using Composer, run these commands in the root of your Magento installation directory:
-
-   ```bash
-   composer remove avalara/avatax-magento
+1. Run this command in the root of your Magento installation directory: 
+  ```bash
+   bin/magento module:uninstall ClassyLlama_AvaTax
    ```
 
-3. Run the following queries in your Magento database:
+2. If you needs to remove all database tables as well, run below command in the root of your Magento installation directory:
 
    ```bash
-   -- Remove AvaTax tables (these tables will be in the sales database in split-database mode)
-   DROP TABLE `avatax_queue`;
-   DROP TABLE `avatax_log`;
-   DROP TABLE `baseprovider_queue_job`;
-   DROP TABLE `avatax_sales_creditmemo`;
-   DROP TABLE `avatax_sales_invoice`;
-   
-   -- Remove column from Tax Class table
-   ALTER TABLE `tax_class` DROP COLUMN `avatax_code`;
-   
-   -- Remove columns from Creditmemo table (this is only relevant for versions of the extension older than 0.4.0)
-   ALTER TABLE `sales_creditmemo` DROP COLUMN `avatax_is_unbalanced`;
-   ALTER TABLE `sales_creditmemo` DROP COLUMN `base_avatax_tax_amount`;
-   
-   -- Remove columns from Invoice table (this is only relevant for versions of the extension older than 0.4.0)
-   ALTER TABLE `sales_invoice` DROP COLUMN `avatax_is_unbalanced`;
-   ALTER TABLE `sales_invoice` DROP COLUMN `base_avatax_tax_amount`;
+   bin/magento module:uninstall ClassyLlama_AvaTax --remove-data --clear-static-content
    ```
-
-
 
 ## Troubleshooting
 
