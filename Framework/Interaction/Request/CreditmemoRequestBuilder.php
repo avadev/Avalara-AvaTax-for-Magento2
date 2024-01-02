@@ -249,7 +249,7 @@ class CreditmemoRequestBuilder implements CreditmemoRequestBuilderInterface
      * @return RequestInterface|null
      * @throws \Throwable
      */
-    public function build(CreditmemoInterface $creditmemo): RequestInterface
+    public function build(CreditmemoInterface $creditmemo): ?RequestInterface
     {
         try {
             /** @var Order $order */
