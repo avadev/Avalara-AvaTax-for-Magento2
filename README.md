@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> Avalara AvaTax for Magento 2 is no longer maintained and updated on GitHub. From release 2.6.1 onwards, it’s available on the Adobe Commerce marketplace as **Avalara for Adobe Commerce**. All the subsequent versions will be available on the [Adobe Commerce marketplace](https://commercemarketplace.adobe.com/avalara-avatax-magento.html).
+
 # About Avalara's AvaTax
 
 Agile, successful companies focus on their core business and outsource complex, administrative functions – such as payroll and sales tax management – to the experts. Avalara can address your sales tax challenges with AvaTax. It’s the fastest, easiest, most accurate and affordable way to calculate sales tax; manage exemption certificates; file returns; and remit payments across multiple tax regions. Our tax decision engine determines rates based on 100,000+ taxability rules in 11,000+ taxing jurisdictions and instantly applies them to each transaction within your Magento shopping cart. 
