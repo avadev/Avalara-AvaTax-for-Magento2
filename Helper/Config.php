@@ -1421,7 +1421,7 @@ class Config extends AbstractHelper
             $store
         );
         if (is_null($VATTransportMapping)) {
-            $VATTransportMapping = '';
+            $VATTransportMapping = '[]';
         }
         return stripslashes((string)$VATTransportMapping);
     }
