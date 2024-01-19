@@ -65,7 +65,7 @@ class TaxCodeRepository implements TaxCodeRepositoryInterface
         TaxCodeSyncFactory $taxCodeSyncFactory,
         SearchResultsInterfaceFactory $searchResultsFactory,
         StoreManagerInterface $storeManager,
-        CollectionProcessorInterface $collectionProcessor,
+        CollectionProcessorInterface $collectionProcessor
     ) {
         $this->taxCodeSyncFactory = $taxCodeSyncFactory;
         $this->searchResultsFactory = $searchResultsFactory;
