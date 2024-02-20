@@ -310,13 +310,6 @@
         <plugin name="classyLlamaAvaTaxPdfTaxTotals" type="ClassyLlama\AvaTax\Plugin\Model\Sales\Pdf\TaxPlugin"/>
     </type>
 
-    <type name="ClassyLlama\AvaTax\Model\Tax\Sales\Total\Quote\Tax">
-        <arguments>
-            <argument name="interactionGetTax" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy</argument>
-            <argument name="taxCalculation" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation</argument>
-        </arguments>
-    </type>
-
     <type name="ClassyLlama\AvaTax\Model\Queue\QueueProcessorProvider">
         <arguments>
             <argument name="processors" xsi:type="array">
