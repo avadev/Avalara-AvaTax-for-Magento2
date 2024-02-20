@@ -7,7 +7,7 @@ Agile, successful companies focus on their core business and outsource complex, 
 
 # Support
 
-Contact Avalara for any support requests, either via [their support email](support@avalara.com) or via [this page](https://salestax.avalara.com/contact-us/).
+Contact Avalara for any support requests, either via [their support email](mailto:support@avalara.com) or via [this page](https://salestax.avalara.com/contact-us/).
 
 <!-- This list is in each of the documentation files. Ensure any updates are applied to the list in each file. -->
 # Documentation
