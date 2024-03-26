@@ -6,7 +6,7 @@
 namespace ClassyLlama\AvaTax\Controller\Adminhtml\Address;
 
 use Magento\Directory\Helper\Data as DirectoryHelper;
-use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Escaper;
 
@@ -16,7 +16,7 @@ use Magento\Framework\Escaper;
 /**
  * @codeCoverageIgnore
  */
-class Region extends \Magento\Framework\App\Action\Action
+class Region implements HttpGetActionInterface
 {
     /**
      * @var array
@@ -40,17 +40,14 @@ class Region extends \Magento\Framework\App\Action\Action
 
     /**
      * @param DirectoryHelper $directoryHelper
-     * @param Context $context
      * @param JsonFactory $resultJsonFactory
      * @param Escaper $escaper
      */
     public function __construct(
         DirectoryHelper $directoryHelper,
-        Context $context,
         JsonFactory $resultJsonFactory,
         Escaper $escaper = null
     ) {
-        parent::__construct($context);
         $this->resultJsonFactory = $resultJsonFactory;
         $this->escaper = $escaper;
         $this->directoryHelper = $directoryHelper;
