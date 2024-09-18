@@ -13,31 +13,29 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 ?>
-<script type="text/x-magento-init">
+<?= $secureRenderer->renderTag('script', ['type' => 'text/x-magento-init'], '
     {
         "*": {
             "addressValidationModal": {
-                "validationEnabled": <?= (int)$this->isValidationEnabled() ?>,
-                "hasChoice": <?= $this->getChoice() ?>,
-                "instructions": <?= $this->getInstructions() ?>,
-                "errorInstructions": <?= $this->getErrorInstructions() ?>,
-                "countriesEnabled": "<?= $this->getCountriesEnabled() ?>"
+                "validationEnabled": ' . (int)$this->isValidationEnabled() . ',
+                "hasChoice": "' . $this->getChoice() . '",
+                "instructions": "' . $this->getInstructions() . '",
+                "errorInstructions": "' . $this->getErrorInstructions() . '",
+                "countriesEnabled": "' . $this->getCountriesEnabled() . '"
             }
         }
     }
-</script>
-<script>
+', false); ?>
+
+<?= $secureRenderer->renderTag('script', ['type' => 'text/javascript'], "
     require([
         'mage/url'
     ], function(url) {
-        <?php
         // Set baseUrl so that the urlBuilder JS module has access to it
         // Calling getUrl instead of getBaseUrl as the latter has been overridden in
         // \ClassyLlama\AvaTax\Block\CustomerAddress to return a different url
-        ?>
-        return url.setBaseUrl('<?php /* @escapeNotVerified */ echo $block->getUrl();?>');
-    })
-</script>
-<script type="text/javascript">
-    window.avaTaxStoreCode = "<?= $this->getStoreCode() ?>";
-</script>
+        return url.setBaseUrl('" . $block->getUrl() . "');
+    });
+", false); ?>
+
+<?= $secureRenderer->renderTag('script', ['type' => 'text/javascript'], "\nwindow.avaTaxStoreCode = " . $this->getStoreCode() . ";\n", false); ?>
