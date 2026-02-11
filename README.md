@@ -3,11 +3,12 @@
 
 # ⚠️ Project Archived
 
-This repository has been archived and is no longer actively maintained.
+This repository has been archived and is no longer actively maintained. 
 
 - No new features will be added.
 - No bug fixes will be provided.
 - Pull requests and issues are no longer accepted.
+- All the subsequent versions will be available on the [Adobe Commerce marketplace](https://commercemarketplace.adobe.com/avalara-avatax-magento.html).
 
 Archived on: 2026-02-11
 
