@@ -80,7 +80,7 @@ define(
                 }, function (err) {
                     // payloadExtender doesn't exist in 2.1, no problem
                     return $.when(payload);
-                }).done(function (pl) {
+                }).then(function (pl) {
                     fullScreenLoader.startLoader();
 
                     return storage.post(
