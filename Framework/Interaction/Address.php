@@ -191,10 +191,11 @@ class Address
      *
      * @param \Magento\Customer\Api\Data\AddressInterface|\Magento\Quote\Api\Data\AddressInterface $address
      * @return \Magento\Framework\DataObject
+     * @throws LocalizedException
      */
     public function convertCustomerAddressToAvaTaxAddress($address)
     {
-        $street = $address->getStreet();
+        $street = $address->getStreet() ?? [];
 
         $data = [
             'line_1' => array_key_exists(0, $street) ? $street[0] : '',
