@@ -25,7 +25,7 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
 use ClassyLlama\AvaTax\Framework\Interaction\Rest\Tax\Result as TaxResult;
 use ClassyLlama\AvaTax\Exception\AvataxConnectionException;
-use Zend\Serializer\Adapter\PhpSerialize;
+use Laminas\Serializer\Adapter\PhpSerialize;
 
 /**
  * Class Cacheable
