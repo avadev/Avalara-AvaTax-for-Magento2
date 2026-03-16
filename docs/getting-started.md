@@ -146,11 +146,21 @@ TRUNCATE TABLE `baseprovider_queue_job`;
 
    ```bash
    -- Remove AvaTax tables (these tables will be in the sales database in split-database mode)
+   DROP TABLE `avatax_batch_queue`;
+   DROP TABLE `avatax_cross_border_class_country`;
+   DROP TABLE `avatax_cross_border_class`;
    DROP TABLE `avatax_queue`;
    DROP TABLE `avatax_log`;
-   DROP TABLE `baseprovider_queue_job`;
+   DROP TABLE `avatax_quote_item`;
    DROP TABLE `avatax_sales_creditmemo`;
+   DROP TABLE `avatax_sales_creditmemo_item`;
    DROP TABLE `avatax_sales_invoice`;
+   DROP TABLE `avatax_sales_invoice_item`;
+   DROP TABLE `avatax_sales_order`;
+   DROP TABLE `avatax_sales_order_item`;
+   DROP TABLE `baseprovider_logs`;
+   DROP TABLE `baseprovider_queue_job`;
+   DROP TABLE `classyllama_avatax_crossbordertype`;
    
    -- Remove column from Tax Class table
    ALTER TABLE `tax_class` DROP COLUMN `avatax_code`;
@@ -164,7 +174,7 @@ TRUNCATE TABLE `baseprovider_queue_job`;
    ALTER TABLE `sales_invoice` DROP COLUMN `base_avatax_tax_amount`;
    ```
 
-
+4. Remove all entries from the `core_config_data` table in the Magento database with a `path` that contains `tax/avatax`. We HIGHLY recommend you back up the `core_config_data` table before performing this step. In a normal setup there should be about 50 to 80 entries within the `core_config_data` table that have this path.
 
 ## Troubleshooting
 
