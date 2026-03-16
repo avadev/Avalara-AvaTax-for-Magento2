@@ -304,6 +304,7 @@
         <arguments>
             <argument name="interactionGetTax" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\Tax\Get\Proxy</argument>
             <argument name="taxCalculation" xsi:type="object">ClassyLlama\AvaTax\Framework\Interaction\TaxCalculation\Proxy</argument>
+            <argument name="session" xsi:type="object">Magento\Framework\Session\Generic\Proxy</argument>
         </arguments>
     </type>
     <type name="Magento\Tax\Model\Sales\Pdf\Tax">
